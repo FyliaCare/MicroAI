@@ -10,10 +10,6 @@ const nextConfig = {
   // Performance optimizations
   reactStrictMode: true,
   swcMinify: true,
-  // Enable experimental features for better performance
-  experimental: {
-    optimizeCss: true,
-  },
 }
 
 module.exports = nextConfig

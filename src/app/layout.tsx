@@ -13,7 +13,12 @@ export const metadata: Metadata = {
   description: 'Revolutionary development technology delivering web applications, SaaS platforms, and digital solutions in 1/10th the time of traditional companies. Experience the future of web development.',
   keywords: ['web development', 'SaaS', 'web applications', 'fast development', 'AI development'],
   authors: [{ name: 'MicroAI' }],
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
   themeColor: '#000000',
 }
 
