@@ -138,7 +138,7 @@ export default function ServicesPage() {
                 <p className="text-gray-400 mb-6">{service.description}</p>
                 
                 <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-blue-400 mb-3 uppercase tracking-wide">What's Included:</h4>
+                  <h4 className="text-sm font-semibold text-blue-400 mb-3 uppercase tracking-wide">What&apos;s Included:</h4>
                   <ul className="space-y-2">
                     {service.features.map((feature, index) => (
                       <li key={index} className="flex items-start text-sm text-gray-300">
@@ -226,7 +226,7 @@ export default function ServicesPage() {
             <div className="relative z-10">
               <h2 className="text-4xl font-bold mb-4">Stop Waiting. Start Building.</h2>
               <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Every day you wait is a day your competitors get ahead. Let's discuss 
+                Every day you wait is a day your competitors get ahead. Let&apos;s discuss 
                 your project and show you how we can deliver 10x faster.
               </p>
               <Link 

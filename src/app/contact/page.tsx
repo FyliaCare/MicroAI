@@ -82,8 +82,8 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">Get in Touch</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Have a project in mind? We'd love to hear from you. Send us a message and 
-            we'll respond as soon as possible.
+            Have a project in mind? We&apos;d love to hear from you. Send us a message and 
+            we&apos;ll respond as soon as possible.
           </p>
         </div>
       </section>
@@ -99,7 +99,7 @@ export default function ContactPage() {
               {submitStatus === 'success' && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
                   <p className="text-green-800">
-                    ✓ Thank you for your message! We'll get back to you soon.
+                    ✓ Thank you for your message! We&apos;ll get back to you soon.
                   </p>
                 </div>
               )}

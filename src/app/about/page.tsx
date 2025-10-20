@@ -162,9 +162,9 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Start Your Project?</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Start Your Project?</h2>
           <p className="text-xl text-gray-600 mb-8">
-            Let's discuss how we can help transform your business with our innovative solutions.
+            Let&apos;s discuss how we can help transform your business with our innovative solutions.
           </p>
           <Link 
             href="/contact" 

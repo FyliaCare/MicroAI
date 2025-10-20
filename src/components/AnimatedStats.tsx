@@ -26,13 +26,14 @@ function StatCard({ value, label, gradient, delay }: StatCardProps) {
       { threshold: 0.5 }
     )
 
-    if (cardRef.current) {
-      observer.observe(cardRef.current)
+    const currentCard = cardRef.current
+    if (currentCard) {
+      observer.observe(currentCard)
     }
 
     return () => {
-      if (cardRef.current) {
-        observer.unobserve(cardRef.current)
+      if (currentCard) {
+        observer.unobserve(currentCard)
       }
     }
   }, [])

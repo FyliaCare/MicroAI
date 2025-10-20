@@ -95,7 +95,7 @@ export default function Home() {
               Our <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Secret Weapon</span>
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              We've invested heavily in cutting-edge development systems that revolutionize 
+              We&apos;ve invested heavily in cutting-edge development systems that revolutionize 
               how we build digital products.
             </p>
           </div>
@@ -123,7 +123,7 @@ export default function Home() {
               <div className="text-5xl mb-4 animate-float delay-500">💎</div>
               <h3 className="text-2xl font-bold mb-4">Enterprise Quality</h3>
               <p className="text-gray-400">
-                Speed doesn't mean compromise. Every project is production-ready, scalable, 
+                Speed doesn&apos;t mean compromise. Every project is production-ready, scalable, 
                 and built to last.
               </p>
             </div>

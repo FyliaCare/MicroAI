@@ -89,7 +89,7 @@ export default function PortfolioPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">Our Portfolio</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Explore our successful projects and see how we've helped businesses transform 
+            Explore our successful projects and see how we&apos;ve helped businesses transform 
             their digital presence with innovative web solutions.
           </p>
         </div>
@@ -171,7 +171,7 @@ export default function PortfolioPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Start Your Project?</h2>
           <p className="text-xl text-gray-600 mb-8">
-            Let's create something amazing together. Contact us to discuss your project.
+            Let&apos;s create something amazing together. Contact us to discuss your project.
           </p>
           <Link 
             href="/contact" 

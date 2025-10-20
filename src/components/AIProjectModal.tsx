@@ -243,7 +243,7 @@ export default function AIProjectModal({ isOpen, onClose }: AIProjectModalProps)
             </button>
           </div>
           <p className="text-xs text-gray-500 mt-3 text-center">
-            💡 Even rough ideas work! We'll help you refine the details.
+            💡 Even rough ideas work! We&apos;ll help you refine the details.
           </p>
         </form>
       </div>
