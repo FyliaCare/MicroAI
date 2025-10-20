@@ -8,9 +8,10 @@ interface StatProps {
   label: string
   gradient: string
   delay?: number
+  customDisplay?: string
 }
 
-function StatBox({ value, suffix = '', label, gradient, delay = 0 }: StatProps) {
+function StatBox({ value, suffix = '', label, gradient, delay = 0, customDisplay }: StatProps) {
   const [count, setCount] = useState(0)
   const [hasStarted, setHasStarted] = useState(false)
   const statRef = useRef<HTMLDivElement>(null)
@@ -66,7 +67,7 @@ function StatBox({ value, suffix = '', label, gradient, delay = 0 }: StatProps) 
   return (
     <div ref={statRef} className="text-center">
       <div className={`text-6xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-3`}>
-        {count}{suffix}
+        {customDisplay && count === value ? customDisplay : `${count}${suffix}`}
       </div>
       <p className="text-gray-400 font-medium">{label}</p>
     </div>
@@ -97,10 +98,11 @@ export default function CountingStats() {
         delay={400}
       />
       <StatBox 
-        value={247}
+        value={24}
         label="Support Available" 
         gradient="from-blue-500 to-cyan-500"
         delay={600}
+        customDisplay="24/7"
       />
     </div>
   )
