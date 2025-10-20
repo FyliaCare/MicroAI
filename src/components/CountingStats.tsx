@@ -83,7 +83,7 @@ export default function CountingStats() {
         gradient="from-blue-500 to-purple-500"
       />
       <StatBox 
-        value={100}
+        value={99}
         suffix="%"
         label="Client Satisfaction" 
         gradient="from-purple-500 to-pink-500"
