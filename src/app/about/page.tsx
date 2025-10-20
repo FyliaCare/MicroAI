@@ -1,5 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+
+const CountingStats = dynamic(() => import('@/components/CountingStats'), {
+  loading: () => <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto h-32" />,
+  ssr: false,
+})
 
 export const metadata: Metadata = {
   title: 'About Us - MicroAI | Revolutionary Development Technology',
@@ -61,8 +67,8 @@ export default function AboutPage() {
       <section className="py-20 px-4 relative">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/50 rounded-2xl p-8 backdrop-blur-sm hover:border-blue-500 transition-all hover-lift animate-slideInLeft">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-400 rounded-2xl flex items-center justify-center mb-6 transform hover:scale-110 transition-transform animate-float">
+            <div className="text-center p-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-6 transform hover:scale-110 transition-transform animate-float">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -74,8 +80,8 @@ export default function AboutPage() {
               </p>
             </div>
             
-            <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/50 rounded-2xl p-8 backdrop-blur-sm hover:border-purple-500 transition-all hover-lift animate-scaleIn delay-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-400 rounded-2xl flex items-center justify-center mb-6 transform hover:scale-110 transition-transform animate-float delay-200">
+            <div className="text-center p-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-400 rounded-2xl flex items-center justify-center mx-auto mb-6 transform hover:scale-110 transition-transform animate-float delay-200">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -88,8 +94,8 @@ export default function AboutPage() {
               </p>
             </div>
             
-            <div className="bg-gradient-to-br from-pink-900/50 to-pink-800/30 border border-pink-700/50 rounded-2xl p-8 backdrop-blur-sm hover:border-pink-500 transition-all hover-lift animate-slideInRight">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-600 to-pink-400 rounded-2xl flex items-center justify-center mb-6 transform hover:scale-110 transition-transform animate-float delay-500">
+            <div className="text-center p-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-pink-600 to-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-6 transform hover:scale-110 transition-transform animate-float delay-500">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                 </svg>
@@ -118,7 +124,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-8 hover:border-blue-500 transition-all hover-lift animate-fadeIn">
+            <div className="p-8">
               <div className="flex items-center mb-6">
                 <div className="text-5xl mr-4 animate-float">🚀</div>
                 <h3 className="text-2xl font-bold">Advanced Development Stack</h3>
@@ -143,7 +149,7 @@ export default function AboutPage() {
               </ul>
             </div>
 
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-8 hover:border-purple-500 transition-all hover-lift animate-fadeIn delay-200">
+            <div className="p-8">
               <div className="flex items-center mb-6">
                 <div className="text-5xl mr-4 animate-float delay-200">⚙️</div>
                 <h3 className="text-2xl font-bold">Proprietary Systems</h3>
@@ -177,24 +183,7 @@ export default function AboutPage() {
           <h2 className="text-4xl font-bold text-center mb-16">
             By The <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">Numbers</span>
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-8 hover:border-blue-500 transition-all hover-lift animate-scaleIn">
-              <div className="text-5xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-3">10x</div>
-              <p className="text-gray-400 font-medium">Faster Delivery</p>
-            </div>
-            <div className="text-center bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-8 hover:border-purple-500 transition-all hover-lift animate-scaleIn delay-200">
-              <div className="text-5xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mb-3">100%</div>
-              <p className="text-gray-400 font-medium">Client Satisfaction</p>
-            </div>
-            <div className="text-center bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-8 hover:border-pink-500 transition-all hover-lift animate-scaleIn delay-500">
-              <div className="text-5xl font-bold bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent mb-3">50+</div>
-              <p className="text-gray-400 font-medium">Projects Delivered</p>
-            </div>
-            <div className="text-center bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-8 hover:border-cyan-500 transition-all hover-lift animate-scaleIn delay-700">
-              <div className="text-5xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-3">24/7</div>
-              <p className="text-gray-400 font-medium">Support Available</p>
-            </div>
-          </div>
+          <CountingStats />
         </div>
       </section>
 
