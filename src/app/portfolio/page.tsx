@@ -47,6 +47,33 @@ const projects = [
       'Multi-page architecture',
       'Contact & quote system'
     ]
+  },
+  {
+    id: 3,
+    title: 'PoultryYield',
+    category: 'FinTech Investment Platform',
+    tagline: 'Invest in Poultry. Earn Real-World Yield.',
+    description: 'Revolutionary agricultural investment platform enabling transparent poultry farming investments in Ghana. Investors can buy units in egg-laying (layers) or meat production (broilers) batches, track farm performance in real-time, and earn returns from actual agricultural production with full transparency.',
+    technologies: ['React', 'Node.js', 'MongoDB', 'Payment Integration', 'Real-time Analytics', 'KYC System', 'Escrow Management'],
+    icon: '🐣',
+    status: 'Live',
+    url: 'https://poultry-investment-frontend.onrender.com',
+    gradient: 'from-green-500 to-emerald-500',
+    features: [
+      'Dual investment products (Eggs & Chicken)',
+      'Live batch tracking & metrics',
+      'KYC & wallet management',
+      'Automated payout system',
+      'Daily performance logs with photos',
+      'Mobile money & bank integration',
+      'Auto-reinvest & compounding',
+      'Risk disclosure & transparency'
+    ],
+    stats: [
+      { label: 'Egg ROI', value: '1% monthly' },
+      { label: 'Chicken ROI', value: '18% per cycle' },
+      { label: 'Cycle Duration', value: '7-8 weeks' }
+    ]
   }
 ]
 
@@ -189,18 +216,45 @@ export default function PortfolioPage() {
 
                       {/* Stats */}
                       <div className="mt-8 grid grid-cols-2 gap-4">
-                        <div className="text-center p-3 bg-gray-800/50 rounded-lg border border-gray-700">
-                          <div className={`text-2xl font-bold bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
-                            {idx === 0 ? '2 weeks' : '3 weeks'}
-                          </div>
-                          <div className="text-xs text-gray-500">Delivery Time</div>
-                        </div>
-                        <div className="text-center p-3 bg-gray-800/50 rounded-lg border border-gray-700">
-                          <div className={`text-2xl font-bold bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
-                            100%
-                          </div>
-                          <div className="text-xs text-gray-500">Client Satisfaction</div>
-                        </div>
+                        {project.stats ? (
+                          // Custom stats for PoultryYield
+                          <>
+                            <div className="col-span-2 text-center p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                              <div className={`text-2xl font-bold bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
+                                {project.stats[0].value}
+                              </div>
+                              <div className="text-xs text-gray-500">{project.stats[0].label}</div>
+                            </div>
+                            <div className="text-center p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                              <div className={`text-2xl font-bold bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
+                                {project.stats[1].value}
+                              </div>
+                              <div className="text-xs text-gray-500">{project.stats[1].label}</div>
+                            </div>
+                            <div className="text-center p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                              <div className={`text-2xl font-bold bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
+                                {project.stats[2].value}
+                              </div>
+                              <div className="text-xs text-gray-500">{project.stats[2].label}</div>
+                            </div>
+                          </>
+                        ) : (
+                          // Default stats for other projects
+                          <>
+                            <div className="text-center p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                              <div className={`text-2xl font-bold bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
+                                {idx === 0 ? '2 weeks' : '3 weeks'}
+                              </div>
+                              <div className="text-xs text-gray-500">Delivery Time</div>
+                            </div>
+                            <div className="text-center p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                              <div className={`text-2xl font-bold bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
+                                100%
+                              </div>
+                              <div className="text-xs text-gray-500">Client Satisfaction</div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -223,7 +277,7 @@ export default function PortfolioPage() {
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">2+</div>
+                <div className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">3+</div>
                 <div className="text-sm text-gray-500">Live Projects</div>
               </div>
               <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
