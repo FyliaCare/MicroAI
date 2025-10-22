@@ -12,7 +12,7 @@ export default function Logo({ className = '', linkTo = '/', height = 40, width 
   const logoContent = (
     <div className={`relative ${className}`}>
       <Image 
-        src="/micro ai off logo.png" 
+        src="/mailogo.png" 
         alt="MicroAI Logo" 
         width={width}
         height={height}
