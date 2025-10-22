@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Button from '@/components/ui/Button'
+import Logo from '@/components/Logo'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -64,7 +65,7 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-gray-900">MicroAI</Link>
+              <Logo />
             </div>
             <div className="hidden md:flex space-x-8">
               <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>

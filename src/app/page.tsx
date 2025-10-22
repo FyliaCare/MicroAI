@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { StartProjectButton } from '@/components/HomeClient'
+import Logo from '@/components/Logo'
 
 const SpeedComparison = dynamic(() => import('@/components/SpeedComparison'), {
   loading: () => <div className="h-64 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl animate-pulse" />,
@@ -20,9 +21,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                MicroAI
-              </h1>
+              <Logo />
             </div>
             <div className="hidden md:flex space-x-8 items-center">
               <Link href="/services" className="text-gray-300 hover:text-white transition-colors">Services</Link>

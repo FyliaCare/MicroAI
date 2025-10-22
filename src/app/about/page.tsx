@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import Logo from '@/components/Logo'
 
 const CountingStats = dynamic(() => import('@/components/CountingStats'), {
   loading: () => <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto h-32" />,
@@ -20,9 +21,7 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <Link href="/" className="text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                MicroAI
-              </Link>
+              <Logo />
             </div>
             <div className="hidden md:flex space-x-8 items-center">
               <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>

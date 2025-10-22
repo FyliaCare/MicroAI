@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Logo from '@/components/Logo'
 
 export const metadata: Metadata = {
   title: 'Portfolio - MicroAI',
@@ -71,7 +72,7 @@ export default function PortfolioPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <Link href="/" className="text-2xl font-bold text-gray-900">MicroAI</Link>
+              <Logo />
             </div>
             <div className="hidden md:flex space-x-8">
               <Link href="/" className="text-gray-600 hover:text-gray-900">Home</Link>

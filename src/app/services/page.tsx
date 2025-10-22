@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Logo from '@/components/Logo'
 
 export const metadata: Metadata = {
   title: 'Services - MicroAI',
@@ -85,7 +86,7 @@ export default function ServicesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <Link href="/" className="text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">MicroAI</Link>
+              <Logo />
             </div>
             <div className="hidden md:flex space-x-8">
               <Link href="/" className="text-gray-300 hover:text-white">Home</Link>
