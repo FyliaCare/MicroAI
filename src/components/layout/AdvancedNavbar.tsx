@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import Logo from '@/components/Logo'
+import { useBanner } from '@/contexts/BannerContext'
 
 interface NavLink {
   href: string
@@ -23,6 +24,7 @@ export default function AdvancedNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
+  const { isBannerVisible, bannerHeight } = useBanner()
 
   // Handle scroll effect for enhanced navbar
   useEffect(() => {
@@ -53,13 +55,18 @@ export default function AdvancedNavbar() {
 
   const isActive = (href: string) => pathname === href
 
+  // Calculate navbar top position based on banner visibility
+  const navbarTop = isBannerVisible ? `${bannerHeight}px` : '0px'
+  const mobileMenuTop = isBannerVisible ? `calc(${bannerHeight}px + 52px)` : '52px'
+
   return (
     <nav 
-      className={`fixed top-[52px] sm:top-[56px] w-full z-40 transition-all duration-300 ${
+      className={`fixed w-full z-40 transition-all duration-300 ${
         scrolled 
           ? 'bg-black/95 backdrop-blur-xl border-b border-gray-700/50 shadow-lg shadow-blue-500/5' 
           : 'bg-black/80 backdrop-blur-lg border-b border-gray-800'
       }`}
+      style={{ top: navbarTop }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-3 sm:py-4">
@@ -127,11 +134,12 @@ export default function AdvancedNavbar() {
 
       {/* Mobile/Tablet Menu Overlay */}
       <div
-        className={`lg:hidden fixed inset-0 top-[104px] sm:top-[108px] bg-black/95 backdrop-blur-xl transition-all duration-300 ${
+        className={`lg:hidden fixed inset-0 bg-black/95 backdrop-blur-xl transition-all duration-300 ${
           mobileMenuOpen 
             ? 'opacity-100 pointer-events-auto' 
             : 'opacity-0 pointer-events-none'
         }`}
+        style={{ top: mobileMenuTop }}
       >
         <div className="h-full overflow-y-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

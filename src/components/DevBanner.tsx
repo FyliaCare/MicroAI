@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useBanner } from '@/contexts/BannerContext'
 
 export default function DevBanner() {
-  const [isVisible, setIsVisible] = useState(true)
+  const { isBannerVisible, setIsBannerVisible } = useBanner()
 
-  if (!isVisible) return null
+  if (!isBannerVisible) return null
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white py-3 px-4 shadow-lg animate-fadeIn">
@@ -29,7 +29,7 @@ export default function DevBanner() {
           </div>
         </div>
         <button
-          onClick={() => setIsVisible(false)}
+          onClick={() => setIsBannerVisible(false)}
           className="shrink-0 text-white hover:text-yellow-200 transition-colors p-2 hover:bg-white/10 rounded-lg min-w-[44px] min-h-[44px] touch-manipulation"
           aria-label="Close banner"
         >
