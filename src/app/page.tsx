@@ -2,10 +2,9 @@
 
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { useState } from 'react'
 import { StartProjectButton } from '@/components/HomeClient'
-import Logo from '@/components/Logo'
 import DevBanner from '@/components/DevBanner'
+import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 
 const SpeedComparison = dynamic(() => import('@/components/SpeedComparison'), {
   loading: () => <div className="h-64 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl animate-pulse" />,
@@ -18,72 +17,13 @@ const AnimatedStats = dynamic(() => import('@/components/AnimatedStats'), {
 })
 
 export default function Home() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
   return (
     <main className="min-h-screen bg-black text-white overflow-hidden">
       {/* Development Banner */}
       <DevBanner />
       
-      {/* Navigation */}
-      <nav className="fixed top-[52px] sm:top-[56px] w-full bg-black/80 backdrop-blur-lg border-b border-gray-800 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Logo />
-            </div>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8 items-center">
-              <Link href="/services" className="text-gray-300 hover:text-white transition-colors">Services</Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link>
-              <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
-              <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">Portfolio</Link>
-              <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
-              {/* Admin Portal - Hidden for now */}
-              {/* <Link href="/admin" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all">
-                Admin Portal
-              </Link> */}
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle mobile menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Mobile Menu */}
-          <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden pb-4 border-t border-gray-800 mt-2 pt-4`}>
-            <div className="flex flex-col space-y-3">
-              <Link href="/services" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                Services
-              </Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                Pricing
-              </Link>
-              <Link href="/about" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                About
-              </Link>
-              <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                Portfolio
-              </Link>
-              <Link href="/contact" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                Contact
-              </Link>
-              {/* Admin Portal - Hidden for now */}
-              {/* <Link href="/admin" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 rounded-lg text-center hover:from-blue-700 hover:to-purple-700 transition-all">
-                Admin Portal
-              </Link> */}
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Advanced Navigation */}
+      <AdvancedNavbar />
 
       {/* Hero Section */}
       <section className="relative pt-[180px] sm:pt-[200px] pb-20 px-4">

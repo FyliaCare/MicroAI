@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Logo from '@/components/Logo'
 import DevBanner from '@/components/DevBanner'
+import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 
 export const metadata: Metadata = {
   title: 'Portfolio - MicroAI | Real Projects Delivered',
@@ -84,23 +84,8 @@ export default function PortfolioPage() {
       {/* Development Banner */}
       <DevBanner />
       
-      {/* Navigation */}
-      <nav className="fixed top-[52px] sm:top-[56px] w-full bg-black/80 backdrop-blur-lg border-b border-gray-800 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Logo />
-            </div>
-            <div className="hidden md:flex space-x-8 items-center">
-              <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
-              <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
-              <Link href="/services" className="text-gray-300 hover:text-white transition-colors">Services</Link>
-              <Link href="/portfolio" className="text-blue-500 font-medium">Portfolio</Link>
-              <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Advanced Navigation */}
+      <AdvancedNavbar />
 
       {/* Hero Section */}
       <section className="relative pt-[180px] sm:pt-[200px] pb-20 px-4">

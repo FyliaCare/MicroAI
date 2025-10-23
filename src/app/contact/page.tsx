@@ -5,8 +5,8 @@ import Link from 'next/link'
 import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Button from '@/components/ui/Button'
-import Logo from '@/components/Logo'
 import DevBanner from '@/components/DevBanner'
+import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -18,7 +18,6 @@ export default function ContactPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,60 +64,8 @@ export default function ContactPage() {
       {/* Development Banner */}
       <DevBanner />
       
-      {/* Navigation */}
-      <nav className="fixed top-[52px] sm:top-[56px] w-full bg-black/80 backdrop-blur-lg border-b border-gray-800 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Logo />
-            </div>
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8 items-center">
-              <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
-              <Link href="/services" className="text-gray-300 hover:text-white transition-colors">Services</Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link>
-              <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
-              <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">Portfolio</Link>
-              <Link href="/contact" className="text-blue-500 font-medium">Contact</Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle mobile menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Mobile Menu */}
-          <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden pb-4 border-t border-gray-800 mt-2 pt-4`}>
-            <div className="flex flex-col space-y-3">
-              <Link href="/" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                Home
-              </Link>
-              <Link href="/services" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                Services
-              </Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                Pricing
-              </Link>
-              <Link href="/about" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                About
-              </Link>
-              <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                Portfolio
-              </Link>
-              <Link href="/contact" className="text-blue-500 font-medium px-4 py-2 rounded-lg bg-blue-500/10">
-                Contact
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* Advanced Navigation */}
+      <AdvancedNavbar />
 
       {/* Hero Section */}
       <section className="relative pt-[180px] sm:pt-[200px] pb-20 px-4">
@@ -375,7 +322,9 @@ export default function ContactPage() {
       <footer className="relative border-t border-gray-800 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <Logo />
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-4">
+              MicroAI
+            </h3>
             <p className="text-gray-400 mt-4 mb-2">
               Building the future, <span className="text-blue-500 font-bold">10x faster</span>
             </p>
