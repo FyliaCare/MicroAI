@@ -117,18 +117,33 @@ export default function AIProjectModal({ isOpen, onClose }: AIProjectModalProps)
       // All questions answered
       addBotMessage("🎉 Perfect! I have all the information. We're processing your request and will send you a Teams meeting invite shortly to your email. In the meantime, feel free to check out our portfolio!\n\nThanks for choosing MicroAI - where we build 10x faster! ⚡")
       
-      // Submit the data (you can add API call here)
+      // Submit the data to API
+      const finalData = { ...projectData, phone: input }
+      
+      // Send to API endpoint
+      fetch('/api/project-inquiry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalData),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('✅ Project inquiry submitted successfully:', data)
+        })
+        .catch(error => {
+          console.error('❌ Error submitting project inquiry:', error)
+        })
+      
+      // Close modal after delay
       setTimeout(() => {
-        console.log('Project Data:', { ...projectData, phone: input })
-        // Here you would send to your API
-        setTimeout(() => {
-          onClose()
-          // Reset for next time
-          setMessages([{ type: 'bot', text: "👋 Hi! I'm MicroAI's project assistant. I'm here to help bring your idea to life - even if it's just a rough concept! Let's start simple: What kind of project are you thinking about?" }])
-          setStep(0)
-          setProjectData({})
-        }, 5000)
-      }, 100)
+        onClose()
+        // Reset for next time
+        setMessages([{ type: 'bot', text: "👋 Hi! I'm MicroAI's project assistant. I'm here to help bring your idea to life - even if it's just a rough concept! Let's start simple: What kind of project are you thinking about?" }])
+        setStep(0)
+        setProjectData({})
+      }, 5000)
     }
   }
 
