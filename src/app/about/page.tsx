@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import Logo from '@/components/Logo'
+import DevBanner from '@/components/DevBanner'
 
 const CountingStats = dynamic(() => import('@/components/CountingStats'), {
   loading: () => <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto h-32" />,
@@ -16,8 +17,11 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-black text-white overflow-hidden">
+      {/* Development Banner */}
+      <DevBanner />
+      
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-black/80 backdrop-blur-lg border-b border-gray-800 z-40">
+      <nav className="fixed top-[52px] sm:top-[56px] w-full bg-black/80 backdrop-blur-lg border-b border-gray-800 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -35,7 +39,7 @@ export default function AboutPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4">
+      <section className="relative pt-[180px] sm:pt-[200px] pb-20 px-4">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute w-96 h-96 bg-blue-500/20 rounded-full blur-3xl top-20 left-20 animate-pulse" style={{ transform: 'translate3d(0,0,0)' }}></div>
