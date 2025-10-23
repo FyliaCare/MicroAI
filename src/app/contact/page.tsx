@@ -157,16 +157,7 @@ export default function ContactPage() {
                       />
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <Input
-                        type="tel"
-                        label="Phone Number"
-                        name="phone"
-                        placeholder="+1 (555) 000-0000"
-                        value={formData.phone}
-                        onChange={handleChange}
-                      />
-                      
+                    <div>
                       <Input
                         label="Company Name"
                         name="company"
@@ -229,28 +220,8 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="text-gray-400 text-sm">Email Us</p>
-                        <a href="mailto:info@microai.com" className="text-blue-400 hover:text-blue-300 transition-colors">
-                          info@microai.com
-                        </a>
-                        <br />
-                        <a href="mailto:support@microai.com" className="text-blue-400 hover:text-blue-300 transition-colors text-sm">
-                          support@microai.com
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-3 group/item">
-                      <div className="bg-purple-600/20 p-3 rounded-lg group-hover/item:bg-purple-600/30 transition-colors">
-                        <span className="text-2xl">📱</span>
-                      </div>
-                      <div>
-                        <p className="text-gray-400 text-sm">Call Us</p>
-                        <a href="tel:+15551234567" className="text-purple-400 hover:text-purple-300 transition-colors">
-                          +1 (555) 123-4567
-                        </a>
-                        <br />
-                        <a href="tel:+15559876543" className="text-purple-400 hover:text-purple-300 transition-colors text-sm">
-                          +1 (555) 987-6543
+                        <a href="mailto:microailabs@outlook.com" className="text-blue-400 hover:text-blue-300 transition-colors">
+                          microailabs@outlook.com
                         </a>
                       </div>
                     </div>
@@ -261,8 +232,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="text-gray-400 text-sm">Location</p>
-                        <p className="text-pink-400">123 Tech Street</p>
-                        <p className="text-pink-400 text-sm">Silicon Valley, CA 94025</p>
+                        <p className="text-pink-400">Takoradi, Ghana</p>
                       </div>
                     </div>
 
@@ -272,7 +242,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="text-gray-400 text-sm">Business Hours</p>
-                        <p className="text-orange-400 text-sm">Mon-Fri: 9:00 AM - 6:00 PM</p>
+                        <p className="text-orange-400 text-sm">Mon-Fri: 9:00 AM - 6:00 PM GMT</p>
                         <p className="text-orange-400 text-sm">Weekend: On-call support</p>
                       </div>
                     </div>
