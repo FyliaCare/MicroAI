@@ -35,9 +35,10 @@ export default function Home() {
               <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
               <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">Portfolio</Link>
               <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
-              <Link href="/admin" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all">
+              {/* Admin Portal - Hidden for now */}
+              {/* <Link href="/admin" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all">
                 Admin Portal
-              </Link>
+              </Link> */}
             </div>
 
             {/* Mobile Menu Button */}
@@ -67,9 +68,10 @@ export default function Home() {
               <Link href="/contact" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
                 Contact
               </Link>
-              <Link href="/admin" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 rounded-lg text-center hover:from-blue-700 hover:to-purple-700 transition-all">
+              {/* Admin Portal - Hidden for now */}
+              {/* <Link href="/admin" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 rounded-lg text-center hover:from-blue-700 hover:to-purple-700 transition-all">
                 Admin Portal
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>

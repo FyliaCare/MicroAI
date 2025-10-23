@@ -71,8 +71,8 @@ export default function ContactPage() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-8 items-center">
               <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
-              <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
               <Link href="/services" className="text-gray-300 hover:text-white transition-colors">Services</Link>
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
               <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">Portfolio</Link>
               <Link href="/contact" className="text-blue-500 font-medium">Contact</Link>
             </div>
@@ -95,11 +95,11 @@ export default function ContactPage() {
               <Link href="/" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
                 Home
               </Link>
-              <Link href="/about" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
-                About
-              </Link>
               <Link href="/services" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
                 Services
+              </Link>
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                About
               </Link>
               <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
                 Portfolio
