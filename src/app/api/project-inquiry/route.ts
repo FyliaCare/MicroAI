@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 interface ProjectInquiryData {
   projectIdea: string
@@ -31,23 +33,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // Create email transporter (using Gmail)
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER || 'microailabsglobal@gmail.com',
-        pass: process.env.SMTP_PASSWORD || '',
-      },
-      tls: {
-        rejectUnauthorized: false
-      },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-    })
 
     // Admin notification email HTML
     const adminEmailHtml = `
@@ -167,18 +152,21 @@ Next Step: Send Teams meeting invite to ${body.email}
 
     // Send email to admin
     try {
-      await transporter.sendMail({
-        from: `"MicroAI AI Bot" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
-        to: 'microailabs@outlook.com',
+      const { data, error } = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'MicroAI AI Bot <onboarding@resend.dev>',
+        to: ['microailabs@outlook.com'],
         subject: `🤖 New AI Bot Inquiry from ${body.name} - ${body.projectType}`,
-        text: adminEmailText,
-        html: adminEmailHtml,
         replyTo: body.email,
+        html: adminEmailHtml,
       })
 
-      console.log('✅ AI Bot inquiry email sent successfully to microailabs@outlook.com')
-    } catch (emailError) {
-      console.error('❌ Email sending error:', emailError)
+      if (error) {
+        console.error('❌ AI Bot email error:', error)
+      } else {
+        console.log('✅ AI Bot inquiry email sent via Resend! ID:', data?.id)
+      }
+    } catch (emailError: any) {
+      console.error('❌ Email sending error:', emailError.message || emailError)
       // Continue anyway - don't fail the request if email fails
     }
 
@@ -343,17 +331,20 @@ microailabs@outlook.com
 
     // Send auto-reply to client
     try {
-      await transporter.sendMail({
-        from: `"MicroAI AI Assistant" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
-        to: body.email,
+      const { data, error } = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'MicroAI AI Assistant <onboarding@resend.dev>',
+        to: [body.email],
         subject: `🚀 Your Project Details Received - MicroAI`,
-        text: clientEmailText,
         html: clientEmailHtml,
       })
 
-      console.log('✅ AI Bot auto-reply sent to client:', body.email)
-    } catch (replyError) {
-      console.error('❌ Auto-reply error:', replyError)
+      if (error) {
+        console.error('❌ AI Bot auto-reply error:', error)
+      } else {
+        console.log('✅ AI Bot auto-reply sent via Resend! ID:', data?.id)
+      }
+    } catch (replyError: any) {
+      console.error('❌ Auto-reply error:', replyError.message || replyError)
       // Continue anyway
     }
 

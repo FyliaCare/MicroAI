@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 interface ContactFormData {
   name: string
@@ -29,24 +31,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // Create email transporter (using Gmail)
-    // Note: Configure these environment variables in your deployment
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER || 'microailabsglobal@gmail.com',
-        pass: process.env.SMTP_PASSWORD || '', // Gmail App Password
-      },
-      tls: {
-        rejectUnauthorized: false
-      },
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-    })
 
     // Email content
     const emailHtml = `
@@ -137,30 +121,30 @@ ${body.message}
 Submitted: ${new Date().toLocaleString()}
     `
 
-    // Send email to admin
-    console.log('📧 Attempting to send email via Gmail SMTP...')
-    console.log('SMTP Config:', {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      user: process.env.SMTP_USER,
-      hasPassword: !!process.env.SMTP_PASSWORD
+    // Send email to admin using Resend
+    console.log('📧 Attempting to send email via Resend API...')
+    console.log('Resend Config:', {
+      hasApiKey: !!process.env.RESEND_API_KEY,
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+      to: 'microailabs@outlook.com'
     })
     
     try {
-      await transporter.sendMail({
-        from: `"MicroAI Contact Form" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
-        to: 'microailabs@outlook.com',
+      const { data, error } = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
+        to: ['microailabs@outlook.com'],
         subject: `🚀 New Client Request from ${body.name}${body.company ? ` - ${body.company}` : ''}`,
-        text: emailText,
-        html: emailHtml,
         replyTo: body.email,
+        html: emailHtml,
       })
 
-      console.log('✅ Email sent successfully to microailabs@outlook.com')
+      if (error) {
+        console.error('❌ Resend API error:', error)
+      } else {
+        console.log('✅ Email sent successfully via Resend! ID:', data?.id)
+      }
     } catch (emailError: any) {
       console.error('❌ Email sending error:', emailError.message || emailError)
-      console.error('Error code:', emailError.code)
-      console.error('Error command:', emailError.command)
       // Continue anyway - don't fail the request if email fails
     }
 
@@ -325,17 +309,20 @@ microailabs@outlook.com
 
     // Send auto-reply to client
     try {
-      await transporter.sendMail({
-        from: `"MicroAI" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
-        to: body.email,
+      const { data, error } = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
+        to: [body.email],
         subject: `✓ We've Received Your Message - MicroAI`,
-        text: clientEmailText,
         html: clientEmailHtml,
       })
 
-      console.log('✅ Auto-reply confirmation sent to client:', body.email)
-    } catch (replyError) {
-      console.error('Auto-reply error:', replyError)
+      if (error) {
+        console.error('❌ Auto-reply error:', error)
+      } else {
+        console.log('✅ Auto-reply sent via Resend! ID:', data?.id)
+      }
+    } catch (replyError: any) {
+      console.error('❌ Auto-reply error:', replyError.message || replyError)
       // Continue anyway
     }
 
