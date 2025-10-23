@@ -131,7 +131,7 @@ ${body.message}
 Submitted: ${new Date().toLocaleString()}
     `
 
-    // Send email
+    // Send email to admin
     try {
       await transporter.sendMail({
         from: `"MicroAI Contact Form" <${process.env.SMTP_USER || 'microailabs@outlook.com'}>`,
@@ -146,6 +146,181 @@ Submitted: ${new Date().toLocaleString()}
     } catch (emailError) {
       console.error('Email sending error:', emailError)
       // Continue anyway - don't fail the request if email fails
+    }
+
+    // Send auto-reply confirmation to client
+    const clientEmailHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; }
+            .section { margin-bottom: 25px; }
+            .highlight { background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%); color: white; padding: 20px; border-radius: 10px; margin: 20px 0; }
+            .feature { display: flex; align-items: start; margin-bottom: 15px; }
+            .feature-icon { font-size: 24px; margin-right: 12px; }
+            .feature-text { flex: 1; }
+            .cta-button { display: inline-block; background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+            .footer { background: #1F2937; color: #9CA3AF; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; }
+            .badge { display: inline-block; background: #10B981; color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1 style="margin: 0; font-size: 32px;">Thank You, ${body.name}! 🎉</h1>
+              <p style="margin: 10px 0 0 0; opacity: 0.9;">We've received your message</p>
+              <div class="badge">✓ CONFIRMED</div>
+            </div>
+            
+            <div class="content">
+              <div class="section">
+                <p style="font-size: 18px; color: #1F2937; margin-top: 0;">
+                  <strong>Great news!</strong> Your inquiry has been successfully received and our team is already reviewing it.
+                </p>
+              </div>
+
+              <div class="highlight">
+                <h2 style="margin-top: 0; font-size: 20px;">⚡ What Happens Next?</h2>
+                <div class="feature">
+                  <div class="feature-icon">1️⃣</div>
+                  <div class="feature-text">
+                    <strong>Immediate Review</strong><br/>
+                    Our team is reviewing your project details right now
+                  </div>
+                </div>
+                <div class="feature">
+                  <div class="feature-icon">2️⃣</div>
+                  <div class="feature-text">
+                    <strong>Quick Response</strong><br/>
+                    You'll hear from us within 24 hours (usually much faster!)
+                  </div>
+                </div>
+                <div class="feature">
+                  <div class="feature-icon">3️⃣</div>
+                  <div class="feature-text">
+                    <strong>Discovery Call</strong><br/>
+                    We'll schedule a call to discuss your vision in detail
+                  </div>
+                </div>
+                <div class="feature">
+                  <div class="feature-icon">4️⃣</div>
+                  <div class="feature-text">
+                    <strong>Proposal & Timeline</strong><br/>
+                    Receive a detailed proposal with cost estimate and delivery timeline
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3 style="color: #1F2937; margin-bottom: 10px;">📋 Your Submission Summary</h3>
+                <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                  <p style="margin: 5px 0;"><strong>Name:</strong> ${body.name}</p>
+                  <p style="margin: 5px 0;"><strong>Email:</strong> ${body.email}</p>
+                  ${body.company ? `<p style="margin: 5px 0;"><strong>Company:</strong> ${body.company}</p>` : ''}
+                  <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date().toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                  })}</p>
+                </div>
+              </div>
+
+              <div class="section" style="background: #EFF6FF; padding: 20px; border-radius: 10px; border-left: 4px solid #3B82F6;">
+                <h3 style="color: #1F2937; margin-top: 0;">🚀 Why Choose MicroAI?</h3>
+                <ul style="margin: 10px 0; padding-left: 20px; color: #4B5563;">
+                  <li><strong>10x Faster Development:</strong> We deliver in weeks, not months</li>
+                  <li><strong>Modern Technology Stack:</strong> Next.js, React, TypeScript, and more</li>
+                  <li><strong>Proven Track Record:</strong> Multiple successful projects in production</li>
+                  <li><strong>Based in Ghana:</strong> Local expertise with global standards</li>
+                  <li><strong>24/7 Support:</strong> We're here when you need us</li>
+                </ul>
+              </div>
+
+              <div class="section" style="text-align: center;">
+                <p style="color: #6B7280; margin-bottom: 20px;">
+                  In the meantime, feel free to explore our portfolio and learn more about our services.
+                </p>
+                <a href="https://poultry-investment-frontend.onrender.com" class="cta-button" style="color: white;">
+                  View Our Work
+                </a>
+              </div>
+
+              <div class="section" style="background: #FEF3C7; padding: 15px; border-radius: 8px; border-left: 4px solid #F59E0B;">
+                <p style="margin: 0; color: #92400E;">
+                  <strong>💡 Pro Tip:</strong> While you wait, think about any specific features or requirements you'd like to discuss. This will help us provide you with the most accurate proposal!
+                </p>
+              </div>
+            </div>
+
+            <div class="footer">
+              <p style="margin: 0; font-size: 14px; color: #D1D5DB;"><strong>MicroAI</strong></p>
+              <p style="margin: 5px 0;">10x Faster Development | Takoradi, Ghana</p>
+              <p style="margin: 5px 0;">
+                📧 <a href="mailto:microailabs@outlook.com" style="color: #60A5FA;">microailabs@outlook.com</a>
+              </p>
+              <p style="margin: 15px 0 5px 0; font-size: 11px; color: #9CA3AF;">
+                This is an automated confirmation email. Please do not reply to this email.
+              </p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    const clientEmailText = `
+Thank You for Contacting MicroAI!
+
+Hi ${body.name},
+
+Great news! We've received your inquiry and our team is already reviewing it.
+
+WHAT HAPPENS NEXT?
+
+1. Immediate Review - Our team is reviewing your project details right now
+2. Quick Response - You'll hear from us within 24 hours (usually much faster!)
+3. Discovery Call - We'll schedule a call to discuss your vision in detail
+4. Proposal & Timeline - Receive a detailed proposal with cost estimate
+
+YOUR SUBMISSION SUMMARY:
+Name: ${body.name}
+Email: ${body.email}
+${body.company ? `Company: ${body.company}` : ''}
+Date: ${new Date().toLocaleDateString()}
+
+WHY CHOOSE MICROAI?
+• 10x Faster Development - We deliver in weeks, not months
+• Modern Technology Stack - Next.js, React, TypeScript, and more
+• Proven Track Record - Multiple successful projects in production
+• Based in Ghana - Local expertise with global standards
+• 24/7 Support - We're here when you need us
+
+Best regards,
+The MicroAI Team
+
+MicroAI - 10x Faster Development
+Takoradi, Ghana
+microailabs@outlook.com
+    `
+
+    // Send auto-reply to client
+    try {
+      await transporter.sendMail({
+        from: `"MicroAI" <${process.env.SMTP_USER || 'microailabs@outlook.com'}>`,
+        to: body.email,
+        subject: `✓ We've Received Your Message - MicroAI`,
+        text: clientEmailText,
+        html: clientEmailHtml,
+      })
+
+      console.log('Auto-reply confirmation sent to client:', body.email)
+    } catch (replyError) {
+      console.error('Auto-reply error:', replyError)
+      // Continue anyway
     }
 
     // Log submission
