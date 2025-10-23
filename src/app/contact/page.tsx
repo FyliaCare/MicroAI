@@ -17,6 +17,7 @@ export default function ContactPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,12 +79,8 @@ export default function ContactPage() {
 
             {/* Mobile Menu Button */}
             <button
-              id="mobile-menu-btn-contact"
               className="md:hidden text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-2"
-              onClick={() => {
-                const menu = document.getElementById('mobile-menu-contact')
-                menu?.classList.toggle('hidden')
-              }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle mobile menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,7 +90,7 @@ export default function ContactPage() {
           </div>
 
           {/* Mobile Menu */}
-          <div id="mobile-menu-contact" className="hidden md:hidden pb-4 border-t border-gray-800 mt-2 pt-4">
+          <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden pb-4 border-t border-gray-800 mt-2 pt-4`}>
             <div className="flex flex-col space-y-3">
               <Link href="/" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
                 Home

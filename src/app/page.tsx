@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import { useState } from 'react'
 import { StartProjectButton } from '@/components/HomeClient'
 import Logo from '@/components/Logo'
 
@@ -14,6 +17,8 @@ const AnimatedStats = dynamic(() => import('@/components/AnimatedStats'), {
 })
 
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   return (
     <main className="min-h-screen bg-black text-white overflow-hidden">
       {/* Navigation */}
@@ -37,12 +42,8 @@ export default function Home() {
 
             {/* Mobile Menu Button */}
             <button
-              id="mobile-menu-btn"
               className="md:hidden text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-2"
-              onClick={() => {
-                const menu = document.getElementById('mobile-menu')
-                menu?.classList.toggle('hidden')
-              }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle mobile menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +53,7 @@ export default function Home() {
           </div>
 
           {/* Mobile Menu */}
-          <div id="mobile-menu" className="hidden md:hidden pb-4 border-t border-gray-800 mt-2 pt-4">
+          <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden pb-4 border-t border-gray-800 mt-2 pt-4`}>
             <div className="flex flex-col space-y-3">
               <Link href="/services" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
                 Services
