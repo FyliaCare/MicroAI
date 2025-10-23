@@ -241,8 +241,12 @@ export default function AboutPage() {
             </div>
             <div>
               <h4 className="font-semibold mb-4">Connect</h4>
-              <p className="text-gray-400 text-sm mb-2">info@microai.com</p>
-              <p className="text-gray-400 text-sm">+1 (555) 123-4567</p>
+              <p className="text-gray-400 text-sm mb-2">
+                <a href="mailto:microailabs@outlook.com" className="hover:text-blue-400 transition-colors">
+                  microailabs@outlook.com
+                </a>
+              </p>
+              <p className="text-gray-400 text-sm">Takoradi, Ghana</p>
             </div>
           </div>
           <div className="text-center pt-8 border-t border-gray-800">
