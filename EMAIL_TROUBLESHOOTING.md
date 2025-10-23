@@ -25,7 +25,7 @@ SMTP_PASSWORD = [YOUR_PASSWORD_HERE]
 
 ### Option 1: Regular Password (No 2FA)
 - Use your regular Outlook account password
-- Make sure SMTP is enabled in Outlook settings
+- Make sure SMTP is enabled in Outlook settings (see "How to Enable SMTP" below)
 
 ### Option 2: App Password (If 2FA is Enabled) ⭐ RECOMMENDED
 
@@ -35,6 +35,75 @@ SMTP_PASSWORD = [YOUR_PASSWORD_HERE]
 4. Click **"Create a new app password"**
 5. Copy the generated password
 6. Use THIS password in `SMTP_PASSWORD` (not your regular password)
+
+---
+
+## How to Enable SMTP in Outlook
+
+### Method 1: Enable POP/IMAP (Enables SMTP)
+
+1. **Sign in to Outlook.com**:
+   - Go to: https://outlook.live.com/mail/
+   - Sign in with microailabs@outlook.com
+
+2. **Open Settings**:
+   - Click the ⚙️ gear icon (top right)
+   - Click "View all Outlook settings" at the bottom
+
+3. **Navigate to Sync Email**:
+   - Click "Mail" in the left sidebar
+   - Click "Sync email"
+
+4. **Enable POP and IMAP**:
+   - Under "POP and IMAP", toggle to **ON**
+   - Check these options:
+     - ✅ "Let devices and apps use POP"
+     - ✅ "Let devices and apps use IMAP"
+   - Click "Save"
+
+5. **SMTP is now enabled!**
+
+### Method 2: Verify SMTP Access
+
+1. **Check Account Security**:
+   - Go to: https://account.microsoft.com/security
+   - Look for "Security basics"
+   - Ensure your account is not blocked from sending
+
+2. **Allow Less Secure Apps** (if needed):
+   - Go to: https://account.microsoft.com/security
+   - Click "Advanced security options"
+   - If you see "App passwords" - you have 2FA enabled (use Option 2 above)
+   - If no 2FA, ensure there are no security blocks
+
+### Method 3: Check for Blocks
+
+1. **Recent Activity**:
+   - Go to: https://account.microsoft.com/activity
+   - Check if there are any "unusual activity" warnings
+   - Approve any SMTP connection attempts
+
+2. **Sign-in from New Location**:
+   - If Render servers are in a different location, Microsoft might block it
+   - Check your email for any "New sign-in" alerts
+   - Approve the sign-in if prompted
+
+### Screenshots Guide
+
+**Step 1: Settings Gear Icon**
+```
+Outlook.com → Click ⚙️ (top right) → "View all Outlook settings"
+```
+
+**Step 2: Mail > Sync Email**
+```
+Settings → Mail → Sync email → Enable POP and IMAP toggle
+```
+
+**Step 3: Save**
+```
+Scroll down → Click "Save" button
+```
 
 ---
 
@@ -107,7 +176,13 @@ NOT 465, NOT 25 - must be 587 for Outlook
 **Solution**:
 - Check spam folders
 - Add microailabs@outlook.com to safe senders
-- Go to Outlook settings → Sync email → Enable POP and IMAP
+- **Enable POP and IMAP in Outlook**:
+  1. Go to https://outlook.live.com
+  2. Click ⚙️ gear icon → "View all Outlook settings"
+  3. Mail → Sync email
+  4. Toggle "Let devices and apps use POP" to ON
+  5. Toggle "Let devices and apps use IMAP" to ON
+  6. Click Save
 
 ### Issue 4: "Invalid Login" Error
 
