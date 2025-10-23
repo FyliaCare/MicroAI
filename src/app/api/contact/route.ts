@@ -124,16 +124,20 @@ Submitted: ${new Date().toLocaleString()}
 
     // Send email to admin using Resend
     console.log('📧 Attempting to send email via Resend API...')
+    
+    // Temporary: Send to verified email for testing
+    const adminEmail = process.env.RESEND_TO_EMAIL || 'microailabsglobal@gmail.com'
+    
     console.log('Resend Config:', {
       hasApiKey: !!process.env.RESEND_API_KEY,
       from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-      to: 'microailabs@outlook.com'
+      to: adminEmail
     })
     
     try {
       const { data, error } = await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
-        to: ['microailabs@outlook.com'],
+        to: [adminEmail], // Changed to verified email
         subject: `🚀 New Client Request from ${body.name}${body.company ? ` - ${body.company}` : ''}`,
         replyTo: body.email,
         html: emailHtml,
