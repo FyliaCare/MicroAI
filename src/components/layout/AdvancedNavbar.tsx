@@ -64,9 +64,7 @@ export default function AdvancedNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-3 sm:py-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
-            <Logo />
-          </Link>
+          <Logo linkTo="/" />
           
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
