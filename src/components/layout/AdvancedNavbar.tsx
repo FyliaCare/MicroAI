@@ -20,6 +20,11 @@ const navLinks: NavLink[] = [
   { href: '/contact', label: 'Contact', description: 'Get in touch' },
 ]
 
+const mobileNavLinks: NavLink[] = [
+  { href: '/', label: 'Home', description: 'Back to homepage' },
+  ...navLinks,
+]
+
 export default function AdvancedNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -134,7 +139,7 @@ export default function AdvancedNavbar() {
 
       {/* Mobile/Tablet Menu Overlay */}
       <div
-        className={`lg:hidden fixed inset-0 bg-black/95 backdrop-blur-xl transition-all duration-300 ${
+        className={`lg:hidden fixed left-0 right-0 bottom-0 z-50 bg-black/95 backdrop-blur-xl transition-all duration-300 ${
           mobileMenuOpen 
             ? 'opacity-100 pointer-events-auto' 
             : 'opacity-0 pointer-events-none'
@@ -145,7 +150,7 @@ export default function AdvancedNavbar() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
             {/* Mobile Navigation Links */}
             <div className="space-y-2">
-              {navLinks.map((link, index) => (
+              {mobileNavLinks.map((link, index) => (
                 <Link
                   key={link.href}
                   href={link.href}
