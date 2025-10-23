@@ -32,13 +32,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create email transporter (using SendGrid)
+    // Create email transporter (using Gmail)
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: false,
       auth: {
-        user: process.env.SMTP_USER || 'apikey',
+        user: process.env.SMTP_USER || 'microailabsglobal@gmail.com',
         pass: process.env.SMTP_PASSWORD || '',
       },
     })
@@ -162,7 +162,7 @@ Next Step: Send Teams meeting invite to ${body.email}
     // Send email to admin
     try {
       await transporter.sendMail({
-        from: `"MicroAI AI Bot" <${process.env.SMTP_USER || 'microailabs@outlook.com'}>`,
+        from: `"MicroAI AI Bot" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
         to: 'microailabs@outlook.com',
         subject: `🤖 New AI Bot Inquiry from ${body.name} - ${body.projectType}`,
         text: adminEmailText,
@@ -338,7 +338,7 @@ microailabs@outlook.com
     // Send auto-reply to client
     try {
       await transporter.sendMail({
-        from: `"MicroAI AI Assistant" <${process.env.SMTP_USER || 'microailabs@outlook.com'}>`,
+        from: `"MicroAI AI Assistant" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
         to: body.email,
         subject: `🚀 Your Project Details Received - MicroAI`,
         text: clientEmailText,

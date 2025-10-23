@@ -30,15 +30,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create email transporter (using SendGrid)
+    // Create email transporter (using Gmail)
     // Note: Configure these environment variables in your deployment
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: false, // true for 465, false for other ports
       auth: {
-        user: process.env.SMTP_USER || 'apikey',
-        pass: process.env.SMTP_PASSWORD || '', // Add this to environment variables
+        user: process.env.SMTP_USER || 'microailabsglobal@gmail.com',
+        pass: process.env.SMTP_PASSWORD || '', // Gmail App Password
       },
     })
 
@@ -134,7 +134,7 @@ Submitted: ${new Date().toLocaleString()}
     // Send email to admin
     try {
       await transporter.sendMail({
-        from: `"MicroAI Contact Form" <${process.env.SMTP_USER || 'microailabs@outlook.com'}>`,
+        from: `"MicroAI Contact Form" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
         to: 'microailabs@outlook.com',
         subject: `🚀 New Client Request from ${body.name}${body.company ? ` - ${body.company}` : ''}`,
         text: emailText,
@@ -142,7 +142,7 @@ Submitted: ${new Date().toLocaleString()}
         replyTo: body.email,
       })
 
-      console.log('Email sent successfully to microailabs@outlook.com')
+      console.log('✅ Email sent successfully to microailabs@outlook.com')
     } catch (emailError) {
       console.error('Email sending error:', emailError)
       // Continue anyway - don't fail the request if email fails
@@ -310,14 +310,14 @@ microailabs@outlook.com
     // Send auto-reply to client
     try {
       await transporter.sendMail({
-        from: `"MicroAI" <${process.env.SMTP_USER || 'microailabs@outlook.com'}>`,
+        from: `"MicroAI" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
         to: body.email,
         subject: `✓ We've Received Your Message - MicroAI`,
         text: clientEmailText,
         html: clientEmailHtml,
       })
 
-      console.log('Auto-reply confirmation sent to client:', body.email)
+      console.log('✅ Auto-reply confirmation sent to client:', body.email)
     } catch (replyError) {
       console.error('Auto-reply error:', replyError)
       // Continue anyway
