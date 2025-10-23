@@ -30,14 +30,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create email transporter
+    // Create email transporter (using SendGrid)
     // Note: Configure these environment variables in your deployment
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp-mail.outlook.com',
+      host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: false, // true for 465, false for other ports
       auth: {
-        user: process.env.SMTP_USER || 'microailabs@outlook.com',
+        user: process.env.SMTP_USER || 'apikey',
         pass: process.env.SMTP_PASSWORD || '', // Add this to environment variables
       },
     })
