@@ -205,18 +205,18 @@ export default function AIProjectModal({ isOpen, onClose }: AIProjectModalProps)
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain">
           {messages.map((message, index) => (
             <div
               key={index}
               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] sm:max-w-[80%] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 ${
                   message.type === 'user'
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
                     : 'bg-gray-800 border border-gray-700 text-gray-100'
-                } whitespace-pre-wrap`}
+                } whitespace-pre-wrap text-sm sm:text-base`}
               >
                 {message.text}
               </div>
@@ -239,25 +239,25 @@ export default function AIProjectModal({ isOpen, onClose }: AIProjectModalProps)
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="p-6 border-t border-gray-700">
-          <div className="flex gap-3">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 border-t border-gray-700">
+          <div className="flex gap-2 sm:gap-3">
             <input
               ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your answer..."
-              className="flex-1 bg-gray-800 border border-gray-700 rounded-full px-6 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+              className="flex-1 bg-gray-800 border border-gray-700 rounded-full px-4 sm:px-6 py-3 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors touch-manipulation"
             />
             <button
               type="submit"
               disabled={!input.trim()}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 sm:px-8 py-3 rounded-full text-sm sm:text-base font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed min-w-[72px] min-h-[48px] touch-manipulation"
             >
               Send
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-3 text-center">
+          <p className="text-xs text-gray-500 mt-3 text-center hidden sm:block">
             💡 Even rough ideas work! We&apos;ll help you refine the details.
           </p>
         </form>

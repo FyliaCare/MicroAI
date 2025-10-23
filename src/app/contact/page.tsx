@@ -67,12 +67,49 @@ export default function ContactPage() {
             <div className="flex items-center">
               <Logo />
             </div>
+            {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-8 items-center">
               <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
               <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
               <Link href="/services" className="text-gray-300 hover:text-white transition-colors">Services</Link>
               <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">Portfolio</Link>
               <Link href="/contact" className="text-blue-500 font-medium">Contact</Link>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              id="mobile-menu-btn-contact"
+              className="md:hidden text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-2"
+              onClick={() => {
+                const menu = document.getElementById('mobile-menu-contact')
+                menu?.classList.toggle('hidden')
+              }}
+              aria-label="Toggle mobile menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          <div id="mobile-menu-contact" className="hidden md:hidden pb-4 border-t border-gray-800 mt-2 pt-4">
+            <div className="flex flex-col space-y-3">
+              <Link href="/" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                Home
+              </Link>
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                About
+              </Link>
+              <Link href="/services" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                Services
+              </Link>
+              <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                Portfolio
+              </Link>
+              <Link href="/contact" className="text-blue-500 font-medium px-4 py-2 rounded-lg bg-blue-500/10">
+                Contact
+              </Link>
             </div>
           </div>
         </div>
@@ -94,11 +131,11 @@ export default function ContactPage() {
             </div>
           </div>
           
-          <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight animate-fadeIn delay-200">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight animate-fadeIn delay-200">
             Get in <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">Touch</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed animate-fadeIn delay-500">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed animate-fadeIn delay-500 px-4">
             Ready to transform your idea into reality? Let&apos;s discuss your project and show you 
             how we can deliver <span className="text-blue-500 font-bold">10x faster</span> than traditional development.
           </p>
@@ -117,7 +154,7 @@ export default function ContactPage() {
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                 
                 <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-2xl p-8 border border-gray-800">
-                  <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                     Send us a Message
                   </h2>
 
@@ -135,8 +172,8 @@ export default function ContactPage() {
                     </div>
                   )}
                   
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                       <Input
                         label="Full Name"
                         name="name"
@@ -180,7 +217,7 @@ export default function ContactPage() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full relative group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-4 px-6 rounded-lg font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] overflow-hidden"
+                      className="w-full relative group bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-3 sm:py-4 px-6 rounded-lg text-base sm:text-lg font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] overflow-hidden min-h-[48px] touch-manipulation"
                     >
                       <span className="relative z-10 flex items-center justify-center">
                         {isSubmitting ? (

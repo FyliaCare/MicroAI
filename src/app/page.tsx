@@ -23,12 +23,50 @@ export default function Home() {
             <div className="flex items-center">
               <Logo />
             </div>
+            
+            {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-8 items-center">
               <Link href="/services" className="text-gray-300 hover:text-white transition-colors">Services</Link>
               <Link href="/about" className="text-gray-300 hover:text-white transition-colors">About</Link>
               <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">Portfolio</Link>
               <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
               <Link href="/admin" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all">
+                Admin Portal
+              </Link>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              id="mobile-menu-btn"
+              className="md:hidden text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-2"
+              onClick={() => {
+                const menu = document.getElementById('mobile-menu')
+                menu?.classList.toggle('hidden')
+              }}
+              aria-label="Toggle mobile menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          <div id="mobile-menu" className="hidden md:hidden pb-4 border-t border-gray-800 mt-2 pt-4">
+            <div className="flex flex-col space-y-3">
+              <Link href="/services" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                Services
+              </Link>
+              <Link href="/about" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                About
+              </Link>
+              <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                Portfolio
+              </Link>
+              <Link href="/contact" className="text-gray-300 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-gray-800">
+                Contact
+              </Link>
+              <Link href="/admin" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 rounded-lg text-center hover:from-blue-700 hover:to-purple-700 transition-all">
                 Admin Portal
               </Link>
             </div>
@@ -53,29 +91,29 @@ export default function Home() {
             </div>
           </div>
           
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight animate-fadeIn delay-200">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight animate-fadeIn delay-200">
             We Build Your
             <br />
             <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
               Digital Future
             </span>
             <br />
-            <span className="text-4xl md:text-5xl lg:text-6xl">10x Faster</span>
+            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl">10x Faster</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed animate-fadeIn delay-500">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed animate-fadeIn delay-500 px-4">
             Revolutionary technology that delivers enterprise-grade web applications, 
             tools, and SaaS platforms in <span className="text-blue-500 font-bold">1/10th the time</span> of 
             traditional development companies.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16 animate-fadeIn delay-700">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16 animate-fadeIn delay-700 px-4">
             <StartProjectButton 
-              className="group relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-10 py-4 rounded-full text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-2xl hover-lift cursor-pointer"
+              className="group relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-2xl hover-lift cursor-pointer min-h-[48px] touch-manipulation"
             />
             <Link 
               href="/services" 
-              className="border-2 border-gray-700 text-white px-10 py-4 rounded-full text-lg font-semibold hover:border-blue-500 hover:bg-blue-500/10 transition-all hover-scale"
+              className="border-2 border-gray-700 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold hover:border-blue-500 hover:bg-blue-500/10 transition-all hover-scale min-h-[48px] touch-manipulation text-center"
             >
               Explore Our Technology
             </Link>
@@ -89,11 +127,11 @@ export default function Home() {
       {/* Technology Section */}
       <section className="py-20 px-4 relative">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="text-center mb-16 px-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
               Our <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Secret Weapon</span>
             </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
               We&apos;ve invested heavily in cutting-edge development systems that revolutionize 
               how we build digital products.
             </p>
@@ -136,9 +174,9 @@ export default function Home() {
       {/* Services Section */}
       <section className="py-20 px-4 bg-gradient-to-b from-transparent to-gray-900/50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">What We Build</h2>
-            <p className="text-xl text-gray-400">Powerful digital solutions delivered at revolutionary speed</p>
+          <div className="text-center mb-16 px-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">What We Build</h2>
+            <p className="text-base sm:text-lg md:text-xl text-gray-400">Powerful digital solutions delivered at revolutionary speed</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition-all cursor-pointer hover-lift animate-fadeIn">
@@ -176,16 +214,16 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center animate-fadeIn">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
             Ready to Build <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">10x Faster</span>?
           </h2>
-          <p className="text-xl text-gray-400 mb-10">
+          <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-10">
             Stop waiting months for traditional development cycles. Share your concept with us today 
             and get immediate insights with <span className="text-blue-400 font-semibold">lightning-fast timelines</span> that 
             turn your ideas into reality in weeks, not months.
           </p>
           <StartProjectButton 
-            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-12 py-4 rounded-full text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-2xl hover-lift animate-pulse-glow cursor-pointer"
+            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 sm:px-12 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-2xl hover-lift animate-pulse-glow cursor-pointer min-h-[48px] touch-manipulation"
           />
         </div>
       </section>
