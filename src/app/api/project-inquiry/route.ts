@@ -41,6 +41,12 @@ export async function POST(request: NextRequest) {
         user: process.env.SMTP_USER || 'microailabsglobal@gmail.com',
         pass: process.env.SMTP_PASSWORD || '',
       },
+      tls: {
+        rejectUnauthorized: false
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     })
 
     // Admin notification email HTML

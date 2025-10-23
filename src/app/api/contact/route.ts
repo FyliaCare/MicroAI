@@ -40,6 +40,12 @@ export async function POST(request: NextRequest) {
         user: process.env.SMTP_USER || 'microailabsglobal@gmail.com',
         pass: process.env.SMTP_PASSWORD || '', // Gmail App Password
       },
+      tls: {
+        rejectUnauthorized: false
+      },
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     })
 
     // Email content
