@@ -132,6 +132,14 @@ Submitted: ${new Date().toLocaleString()}
     `
 
     // Send email to admin
+    console.log('📧 Attempting to send email via Gmail SMTP...')
+    console.log('SMTP Config:', {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      user: process.env.SMTP_USER,
+      hasPassword: !!process.env.SMTP_PASSWORD
+    })
+    
     try {
       await transporter.sendMail({
         from: `"MicroAI Contact Form" <${process.env.SMTP_USER || 'microailabsglobal@gmail.com'}>`,
@@ -143,8 +151,10 @@ Submitted: ${new Date().toLocaleString()}
       })
 
       console.log('✅ Email sent successfully to microailabs@outlook.com')
-    } catch (emailError) {
-      console.error('Email sending error:', emailError)
+    } catch (emailError: any) {
+      console.error('❌ Email sending error:', emailError.message || emailError)
+      console.error('Error code:', emailError.code)
+      console.error('Error command:', emailError.command)
       // Continue anyway - don't fail the request if email fails
     }
 
