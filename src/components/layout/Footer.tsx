@@ -164,12 +164,6 @@ export default function Footer() {
                 Terms of Service
               </Link>
             </div>
-            
-            <p className="text-gray-500 text-sm flex items-center">
-              Built with
-              <span className="text-red-500 mx-1 animate-pulse">♥</span>
-              using cutting-edge AI
-            </p>
           </div>
         </div>
       </div>
