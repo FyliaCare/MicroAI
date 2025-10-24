@@ -11,6 +11,50 @@ interface ProjectInquiryData {
   phone?: string
 }
 
+// Mapping functions to convert numbers to descriptive text
+const projectTypeMap: { [key: string]: string } = {
+  '1': '🌐 Web Application',
+  '2': '☁️ SaaS Platform',
+  '3': '🎨 Website',
+  '4': '🛠️ Web Tool/Utility',
+  '5': '🤔 Not sure yet',
+}
+
+const timelineMap: { [key: string]: string } = {
+  '1': '🚀 ASAP (1-2 weeks)',
+  '2': '📅 Within a month',
+  '3': '⏰ Flexible timeline',
+  '4': '🔍 Just exploring for now',
+}
+
+const budgetMap: { [key: string]: string } = {
+  '1': '💵 Under $5k',
+  '2': '💰 $5k - $15k',
+  '3': '💎 $15k - $50k',
+  '4': '🏆 $50k+',
+  '5': '📊 Need a quote first',
+}
+
+// Helper function to format field values
+function formatFieldValue(field: string, value: string): string {
+  // If it's already a descriptive text, return as is
+  if (value && value.length > 2) {
+    return value
+  }
+  
+  // Otherwise, map the number to descriptive text
+  switch (field) {
+    case 'projectType':
+      return projectTypeMap[value] || value
+    case 'timeline':
+      return timelineMap[value] || value
+    case 'budget':
+      return budgetMap[value] || value
+    default:
+      return value
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: ProjectInquiryData = await request.json()
@@ -34,6 +78,11 @@ export async function POST(request: NextRequest) {
 
     // Initialize Resend with API key (only when actually sending)
     const resend = new Resend(process.env.RESEND_API_KEY || '')
+
+    // Format the values for display
+    const formattedProjectType = formatFieldValue('projectType', body.projectType)
+    const formattedTimeline = formatFieldValue('timeline', body.timeline)
+    const formattedBudget = formatFieldValue('budget', body.budget)
 
     // Admin notification email HTML
     const adminEmailHtml = `
@@ -90,17 +139,17 @@ export async function POST(request: NextRequest) {
               
               <div class="field">
                 <span class="label">🎯 Project Type:</span>
-                <div class="value">${body.projectType}</div>
+                <div class="value">${formattedProjectType}</div>
               </div>
               
               <div class="field">
                 <span class="label">⏱️ Timeline:</span>
-                <div class="value">${body.timeline}</div>
+                <div class="value">${formattedTimeline}</div>
               </div>
               
               <div class="field">
                 <span class="label">💰 Budget:</span>
-                <div class="value">${body.budget}</div>
+                <div class="value">${formattedBudget}</div>
               </div>
               
               <div class="field">
@@ -142,9 +191,9 @@ ${body.phone ? `Phone: ${body.phone}` : ''}
 Project Idea:
 ${body.projectIdea}
 
-Project Type: ${body.projectType}
-Timeline: ${body.timeline}
-Budget: ${body.budget}
+Project Type: ${formattedProjectType}
+Timeline: ${formattedTimeline}
+Budget: ${formattedBudget}
 
 Submitted: ${new Date().toLocaleString()}
 
@@ -159,7 +208,7 @@ Next Step: Send Teams meeting invite to ${body.email}
       const { data, error } = await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'MicroAI AI Bot <onboarding@resend.dev>',
         to: [adminEmail], // Changed to verified email
-        subject: `🤖 New AI Bot Inquiry from ${body.name} - ${body.projectType}`,
+        subject: `🤖 New AI Bot Inquiry from ${body.name} - ${formattedProjectType}`,
         replyTo: body.email,
         html: adminEmailHtml,
       })
@@ -198,7 +247,7 @@ Next Step: Send Teams meeting invite to ${body.email}
           <div class="container">
             <div class="header">
               <h1 style="margin: 0; font-size: 32px;">🎉 Thanks for Sharing Your Vision, ${body.name}!</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.9;">We're excited about your ${body.projectType} project!</p>
+              <p style="margin: 10px 0 0 0; opacity: 0.9;">We're excited about your ${formattedProjectType} project!</p>
               <div class="badge">✓ RECEIVED</div>
             </div>
             
@@ -244,9 +293,9 @@ Next Step: Send Teams meeting invite to ${body.email}
               <div class="section">
                 <h3 style="color: #1F2937; margin-bottom: 10px;">📋 Your Project Summary</h3>
                 <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                  <p style="margin: 5px 0;"><strong>Project Type:</strong> ${body.projectType}</p>
-                  <p style="margin: 5px 0;"><strong>Timeline:</strong> ${body.timeline}</p>
-                  <p style="margin: 5px 0;"><strong>Budget Range:</strong> ${body.budget}</p>
+                  <p style="margin: 5px 0;"><strong>Project Type:</strong> ${formattedProjectType}</p>
+                  <p style="margin: 5px 0;"><strong>Timeline:</strong> ${formattedTimeline}</p>
+                  <p style="margin: 5px 0;"><strong>Budget Range:</strong> ${formattedBudget}</p>
                   <p style="margin: 5px 0;"><strong>Date Submitted:</strong> ${new Date().toLocaleDateString('en-US', { 
                     weekday: 'long', 
                     year: 'numeric', 
@@ -313,9 +362,9 @@ WHAT HAPPENS NEXT?
 4. Detailed Proposal - Receive a comprehensive proposal with timeline and pricing
 
 YOUR PROJECT SUMMARY:
-Project Type: ${body.projectType}
-Timeline: ${body.timeline}
-Budget Range: ${body.budget}
+Project Type: ${formattedProjectType}
+Timeline: ${formattedTimeline}
+Budget Range: ${formattedBudget}
 Date Submitted: ${new Date().toLocaleDateString()}
 
 WHY MICROAI IS DIFFERENT:
