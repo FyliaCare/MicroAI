@@ -5,8 +5,8 @@ import Link from 'next/link'
 import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Button from '@/components/ui/Button'
-import DevBanner from '@/components/DevBanner'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
+import Footer from '@/components/layout/Footer'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -61,14 +61,11 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Development Banner */}
-      <DevBanner />
-      
       {/* Advanced Navigation */}
       <AdvancedNavbar />
 
       {/* Hero Section */}
-      <section className="relative pt-[180px] sm:pt-[200px] pb-20 px-4">
+      <section className="relative pt-32 pb-20 px-4">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute w-96 h-96 bg-blue-500/20 rounded-full blur-3xl top-20 left-20 animate-pulse" style={{ transform: 'translate3d(0,0,0)' }}></div>
@@ -319,21 +316,7 @@ export default function ContactPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative border-t border-gray-800 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-4">
-              MicroAI
-            </h3>
-            <p className="text-gray-400 mt-4 mb-2">
-              Building the future, <span className="text-blue-500 font-bold">10x faster</span>
-            </p>
-            <p className="text-gray-500 text-sm">
-              &copy; 2024 MicroAI. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }

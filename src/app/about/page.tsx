@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import DevBanner from '@/components/DevBanner'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
+import Footer from '@/components/layout/Footer'
 
 const CountingStats = dynamic(() => import('@/components/CountingStats'), {
   loading: () => <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto h-32" />,
@@ -17,14 +17,11 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-black text-white overflow-hidden">
-      {/* Development Banner */}
-      <DevBanner />
-      
       {/* Advanced Navigation */}
       <AdvancedNavbar />
 
       {/* Hero Section */}
-      <section className="relative pt-[180px] sm:pt-[200px] pb-20 px-4">
+      <section className="relative pt-32 pb-20 px-4">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute w-96 h-96 bg-blue-500/20 rounded-full blur-3xl top-20 left-20 animate-pulse" style={{ transform: 'translate3d(0,0,0)' }}></div>
@@ -200,49 +197,7 @@ export default function AboutPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-4">
-                MicroAI
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Revolutionary development technology delivering projects 10x faster than traditional companies.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/services" className="hover:text-blue-400 transition-colors">Web Applications</Link></li>
-                <li><Link href="/services" className="hover:text-blue-400 transition-colors">SaaS Platforms</Link></li>
-                <li><Link href="/services" className="hover:text-blue-400 transition-colors">Websites</Link></li>
-                <li><Link href="/services" className="hover:text-blue-400 transition-colors">Web Tools</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/about" className="hover:text-blue-400 transition-colors">About Us</Link></li>
-                <li><Link href="/portfolio" className="hover:text-blue-400 transition-colors">Portfolio</Link></li>
-                <li><Link href="/contact" className="hover:text-blue-400 transition-colors">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
-              <p className="text-gray-400 text-sm mb-2">
-                <a href="mailto:microailabs@outlook.com" className="hover:text-blue-400 transition-colors">
-                  microailabs@outlook.com
-                </a>
-              </p>
-              <p className="text-gray-400 text-sm">Takoradi, Ghana</p>
-            </div>
-          </div>
-          <div className="text-center pt-8 border-t border-gray-800">
-            <p className="text-gray-400 text-sm">&copy; 2024 MicroAI. All rights reserved. Built with cutting-edge technology.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }

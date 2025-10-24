@@ -1,7 +1,7 @@
 import type { Metadata} from 'next'
 import Link from 'next/link'
-import DevBanner from '@/components/DevBanner'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
+import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
   title: 'Services - MicroAI',
@@ -82,14 +82,11 @@ const services = [
 export default function ServicesPage() {
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* Development Banner */}
-      <DevBanner />
-      
       {/* Advanced Navigation */}
       <AdvancedNavbar />
 
       {/* Hero Section */}
-      <section className="pt-[180px] sm:pt-[200px] pb-20 px-4 relative overflow-hidden">
+      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0">
           <div className="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl top-20 left-20 animate-pulse"></div>
@@ -231,13 +228,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-12 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-4">MicroAI</h3>
-          <p className="text-gray-400 mb-8">10x Faster Development Technology</p>
-          <p className="text-gray-500 text-sm">&copy; 2024 MicroAI. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }
