@@ -74,7 +74,7 @@ export default function Footer() {
             </div>
 
             {/* Services */}
-            <div>
+            <div className="hidden lg:block">
               <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Our Services</h4>
               <ul className="space-y-3">
                 <li>
@@ -99,12 +99,6 @@ export default function Footer() {
                   <Link href="/services" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
                     <span className="text-cyan-500 mr-2">🛠️</span>
                     Custom Web Tools
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/services" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
-                    <span className="text-green-500 mr-2">⚡</span>
-                    API Development
                   </Link>
                 </li>
               </ul>
