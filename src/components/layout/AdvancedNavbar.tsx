@@ -65,14 +65,16 @@ export default function AdvancedNavbar() {
   const mobileMenuTop = isBannerVisible ? `calc(${bannerHeight}px + 52px)` : '52px'
 
   return (
-    <nav 
-      className={`fixed w-full z-40 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-black/95 backdrop-blur-xl border-b border-gray-700/50 shadow-lg shadow-blue-500/5' 
-          : 'bg-black/80 backdrop-blur-lg border-b border-gray-800'
-      }`}
-      style={{ top: navbarTop }}
-    >
+    <>
+      {/* Navigation Bar */}
+      <nav 
+        className={`fixed w-full z-40 transition-all duration-300 ${
+          scrolled 
+            ? 'bg-black/95 backdrop-blur-xl border-b border-gray-700/50 shadow-lg shadow-blue-500/5' 
+            : 'bg-black/80 backdrop-blur-lg border-b border-gray-800'
+        }`}
+        style={{ top: navbarTop }}
+      >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-3 sm:py-4">
           {/* Logo */}
@@ -136,16 +138,17 @@ export default function AdvancedNavbar() {
           </button>
         </div>
       </div>
+    </nav>
 
-      {/* Mobile/Tablet Menu Overlay */}
-      <div
-        className={`lg:hidden fixed left-0 right-0 bottom-0 z-50 bg-black/95 backdrop-blur-xl transition-all duration-300 ${
-          mobileMenuOpen 
-            ? 'opacity-100 pointer-events-auto' 
-            : 'opacity-0 pointer-events-none'
-        }`}
-        style={{ top: mobileMenuTop }}
-      >
+    {/* Mobile/Tablet Menu Overlay - Outside nav for proper z-index */}
+    <div
+      className={`lg:hidden fixed left-0 right-0 bottom-0 z-50 bg-black/95 backdrop-blur-xl transition-all duration-300 ${
+        mobileMenuOpen 
+          ? 'opacity-100 pointer-events-auto' 
+          : 'opacity-0 pointer-events-none'
+      }`}
+      style={{ top: mobileMenuTop }}
+    >
         <div className="h-full overflow-y-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
             {/* Mobile Navigation Links */}
@@ -218,6 +221,6 @@ export default function AdvancedNavbar() {
           </div>
         </div>
       </div>
-    </nav>
+    </>
   )
 }
