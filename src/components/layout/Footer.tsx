@@ -70,6 +70,17 @@ export default function Footer() {
                     Contact
                   </Link>
                 </li>
+                <li>
+                  <Link href="/admin" className="text-gray-400 hover:text-purple-400 transition-colors text-sm flex items-center group">
+                    <span className="w-0 group-hover:w-2 h-0.5 bg-purple-400 transition-all mr-0 group-hover:mr-2"></span>
+                    <span className="flex items-center">
+                      <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      Admin
+                    </span>
+                  </Link>
+                </li>
               </ul>
             </div>
 
