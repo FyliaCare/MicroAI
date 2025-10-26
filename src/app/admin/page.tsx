@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import DashboardOverview from '@/components/admin/DashboardOverview'
+import AdvancedDashboard from '@/components/admin/AdvancedDashboard'
 import ProjectsManager from '@/components/admin/ProjectsManager'
 import ClientsManager from '@/components/admin/ClientsManager'
 import QuotesManager from '@/components/admin/QuotesManager'
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
 
         {/* Main Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full lg:w-auto">
-          {activeTab === 'overview' && <DashboardOverview />}
+          {activeTab === 'overview' && <AdvancedDashboard />}
           {activeTab === 'projects' && <ProjectsManager />}
           {activeTab === 'clients' && <ClientsManager />}
           {activeTab === 'quotes' && <QuotesManager />}
