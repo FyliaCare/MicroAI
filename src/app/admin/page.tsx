@@ -6,6 +6,7 @@ import AdvancedDashboard from '@/components/admin/AdvancedDashboard'
 import AdvancedProjectsManager from '@/components/admin/AdvancedProjectsManager'
 import AdvancedClientsManager from '@/components/admin/AdvancedClientsManager'
 import AdvancedQuotesManager from '@/components/admin/AdvancedQuotesManager'
+import AdvancedServicesManager from '@/components/admin/AdvancedServicesManager'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -131,31 +132,7 @@ export default function AdminDashboard() {
           {activeTab === 'projects' && <AdvancedProjectsManager />}
           {activeTab === 'clients' && <AdvancedClientsManager />}
           {activeTab === 'quotes' && <AdvancedQuotesManager />}
-
-          {activeTab === 'services' && (
-            <div>
-              <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Services</h1>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                  Add Service
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-lg font-medium text-gray-900">Web Application Development</h3>
-                  <p className="text-gray-600 mt-2">Custom web applications built with modern frameworks</p>
-                  <p className="text-sm text-gray-500 mt-2">Price: $5,000 - $50,000</p>
-                  <button className="mt-4 text-blue-600 hover:text-blue-900">Edit Service</button>
-                </div>
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-lg font-medium text-gray-900">SaaS Development</h3>
-                  <p className="text-gray-600 mt-2">Scalable Software-as-a-Service solutions</p>
-                  <p className="text-sm text-gray-500 mt-2">Price: $10,000 - $100,000</p>
-                  <button className="mt-4 text-blue-600 hover:text-blue-900">Edit Service</button>
-                </div>
-              </div>
-            </div>
-          )}
+          {activeTab === 'services' && <AdvancedServicesManager />}
 
           {activeTab === 'analytics' && (
             <div>

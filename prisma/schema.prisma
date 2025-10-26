@@ -217,6 +217,40 @@ model Admin {
   updatedAt     DateTime  @updatedAt
 }
 
+model Service {
+  id            String    @id @default(uuid())
+  name          String
+  description   String?
+  category      String    // web-development, design, consulting, maintenance, other
+  
+  // Pricing
+  priceType     String    @default("fixed") // fixed, hourly, project-based, custom
+  basePrice     Float?
+  minPrice      Float?
+  maxPrice      Float?
+  hourlyRate    Float?
+  
+  // Details
+  features      String?   // JSON array of features
+  deliverables  String?   // JSON array of deliverables
+  duration      String?   // Estimated duration (e.g., "2-4 weeks")
+  
+  // Status
+  isActive      Boolean   @default(true)
+  isPopular     Boolean   @default(false)
+  
+  // SEO & Display
+  icon          String?   // Icon name or emoji
+  color         String?   // Color code for display
+  sortOrder     Int       @default(0)
+  
+  tags          String?   // JSON array of tags
+  notes         String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
 model ActivityLog {
   id          String    @id @default(uuid())
   action      String    // Created, Updated, Deleted, etc.
