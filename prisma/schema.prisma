@@ -1,0 +1,230 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  phone       String?
+  company     String?
+  website     String?
+  address     String?
+  notes       String?
+  status      String    @default("active") // active, inactive, archived
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  projects    Project[]
+  quotes      Quote[]
+  invoices    Invoice[]
+}
+
+model Project {
+  id            String    @id @default(uuid())
+  name          String
+  description   String?
+  type          String    // web-app, saas, website, web-tool, custom
+  status        String    @default("planning") // planning, in-progress, review, completed, on-hold, cancelled
+  priority      String    @default("medium") // low, medium, high, urgent
+  
+  // Financial
+  budget        Float?
+  actualCost    Float?
+  revenue       Float?
+  profitMargin  Float?
+  
+  // Timeline
+  startDate     DateTime?
+  endDate       DateTime?
+  deadline      DateTime?
+  completedAt   DateTime?
+  
+  // Technical
+  techStack     String?   // JSON string of technologies
+  githubRepo    String?
+  liveUrl       String?
+  stagingUrl    String?
+  
+  // Management
+  progress      Int       @default(0) // 0-100
+  notes         String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  clientId      String?
+  client        Client?   @relation(fields: [clientId], references: [id])
+  tasks         Task[]
+  milestones    Milestone[]
+  invoices      Invoice[]
+  quote         Quote?
+}
+
+model Quote {
+  id              String    @id @default(uuid())
+  quoteNumber     String    @unique
+  title           String
+  description     String?
+  
+  // Client
+  clientId        String?
+  client          Client?   @relation(fields: [clientId], references: [id])
+  
+  // Project
+  projectId       String?   @unique
+  project         Project?  @relation(fields: [projectId], references: [id])
+  
+  // Pricing
+  subtotal        Float
+  tax             Float     @default(0)
+  discount        Float     @default(0)
+  total           Float
+  
+  // Items/Services
+  items           String    // JSON string of line items
+  
+  // Status
+  status          String    @default("draft") // draft, sent, viewed, accepted, rejected, expired
+  validUntil      DateTime?
+  
+  // Dates
+  issuedAt        DateTime?
+  sentAt          DateTime?
+  viewedAt        DateTime?
+  respondedAt     DateTime?
+  
+  notes           String?
+  terms           String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Invoice {
+  id              String    @id @default(uuid())
+  invoiceNumber   String    @unique
+  title           String
+  description     String?
+  
+  // Client & Project
+  clientId        String?
+  client          Client?   @relation(fields: [clientId], references: [id])
+  projectId       String?
+  project         Project?  @relation(fields: [projectId], references: [id])
+  
+  // Amounts
+  subtotal        Float
+  tax             Float     @default(0)
+  discount        Float     @default(0)
+  total           Float
+  paidAmount      Float     @default(0)
+  
+  // Items/Services
+  items           String    // JSON string of line items
+  
+  // Status & Payment
+  status          String    @default("draft") // draft, sent, viewed, partial, paid, overdue, cancelled
+  paymentMethod   String?
+  paymentDate     DateTime?
+  
+  // Dates
+  issuedAt        DateTime?
+  dueDate         DateTime?
+  sentAt          DateTime?
+  
+  notes           String?
+  terms           String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Task {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  status        String    @default("todo") // todo, in-progress, review, completed, blocked
+  priority      String    @default("medium") // low, medium, high, urgent
+  
+  // Time tracking
+  estimatedHours Float?
+  actualHours    Float?
+  
+  // Dates
+  startDate     DateTime?
+  dueDate       DateTime?
+  completedAt   DateTime?
+  
+  // Assignment
+  assignedTo    String?   // User/team member name or ID
+  
+  // Relations
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id])
+  
+  tags          String?   // JSON array of tags
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Milestone {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  status        String    @default("pending") // pending, in-progress, completed, missed
+  
+  // Deliverables
+  deliverables  String?   // JSON array of deliverables
+  
+  // Dates
+  dueDate       DateTime?
+  completedAt   DateTime?
+  
+  // Payment
+  paymentAmount Float?
+  isPaid        Boolean   @default(false)
+  
+  // Relations
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id])
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Admin {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String    // Hashed
+  name          String
+  role          String    @default("admin") // admin, super-admin, manager
+  isActive      Boolean   @default(true)
+  
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model ActivityLog {
+  id          String    @id @default(uuid())
+  action      String    // Created, Updated, Deleted, etc.
+  entity      String    // Project, Client, Quote, etc.
+  entityId    String
+  description String?
+  userId      String?   // Admin who performed the action
+  metadata    String?   // JSON string of additional data
+  
+  createdAt   DateTime  @default(now())
+}
