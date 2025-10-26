@@ -5,7 +5,7 @@ import Link from 'next/link'
 import AdvancedDashboard from '@/components/admin/AdvancedDashboard'
 import AdvancedProjectsManager from '@/components/admin/AdvancedProjectsManager'
 import AdvancedClientsManager from '@/components/admin/AdvancedClientsManager'
-import QuotesManager from '@/components/admin/QuotesManager'
+import AdvancedQuotesManager from '@/components/admin/AdvancedQuotesManager'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
           {activeTab === 'overview' && <AdvancedDashboard />}
           {activeTab === 'projects' && <AdvancedProjectsManager />}
           {activeTab === 'clients' && <AdvancedClientsManager />}
-          {activeTab === 'quotes' && <QuotesManager />}
+          {activeTab === 'quotes' && <AdvancedQuotesManager />}
 
           {activeTab === 'services' && (
             <div>
