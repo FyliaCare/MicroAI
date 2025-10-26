@@ -1,5 +1,5 @@
 interface InputProps {
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url'
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'date'
   label?: string
   name?: string
   placeholder?: string
@@ -9,6 +9,9 @@ interface InputProps {
   className?: string
   error?: string
   disabled?: boolean
+  min?: string
+  max?: string
+  step?: string
 }
 
 export default function Input({
@@ -21,7 +24,10 @@ export default function Input({
   required = false,
   className = '',
   error,
-  disabled = false
+  disabled = false,
+  min,
+  max,
+  step
 }: InputProps) {
   return (
     <div className={`mb-4 ${className}`}>
@@ -38,6 +44,9 @@ export default function Input({
         onChange={onChange}
         required={required}
         disabled={disabled}
+        min={min}
+        max={max}
+        step={step}
         className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
           error ? 'border-red-500' : 'border-gray-300'
         } ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}

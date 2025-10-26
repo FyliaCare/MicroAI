@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     })
 
     const financialSummary = projects.reduce(
-      (acc, project) => {
+      (acc: { totalBudget: number; totalCost: number; totalRevenue: number; totalProfit: number }, project: any) => {
         if (project.budget) acc.totalBudget += project.budget
         if (project.actualCost) acc.totalCost += project.actualCost
         if (project.revenue) acc.totalRevenue += project.revenue
@@ -133,11 +133,11 @@ export async function GET(request: NextRequest) {
         },
         financial: financialSummary,
         charts: {
-          projectsByStatus: projectsByStatus.map(item => ({
+          projectsByStatus: projectsByStatus.map((item: any) => ({
             status: item.status,
             count: item._count,
           })),
-          projectsByType: projectsByType.map(item => ({
+          projectsByType: projectsByType.map((item: any) => ({
             type: item.type,
             count: item._count,
           })),
