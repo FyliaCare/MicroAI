@@ -7,6 +7,7 @@ import AdvancedProjectsManager from '@/components/admin/AdvancedProjectsManager'
 import AdvancedClientsManager from '@/components/admin/AdvancedClientsManager'
 import AdvancedQuotesManager from '@/components/admin/AdvancedQuotesManager'
 import AdvancedServicesManager from '@/components/admin/AdvancedServicesManager'
+import AdvancedAnalytics from '@/components/admin/AdvancedAnalytics'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -133,16 +134,7 @@ export default function AdminDashboard() {
           {activeTab === 'clients' && <AdvancedClientsManager />}
           {activeTab === 'quotes' && <AdvancedQuotesManager />}
           {activeTab === 'services' && <AdvancedServicesManager />}
-
-          {activeTab === 'analytics' && (
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-8">Analytics</h1>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Performance Metrics</h3>
-                <p className="text-gray-600">Analytics dashboard coming soon...</p>
-              </div>
-            </div>
-          )}
+          {activeTab === 'analytics' && <AdvancedAnalytics />}
         </main>
       </div>
     </div>
