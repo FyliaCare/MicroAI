@@ -330,74 +330,74 @@ function PDFQuoteContent() {
         </h2>
 
         {/* Pricing Table */}
-        <div className="mb-8">
-          <table className="w-full text-sm border-collapse">
+        <div className="mb-6">
+          <table className="w-full text-sm border-collapse border border-gray-400">
             <thead>
-              <tr className="bg-gray-100 border-b-2 border-gray-300">
-                <th className="text-left p-3 font-semibold">#</th>
-                <th className="text-left p-3 font-semibold">Description</th>
-                <th className="text-center p-3 font-semibold">Quantity</th>
-                <th className="text-right p-3 font-semibold">Unit Price</th>
+              <tr className="bg-gray-800 text-white border-b-2 border-gray-800">
+                <th className="text-left p-3 font-semibold border-r border-gray-600">#</th>
+                <th className="text-left p-3 font-semibold border-r border-gray-600">Description</th>
+                <th className="text-center p-3 font-semibold border-r border-gray-600">Quantity</th>
+                <th className="text-right p-3 font-semibold border-r border-gray-600">Unit Price</th>
                 <th className="text-right p-3 font-semibold">Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-gray-200">
-                <td className="p-3">1</td>
-                <td className="p-3">
-                  <div className="font-semibold">Setup & Initialization Fee</div>
+              <tr className="border-b border-gray-400 bg-white">
+                <td className="p-3 border-r border-gray-300">1</td>
+                <td className="p-3 border-r border-gray-300">
+                  <div className="font-semibold text-gray-900">Setup & Initialization Fee</div>
                   <div className="text-sm text-gray-700 mt-1">Project setup, development environment, initial configuration</div>
                 </td>
-                <td className="text-center p-3">1</td>
-                <td className="text-right p-3">${setupFee.toLocaleString()}</td>
-                <td className="text-right p-3 font-semibold">${setupFee.toLocaleString()}</td>
+                <td className="text-center p-3 border-r border-gray-300">1</td>
+                <td className="text-right p-3 border-r border-gray-300 font-medium">${setupFee.toLocaleString()}</td>
+                <td className="text-right p-3 font-bold text-gray-900">${setupFee.toLocaleString()}</td>
               </tr>
               
               {developmentCost > 0 && (
-                <tr className="border-b border-gray-200">
-                  <td className="p-3">2</td>
-                  <td className="p-3">
-                    <div className="font-semibold">Development Services</div>
+                <tr className="border-b border-gray-400 bg-white">
+                  <td className="p-3 border-r border-gray-300">2</td>
+                  <td className="p-3 border-r border-gray-300">
+                    <div className="font-semibold text-gray-900">Development Services</div>
                     <div className="text-sm text-gray-700 mt-1">Custom development work, coding, feature implementation</div>
                   </td>
-                  <td className="text-center p-3">1</td>
-                  <td className="text-right p-3">${developmentCost.toLocaleString()}</td>
-                  <td className="text-right p-3 font-semibold">${developmentCost.toLocaleString()}</td>
+                  <td className="text-center p-3 border-r border-gray-300">1</td>
+                  <td className="text-right p-3 border-r border-gray-300 font-medium">${developmentCost.toLocaleString()}</td>
+                  <td className="text-right p-3 font-bold text-gray-900">${developmentCost.toLocaleString()}</td>
                 </tr>
               )}
 
               {designCost > 0 && (
-                <tr className="border-b border-gray-200">
-                  <td className="p-3">{developmentCost > 0 ? '3' : '2'}</td>
-                  <td className="p-3">
-                    <div className="font-semibold">Design Services</div>
+                <tr className="border-b border-gray-400 bg-white">
+                  <td className="p-3 border-r border-gray-300">{developmentCost > 0 ? '3' : '2'}</td>
+                  <td className="p-3 border-r border-gray-300">
+                    <div className="font-semibold text-gray-900">Design Services</div>
                     <div className="text-sm text-gray-700 mt-1">UI/UX design, graphics, branding, visual assets</div>
                   </td>
-                  <td className="text-center p-3">1</td>
-                  <td className="text-right p-3">${designCost.toLocaleString()}</td>
-                  <td className="text-right p-3 font-semibold">${designCost.toLocaleString()}</td>
+                  <td className="text-center p-3 border-r border-gray-300">1</td>
+                  <td className="text-right p-3 border-r border-gray-300 font-medium">${designCost.toLocaleString()}</td>
+                  <td className="text-right p-3 font-bold text-gray-900">${designCost.toLocaleString()}</td>
                 </tr>
               )}
 
-              <tr className="border-b border-gray-200 bg-blue-50">
-                <td className="p-3">{(developmentCost > 0 ? 3 : 2) + (designCost > 0 ? 1 : 0)}</td>
-                <td className="p-3">
-                  <div className="font-semibold">Hosting & Maintenance Services</div>
+              <tr className="border-b-2 border-gray-400 bg-blue-100">
+                <td className="p-3 border-r border-gray-300">{(developmentCost > 0 ? 3 : 2) + (designCost > 0 ? 1 : 0)}</td>
+                <td className="p-3 border-r border-gray-300">
+                  <div className="font-semibold text-gray-900">Hosting & Maintenance Services</div>
                   <div className="text-sm text-gray-700 mt-1">Monthly hosting, SSL, backups, updates, technical support</div>
                 </td>
-                <td className="text-center p-3">12 months</td>
-                <td className="text-right p-3">${monthlyHosting.toLocaleString()}/mo</td>
-                <td className="text-right p-3 font-semibold">${yearlyHosting.toLocaleString()}</td>
+                <td className="text-center p-3 border-r border-gray-300 font-medium">12 months</td>
+                <td className="text-right p-3 border-r border-gray-300 font-medium">${monthlyHosting.toLocaleString()}/mo</td>
+                <td className="text-right p-3 font-bold text-gray-900">${yearlyHosting.toLocaleString()}</td>
               </tr>
 
               {/* Subtotals */}
-              <tr className="border-t-2 border-gray-400">
-                <td colSpan={4} className="text-right p-3 font-semibold">Setup Total:</td>
-                <td className="text-right p-3 font-bold text-lg">${setupTotal.toLocaleString()}</td>
+              <tr className="border-t-2 border-gray-500 bg-gray-100">
+                <td colSpan={4} className="text-right p-3 font-bold text-gray-900 border-r border-gray-400">Setup Total:</td>
+                <td className="text-right p-3 font-bold text-xl text-gray-900">${setupTotal.toLocaleString()}</td>
               </tr>
-              <tr className="bg-green-100 border-t border-gray-300">
-                <td colSpan={4} className="text-right p-3 font-bold text-lg">FIRST YEAR TOTAL:</td>
-                <td className="text-right p-3 font-bold text-2xl text-green-700">${firstYearTotal.toLocaleString()}</td>
+              <tr className="bg-green-200 border-t-2 border-gray-500">
+                <td colSpan={4} className="text-right p-3 font-bold text-lg text-gray-900 border-r border-gray-400">FIRST YEAR TOTAL:</td>
+                <td className="text-right p-3 font-bold text-2xl text-green-800">${firstYearTotal.toLocaleString()}</td>
               </tr>
             </tbody>
           </table>
@@ -425,29 +425,29 @@ function PDFQuoteContent() {
         )}
 
         {/* Terms & Conditions */}
-        <div className="bg-gray-50 border border-gray-200 rounded p-6">
-          <h3 className="font-bold text-base mb-3 text-gray-900">Terms & Conditions</h3>
-          <div className="text-sm text-gray-700 space-y-2">
+        <div className="bg-gray-100 border-2 border-gray-400 rounded p-5">
+          <h3 className="font-bold text-base mb-3 text-gray-900 border-b-2 border-gray-400 pb-2">Terms & Conditions</h3>
+          <div className="text-sm text-gray-800 space-y-2 font-medium">
             {quote.terms ? (
               <p className="whitespace-pre-wrap">{quote.terms}</p>
             ) : (
               <>
                 <p>• This quote is valid for 30 days from the date of issue.</p>
-                <p>• Payment terms: 50% deposit to begin work, 25% at mid-point review, 25% upon completion.</p>
+                <p>• Payment terms: 70% upfront, 50% upon completion. All prices in USD. Quote valid for 30 days.</p>
                 <p>• Timeline estimates are based on timely client feedback and content delivery.</p>
                 <p>• Additional features or scope changes will be quoted separately.</p>
-                <p>• All work remains property of MicroAI until final payment is received.</p>
+                <p>• All work remains property of {companyProfile?.name || 'MicroAI'} until final payment is received.</p>
               </>
             )}
           </div>
         </div>
 
         {/* Thank You Message */}
-        <div className="mt-6 text-center bg-blue-50 p-4 rounded">
-          <p className="text-sm text-gray-700 font-medium mb-1">
+        <div className="mt-4 text-center bg-blue-100 border-2 border-blue-400 p-4 rounded">
+          <p className="text-sm text-gray-900 font-bold mb-1">
             Thank you for considering {companyProfile?.name || 'MicroAI'} for your project!
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-800 font-medium">
             Questions? Contact us at {companyProfile?.email || 'contact@microai.com'} or {companyProfile?.phone || '+1 (555) 123-4567'}
           </p>
         </div>
