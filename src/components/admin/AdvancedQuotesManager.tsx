@@ -468,9 +468,11 @@ export default function AdvancedQuotesManager() {
           </svg>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Quotes Found</h3>
           <p className="text-gray-600 mb-4">Get started by creating your first quote</p>
-          <Button onClick={() => { resetForm(); setShowModal(true); }}>
-            Create Quote
-          </Button>
+          <Link href="/admin/quotes/new">
+            <Button>
+              Create Quote
+            </Button>
+          </Link>
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
