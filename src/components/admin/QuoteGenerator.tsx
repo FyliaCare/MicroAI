@@ -374,6 +374,11 @@ export default function AdvancedQuoteGenerator({
     parseFloat(formData.designCost || '0')
 
   const totalFirstYear = totalSetup + (parseFloat(formData.monthlyHosting || '0') * 12)
+  
+  // Ensure values are valid numbers
+  const safeSetup = isNaN(totalSetup) ? 0 : totalSetup
+  const safeFirstYear = isNaN(totalFirstYear) ? 0 : totalFirstYear
+  
   const selectedClient = clients.find(c => c.id === formData.clientId)
 
   return (
@@ -479,11 +484,11 @@ export default function AdvancedQuoteGenerator({
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-gray-500">Setup:</span>
-                      <span className="font-bold text-green-600">${template.setupFee.toLocaleString()}</span>
+                      <span className="font-bold text-green-600">${(template.setupFee || 0).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-gray-500">Monthly:</span>
-                      <span className="font-bold text-blue-600">${template.monthlyHosting}/mo</span>
+                      <span className="font-bold text-blue-600">${template.monthlyHosting || 0}/mo</span>
                     </div>
                     {template.estimatedHours > 0 && (
                       <div className="text-xs text-gray-500 mt-2 pt-2 border-t">
@@ -1329,11 +1334,11 @@ export default function AdvancedQuoteGenerator({
                         {/* Subtotals */}
                         <tr className="border-t-2 border-gray-400">
                           <td colSpan={4} className="text-right p-3 font-semibold">Setup Total:</td>
-                          <td className="text-right p-3 font-bold text-lg">${totalSetup.toLocaleString()}</td>
+                          <td className="text-right p-3 font-bold text-lg">${safeSetup.toLocaleString()}</td>
                         </tr>
                         <tr className="bg-green-100 border-t border-gray-300">
                           <td colSpan={4} className="text-right p-3 font-bold text-lg">FIRST YEAR TOTAL:</td>
-                          <td className="text-right p-3 font-bold text-2xl text-green-700">${totalFirstYear.toLocaleString()}</td>
+                          <td className="text-right p-3 font-bold text-2xl text-green-700">${safeFirstYear.toLocaleString()}</td>
                         </tr>
                       </tbody>
                     </table>
