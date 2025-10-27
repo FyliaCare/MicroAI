@@ -101,7 +101,7 @@ function PDFQuoteContent() {
   const yearlyHosting = monthlyHosting * 12
   const firstYearTotal = setupTotal + yearlyHosting
 
-  const phases = quote.phases || []
+  const phases = Array.isArray(quote.phases) ? quote.phases : []
 
   return (
     <div className="min-h-screen bg-white">
@@ -207,9 +207,9 @@ function PDFQuoteContent() {
                 {phase.description && (
                   <p className="text-sm text-gray-700 mb-2">{phase.description}</p>
                 )}
-                {phase.tasks && phase.tasks.length > 0 && phase.tasks[0] !== '' && (
+                {phase.tasks && Array.isArray(phase.tasks) && phase.tasks.length > 0 && phase.tasks[0] !== '' && (
                   <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
-                    {phase.tasks.filter((task: string) => task.trim() !== '').map((task: string, taskIdx: number) => (
+                    {phase.tasks.filter((task: string) => task && task.trim() !== '').map((task: string, taskIdx: number) => (
                       <li key={taskIdx}>{task}</li>
                     ))}
                   </ul>
@@ -409,7 +409,7 @@ function PDFQuoteContent() {
         </div>
 
         {/* Payment Milestones */}
-        {quote.milestones && quote.milestones.length > 0 && (
+        {quote.milestones && Array.isArray(quote.milestones) && quote.milestones.length > 0 && (
           <div className="mb-8">
             <h3 className="font-bold text-lg mb-4 text-gray-900">Payment Schedule:</h3>
             <div className="space-y-2">
