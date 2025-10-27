@@ -291,3 +291,38 @@ html {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
+/* Print styles for quotes */
+@media print {
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .page-break {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  button:not(.print-show), input, textarea, select {
+    display: none !important;
+  }
+
+  body { font-size: 11pt !important; }
+  h1 { font-size: 24pt !important; }
+  h2 { font-size: 20pt !important; }
+  h3 { font-size: 16pt !important; }
+}

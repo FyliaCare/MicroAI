@@ -51,6 +51,7 @@ export default function AdvancedQuoteGenerator({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [collapsedPhases, setCollapsedPhases] = useState<Set<number>>(new Set())
   
   // Company Profile State
   const [companyProfile, setCompanyProfile] = useState({
@@ -195,6 +196,20 @@ export default function AdvancedQuoteGenerator({
     } catch (err) {
       console.error('Error loading company profile:', err)
     }
+  }
+
+  const togglePhase = (index: number) => {
+    const newCollapsed = new Set(collapsedPhases)
+    if (newCollapsed.has(index)) {
+      newCollapsed.delete(index)
+    } else {
+      newCollapsed.add(index)
+    }
+    setCollapsedPhases(newCollapsed)
+  }
+
+  const handleDownloadQuote = () => {
+    window.print()
   }
 
   const fetchTemplates = async () => {
@@ -1089,25 +1104,37 @@ export default function AdvancedQuoteGenerator({
                   {/* Build Process Phases - Dynamic */}
                   <div className="space-y-6 mb-8">
                     {formData.developmentPhases.length > 0 ? (
-                      formData.developmentPhases.map((phase, index) => (
-                        <div key={index} className={`border-l-4 border-${phase.color}-600 pl-4 py-2`}>
-                          <h3 className={`font-bold text-lg text-${phase.color}-700 mb-2`}>
-                            Phase {index + 1}: {phase.title}
-                          </h3>
-                          {phase.description && (
-                            <p className="text-sm text-gray-700 mb-2">
-                              {phase.description}
-                            </p>
-                          )}
-                          {phase.tasks.length > 0 && phase.tasks[0] !== '' && (
-                            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
-                              {phase.tasks.filter(task => task.trim() !== '').map((task, taskIdx) => (
-                                <li key={taskIdx}>{task}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      ))
+                      formData.developmentPhases.map((phase, index) => {
+                        const isCollapsed = collapsedPhases.has(index)
+                        return (
+                          <div key={index} className={`border-l-4 border-${phase.color}-600 pl-4 py-2`}>
+                            <div className="flex items-center justify-between cursor-pointer" onClick={() => togglePhase(index)}>
+                              <h3 className={`font-bold text-lg text-${phase.color}-700 mb-2`}>
+                                Phase {index + 1}: {phase.title}
+                              </h3>
+                              <button className="text-gray-600 hover:text-gray-900 font-bold text-xl px-2">
+                                {isCollapsed ? '+' : '−'}
+                              </button>
+                            </div>
+                            {!isCollapsed && (
+                              <>
+                                {phase.description && (
+                                  <p className="text-sm text-gray-700 mb-2">
+                                    {phase.description}
+                                  </p>
+                                )}
+                                {phase.tasks.length > 0 && phase.tasks[0] !== '' && (
+                                  <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                                    {phase.tasks.filter(task => task.trim() !== '').map((task, taskIdx) => (
+                                      <li key={taskIdx}>{task}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        )
+                      })
                     ) : (
                       /* Default Phases if none are defined */
                       <>
@@ -1413,6 +1440,17 @@ export default function AdvancedQuoteGenerator({
                     {companyProfile.website && (
                       <p className="mt-1">Visit us: {companyProfile.website}</p>
                     )}
+                  </div>
+
+                  {/* Download Button */}
+                  <div className="mt-8 text-center print:hidden">
+                    <Button
+                      onClick={handleDownloadQuote}
+                      className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg font-semibold"
+                    >
+                      📥 Download Quote as PDF
+                    </Button>
+                    <p className="text-xs text-gray-500 mt-2">Click to save or print this quote</p>
                   </div>
                 </div>
               </Card>
