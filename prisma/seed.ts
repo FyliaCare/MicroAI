@@ -7,8 +7,8 @@ async function main() {
   console.log('🌱 Starting database seed...')
 
   // Create default admin user
-  const defaultEmail = 'admin@microai.com'
-  const defaultPassword = 'admin123' // Change this in production!
+  const defaultEmail = 'microailabs@gmail.com'
+  const defaultPassword = '1Billion7991.'
   
   // Check if admin already exists
   const existingAdmin = await prisma.admin.findUnique({
@@ -26,16 +26,15 @@ async function main() {
       data: {
         email: defaultEmail,
         password: hashedPassword,
-        name: 'Admin',
+        name: 'MicroAI Labs',
         role: 'super-admin',
         isActive: true,
       }
     })
 
-    console.log('✅ Created default admin user:')
+    console.log('✅ Created admin user:')
     console.log('   Email:', admin.email)
-    console.log('   Password: admin123')
-    console.log('   ⚠️  IMPORTANT: Change this password after first login!')
+    console.log('   Password: 1Billion7991.')
   }
 
   // Create some sample data (optional)
@@ -117,9 +116,9 @@ async function main() {
   console.log('✅ Created sample service:', service.name)
 
   console.log('\n🎉 Database seed completed successfully!')
-  console.log('\n📝 Default Admin Credentials:')
-  console.log('   Email: admin@microai.com')
-  console.log('   Password: admin123')
+  console.log('\n📝 Admin Credentials:')
+  console.log('   Email: microailabs@gmail.com')
+  console.log('   Password: 1Billion7991.')
   console.log('   Login at: http://localhost:3000/admin/login')
 }
 
