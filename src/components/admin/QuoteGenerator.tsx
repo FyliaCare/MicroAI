@@ -1297,8 +1297,8 @@ export default function AdvancedQuoteGenerator({
                               <div className="text-xs text-gray-600">Custom development work, coding, feature implementation</div>
                             </td>
                             <td className="text-center p-3">1</td>
-                            <td className="text-right p-3">${parseFloat(formData.developmentCost).toLocaleString()}</td>
-                            <td className="text-right p-3 font-semibold">${parseFloat(formData.developmentCost).toLocaleString()}</td>
+                            <td className="text-right p-3">${parseFloat(formData.developmentCost || '0').toLocaleString()}</td>
+                            <td className="text-right p-3 font-semibold">${parseFloat(formData.developmentCost || '0').toLocaleString()}</td>
                           </tr>
                         )}
 
@@ -1310,8 +1310,8 @@ export default function AdvancedQuoteGenerator({
                               <div className="text-xs text-gray-600">UI/UX design, graphics, branding, visual assets</div>
                             </td>
                             <td className="text-center p-3">1</td>
-                            <td className="text-right p-3">${parseFloat(formData.designCost).toLocaleString()}</td>
-                            <td className="text-right p-3 font-semibold">${parseFloat(formData.designCost).toLocaleString()}</td>
+                            <td className="text-right p-3">${parseFloat(formData.designCost || '0').toLocaleString()}</td>
+                            <td className="text-right p-3 font-semibold">${parseFloat(formData.designCost || '0').toLocaleString()}</td>
                           </tr>
                         )}
 
@@ -1378,12 +1378,12 @@ export default function AdvancedQuoteGenerator({
                         {formData.milestones.map((milestone: any, index: number) => (
                           <div key={index} className="flex justify-between items-center p-4 border border-gray-300 rounded bg-gray-50">
                             <div className="flex-1">
-                              <p className="font-semibold text-gray-900">{milestone.name}</p>
-                              <p className="text-sm text-gray-600">{milestone.due}</p>
+                              <p className="font-semibold text-gray-900">{milestone.name || 'Milestone'}</p>
+                              <p className="text-sm text-gray-600">{milestone.due || 'TBD'}</p>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-lg text-green-700">${milestone.amount?.toLocaleString()}</p>
-                              <p className="text-sm text-gray-600">({milestone.percentage}% of setup)</p>
+                              <p className="font-bold text-lg text-green-700">${(milestone.amount || 0).toLocaleString()}</p>
+                              <p className="text-sm text-gray-600">({milestone.percentage || 0}% of setup)</p>
                             </div>
                           </div>
                         ))}
