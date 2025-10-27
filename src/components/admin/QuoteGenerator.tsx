@@ -59,7 +59,8 @@ export default function AdvancedQuoteGenerator({
     phone: '+1 (555) 123-4567',
     address: '123 Tech Street, Silicon Valley, CA 94000',
     website: 'https://microai.com',
-    description: 'Professional Web Development Services'
+    description: 'Professional Web Development Services',
+    logo: ''
   })
 
   const [formData, setFormData] = useState({
@@ -187,7 +188,8 @@ export default function AdvancedQuoteGenerator({
           phone: profile.phone || '+1 (555) 123-4567',
           address: profile.address || '123 Tech Street, Silicon Valley, CA 94000',
           website: profile.website || 'https://microai.com',
-          description: profile.description || 'Professional Web Development Services'
+          description: profile.description || 'Professional Web Development Services',
+          logo: profile.logo || ''
         })
       }
     } catch (err) {
@@ -966,13 +968,22 @@ export default function AdvancedQuoteGenerator({
                 <div className="p-8 bg-white border-b-4 border-gray-300">
                   {/* Company Header */}
                   <div className="flex justify-between items-start mb-8">
-                    <div>
-                      <h1 className="text-4xl font-bold text-blue-600 mb-1">{companyProfile.name}</h1>
-                      <p className="text-sm text-gray-600">{companyProfile.description}</p>
-                      <p className="text-xs text-gray-500 mt-1">{companyProfile.email} | {companyProfile.phone}</p>
-                      {companyProfile.address && (
-                        <p className="text-xs text-gray-500">{companyProfile.address}</p>
+                    <div className="flex items-start gap-4">
+                      {companyProfile.logo && (
+                        <img 
+                          src={companyProfile.logo} 
+                          alt={`${companyProfile.name} Logo`}
+                          className="h-16 w-auto object-contain"
+                        />
                       )}
+                      <div>
+                        <h1 className="text-4xl font-bold text-blue-600 mb-1">{companyProfile.name}</h1>
+                        <p className="text-sm text-gray-600">{companyProfile.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">{companyProfile.email} | {companyProfile.phone}</p>
+                        {companyProfile.address && (
+                          <p className="text-xs text-gray-500">{companyProfile.address}</p>
+                        )}
+                      </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-gray-500 mb-1">Date: {new Date().toLocaleDateString()}</div>

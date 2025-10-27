@@ -444,6 +444,32 @@ All code and designs become client property upon final payment.
                 rows={3}
               />
 
+              <div>
+                <Input
+                  label="Logo URL"
+                  value={companyProfile.logo}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompanyProfile({ ...companyProfile, logo: e.target.value })}
+                  placeholder="https://example.com/logo.png or /logo.png"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Paste the URL to your logo image, or use a path relative to your public folder (e.g., /logo.png)
+                </p>
+                {companyProfile.logo && (
+                  <div className="mt-3">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Logo Preview:</p>
+                    <img 
+                      src={companyProfile.logo} 
+                      alt="Company Logo Preview" 
+                      className="h-16 w-auto object-contain border border-gray-200 rounded p-2"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = ''
+                        alert('Failed to load logo. Please check the URL.')
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
               <Button
                 onClick={handleSaveCompanyProfile}
                 disabled={loading}
