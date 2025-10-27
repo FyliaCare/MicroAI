@@ -1113,16 +1113,26 @@ export default function AdvancedQuoteGenerator({
                         const isCollapsed = collapsedPhases.has(index)
                         return (
                           <div key={index} className={`border-l-4 border-${phase.color}-600 pl-4 py-2`}>
-                            <div className="flex items-center justify-between cursor-pointer" onClick={() => togglePhase(index)}>
-                              <h3 className={`font-bold text-lg text-${phase.color}-700 mb-2`}>
+                            <div 
+                              className="flex items-center justify-between cursor-pointer hover:bg-gray-50 -mx-2 px-2 py-1 rounded" 
+                              onClick={() => togglePhase(index)}
+                            >
+                              <h3 className={`font-bold text-lg text-${phase.color}-700`}>
                                 Phase {index + 1}: {phase.title}
                               </h3>
-                              <button className="text-gray-600 hover:text-gray-900 font-bold text-xl px-2">
+                              <button 
+                                type="button"
+                                className="text-gray-600 hover:text-gray-900 font-bold text-2xl px-3 py-1 hover:bg-gray-200 rounded transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  togglePhase(index)
+                                }}
+                              >
                                 {isCollapsed ? '+' : '−'}
                               </button>
                             </div>
                             {!isCollapsed && (
-                              <>
+                              <div className="mt-3">
                                 {phase.description && (
                                   <p className="text-sm text-gray-700 mb-2">
                                     {phase.description}
@@ -1135,7 +1145,7 @@ export default function AdvancedQuoteGenerator({
                                     ))}
                                   </ul>
                                 )}
-                              </>
+                              </div>
                             )}
                           </div>
                         )
