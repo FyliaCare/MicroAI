@@ -12,19 +12,19 @@ interface QuoteTemplate {
   category: string
   description: string
   setupFee: number
-  developmentCost: number | null
-  designCost: number | null
+  developmentCost: number
+  designCost: number
   monthlyHosting: number
-  monthlyMaintenance: number | null
-  estimatedHours: number | null
-  timeline: string | null
-  techStack: string | null
-  features: string | null
-  deliverables: string | null
-  hostingBreakdown: string | null
-  milestones: string | null
-  actualCosts: string | null
-  profitMargin: number | null
+  monthlyMaintenance: number
+  estimatedHours: number
+  timeline: string
+  techStack: string
+  features: string
+  deliverables: string
+  hostingBreakdown: string
+  milestones: string
+  actualCosts: string
+  profitMargin: number
 }
 
 interface Client {
@@ -45,7 +45,6 @@ export default function AdvancedQuoteGenerator({
   clientId: initialClientId,
   projectId: initialProjectId,
 }: AdvancedQuoteGeneratorProps) {
-  // State
   const [templates, setTemplates] = useState<QuoteTemplate[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<QuoteTemplate | null>(null)
@@ -53,7 +52,6 @@ export default function AdvancedQuoteGenerator({
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  // Form state
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -70,15 +68,15 @@ export default function AdvancedQuoteGenerator({
     monthlyMaintenance: '',
     hostingBreakdown: {} as Record<string, any>,
     deliverables: [] as string[],
+    features: [] as string[],
     milestones: [] as any[],
     monthlyRecurring: '',
     yearlyRecurring: '',
     validUntil: '',
     notes: '',
-    terms: '',
+    terms: 'Payment terms: 50% upfront, 50% upon completion. All prices in USD. Quote valid for 30 days.',
   })
 
-  // Load templates and clients on mount
   useEffect(() => {
     fetchTemplates()
     fetchClients()
@@ -111,18 +109,15 @@ export default function AdvancedQuoteGenerator({
   const handleTemplateSelect = (template: QuoteTemplate) => {
     setSelectedTemplate(template)
     
-    // Parse JSON fields
-    const techStack = template.techStack ? JSON.parse(template.techStack) : []
-    const features = template.features ? JSON.parse(template.features) : []
-    const deliverables = template.deliverables ? JSON.parse(template.deliverables) : []
-    const hostingBreakdown = template.hostingBreakdown ? JSON.parse(template.hostingBreakdown) : {}
-    const milestones = template.milestones ? JSON.parse(template.milestones) : []
+    const techStack = JSON.parse(template.techStack || '[]')
+    const features = JSON.parse(template.features || '[]')
+    const deliverables = JSON.parse(template.deliverables || '[]')
+    const hostingBreakdown = JSON.parse(template.hostingBreakdown || '{}')
+    const milestones = JSON.parse(template.milestones || '[]')
 
-    // Calculate recurring costs
-    const monthlyRecurring = template.monthlyHosting + (template.monthlyMaintenance || 0)
+    const monthlyRecurring = template.monthlyHosting + template.monthlyMaintenance
     const yearlyRecurring = monthlyRecurring * 12
 
-    // Auto-populate form
     setFormData({
       ...formData,
       title: template.name,
@@ -131,6 +126,7 @@ export default function AdvancedQuoteGenerator({
       estimatedHours: template.estimatedHours?.toString() || '',
       timeline: template.timeline || '',
       techStack,
+      features,
       setupFee: template.setupFee.toString(),
       developmentCost: template.developmentCost?.toString() || '0',
       designCost: template.designCost?.toString() || '0',
@@ -151,7 +147,6 @@ export default function AdvancedQuoteGenerator({
     setSuccess('')
 
     try {
-      // Build line items for quote
       const items = [
         {
           description: 'Setup Fee',
@@ -180,13 +175,12 @@ export default function AdvancedQuoteGenerator({
       }
 
       items.push({
-        description: 'Monthly Hosting & Services',
+        description: 'Monthly Hosting & Services (12 months)',
         quantity: 12,
         unitPrice: parseFloat(formData.monthlyHosting),
         total: parseFloat(formData.monthlyHosting) * 12,
       })
 
-      // Calculate subtotal
       const subtotal = items.reduce((sum, item) => sum + item.total, 0)
 
       const quoteData = {
@@ -202,7 +196,6 @@ export default function AdvancedQuoteGenerator({
         validUntil: formData.validUntil || null,
         notes: formData.notes,
         terms: formData.terms,
-        // Enhanced fields
         projectType: formData.projectType,
         estimatedHours: formData.estimatedHours ? parseInt(formData.estimatedHours) : null,
         timeline: formData.timeline,
@@ -232,7 +225,6 @@ export default function AdvancedQuoteGenerator({
         if (onQuoteCreated) {
           onQuoteCreated(data.quote)
         }
-        // Reset form
         setTimeout(() => {
           window.location.href = '/admin/quotes'
         }, 1500)
@@ -246,377 +238,513 @@ export default function AdvancedQuoteGenerator({
     }
   }
 
-  const totalFirstYear = 
+  const totalSetup = 
     parseFloat(formData.setupFee || '0') + 
     parseFloat(formData.developmentCost || '0') + 
-    parseFloat(formData.designCost || '0') + 
-    (parseFloat(formData.monthlyHosting || '0') * 12)
+    parseFloat(formData.designCost || '0')
+
+  const totalFirstYear = totalSetup + (parseFloat(formData.monthlyHosting || '0') * 12)
+  const selectedClient = clients.find(c => c.id === formData.clientId)
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Create Quote from Template</h2>
-          
-          {/* Template Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">
-              Select Template
-            </label>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-[1600px] mx-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Create Professional Quote</h1>
+            <p className="text-sm text-gray-600 mt-1">Select a template and customize to generate a detailed quote</p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              onClick={() => window.history.back()}
+              className="bg-gray-500 hover:bg-gray-600"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => handleSubmit(new Event('submit') as any)}
+              disabled={loading || !selectedTemplate}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {loading ? 'Creating...' : 'Create Quote'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-[1600px] mx-auto p-6">
+        {error && (
+          <div className="mb-6 bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">
+            <strong>Error:</strong> {error}
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-6 bg-green-50 text-green-600 p-4 rounded-lg border border-green-200">
+            <strong>Success!</strong> {success}
+          </div>
+        )}
+
+        {/* Template Selection */}
+        <Card className="mb-6">
+          <div className="p-6">
+            <h2 className="text-lg font-bold mb-4">📋 Step 1: Select Quote Template</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {templates.map((template) => (
                 <button
                   key={template.id}
                   onClick={() => handleTemplateSelect(template)}
-                  className={`p-4 border-2 rounded-lg text-left transition-all hover:shadow-md ${
+                  className={`p-4 border-2 rounded-lg text-left transition-all hover:shadow-lg ${
                     selectedTemplate?.id === template.id
-                      ? 'border-blue-600 bg-blue-50'
+                      ? 'border-blue-600 bg-blue-50 shadow-md'
                       : 'border-gray-200 hover:border-blue-400'
                   }`}
                 >
-                  <h3 className="font-bold text-lg mb-1">{template.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{template.description}</p>
-                  <div className="space-y-1 text-sm">
-                    <p className="font-semibold text-green-600">
-                      Setup: ${template.setupFee}
-                    </p>
-                    <p className="font-semibold text-blue-600">
-                      ${template.monthlyHosting}/month
-                    </p>
-                    {template.estimatedHours && (
-                      <p className="text-gray-500">
-                        ~{template.estimatedHours} hours
-                      </p>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-lg">{template.name}</h3>
+                    {selectedTemplate?.id === template.id && (
+                      <span className="text-blue-600 text-xl">✓</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{template.description}</p>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">Setup:</span>
+                      <span className="font-bold text-green-600">${template.setupFee.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">Monthly:</span>
+                      <span className="font-bold text-blue-600">${template.monthlyHosting}/mo</span>
+                    </div>
+                    {template.estimatedHours > 0 && (
+                      <div className="text-xs text-gray-500 mt-2 pt-2 border-t">
+                        ~{template.estimatedHours}hrs • {template.timeline}
+                      </div>
                     )}
                   </div>
                 </button>
               ))}
             </div>
           </div>
+        </Card>
 
-          {/* Quote Form */}
-          {selectedTemplate && (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded-lg">
-                  {error}
-                </div>
-              )}
-              
-              {success && (
-                <div className="bg-green-50 text-green-600 p-4 rounded-lg">
-                  {success}
-                </div>
-              )}
+        {/* Two Column Layout: Form + Preview */}
+        {selectedTemplate && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* LEFT: Form */}
+            <div className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Basic Info */}
+                <Card>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold mb-4">📝 Step 2: Quote Details</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Quote Title *
+                        </label>
+                        <Input
+                          value={formData.title}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                            setFormData({ ...formData, title: e.target.value })}
+                          required
+                          placeholder="e.g., Professional Website Development"
+                        />
+                      </div>
 
-              {/* Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Quote Title *
-                  </label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                  />
-                </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Client
+                        </label>
+                        <select
+                          value={formData.clientId}
+                          onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="">Select a client...</option>
+                          {clients.map((client) => (
+                            <option key={client.id} value={client.id}>
+                              {client.name} {client.company ? `(${client.company})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Client
-                  </label>
-                  <select
-                    value={formData.clientId}
-                    onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select a client...</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.name} {client.company ? `(${client.company})` : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Description
+                        </label>
+                        <Textarea
+                          value={formData.description}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                            setFormData({ ...formData, description: e.target.value })}
+                          rows={3}
+                          placeholder="Brief overview of the project..."
+                        />
+                      </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Description
-                </label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                />
-              </div>
-
-              {/* Pricing Breakdown */}
-              <div>
-                <h3 className="text-lg font-bold mb-4">Pricing Breakdown</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Setup Fee *
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.setupFee}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, setupFee: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Development Cost
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.developmentCost}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, developmentCost: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Design Cost
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.designCost}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, designCost: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Monthly Hosting *
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.monthlyHosting}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, monthlyHosting: e.target.value })}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Monthly Maintenance
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.monthlyMaintenance}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, monthlyMaintenance: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Valid Until
-                    </label>
-                    <Input
-                      type="date"
-                      value={formData.validUntil}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, validUntil: e.target.value })}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Hosting Breakdown */}
-              {Object.keys(formData.hostingBreakdown).length > 0 && (
-                <div>
-                  <h3 className="text-lg font-bold mb-4">Hosting Services Breakdown</h3>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Service</th>
-                          <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Your Cost</th>
-                          <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Client Price</th>
-                          <th className="px-4 py-2 text-right text-sm font-medium text-gray-700">Profit</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {Object.entries(formData.hostingBreakdown).map(([service, breakdown]: [string, any]) => (
-                          <tr key={service}>
-                            <td className="px-4 py-2 text-sm">{service}</td>
-                            <td className="px-4 py-2 text-sm text-right">${breakdown.cost?.toFixed(2)}</td>
-                            <td className="px-4 py-2 text-sm text-right font-semibold">${breakdown.charge?.toFixed(2)}</td>
-                            <td className="px-4 py-2 text-sm text-right text-green-600">
-                              +${breakdown.profit?.toFixed(2)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* Tech Stack */}
-              {formData.techStack.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-bold mb-2">Technology Stack</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.techStack.map((tech, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Deliverables */}
-              {formData.deliverables.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-bold mb-2">Deliverables</h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    {formData.deliverables.map((item, index) => (
-                      <li key={index} className="text-gray-700">{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Milestones */}
-              {formData.milestones.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-bold mb-4">Payment Milestones</h3>
-                  <div className="space-y-2">
-                    {formData.milestones.map((milestone: any, index: number) => (
-                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="font-medium">{milestone.name}</p>
-                          <p className="text-sm text-gray-600">{milestone.due}</p>
+                          <label className="block text-sm font-medium mb-2">
+                            Estimated Hours
+                          </label>
+                          <Input
+                            type="number"
+                            value={formData.estimatedHours}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                              setFormData({ ...formData, estimatedHours: e.target.value })}
+                          />
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-green-600">${milestone.amount}</p>
-                          <p className="text-sm text-gray-600">{milestone.percentage}%</p>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Timeline
+                          </label>
+                          <Input
+                            value={formData.timeline}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                              setFormData({ ...formData, timeline: e.target.value })}
+                            placeholder="e.g., 4-6 weeks"
+                          />
                         </div>
                       </div>
-                    ))}
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Valid Until
+                        </label>
+                        <Input
+                          type="date"
+                          value={formData.validUntil}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                            setFormData({ ...formData, validUntil: e.target.value })}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              )}
+                </Card>
 
-              {/* Project Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Estimated Hours
-                  </label>
-                  <Input
-                    type="number"
-                    value={formData.estimatedHours}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, estimatedHours: e.target.value })}
-                  />
-                </div>
+                {/* Pricing */}
+                <Card>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold mb-4">💰 Step 3: Pricing Breakdown</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Setup Fee *
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formData.setupFee}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                            setFormData({ ...formData, setupFee: e.target.value })}
+                          required
+                        />
+                      </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Timeline
-                  </label>
-                  <Input
-                    value={formData.timeline}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, timeline: e.target.value })}
-                  />
-                </div>
-              </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Development Cost
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formData.developmentCost}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                            setFormData({ ...formData, developmentCost: e.target.value })}
+                        />
+                      </div>
 
-              {/* Notes & Terms */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Notes
-                  </label>
-                  <Textarea
-                    value={formData.notes}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, notes: e.target.value })}
-                    rows={4}
-                  />
-                </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Design Cost
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formData.designCost}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                            setFormData({ ...formData, designCost: e.target.value })}
+                        />
+                      </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Terms & Conditions
-                  </label>
-                  <Textarea
-                    value={formData.terms}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, terms: e.target.value })}
-                    rows={4}
-                  />
-                </div>
-              </div>
+                      <div className="pt-4 border-t">
+                        <label className="block text-sm font-medium mb-2">
+                          Monthly Hosting *
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formData.monthlyHosting}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = e.target.value
+                            const monthly = parseFloat(value || '0') + parseFloat(formData.monthlyMaintenance || '0')
+                            setFormData({ 
+                              ...formData, 
+                              monthlyHosting: value,
+                              monthlyRecurring: monthly.toString(),
+                              yearlyRecurring: (monthly * 12).toString()
+                            })
+                          }}
+                          required
+                        />
+                      </div>
 
-              {/* Total Summary */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-bold mb-4">Quote Summary</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Setup Fee:</span>
-                    <span className="font-semibold">${parseFloat(formData.setupFee || '0').toFixed(2)}</span>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Monthly Maintenance
+                        </label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formData.monthlyMaintenance}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = e.target.value
+                            const monthly = parseFloat(formData.monthlyHosting || '0') + parseFloat(value || '0')
+                            setFormData({ 
+                              ...formData, 
+                              monthlyMaintenance: value,
+                              monthlyRecurring: monthly.toString(),
+                              yearlyRecurring: (monthly * 12).toString()
+                            })
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  {parseFloat(formData.developmentCost || '0') > 0 && (
-                    <div className="flex justify-between">
-                      <span>Development Cost:</span>
-                      <span className="font-semibold">${parseFloat(formData.developmentCost).toFixed(2)}</span>
+                </Card>
+
+                {/* Notes & Terms */}
+                <Card>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold mb-4">📄 Step 4: Additional Details</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Notes
+                        </label>
+                        <Textarea
+                          value={formData.notes}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                            setFormData({ ...formData, notes: e.target.value })}
+                          rows={3}
+                          placeholder="Any additional notes or comments..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Terms & Conditions
+                        </label>
+                        <Textarea
+                          value={formData.terms}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                            setFormData({ ...formData, terms: e.target.value })}
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </form>
+            </div>
+
+            {/* RIGHT: Live Preview */}
+            <div className="lg:sticky lg:top-24 h-fit">
+              <Card>
+                <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
+                  <h3 className="text-xl font-bold">📄 Live Quote Preview</h3>
+                  <p className="text-blue-100 text-sm mt-1">Updates in real-time as you fill the form</p>
+                </div>
+                
+                <div className="p-8 bg-white">
+                  {/* Quote Header */}
+                  <div className="mb-6 pb-6 border-b-2 border-gray-200">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                          {formData.title || 'Quote Title'}
+                        </h1>
+                        <p className="text-gray-600 text-sm">
+                          {formData.description || 'No description provided'}
+                        </p>
+                      </div>
+                      <div className="text-right ml-4">
+                        <div className="text-xs text-gray-500 uppercase mb-1">Quote For:</div>
+                        <div className="font-semibold text-gray-900">
+                          {selectedClient ? selectedClient.name : 'No client selected'}
+                        </div>
+                        {selectedClient?.company && (
+                          <div className="text-sm text-gray-600">{selectedClient.company}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Project Info Grid */}
+                  <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase mb-1">Project Type</div>
+                      <div className="font-semibold capitalize">{formData.projectType.replace('-', ' ') || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase mb-1">Timeline</div>
+                      <div className="font-semibold">{formData.timeline || 'N/A'}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase mb-1">Estimated Hours</div>
+                      <div className="font-semibold">{formData.estimatedHours || '0'} hours</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500 uppercase mb-1">Valid Until</div>
+                      <div className="font-semibold text-sm">
+                        {formData.validUntil ? new Date(formData.validUntil).toLocaleDateString() : '30 days'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing Breakdown */}
+                  <div className="mb-6">
+                    <h4 className="font-bold text-lg mb-4 text-gray-900">Cost Breakdown</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between py-2.5 border-b border-gray-200">
+                        <span className="text-gray-700">Setup Fee</span>
+                        <span className="font-semibold">${parseFloat(formData.setupFee || '0').toLocaleString()}</span>
+                      </div>
+                      {parseFloat(formData.developmentCost || '0') > 0 && (
+                        <div className="flex justify-between py-2.5 border-b border-gray-200">
+                          <span className="text-gray-700">Development Cost</span>
+                          <span className="font-semibold">${parseFloat(formData.developmentCost).toLocaleString()}</span>
+                        </div>
+                      )}
+                      {parseFloat(formData.designCost || '0') > 0 && (
+                        <div className="flex justify-between py-2.5 border-b border-gray-200">
+                          <span className="text-gray-700">Design Cost</span>
+                          <span className="font-semibold">${parseFloat(formData.designCost).toLocaleString()}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between py-2.5 border-b border-gray-200">
+                        <span className="text-gray-700">Hosting & Services <span className="text-sm text-gray-500">(12 months)</span></span>
+                        <span className="font-semibold">${(parseFloat(formData.monthlyHosting || '0') * 12).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between py-4 bg-blue-50 px-4 rounded-lg mt-4">
+                        <span className="font-bold text-lg">Setup Total</span>
+                        <span className="font-bold text-lg text-blue-600">${totalSetup.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between py-4 bg-green-50 px-4 rounded-lg border-2 border-green-200">
+                        <span className="font-bold text-xl">First Year Total</span>
+                        <span className="font-bold text-xl text-green-600">${totalFirstYear.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between py-2 px-2 text-sm text-gray-600 bg-gray-50 rounded mt-2">
+                        <span>Ongoing Monthly</span>
+                        <span className="font-semibold">${parseFloat(formData.monthlyHosting || '0').toLocaleString()}/month</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hosting Breakdown */}
+                  {Object.keys(formData.hostingBreakdown).length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="font-bold text-lg mb-3 text-gray-900">Hosting Services Included</h4>
+                      <div className="overflow-hidden border border-gray-200 rounded-lg">
+                        <table className="min-w-full text-sm">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-4 py-3 text-left font-semibold text-gray-700">Service</th>
+                              <th className="px-4 py-3 text-right font-semibold text-gray-700">Monthly Price</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200 bg-white">
+                            {Object.entries(formData.hostingBreakdown).map(([service, breakdown]: [string, any]) => (
+                              <tr key={service} className="hover:bg-gray-50">
+                                <td className="px-4 py-3 text-gray-700">{service}</td>
+                                <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                                  ${breakdown.charge?.toFixed(2)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
-                  {parseFloat(formData.designCost || '0') > 0 && (
-                    <div className="flex justify-between">
-                      <span>Design Cost:</span>
-                      <span className="font-semibold">${parseFloat(formData.designCost).toFixed(2)}</span>
+
+                  {/* Tech Stack */}
+                  {formData.techStack.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="font-bold text-lg mb-3 text-gray-900">Technology Stack</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.techStack.map((tech, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-medium"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span>Hosting (12 months):</span>
-                    <span className="font-semibold">${(parseFloat(formData.monthlyHosting || '0') * 12).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t-2 border-gray-300">
-                    <span className="text-lg font-bold">First Year Total:</span>
-                    <span className="text-lg font-bold text-green-600">${totalFirstYear.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Ongoing (monthly):</span>
-                    <span>${parseFloat(formData.monthlyHosting || '0').toFixed(2)}/month</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex justify-end gap-4">
-                <Button
-                  type="button"
-                  onClick={() => window.history.back()}
-                  className="bg-gray-500 hover:bg-gray-600"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  {loading ? 'Creating...' : 'Create Quote'}
-                </Button>
-              </div>
-            </form>
-          )}
-        </div>
-      </Card>
+                  {/* Deliverables */}
+                  {formData.deliverables.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="font-bold text-lg mb-3 text-gray-900">Deliverables</h4>
+                      <ul className="space-y-2.5">
+                        {formData.deliverables.map((item, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="text-green-600 mr-3 mt-0.5 text-lg">✓</span>
+                            <span className="text-gray-700">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Milestones */}
+                  {formData.milestones.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="font-bold text-lg mb-3 text-gray-900">Payment Milestones</h4>
+                      <div className="space-y-2.5">
+                        {formData.milestones.map((milestone: any, index: number) => (
+                          <div key={index} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div>
+                              <p className="font-semibold text-gray-900">{milestone.name}</p>
+                              <p className="text-sm text-gray-600 mt-0.5">{milestone.due}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-lg text-green-600">${milestone.amount?.toLocaleString()}</p>
+                              <p className="text-sm text-gray-600">{milestone.percentage}%</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Terms */}
+                  {formData.terms && (
+                    <div className="pt-6 border-t-2 border-gray-200">
+                      <h4 className="font-bold text-sm mb-2 text-gray-700 uppercase">Terms & Conditions</h4>
+                      <p className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">{formData.terms}</p>
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  {formData.notes && (
+                    <div className="pt-4 mt-4 border-t border-gray-200">
+                      <h4 className="font-bold text-sm mb-2 text-gray-700 uppercase">Additional Notes</h4>
+                      <p className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">{formData.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
