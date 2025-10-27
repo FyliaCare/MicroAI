@@ -17,7 +17,10 @@ function PDFQuoteContent() {
       try {
         const savedProfile = localStorage.getItem('companyProfile')
         if (savedProfile) {
-          setCompanyProfile(JSON.parse(savedProfile))
+          const profile = JSON.parse(savedProfile)
+          setCompanyProfile(profile)
+          // Update document title
+          document.title = `${profile.name || 'MicroAI'} - Quote`
         } else {
           setCompanyProfile({
             name: 'MicroAI',
@@ -27,6 +30,7 @@ function PDFQuoteContent() {
             website: 'https://microai.com',
             description: 'Professional Web Development Services'
           })
+          document.title = 'MicroAI - Quote'
         }
       } catch (err) {
         console.error('Error loading company profile:', err)
@@ -106,7 +110,9 @@ function PDFQuoteContent() {
   const currentDate = new Date().toLocaleDateString()
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <title>{companyProfile?.name || 'MicroAI'} - Quote</title>
+      <div className="min-h-screen bg-white">
       {/* PAGE 1: OVERVIEW */}
       <div className="page p-8">
         {/* Header - Company Info */}
@@ -486,11 +492,19 @@ function PDFQuoteContent() {
           @page {
             size: A4;
             margin: 20mm;
+            margin-top: 0;
+            margin-bottom: 0;
           }
           
           body {
             margin: 0;
             padding: 0;
+          }
+          
+          /* Hide browser default headers and footers */
+          @page {
+            margin-top: 0;
+            margin-bottom: 0;
           }
           
           .page {
@@ -537,6 +551,7 @@ function PDFQuoteContent() {
         }
       `}</style>
     </div>
+    </>
   )
 }
 

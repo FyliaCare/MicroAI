@@ -3,11 +3,15 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  binaryTargets = ["native"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  relationMode = "prisma"
 }
 
 model Client {
@@ -27,6 +31,11 @@ model Client {
   projects    Project[]
   quotes      Quote[]
   invoices    Invoice[]
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@index([name])
 }
 
 model Project {
@@ -69,6 +78,14 @@ model Project {
   milestones    Milestone[]
   invoices      Invoice[]
   quote         Quote?
+
+  @@index([clientId])
+  @@index([status])
+  @@index([type])
+  @@index([priority])
+  @@index([createdAt])
+  @@index([deadline])
+  @@index([name])
 }
 
 model Quote {
@@ -128,6 +145,13 @@ model Quote {
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([status])
+  @@index([quoteNumber])
+  @@index([createdAt])
+  @@index([validUntil])
 }
 
 model Invoice {
@@ -337,6 +361,11 @@ model Notification {
   
   createdAt   DateTime  @default(now())
   readAt      DateTime?
+
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+  @@index([priority])
 }
 
 model QuoteTemplate {
