@@ -209,7 +209,16 @@ export default function AdvancedQuoteGenerator({
   }
 
   const handleDownloadQuote = () => {
+    // Add a class to body to indicate we're printing
+    document.body.classList.add('printing-quote')
+    
+    // Trigger print
     window.print()
+    
+    // Remove the class after printing
+    setTimeout(() => {
+      document.body.classList.remove('printing-quote')
+    }, 1000)
   }
 
   const fetchTemplates = async () => {
@@ -988,22 +997,13 @@ export default function AdvancedQuoteGenerator({
                 <div className="p-8 bg-white border-b-4 border-gray-300">
                   {/* Company Header */}
                   <div className="flex justify-between items-start mb-8">
-                    <div className="flex items-start gap-4">
-                      {companyProfile.logo && (
-                        <img 
-                          src={companyProfile.logo} 
-                          alt={`${companyProfile.name} Logo`}
-                          className="h-16 w-auto object-contain"
-                        />
+                    <div>
+                      <h1 className="text-4xl font-bold text-blue-600 mb-1">{companyProfile.name}</h1>
+                      <p className="text-sm text-gray-600">{companyProfile.description}</p>
+                      <p className="text-xs text-gray-500 mt-1">{companyProfile.email} | {companyProfile.phone}</p>
+                      {companyProfile.address && (
+                        <p className="text-xs text-gray-500">{companyProfile.address}</p>
                       )}
-                      <div>
-                        <h1 className="text-4xl font-bold text-blue-600 mb-1">{companyProfile.name}</h1>
-                        <p className="text-sm text-gray-600">{companyProfile.description}</p>
-                        <p className="text-xs text-gray-500 mt-1">{companyProfile.email} | {companyProfile.phone}</p>
-                        {companyProfile.address && (
-                          <p className="text-xs text-gray-500">{companyProfile.address}</p>
-                        )}
-                      </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-gray-500 mb-1">Date: {new Date().toLocaleDateString()}</div>
@@ -1263,9 +1263,6 @@ export default function AdvancedQuoteGenerator({
                     <span>Page: 3 of 3</span>
                   </div>
 
-                  <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-gray-300 pb-3">
-                    Investment & Pricing Breakdown
-                  </h2>
                   <h2 className="text-2xl font-bold mb-6 text-gray-900 border-b-2 border-gray-300 pb-3">
                     Investment & Pricing Breakdown
                   </h2>

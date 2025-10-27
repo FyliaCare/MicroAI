@@ -298,6 +298,23 @@ html {
     margin: 1cm;
   }
 
+  /* When printing quotes, hide everything except the quote preview */
+  body.printing-quote > *:not(.quote-preview-container) {
+    display: none !important;
+  }
+
+  body.printing-quote .quote-preview-container > *:not([class*="Card"]) {
+    display: none !important;
+  }
+
+  /* Hide form section when printing */
+  body.printing-quote form,
+  body.printing-quote nav,
+  body.printing-quote header,
+  body.printing-quote .print\:hidden {
+    display: none !important;
+  }
+
   body {
     background: white !important;
     color: black !important;
