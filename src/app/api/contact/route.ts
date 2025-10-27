@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { prisma } from '@/lib/prisma'
 
 interface ContactFormData {
   name: string
@@ -331,20 +332,80 @@ microailabs@outlook.com
       // Continue anyway
     }
 
-    // Log submission
-    console.log('Contact form submission:', body)
+    // Create or find client in database
+    let client = await prisma.client.findUnique({
+      where: { email: body.email }
+    })
 
-    const submission = {
-      id: Math.random().toString(36).substring(7),
-      ...body,
-      submittedAt: new Date().toISOString(),
-      status: 'new'
+    if (!client) {
+      client = await prisma.client.create({
+        data: {
+          name: body.name,
+          email: body.email,
+          phone: body.phone || null,
+          company: body.company || null,
+          status: 'active',
+          notes: `Initial contact through website form: ${body.message}`
+        }
+      })
     }
+
+    // Create a project request
+    const project = await prisma.project.create({
+      data: {
+        name: `${body.company || body.name} - Website Inquiry`,
+        description: body.message,
+        type: 'web-app', // Default type
+        status: 'planning',
+        priority: 'medium',
+        clientId: client.id,
+        notes: `Source: Website Contact Form\nPhone: ${body.phone || 'Not provided'}\nCompany: ${body.company || 'Not provided'}`
+      }
+    })
+
+    // Create notification for admin
+    await prisma.notification.create({
+      data: {
+        type: 'new-project',
+        title: '🚀 New Project Request',
+        message: `${body.name}${body.company ? ` from ${body.company}` : ''} submitted a project inquiry`,
+        link: `/admin?tab=projects`,
+        priority: 'high',
+        entityType: 'Project',
+        entityId: project.id
+      }
+    })
+
+    // Log activity
+    await prisma.activityLog.create({
+      data: {
+        action: 'Created',
+        entity: 'Project',
+        entityId: project.id,
+        description: `New project request from website contact form: ${body.name}`,
+        metadata: JSON.stringify({
+          source: 'website-contact-form',
+          email: body.email,
+          company: body.company
+        })
+      }
+    })
+
+    // Log submission
+    console.log('✅ Contact form submission processed:', {
+      clientId: client.id,
+      projectId: project.id,
+      name: body.name
+    })
 
     return NextResponse.json({
       success: true,
       message: 'Thank you for your message. We will get back to you soon!',
-      data: submission
+      data: {
+        clientId: client.id,
+        projectId: project.id,
+        submittedAt: new Date().toISOString()
+      }
     }, { status: 201 })
 
   } catch (error) {
