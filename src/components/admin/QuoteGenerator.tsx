@@ -190,6 +190,7 @@ export default function AdvancedQuoteGenerator({
     } else if (isDuplicate) {
       loadDuplicateQuote()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadEditQuote = (quoteId: string) => {
@@ -1256,7 +1257,7 @@ export default function AdvancedQuoteGenerator({
                           <h3 className="font-bold text-lg text-blue-700 mb-2">Phase 1: Discovery & Planning</h3>
                           <p className="text-sm text-gray-700 mb-2">
                             Initial consultation to understand your business goals, target audience, and project requirements. 
-                            We'll create a detailed project roadmap and technical specifications document.
+                            We&apos;ll create a detailed project roadmap and technical specifications document.
                           </p>
                           <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
                             <li>Requirements gathering and analysis</li>
@@ -1334,7 +1335,7 @@ export default function AdvancedQuoteGenerator({
                           <h3 className="font-bold text-lg text-gray-700 mb-2">Phase 6: Training & Handover</h3>
                           <p className="text-sm text-gray-700 mb-2">
                             Comprehensive training for your team on managing and updating the website. Complete documentation 
-                            and ongoing support to ensure you're confident managing your new platform.
+                            and ongoing support to ensure you&apos;re confident managing your new platform.
                           </p>
                           <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
                             <li>Admin panel training session</li>
@@ -1586,7 +1587,7 @@ export default function AdvancedQuoteGenerator({
                 ✓ Your quote has been created successfully!
               </p>
               <p className="text-green-700 text-sm">
-                Choose what you'd like to do next:
+                Choose what you&apos;d like to do next:
               </p>
             </div>
 
