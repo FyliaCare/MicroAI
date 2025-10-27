@@ -375,7 +375,11 @@ export default function AdvancedQuoteGenerator({
             window.location.href = '/admin/quotes'
           }, 1500)
         } else {
-          setShowSuccessModal(true)
+          // Successfully generated - redirect to quotes dashboard immediately
+          setSuccess('Quote generated successfully!')
+          setTimeout(() => {
+            window.location.href = '/admin/quotes'
+          }, 800)
         }
       } else {
         setError(data.error || 'Failed to save quote')
