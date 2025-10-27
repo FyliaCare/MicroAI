@@ -12,4 +12,10 @@ services:
         value: production
       - key: NEXT_PUBLIC_API_URL
         sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXTAUTH_URL
+        sync: false
+      - key: NEXTAUTH_SECRET
+        sync: false
     healthCheckPath: /
