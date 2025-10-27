@@ -9,6 +9,7 @@ import AdvancedClientsManager from '@/components/admin/AdvancedClientsManager'
 import AdvancedQuotesManager from '@/components/admin/AdvancedQuotesManager'
 import AdvancedServicesManager from '@/components/admin/AdvancedServicesManager'
 import AdvancedAnalytics from '@/components/admin/AdvancedAnalytics'
+import AdvancedSettingsManager from '@/components/admin/AdvancedSettingsManager'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -284,6 +285,16 @@ export default function AdminDashboard() {
                   Analytics
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => { setActiveTab('settings'); setSidebarOpen(false); }}
+                  className={`w-full text-left px-4 py-3 rounded-md min-h-[44px] touch-manipulation ${
+                    activeTab === 'settings' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  Settings
+                </button>
+              </li>
             </ul>
           </div>
         </nav>
@@ -296,6 +307,7 @@ export default function AdminDashboard() {
           {activeTab === 'quotes' && <AdvancedQuotesManager />}
           {activeTab === 'services' && <AdvancedServicesManager />}
           {activeTab === 'analytics' && <AdvancedAnalytics />}
+          {activeTab === 'settings' && <AdvancedSettingsManager />}
         </main>
       </div>
     </div>
