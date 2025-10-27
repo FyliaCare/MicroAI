@@ -183,7 +183,7 @@ export default function AdvancedQuotesManager() {
       status: quote.status,
       notes: quote.notes || '',
     })
-    setLineItems(quote.lineItems.length > 0 ? quote.lineItems : [{ description: '', quantity: 1, unitPrice: 0, total: 0 }])
+    setLineItems(quote.lineItems?.length > 0 ? quote.lineItems : [{ description: '', quantity: 1, unitPrice: 0, total: 0 }])
     setShowModal(true)
   }
 
@@ -547,7 +547,7 @@ export default function AdvancedQuotesManager() {
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Line Items:</span>
-                    <span className="text-gray-900 font-medium">{quote.lineItems.length}</span>
+                    <span className="text-gray-900 font-medium">{quote.lineItems?.length || 0}</span>
                   </div>
                 </div>
               </div>
@@ -884,7 +884,7 @@ export default function AdvancedQuotesManager() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {selectedQuote.lineItems.map((item, index) => (
+                    {(selectedQuote.lineItems || []).map((item, index) => (
                       <tr key={index}>
                         <td className="px-4 py-3 text-sm text-gray-900">{item.description}</td>
                         <td className="px-4 py-3 text-sm text-gray-900 text-center">{item.quantity}</td>
