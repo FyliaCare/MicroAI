@@ -51,6 +51,16 @@ export default function AdvancedQuoteGenerator({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  
+  // Company Profile State
+  const [companyProfile, setCompanyProfile] = useState({
+    name: 'MicroAI',
+    email: 'contact@microai.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Tech Street, Silicon Valley, CA 94000',
+    website: 'https://microai.com',
+    description: 'Professional Web Development Services'
+  })
 
   const [formData, setFormData] = useState({
     title: '',
@@ -163,7 +173,27 @@ export default function AdvancedQuoteGenerator({
   useEffect(() => {
     fetchTemplates()
     fetchClients()
+    loadCompanyProfile()
   }, [])
+
+  const loadCompanyProfile = () => {
+    try {
+      const savedProfile = localStorage.getItem('companyProfile')
+      if (savedProfile) {
+        const profile = JSON.parse(savedProfile)
+        setCompanyProfile({
+          name: profile.name || 'MicroAI',
+          email: profile.email || 'contact@microai.com',
+          phone: profile.phone || '+1 (555) 123-4567',
+          address: profile.address || '123 Tech Street, Silicon Valley, CA 94000',
+          website: profile.website || 'https://microai.com',
+          description: profile.description || 'Professional Web Development Services'
+        })
+      }
+    } catch (err) {
+      console.error('Error loading company profile:', err)
+    }
+  }
 
   const fetchTemplates = async () => {
     try {
@@ -937,9 +967,12 @@ export default function AdvancedQuoteGenerator({
                   {/* Company Header */}
                   <div className="flex justify-between items-start mb-8">
                     <div>
-                      <h1 className="text-4xl font-bold text-blue-600 mb-1">MicroAI</h1>
-                      <p className="text-sm text-gray-600">Professional Web Development Services</p>
-                      <p className="text-xs text-gray-500 mt-1">info@microai.com | (555) 123-4567</p>
+                      <h1 className="text-4xl font-bold text-blue-600 mb-1">{companyProfile.name}</h1>
+                      <p className="text-sm text-gray-600">{companyProfile.description}</p>
+                      <p className="text-xs text-gray-500 mt-1">{companyProfile.email} | {companyProfile.phone}</p>
+                      {companyProfile.address && (
+                        <p className="text-xs text-gray-500">{companyProfile.address}</p>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-gray-500 mb-1">Date: {new Date().toLocaleDateString()}</div>
@@ -1356,7 +1389,7 @@ export default function AdvancedQuoteGenerator({
                     <div>
                       <p className="text-sm font-semibold mb-4">Authorized Representative:</p>
                       <div className="border-b-2 border-gray-400 mb-2 h-12"></div>
-                      <p className="text-xs text-gray-600">MicroAI - Service Provider</p>
+                      <p className="text-xs text-gray-600">{companyProfile.name} - Service Provider</p>
                       <div className="border-b border-gray-300 mb-2 mt-4 h-8"></div>
                       <p className="text-xs text-gray-600">Date</p>
                     </div>
@@ -1364,8 +1397,11 @@ export default function AdvancedQuoteGenerator({
 
                   {/* Footer */}
                   <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
-                    <p>Thank you for choosing MicroAI for your web development needs.</p>
-                    <p className="mt-1">For questions regarding this quote, please contact us at info@microai.com or (555) 123-4567</p>
+                    <p>Thank you for choosing {companyProfile.name} for your web development needs.</p>
+                    <p className="mt-1">For questions regarding this quote, please contact us at {companyProfile.email} or {companyProfile.phone}</p>
+                    {companyProfile.website && (
+                      <p className="mt-1">Visit us: {companyProfile.website}</p>
+                    )}
                   </div>
                 </div>
               </Card>
