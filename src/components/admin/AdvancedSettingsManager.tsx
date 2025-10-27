@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Card from '@/components/ui/Card'
+import Modal from '@/components/ui/Modal'
 
 interface QuoteTemplate {
   id: string
@@ -555,6 +556,313 @@ All code and designs become client property upon final payment.
           )}
         </div>
       </div>
+
+      {/* Template Edit Modal */}
+      {showTemplateModal && editingTemplate && (
+        <Modal
+          isOpen={showTemplateModal}
+          onClose={() => {
+            setShowTemplateModal(false)
+            setEditingTemplate(null)
+          }}
+          title={editingTemplate.id ? 'Edit Template' : 'Create New Template'}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleSaveTemplate(editingTemplate)
+            }}
+            className="space-y-4"
+          >
+            <Input
+              label="Template Name"
+              value={editingTemplate.name}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEditingTemplate({ ...editingTemplate, name: e.target.value })
+              }
+              required
+            />
+
+            <Textarea
+              label="Description"
+              value={editingTemplate.description}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setEditingTemplate({ ...editingTemplate, description: e.target.value })
+              }
+              rows={2}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select
+                  value={editingTemplate.category}
+                  onChange={(e) =>
+                    setEditingTemplate({ ...editingTemplate, category: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 text-gray-900"
+                >
+                  <option value="website">Website</option>
+                  <option value="webapp">Web App</option>
+                  <option value="ecommerce">E-commerce</option>
+                  <option value="mobile">Mobile App</option>
+                  <option value="api">API Development</option>
+                </select>
+              </div>
+
+              <Input
+                label="Estimated Hours"
+                type="number"
+                value={editingTemplate.estimatedHours.toString()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEditingTemplate({ ...editingTemplate, estimatedHours: parseInt(e.target.value) || 0 })
+                }
+              />
+            </div>
+
+            <Input
+              label="Timeline"
+              value={editingTemplate.timeline}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEditingTemplate({ ...editingTemplate, timeline: e.target.value })
+              }
+              placeholder="e.g., 4-6 weeks"
+            />
+
+            <div className="border-t pt-4">
+              <h4 className="font-semibold text-gray-900 mb-3">Pricing</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Setup Fee"
+                  type="number"
+                  step="0.01"
+                  value={editingTemplate.setupFee.toString()}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEditingTemplate({ ...editingTemplate, setupFee: parseFloat(e.target.value) || 0 })
+                  }
+                />
+
+                <Input
+                  label="Development Cost"
+                  type="number"
+                  step="0.01"
+                  value={editingTemplate.developmentCost.toString()}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEditingTemplate({ ...editingTemplate, developmentCost: parseFloat(e.target.value) || 0 })
+                  }
+                />
+
+                <Input
+                  label="Design Cost"
+                  type="number"
+                  step="0.01"
+                  value={editingTemplate.designCost.toString()}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEditingTemplate({ ...editingTemplate, designCost: parseFloat(e.target.value) || 0 })
+                  }
+                />
+
+                <Input
+                  label="Monthly Hosting"
+                  type="number"
+                  step="0.01"
+                  value={editingTemplate.monthlyHosting.toString()}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEditingTemplate({ ...editingTemplate, monthlyHosting: parseFloat(e.target.value) || 0 })
+                  }
+                />
+
+                <Input
+                  label="Monthly Maintenance"
+                  type="number"
+                  step="0.01"
+                  value={editingTemplate.monthlyMaintenance.toString()}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEditingTemplate({ ...editingTemplate, monthlyMaintenance: parseFloat(e.target.value) || 0 })
+                  }
+                />
+
+                <div className="flex items-center mt-6">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={editingTemplate.isActive}
+                    onChange={(e) =>
+                      setEditingTemplate({ ...editingTemplate, isActive: e.target.checked })
+                    }
+                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  />
+                  <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
+                    Active Template
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700" disabled={loading}>
+                {loading ? 'Saving...' : editingTemplate.id ? 'Update Template' : 'Create Template'}
+              </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowTemplateModal(false)
+                  setEditingTemplate(null)
+                }}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Phase Edit Modal */}
+      {showPhaseModal && editingPhase && (
+        <Modal
+          isOpen={showPhaseModal}
+          onClose={() => {
+            setShowPhaseModal(false)
+            setEditingPhase(null)
+          }}
+          title={editingPhase.id ? 'Edit Phase' : 'Create New Phase'}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (editingPhase.id) {
+                const updatedPhases = phases.map(p => p.id === editingPhase.id ? editingPhase : p)
+                setPhases(updatedPhases)
+              } else {
+                setPhases([...phases, { ...editingPhase, id: Date.now().toString() }])
+              }
+              setShowPhaseModal(false)
+              setEditingPhase(null)
+            }}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Phase Name"
+                value={editingPhase.name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEditingPhase({ ...editingPhase, name: e.target.value })
+                }
+                required
+              />
+
+              <Input
+                label="Icon"
+                value={editingPhase.icon}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEditingPhase({ ...editingPhase, icon: e.target.value })
+                }
+                placeholder="📋"
+              />
+            </div>
+
+            <Input
+              label="Duration"
+              value={editingPhase.duration}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEditingPhase({ ...editingPhase, duration: e.target.value })
+              }
+              placeholder="e.g., 1-2 weeks"
+            />
+
+            <Textarea
+              label="Description"
+              value={editingPhase.description}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setEditingPhase({ ...editingPhase, description: e.target.value })
+              }
+              rows={3}
+            />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+              <select
+                value={editingPhase.color}
+                onChange={(e) =>
+                  setEditingPhase({ ...editingPhase, color: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 text-gray-900"
+              >
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="purple">Purple</option>
+                <option value="orange">Orange</option>
+                <option value="red">Red</option>
+                <option value="gray">Gray</option>
+                <option value="indigo">Indigo</option>
+                <option value="pink">Pink</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Deliverables</label>
+              <div className="space-y-2">
+                {editingPhase.deliverables.map((deliverable, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={deliverable}
+                      onChange={(e) => {
+                        const newDeliverables = [...editingPhase.deliverables]
+                        newDeliverables[index] = e.target.value
+                        setEditingPhase({ ...editingPhase, deliverables: newDeliverables })
+                      }}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 text-gray-900 placeholder-gray-400"
+                      placeholder="Deliverable item"
+                    />
+                    {editingPhase.deliverables.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newDeliverables = editingPhase.deliverables.filter((_, i) => i !== index)
+                          setEditingPhase({ ...editingPhase, deliverables: newDeliverables })
+                        }}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingPhase({
+                    ...editingPhase,
+                    deliverables: [...editingPhase.deliverables, '']
+                  })
+                }}
+                className="mt-2 px-3 py-1 text-sm text-purple-600 hover:bg-purple-50 rounded"
+              >
+                + Add Deliverable
+              </button>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700">
+                {editingPhase.id ? 'Update Phase' : 'Create Phase'}
+              </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPhaseModal(false)
+                  setEditingPhase(null)
+                }}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   )
 }
