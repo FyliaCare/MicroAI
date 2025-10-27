@@ -102,30 +102,52 @@ function PDFQuoteContent() {
   const firstYearTotal = setupTotal + yearlyHosting
 
   const phases = Array.isArray(quote.phases) ? quote.phases : []
+  const quoteNumber = `QT-${Date.now().toString().slice(-6)}`
+  const currentDate = new Date().toLocaleDateString()
 
   return (
     <div className="min-h-screen bg-white">
       {/* PAGE 1: OVERVIEW */}
       <div className="page p-8">
         {/* Header - Company Info */}
-        <div className="mb-6 pb-4 border-b-2 border-blue-600">
-          <div className="flex justify-between items-start">
+        <div className="mb-4 pb-3 border-b border-gray-300">
+          <div className="flex justify-between items-center text-xs">
+            <span className="font-medium">{companyProfile?.phone || '+1 (555) 123-4567'}</span>
+            <span className="font-medium">{companyProfile?.email || 'contact@microai.com'}</span>
+            <span className="font-medium">{companyProfile?.address || '123 Tech Street, Silicon Valley, CA 94000'}</span>
+            <span className="font-bold text-blue-600">Quote #: {quoteNumber}</span>
+          </div>
+        </div>
+
+        {/* Company Name */}
+        <div className="mb-4 text-center">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {companyProfile?.name || 'MicroAI'}
+          </h1>
+          <p className="text-sm text-gray-600">{companyProfile?.description || 'Professional Web Development Services'}</p>
+        </div>
+
+        {/* Quote To Section */}
+        <div className="mb-6 bg-gray-50 border border-gray-300 rounded p-4">
+          <div className="grid grid-cols-2 gap-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                {companyProfile?.name || 'MicroAI'}
-              </h1>
-              <p className="text-xs text-gray-600">{companyProfile?.email || 'contact@microai.com'} | {companyProfile?.phone || '+1 (555) 123-4567'}</p>
+              <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Quote To:</h3>
+              <p className="font-bold text-gray-900">{quote.clientName || 'Client Name'}</p>
+              {quote.clientCompany && <p className="text-sm text-gray-700">{quote.clientCompany}</p>}
+              {quote.clientEmail && <p className="text-sm text-gray-700">{quote.clientEmail}</p>}
+              {quote.clientPhone && <p className="text-sm text-gray-700">{quote.clientPhone}</p>}
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500">Quote #</p>
-              <p className="text-lg font-bold text-blue-600">QT-{Date.now().toString().slice(-6)}</p>
-              <p className="text-xs text-gray-500 mt-1">{new Date().toLocaleDateString()}</p>
+              <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Quote Details:</h3>
+              <p className="text-sm"><span className="font-semibold">Quote #:</span> {quoteNumber}</p>
+              <p className="text-sm"><span className="font-semibold">Date:</span> {currentDate}</p>
+              <p className="text-sm"><span className="font-semibold">Valid Until:</span> {quote.validUntil ? new Date(quote.validUntil).toLocaleDateString() : 'TBD'}</p>
             </div>
           </div>
         </div>
 
         {/* Project Details */}
-        <div className="mb-6">
+        <div className="mb-5">
           <h2 className="text-xl font-bold mb-3 text-gray-900">Project Overview</h2>
           <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r">
             <h3 className="text-lg font-bold text-gray-900 mb-2">{quote.title || 'Web Development Project'}</h3>
@@ -134,7 +156,7 @@ function PDFQuoteContent() {
         </div>
 
         {/* Project Specifications */}
-        <div className="mb-6">
+        <div className="mb-5">
           <h2 className="text-xl font-bold mb-3 text-gray-900">Project Specifications</h2>
           <div className="grid grid-cols-2 gap-3">
             <div className="border border-gray-200 rounded p-3">
@@ -157,7 +179,7 @@ function PDFQuoteContent() {
         </div>
 
         {/* Investment Summary */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-lg mb-6">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-lg mb-4">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-blue-100 text-xs mb-1">Setup & Development</p>
@@ -175,10 +197,10 @@ function PDFQuoteContent() {
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-8 left-8 right-8 pt-4 border-t border-gray-300">
-          <div className="flex justify-between items-center text-xs text-gray-500">
-            <span>{companyProfile?.name || 'MicroAI'} | {companyProfile?.website || 'https://microai.com'}</span>
-            <span>Page 1 of 3</span>
+        <div className="absolute bottom-8 left-8 right-8 pt-3 border-t border-gray-400">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
+            <span className="text-gray-500">Page 1 of 3</span>
           </div>
         </div>
       </div>
@@ -186,13 +208,12 @@ function PDFQuoteContent() {
       {/* PAGE 2: DEVELOPMENT PHASES */}
       <div className="page p-8 page-break">
         {/* Header */}
-        <div className="mb-6 pb-3 border-b border-gray-300">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">{companyProfile?.name || 'MicroAI'}</h2>
-              <p className="text-xs text-gray-600">Quote #: QT-{Date.now().toString().slice(-6)}</p>
-            </div>
-            <p className="text-xs text-gray-500">Page 2 of 3</p>
+        <div className="mb-4 pb-3 border-b border-gray-300">
+          <div className="flex justify-between items-center text-xs">
+            <span>{companyProfile?.phone || '+1 (555) 123-4567'}</span>
+            <span>{companyProfile?.email || 'contact@microai.com'}</span>
+            <span>{companyProfile?.address || '123 Tech Street, Suite 100, San Francisco, CA 94105'}</span>
+            <span className="font-bold text-blue-600">Quote #: {quoteNumber}</span>
           </div>
         </div>
 
@@ -304,10 +325,10 @@ function PDFQuoteContent() {
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-8 left-8 right-8 pt-4 border-t border-gray-300">
-          <div className="flex justify-between items-center text-xs text-gray-500">
-            <span>{companyProfile?.name || 'MicroAI'} | {companyProfile?.website || 'https://microai.com'}</span>
-            <span>Page 2 of 3</span>
+        <div className="absolute bottom-8 left-8 right-8 pt-3 border-t border-gray-400">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
+            <span className="text-gray-500">Page 2 of 3</span>
           </div>
         </div>
       </div>
@@ -315,13 +336,12 @@ function PDFQuoteContent() {
       {/* PAGE 3: PRICING & TERMS */}
       <div className="page p-8 page-break">
         {/* Header */}
-        <div className="mb-6 pb-3 border-b border-gray-300">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">{companyProfile?.name || 'MicroAI'}</h2>
-              <p className="text-xs text-gray-600">Quote #: QT-{Date.now().toString().slice(-6)}</p>
-            </div>
-            <p className="text-xs text-gray-500">Page 3 of 3</p>
+        <div className="mb-4 pb-3 border-b border-gray-300">
+          <div className="flex justify-between items-center text-xs">
+            <span>{companyProfile?.phone || '+1 (555) 123-4567'}</span>
+            <span>{companyProfile?.email || 'contact@microai.com'}</span>
+            <span>{companyProfile?.address || '123 Tech Street, Suite 100, San Francisco, CA 94105'}</span>
+            <span className="font-bold text-blue-600">Quote #: {quoteNumber}</span>
           </div>
         </div>
 
@@ -453,10 +473,10 @@ function PDFQuoteContent() {
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-8 left-8 right-8 pt-4 border-t border-gray-300">
-          <div className="flex justify-between items-center text-xs text-gray-500">
-            <span>{companyProfile?.name || 'MicroAI'} | {companyProfile?.website || 'https://microai.com'}</span>
-            <span>Page 3 of 3</span>
+        <div className="absolute bottom-8 left-8 right-8 pt-3 border-t border-gray-400">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
+            <span className="text-gray-500">Page 3 of 3</span>
           </div>
         </div>
       </div>
