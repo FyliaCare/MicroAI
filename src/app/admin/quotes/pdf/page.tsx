@@ -12,14 +12,12 @@ function PDFQuoteContent() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Load company profile
     const loadCompanyProfile = () => {
       try {
         const savedProfile = localStorage.getItem('companyProfile')
         if (savedProfile) {
           const profile = JSON.parse(savedProfile)
           setCompanyProfile(profile)
-          // Update document title
           document.title = `${profile.name || 'MicroAI'} - Quote`
         } else {
           setCompanyProfile({
@@ -37,13 +35,9 @@ function PDFQuoteContent() {
       }
     }
 
-    // Load quote data
     const loadQuoteData = () => {
       try {
-        // Try to get from sessionStorage first (from generator)
         let quoteData = sessionStorage.getItem('quoteToPrint')
-        
-        // Try localStorage (from manager)
         if (!quoteData) {
           quoteData = localStorage.getItem('pdfQuoteData')
         }
@@ -51,11 +45,7 @@ function PDFQuoteContent() {
         if (quoteData) {
           const parsedQuote = JSON.parse(quoteData)
           setQuote(parsedQuote)
-          
-          // Auto-print after a short delay
-          setTimeout(() => {
-            window.print()
-          }, 1000)
+          setTimeout(() => window.print(), 1000)
         }
       } catch (err) {
         console.error('Error loading quote data:', err)
@@ -95,7 +85,6 @@ function PDFQuoteContent() {
     )
   }
 
-  // Calculate totals
   const setupFee = parseFloat(quote.setupFee || '0')
   const developmentCost = parseFloat(quote.developmentCost || '0')
   const designCost = parseFloat(quote.designCost || '0')
@@ -105,462 +94,347 @@ function PDFQuoteContent() {
   const yearlyHosting = monthlyHosting * 12
   const firstYearTotal = setupTotal + yearlyHosting
 
-  const phases = Array.isArray(quote.phases) ? quote.phases : []
-  const quoteNumber = `QT-${Date.now().toString().slice(-6)}`
+  const quoteNumber = quote.quoteNumber || `QT-${Date.now().toString().slice(-6)}`
   const currentDate = new Date().toLocaleDateString()
 
   return (
     <>
       <title>{companyProfile?.name || 'MicroAI'} - Quote</title>
-      <div className="min-h-screen bg-white">
-      {/* PAGE 1: OVERVIEW */}
-      <div className="page p-8">
-        <div className="page-content">
-        {/* Header - Company Info */}
-        <div className="mb-4 pb-3 border-b border-gray-300">
-          <div className="flex justify-between items-center text-xs">
-            <span className="font-medium">{companyProfile?.phone || '+1 (555) 123-4567'}</span>
-            <span className="font-medium">{companyProfile?.email || 'contact@microai.com'}</span>
-            <span className="font-medium">{companyProfile?.address || '123 Tech Street, Silicon Valley, CA 94000'}</span>
-            <span className="font-bold text-blue-600">Quote #: {quoteNumber}</span>
+      
+      <div className="quote-document">
+        {/* Simple Header */}
+        <div className="header">
+          <div className="header-left">
+            <h1>{companyProfile?.name || 'MicroAI'}</h1>
+            <p>{companyProfile?.description || 'Professional Web Development'}</p>
+          </div>
+          <div className="header-right">
+            <h2>QUOTATION</h2>
+            <p><strong>Quote #:</strong> {quoteNumber}</p>
+            <p><strong>Date:</strong> {currentDate}</p>
           </div>
         </div>
 
-        {/* Company Name */}
-        <div className="mb-4 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            {companyProfile?.name || 'MicroAI'}
-          </h1>
-          <p className="text-sm text-gray-600">{companyProfile?.description || 'Professional Web Development Services'}</p>
-        </div>
-
-        {/* Quote To Section */}
-        <div className="mb-6 bg-gray-50 border border-gray-300 rounded p-4">
-          <div className="grid grid-cols-2 gap-6">
+        {/* Client Info */}
+        <div className="section">
+          <div className="client-info">
             <div>
-              <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Quote To:</h3>
-              <p className="font-bold text-gray-900">{quote.clientName || 'Client Name'}</p>
-              {quote.clientCompany && <p className="text-sm text-gray-700">{quote.clientCompany}</p>}
-              {quote.clientEmail && <p className="text-sm text-gray-700">{quote.clientEmail}</p>}
-              {quote.clientPhone && <p className="text-sm text-gray-700">{quote.clientPhone}</p>}
-            </div>
-            <div className="text-right">
-              <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Quote Details:</h3>
-              <p className="text-sm"><span className="font-semibold">Quote #:</span> {quoteNumber}</p>
-              <p className="text-sm"><span className="font-semibold">Date:</span> {currentDate}</p>
-              <p className="text-sm"><span className="font-semibold">Valid Until:</span> {quote.validUntil ? new Date(quote.validUntil).toLocaleDateString() : 'TBD'}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Project Details */}
-        <div className="mb-5">
-          <h2 className="text-xl font-bold mb-3 text-gray-900">Project Overview</h2>
-          <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">{quote.title || 'Web Development Project'}</h3>
-            <p className="text-sm text-gray-700 leading-relaxed">{quote.description || 'Custom web development project tailored to your business needs.'}</p>
-          </div>
-        </div>
-
-        {/* Project Specifications */}
-        <div className="mb-5">
-          <h2 className="text-xl font-bold mb-3 text-gray-900">Project Specifications</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="border border-gray-200 rounded p-3">
-              <p className="text-xs text-gray-600 mb-1">Project Type</p>
-              <p className="text-sm font-semibold text-gray-900">{quote.projectType || 'Web Application'}</p>
-            </div>
-            <div className="border border-gray-200 rounded p-3">
-              <p className="text-xs text-gray-600 mb-1">Timeline</p>
-              <p className="text-sm font-semibold text-gray-900">{quote.timeline || '8-12 weeks'}</p>
-            </div>
-            <div className="border border-gray-200 rounded p-3">
-              <p className="text-xs text-gray-600 mb-1">Estimated Hours</p>
-              <p className="text-sm font-semibold text-gray-900">{quote.estimatedHours || 'TBD'} hours</p>
-            </div>
-            <div className="border border-gray-200 rounded p-3">
-              <p className="text-xs text-gray-600 mb-1">Tech Stack</p>
-              <p className="text-sm font-semibold text-gray-900">{Array.isArray(quote.techStack) ? quote.techStack.join(', ') : 'Modern Web Technologies'}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Investment Summary */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-lg mb-4">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-blue-100 text-xs mb-1">Setup & Development</p>
-              <p className="text-2xl font-bold">${setupTotal.toLocaleString()}</p>
+              <h3>Bill To:</h3>
+              <p className="client-name">{quote.clientName || 'Client Name'}</p>
+              {quote.clientEmail && <p>{quote.clientEmail}</p>}
+              {quote.clientPhone && <p>{quote.clientPhone}</p>}
             </div>
             <div>
-              <p className="text-blue-100 text-xs mb-1">First Year Hosting</p>
-              <p className="text-2xl font-bold">${yearlyHosting.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-blue-100 text-xs mb-1">First Year Total</p>
-              <p className="text-3xl font-bold">${firstYearTotal.toLocaleString()}</p>
+              <h3>Project:</h3>
+              <p className="project-title">{quote.title || 'Web Development Project'}</p>
+              <p><strong>Timeline:</strong> {quote.timeline || '8-12 weeks'}</p>
+              <p><strong>Valid Until:</strong> {quote.validUntil ? new Date(quote.validUntil).toLocaleDateString() : 'TBD'}</p>
             </div>
           </div>
         </div>
-        </div>
 
-        {/* Footer */}
-        <div className="page-footer pt-3 border-t border-gray-400">
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
-            <span className="text-gray-500">Page 1 of 3</span>
+        {/* Description */}
+        {quote.description && (
+          <div className="section">
+            <h3>Project Description</h3>
+            <p>{quote.description}</p>
           </div>
-        </div>
-      </div>
-
-      {/* PAGE 2: DEVELOPMENT PHASES */}
-      <div className="page p-8 page-break">
-        <div className="page-content">
-        {/* Header */}
-        <div className="mb-4 pb-3 border-b border-gray-300">
-          <div className="flex justify-between items-center text-xs">
-            <span>{companyProfile?.phone || '+1 (555) 123-4567'}</span>
-            <span>{companyProfile?.email || 'contact@microai.com'}</span>
-            <span>{companyProfile?.address || '123 Tech Street, Suite 100, San Francisco, CA 94105'}</span>
-            <span className="font-bold text-blue-600">Quote #: {quoteNumber}</span>
-          </div>
-        </div>
-
-        <h2 className="text-xl font-bold mb-4 text-gray-900 border-b-2 border-blue-600 pb-2">
-          Development Process & Phases
-        </h2>
-
-        <div className="space-y-4">
-          {phases.length > 0 ? phases.map((phase: any, index: number) => (
-            <div key={index} className="border-l-4 border-blue-600 pl-3">
-              <div className="bg-gray-50 p-3 rounded-r">
-                <h3 className="text-base font-bold text-gray-900 mb-1">
-                  Phase {index + 1}: {phase.title}
-                </h3>
-                {phase.description && (
-                  <p className="text-sm text-gray-700 mb-2">{phase.description}</p>
-                )}
-                {phase.tasks && Array.isArray(phase.tasks) && phase.tasks.length > 0 && phase.tasks[0] !== '' && (
-                  <ul className="list-disc list-inside text-xs text-gray-600 space-y-1 ml-2">
-                    {phase.tasks.filter((task: string) => task && task.trim() !== '').map((task: string, taskIdx: number) => (
-                      <li key={taskIdx}>{task}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          )) : (
-            <>
-              {/* Default phases - condensed */}
-              <div className="border-l-4 border-blue-600 pl-3">
-                <div className="bg-gray-50 p-3 rounded-r">
-                  <h3 className="text-base font-bold text-gray-900 mb-1">Phase 1: Discovery & Planning</h3>
-                  <p className="text-sm text-gray-700 mb-2">
-                    Initial consultation to understand your business goals, target audience, and project requirements.
-                  </p>
-                  <ul className="list-disc list-inside text-xs text-gray-600 space-y-1 ml-2">
-                    <li>Requirements gathering and analysis</li>
-                    <li>Project scope definition and technical architecture</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="border-l-4 border-green-600 pl-3">
-                <div className="bg-gray-50 p-3 rounded-r">
-                  <h3 className="text-base font-bold text-gray-900 mb-1">Phase 2: Design & Prototyping</h3>
-                  <p className="text-sm text-gray-700 mb-2">
-                    Creating wireframes and high-fidelity mockups that bring your vision to life.
-                  </p>
-                  <ul className="list-disc list-inside text-xs text-gray-600 space-y-1 ml-2">
-                    <li>UX/UI design and interactive prototypes</li>
-                    <li>Design system creation</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="border-l-4 border-purple-600 pl-3">
-                <div className="bg-gray-50 p-3 rounded-r">
-                  <h3 className="text-base font-bold text-gray-900 mb-1">Phase 3: Development</h3>
-                  <p className="text-sm text-gray-700 mb-2">
-                    Building your application with clean, scalable code using modern technologies.
-                  </p>
-                  <ul className="list-disc list-inside text-xs text-gray-600 space-y-1 ml-2">
-                    <li>Frontend and backend development</li>
-                    <li>Database design and security implementation</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="border-l-4 border-orange-600 pl-3">
-                <div className="bg-gray-50 p-3 rounded-r">
-                  <h3 className="text-base font-bold text-gray-900 mb-1">Phase 4: Testing & Quality Assurance</h3>
-                  <p className="text-sm text-gray-700 mb-2">
-                    Comprehensive testing ensures your application works flawlessly.
-                  </p>
-                  <ul className="list-disc list-inside text-xs text-gray-600 space-y-1 ml-2">
-                    <li>Functional and cross-browser testing</li>
-                    <li>Performance optimization</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="border-l-4 border-red-600 pl-3">
-                <div className="bg-gray-50 p-3 rounded-r">
-                  <h3 className="text-base font-bold text-gray-900 mb-1">Phase 5: Deployment & Launch</h3>
-                  <p className="text-sm text-gray-700 mb-2">
-                    Smooth deployment to production servers with proper configuration.
-                  </p>
-                  <ul className="list-disc list-inside text-xs text-gray-600 space-y-1 ml-2">
-                    <li>Server setup and SSL configuration</li>
-                    <li>Production deployment and monitoring setup</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="border-l-4 border-cyan-600 pl-3">
-                <div className="bg-gray-50 p-3 rounded-r">
-                  <h3 className="text-base font-bold text-gray-900 mb-1">Phase 6: Training & Handover</h3>
-                  <p className="text-sm text-gray-700 mb-2">
-                    Comprehensive training and complete documentation for your team.
-                  </p>
-                  <ul className="list-disc list-inside text-xs text-gray-600 space-y-1 ml-2">
-                    <li>Admin panel training and documentation</li>
-                    <li>30-day support period</li>
-                  </ul>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        </div>
-
-        {/* Footer */}
-        <div className="page-footer pt-3 border-t border-gray-400">
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
-            <span className="text-gray-500">Page 2 of 3</span>
-          </div>
-        </div>
-      </div>
-
-      {/* PAGE 3: PRICING & TERMS */}
-      <div className="page p-8 page-break">
-        <div className="page-content">
-        {/* Header */}
-        <div className="mb-4 pb-3 border-b border-gray-300">
-          <div className="flex justify-between items-center text-xs">
-            <span>{companyProfile?.phone || '+1 (555) 123-4567'}</span>
-            <span>{companyProfile?.email || 'contact@microai.com'}</span>
-            <span>{companyProfile?.address || '123 Tech Street, Suite 100, San Francisco, CA 94105'}</span>
-            <span className="font-bold text-blue-600">Quote #: {quoteNumber}</span>
-          </div>
-        </div>
-
-        <h2 className="text-xl font-bold mb-4 text-gray-900 border-b-2 border-blue-600 pb-2">
-          Investment & Pricing Breakdown
-        </h2>
+        )}
 
         {/* Pricing Table */}
-        <div className="mb-6">
-          <table className="w-full text-sm border-collapse border border-gray-400">
+        <div className="section">
+          <h3>Investment Breakdown</h3>
+          <table className="pricing-table">
             <thead>
-              <tr className="bg-gray-800 text-white border-b-2 border-gray-800">
-                <th className="text-left p-3 font-semibold border-r border-gray-600">#</th>
-                <th className="text-left p-3 font-semibold border-r border-gray-600">Description</th>
-                <th className="text-center p-3 font-semibold border-r border-gray-600">Quantity</th>
-                <th className="text-right p-3 font-semibold border-r border-gray-600">Unit Price</th>
-                <th className="text-right p-3 font-semibold">Total</th>
+              <tr>
+                <th>Description</th>
+                <th>Amount</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-gray-400 bg-white">
-                <td className="p-3 border-r border-gray-300">1</td>
-                <td className="p-3 border-r border-gray-300">
-                  <div className="font-semibold text-gray-900">Setup & Initialization Fee</div>
-                  <div className="text-sm text-gray-700 mt-1">Project setup, development environment, initial configuration</div>
-                </td>
-                <td className="text-center p-3 border-r border-gray-300">1</td>
-                <td className="text-right p-3 border-r border-gray-300 font-medium">${setupFee.toLocaleString()}</td>
-                <td className="text-right p-3 font-bold text-gray-900">${setupFee.toLocaleString()}</td>
-              </tr>
-              
+              {setupFee > 0 && (
+                <tr>
+                  <td>Setup Fee</td>
+                  <td>${setupFee.toLocaleString()}</td>
+                </tr>
+              )}
               {developmentCost > 0 && (
-                <tr className="border-b border-gray-400 bg-white">
-                  <td className="p-3 border-r border-gray-300">2</td>
-                  <td className="p-3 border-r border-gray-300">
-                    <div className="font-semibold text-gray-900">Development Services</div>
-                    <div className="text-sm text-gray-700 mt-1">Custom development work, coding, feature implementation</div>
-                  </td>
-                  <td className="text-center p-3 border-r border-gray-300">1</td>
-                  <td className="text-right p-3 border-r border-gray-300 font-medium">${developmentCost.toLocaleString()}</td>
-                  <td className="text-right p-3 font-bold text-gray-900">${developmentCost.toLocaleString()}</td>
+                <tr>
+                  <td>Development Cost</td>
+                  <td>${developmentCost.toLocaleString()}</td>
                 </tr>
               )}
-
               {designCost > 0 && (
-                <tr className="border-b border-gray-400 bg-white">
-                  <td className="p-3 border-r border-gray-300">{developmentCost > 0 ? '3' : '2'}</td>
-                  <td className="p-3 border-r border-gray-300">
-                    <div className="font-semibold text-gray-900">Design Services</div>
-                    <div className="text-sm text-gray-700 mt-1">UI/UX design, graphics, branding, visual assets</div>
-                  </td>
-                  <td className="text-center p-3 border-r border-gray-300">1</td>
-                  <td className="text-right p-3 border-r border-gray-300 font-medium">${designCost.toLocaleString()}</td>
-                  <td className="text-right p-3 font-bold text-gray-900">${designCost.toLocaleString()}</td>
+                <tr>
+                  <td>Design & UI/UX</td>
+                  <td>${designCost.toLocaleString()}</td>
                 </tr>
               )}
-
-              <tr className="border-b-2 border-gray-400 bg-blue-100">
-                <td className="p-3 border-r border-gray-300">{(developmentCost > 0 ? 3 : 2) + (designCost > 0 ? 1 : 0)}</td>
-                <td className="p-3 border-r border-gray-300">
-                  <div className="font-semibold text-gray-900">Hosting & Maintenance Services</div>
-                  <div className="text-sm text-gray-700 mt-1">Monthly hosting, SSL, backups, updates, technical support</div>
-                </td>
-                <td className="text-center p-3 border-r border-gray-300 font-medium">12 months</td>
-                <td className="text-right p-3 border-r border-gray-300 font-medium">${monthlyHosting.toLocaleString()}/mo</td>
-                <td className="text-right p-3 font-bold text-gray-900">${yearlyHosting.toLocaleString()}</td>
+              <tr className="subtotal">
+                <td><strong>Setup Total</strong></td>
+                <td><strong>${setupTotal.toLocaleString()}</strong></td>
               </tr>
-
-              {/* Subtotals */}
-              <tr className="border-t-2 border-gray-500 bg-gray-100">
-                <td colSpan={4} className="text-right p-3 font-bold text-gray-900 border-r border-gray-400">Setup Total:</td>
-                <td className="text-right p-3 font-bold text-xl text-gray-900">${setupTotal.toLocaleString()}</td>
-              </tr>
-              <tr className="bg-green-200 border-t-2 border-gray-500">
-                <td colSpan={4} className="text-right p-3 font-bold text-lg text-gray-900 border-r border-gray-400">FIRST YEAR TOTAL:</td>
-                <td className="text-right p-3 font-bold text-2xl text-green-800">${firstYearTotal.toLocaleString()}</td>
+              {monthlyHosting > 0 && (
+                <>
+                  <tr>
+                    <td>Monthly Hosting & Maintenance</td>
+                    <td>${monthlyHosting.toLocaleString()}/month</td>
+                  </tr>
+                  <tr>
+                    <td>First Year Hosting (12 months)</td>
+                    <td>${yearlyHosting.toLocaleString()}</td>
+                  </tr>
+                </>
+              )}
+              <tr className="total">
+                <td><strong>First Year Total Investment</strong></td>
+                <td><strong>${firstYearTotal.toLocaleString()}</strong></td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        {/* Payment Milestones */}
-        {quote.milestones && Array.isArray(quote.milestones) && quote.milestones.length > 0 && (
-          <div className="mb-8">
-            <h3 className="font-bold text-lg mb-4 text-gray-900">Payment Schedule:</h3>
-            <div className="space-y-2">
-              {quote.milestones.map((milestone: any, index: number) => (
-                <div key={index} className="flex justify-between items-center p-4 border border-gray-300 rounded bg-gray-50">
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">{milestone.name || 'Milestone'}</p>
-                    <p className="text-sm text-gray-600">{milestone.due || 'TBD'}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-blue-600">${(milestone.amount || 0).toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">{milestone.percentage || 0}%</p>
-                  </div>
-                </div>
+        {/* Deliverables */}
+        {quote.deliverables && Array.isArray(quote.deliverables) && quote.deliverables.length > 0 && (
+          <div className="section">
+            <h3>Deliverables</h3>
+            <ul>
+              {quote.deliverables.map((item: string, index: number) => (
+                <li key={index}>{item}</li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
-        {/* Terms & Conditions */}
-        <div className="bg-gray-100 border-2 border-gray-400 rounded p-5">
-          <h3 className="font-bold text-base mb-3 text-gray-900 border-b-2 border-gray-400 pb-2">Terms & Conditions</h3>
-          <div className="text-sm text-gray-800 space-y-2 font-medium">
-            {quote.terms ? (
-              <p className="whitespace-pre-wrap">{quote.terms}</p>
-            ) : (
-              <>
-                <p>• This quote is valid for 30 days from the date of issue.</p>
-                <p>• Payment terms: 70% upfront, 50% upon completion. All prices in USD. Quote valid for 30 days.</p>
-                <p>• Timeline estimates are based on timely client feedback and content delivery.</p>
-                <p>• Additional features or scope changes will be quoted separately.</p>
-                <p>• All work remains property of {companyProfile?.name || 'MicroAI'} until final payment is received.</p>
-              </>
-            )}
+        {/* Terms */}
+        {quote.terms && (
+          <div className="section">
+            <h3>Terms & Conditions</h3>
+            <p className="terms">{quote.terms}</p>
           </div>
-        </div>
-
-        {/* Thank You Message */}
-        <div className="mt-4 text-center bg-blue-100 border-2 border-blue-400 p-4 rounded">
-          <p className="text-sm text-gray-900 font-bold mb-1">
-            Thank you for considering {companyProfile?.name || 'MicroAI'} for your project!
-          </p>
-          <p className="text-xs text-gray-800 font-medium">
-            Questions? Contact us at {companyProfile?.email || 'contact@microai.com'} or {companyProfile?.phone || '+1 (555) 123-4567'}
-          </p>
-        </div>
-        </div>
+        )}
 
         {/* Footer */}
-        <div className="page-footer pt-3 border-t border-gray-400">
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
-            <span className="text-gray-500">Page 3 of 3</span>
+        <div className="footer">
+          <div className="footer-contact">
+            <p><strong>{companyProfile?.name || 'MicroAI'}</strong></p>
+            <p>{companyProfile?.email || 'contact@microai.com'} | {companyProfile?.phone || '+1 (555) 123-4567'}</p>
+            {companyProfile?.address && <p>{companyProfile.address}</p>}
           </div>
+          <p className="copyright">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</p>
         </div>
       </div>
 
       <style jsx global>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          color: #1a1a1a;
+          line-height: 1.6;
+        }
+
+        .quote-document {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 40px;
+          background: white;
+        }
+
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          padding-bottom: 30px;
+          border-bottom: 3px solid #2563eb;
+          margin-bottom: 30px;
+        }
+
+        .header-left h1 {
+          font-size: 28px;
+          font-weight: 700;
+          color: #2563eb;
+          margin-bottom: 5px;
+        }
+
+        .header-left p {
+          font-size: 14px;
+          color: #666;
+        }
+
+        .header-right {
+          text-align: right;
+        }
+
+        .header-right h2 {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin-bottom: 10px;
+        }
+
+        .header-right p {
+          font-size: 13px;
+          margin: 3px 0;
+        }
+
+        .section {
+          margin-bottom: 30px;
+        }
+
+        .section h3 {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin-bottom: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .client-info {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 30px;
+          background: #f8fafc;
+          padding: 20px;
+          border-radius: 8px;
+        }
+
+        .client-info p {
+          font-size: 14px;
+          margin: 4px 0;
+        }
+
+        .client-name, .project-title {
+          font-weight: 700;
+          font-size: 15px;
+          color: #1a1a1a;
+        }
+
+        .pricing-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 15px;
+        }
+
+        .pricing-table th {
+          background: #1e40af;
+          color: white;
+          padding: 12px;
+          text-align: left;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .pricing-table td {
+          padding: 10px 12px;
+          border-bottom: 1px solid #e5e7eb;
+          font-size: 14px;
+        }
+
+        .pricing-table th:last-child,
+        .pricing-table td:last-child {
+          text-align: right;
+        }
+
+        .pricing-table tr.subtotal td {
+          background: #f1f5f9;
+          font-size: 15px;
+        }
+
+        .pricing-table tr.total td {
+          background: #dbeafe;
+          font-size: 16px;
+          padding: 14px 12px;
+          border-bottom: 2px solid #2563eb;
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+        }
+
+        ul li {
+          padding: 6px 0 6px 20px;
+          position: relative;
+          font-size: 14px;
+        }
+
+        ul li:before {
+          content: "✓";
+          position: absolute;
+          left: 0;
+          color: #2563eb;
+          font-weight: bold;
+        }
+
+        .terms {
+          font-size: 13px;
+          line-height: 1.8;
+          color: #4b5563;
+          background: #f9fafb;
+          padding: 15px;
+          border-left: 3px solid #2563eb;
+        }
+
+        .footer {
+          margin-top: 50px;
+          padding-top: 20px;
+          border-top: 2px solid #e5e7eb;
+        }
+
+        .footer-contact {
+          text-align: center;
+          margin-bottom: 15px;
+        }
+
+        .footer-contact p {
+          font-size: 13px;
+          margin: 3px 0;
+        }
+
+        .copyright {
+          text-align: center;
+          font-size: 12px;
+          color: #9ca3af;
+        }
+
         @media print {
           @page {
-            size: A4;
-            margin: 25mm 20mm 25mm 20mm;
+            margin: 20mm;
           }
-          
+
           body {
-            margin: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          .quote-document {
             padding: 0;
+            max-width: 100%;
           }
-          
-          .page {
-            page-break-after: always;
+
+          .section {
             page-break-inside: avoid;
-            position: relative;
-            min-height: 247mm;
-            padding: 15mm 0 20mm 0 !important;
           }
-          
-          .page:last-child {
-            page-break-after: auto;
-          }
-          
-          .page-break {
-            page-break-before: always;
-          }
-          
-          .page-content {
-            padding: 0 8mm;
-            padding-bottom: 25mm !important;
-          }
-          
-          /* Hide non-print elements */
-          nav, header, footer, button, .no-print {
+
+          button {
             display: none !important;
           }
-
-          /* Ensure footers stay at bottom with more space */
-          .page-footer {
-            position: absolute;
-            bottom: 8mm;
-            left: 8mm;
-            right: 8mm;
-          }
         }
-        
+
         @media screen {
-          .page {
-            max-width: 210mm;
-            min-height: 297mm;
-            margin: 20px auto;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            position: relative;
-            padding-bottom: 60px;
-          }
-
-          .page-content {
-            padding: 0 8mm;
-          }
-
-          .page-footer {
-            position: absolute;
+          .quote-document {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            margin-bottom: 20px;
           }
         }
       `}</style>
-    </div>
     </>
   )
 }
