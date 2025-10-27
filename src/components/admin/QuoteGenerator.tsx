@@ -179,7 +179,68 @@ export default function AdvancedQuoteGenerator({
     fetchTemplates()
     fetchClients()
     loadCompanyProfile()
+    
+    // Check for edit or duplicate mode
+    const params = new URLSearchParams(window.location.search)
+    const editId = params.get('edit')
+    const isDuplicate = params.get('duplicate')
+    
+    if (editId) {
+      loadEditQuote(editId)
+    } else if (isDuplicate) {
+      loadDuplicateQuote()
+    }
   }, [])
+
+  const loadEditQuote = (quoteId: string) => {
+    try {
+      const savedQuote = localStorage.getItem('editQuoteData')
+      if (savedQuote) {
+        const quote = JSON.parse(savedQuote)
+        // Pre-fill form with quote data
+        setFormData({
+          ...formData,
+          title: quote.projectName || '',
+          description: quote.description || '',
+          clientId: quote.clientId || '',
+          setupFee: quote.setupFee?.toString() || '',
+          developmentCost: quote.developmentCost?.toString() || '',
+          designCost: quote.designCost?.toString() || '',
+          monthlyHosting: quote.monthlyHosting?.toString() || '',
+          notes: quote.notes || '',
+        })
+        // Clear localStorage
+        localStorage.removeItem('editQuoteData')
+      }
+    } catch (err) {
+      console.error('Error loading edit quote:', err)
+    }
+  }
+
+  const loadDuplicateQuote = () => {
+    try {
+      const savedQuote = localStorage.getItem('duplicateQuoteData')
+      if (savedQuote) {
+        const quote = JSON.parse(savedQuote)
+        // Pre-fill form with duplicated quote data
+        setFormData({
+          ...formData,
+          title: quote.projectName || '',
+          description: quote.description || '',
+          clientId: quote.clientId || '',
+          setupFee: quote.setupFee?.toString() || '',
+          developmentCost: quote.developmentCost?.toString() || '',
+          designCost: quote.designCost?.toString() || '',
+          monthlyHosting: quote.monthlyHosting?.toString() || '',
+          notes: quote.notes || '',
+        })
+        // Clear localStorage
+        localStorage.removeItem('duplicateQuoteData')
+      }
+    } catch (err) {
+      console.error('Error loading duplicate quote:', err)
+    }
+  }
 
   const loadCompanyProfile = () => {
     try {

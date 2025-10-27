@@ -176,17 +176,11 @@ export default function AdvancedQuotesManager() {
   }
 
   const handleEdit = (quote: Quote) => {
-    setEditingQuote(quote)
-    setFormData({
-      clientId: quote.clientId,
-      projectName: quote.projectName,
-      description: quote.description || '',
-      validUntil: quote.validUntil.split('T')[0],
-      status: quote.status,
-      notes: quote.notes || '',
-    })
-    setLineItems(quote.lineItems?.length > 0 ? quote.lineItems : [{ description: '', quantity: 1, unitPrice: 0, total: 0 }])
-    setShowModal(true)
+    // Store the quote data for editing
+    localStorage.setItem('editQuoteData', JSON.stringify(quote))
+    
+    // Navigate to quote generator with edit mode
+    window.location.href = `/admin/quotes/new?edit=${quote.id}`
   }
 
   const handleDelete = async (id: string) => {
