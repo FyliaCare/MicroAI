@@ -106,7 +106,7 @@ export default function AdvancedQuotesManager() {
   }
 
   const calculateTotalAmount = () => {
-    return lineItems.reduce((sum, item) => sum + item.total, 0)
+    return lineItems.reduce((sum, item) => sum + (item.total || 0), 0)
   }
 
   const handleLineItemChange = (index: number, field: keyof QuoteLineItem, value: any) => {
@@ -357,7 +357,7 @@ export default function AdvancedQuotesManager() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-3xl font-bold">${stats.totalValue.toLocaleString()}</p>
+          <p className="text-3xl font-bold">${(stats.totalValue || 0).toLocaleString()}</p>
         </div>
 
         <div className="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg p-4 text-white shadow-lg">
@@ -367,7 +367,7 @@ export default function AdvancedQuotesManager() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <p className="text-3xl font-bold">${stats.acceptedValue.toLocaleString()}</p>
+          <p className="text-3xl font-bold">${(stats.acceptedValue || 0).toLocaleString()}</p>
         </div>
       </div>
 
@@ -537,7 +537,7 @@ export default function AdvancedQuotesManager() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Amount:</span>
-                    <span className="text-lg font-bold text-blue-600">${quote.totalAmount.toLocaleString()}</span>
+                    <span className="text-lg font-bold text-blue-600">${(quote.totalAmount || 0).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Valid Until:</span>
@@ -618,7 +618,7 @@ export default function AdvancedQuotesManager() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
-                    ${quote.totalAmount.toLocaleString()}
+                    ${(quote.totalAmount || 0).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={isExpired(quote.validUntil) && quote.status === 'sent' ? 'text-orange-600 font-medium' : 'text-gray-900'}>
@@ -763,7 +763,7 @@ export default function AdvancedQuotesManager() {
                     <div className="col-span-2">
                       <input
                         type="text"
-                        value={`$${item.total.toLocaleString()}`}
+                        value={`$${(item.total || 0).toLocaleString()}`}
                         disabled
                         className="w-full px-3 py-2 bg-gray-200 border border-gray-300 rounded-md text-gray-700"
                       />
@@ -888,8 +888,8 @@ export default function AdvancedQuotesManager() {
                       <tr key={index}>
                         <td className="px-4 py-3 text-sm text-gray-900">{item.description}</td>
                         <td className="px-4 py-3 text-sm text-gray-900 text-center">{item.quantity}</td>
-                        <td className="px-4 py-3 text-sm text-gray-900 text-right">${item.unitPrice.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">${item.total.toLocaleString()}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900 text-right">${(item.unitPrice || 0).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-sm font-semibold text-gray-900 text-right">${(item.total || 0).toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -901,7 +901,7 @@ export default function AdvancedQuotesManager() {
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white">
               <div className="flex items-center justify-between">
                 <span className="text-lg font-medium opacity-90">Total Amount</span>
-                <span className="text-3xl font-bold">${selectedQuote.totalAmount.toLocaleString()}</span>
+                <span className="text-3xl font-bold">${(selectedQuote.totalAmount || 0).toLocaleString()}</span>
               </div>
             </div>
 
