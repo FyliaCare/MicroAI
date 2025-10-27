@@ -342,7 +342,7 @@ export default function AdvancedQuoteGenerator({
                     <h3 className="text-lg font-bold mb-4">📝 Step 2: Quote Details</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Quote Title *
                         </label>
                         <Input
@@ -355,7 +355,7 @@ export default function AdvancedQuoteGenerator({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Client
                         </label>
                         <select
@@ -373,7 +373,7 @@ export default function AdvancedQuoteGenerator({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Description
                         </label>
                         <Textarea
@@ -387,7 +387,7 @@ export default function AdvancedQuoteGenerator({
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium mb-2">
+                          <label className="block text-sm font-medium mb-2 text-gray-900">
                             Estimated Hours
                           </label>
                           <Input
@@ -398,7 +398,7 @@ export default function AdvancedQuoteGenerator({
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium mb-2">
+                          <label className="block text-sm font-medium mb-2 text-gray-900">
                             Timeline
                           </label>
                           <Input
@@ -411,7 +411,7 @@ export default function AdvancedQuoteGenerator({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Valid Until
                         </label>
                         <Input
@@ -431,7 +431,7 @@ export default function AdvancedQuoteGenerator({
                     <h3 className="text-lg font-bold mb-4">💰 Step 3: Pricing Breakdown</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Setup Fee *
                         </label>
                         <Input
@@ -445,7 +445,7 @@ export default function AdvancedQuoteGenerator({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Development Cost
                         </label>
                         <Input
@@ -458,7 +458,7 @@ export default function AdvancedQuoteGenerator({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Design Cost
                         </label>
                         <Input
@@ -471,7 +471,7 @@ export default function AdvancedQuoteGenerator({
                       </div>
 
                       <div className="pt-4 border-t">
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Monthly Hosting *
                         </label>
                         <Input
@@ -493,7 +493,7 @@ export default function AdvancedQuoteGenerator({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Monthly Maintenance
                         </label>
                         <Input
@@ -522,7 +522,7 @@ export default function AdvancedQuoteGenerator({
                     <h3 className="text-lg font-bold mb-4">📄 Step 4: Additional Details</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Notes
                         </label>
                         <Textarea
@@ -535,7 +535,7 @@ export default function AdvancedQuoteGenerator({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium mb-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
                           Terms & Conditions
                         </label>
                         <Textarea
