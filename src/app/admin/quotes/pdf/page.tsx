@@ -115,6 +115,7 @@ function PDFQuoteContent() {
       <div className="min-h-screen bg-white">
       {/* PAGE 1: OVERVIEW */}
       <div className="page p-8">
+        <div className="page-content">
         {/* Header - Company Info */}
         <div className="mb-4 pb-3 border-b border-gray-300">
           <div className="flex justify-between items-center text-xs">
@@ -201,9 +202,10 @@ function PDFQuoteContent() {
             </div>
           </div>
         </div>
+        </div>
 
         {/* Footer */}
-        <div className="absolute bottom-8 left-8 right-8 pt-3 border-t border-gray-400">
+        <div className="page-footer pt-3 border-t border-gray-400">
           <div className="flex justify-between items-center text-xs">
             <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
             <span className="text-gray-500">Page 1 of 3</span>
@@ -213,6 +215,7 @@ function PDFQuoteContent() {
 
       {/* PAGE 2: DEVELOPMENT PHASES */}
       <div className="page p-8 page-break">
+        <div className="page-content">
         {/* Header */}
         <div className="mb-4 pb-3 border-b border-gray-300">
           <div className="flex justify-between items-center text-xs">
@@ -329,9 +332,10 @@ function PDFQuoteContent() {
             </>
           )}
         </div>
+        </div>
 
         {/* Footer */}
-        <div className="absolute bottom-8 left-8 right-8 pt-3 border-t border-gray-400">
+        <div className="page-footer pt-3 border-t border-gray-400">
           <div className="flex justify-between items-center text-xs">
             <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
             <span className="text-gray-500">Page 2 of 3</span>
@@ -341,6 +345,7 @@ function PDFQuoteContent() {
 
       {/* PAGE 3: PRICING & TERMS */}
       <div className="page p-8 page-break">
+        <div className="page-content">
         {/* Header */}
         <div className="mb-4 pb-3 border-b border-gray-300">
           <div className="flex justify-between items-center text-xs">
@@ -477,9 +482,10 @@ function PDFQuoteContent() {
             Questions? Contact us at {companyProfile?.email || 'contact@microai.com'} or {companyProfile?.phone || '+1 (555) 123-4567'}
           </p>
         </div>
+        </div>
 
         {/* Footer */}
-        <div className="absolute bottom-8 left-8 right-8 pt-3 border-t border-gray-400">
+        <div className="page-footer pt-3 border-t border-gray-400">
           <div className="flex justify-between items-center text-xs">
             <span className="text-gray-700">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</span>
             <span className="text-gray-500">Page 3 of 3</span>
@@ -491,9 +497,7 @@ function PDFQuoteContent() {
         @media print {
           @page {
             size: A4;
-            margin: 20mm;
-            margin-top: 0;
-            margin-bottom: 0;
+            margin: 25mm 20mm 25mm 20mm;
           }
           
           body {
@@ -501,18 +505,12 @@ function PDFQuoteContent() {
             padding: 0;
           }
           
-          /* Hide browser default headers and footers */
-          @page {
-            margin-top: 0;
-            margin-bottom: 0;
-          }
-          
           .page {
             page-break-after: always;
             page-break-inside: avoid;
             position: relative;
-            min-height: 257mm;
-            padding: 0 !important;
+            min-height: 247mm;
+            padding: 15mm 0 20mm 0 !important;
           }
           
           .page:last-child {
@@ -523,14 +521,22 @@ function PDFQuoteContent() {
             page-break-before: always;
           }
           
+          .page-content {
+            padding: 0 8mm;
+            padding-bottom: 25mm !important;
+          }
+          
           /* Hide non-print elements */
           nav, header, footer, button, .no-print {
             display: none !important;
           }
 
-          /* Ensure footers stay at bottom */
-          .absolute {
+          /* Ensure footers stay at bottom with more space */
+          .page-footer {
             position: absolute;
+            bottom: 8mm;
+            left: 8mm;
+            right: 8mm;
           }
         }
         
@@ -545,7 +551,11 @@ function PDFQuoteContent() {
             padding-bottom: 60px;
           }
 
-          .absolute {
+          .page-content {
+            padding: 0 8mm;
+          }
+
+          .page-footer {
             position: absolute;
           }
         }

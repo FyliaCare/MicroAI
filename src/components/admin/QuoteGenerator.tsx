@@ -323,6 +323,79 @@ export default function AdvancedQuoteGenerator({
     }
   }
 
+  const handleSaveQuote = async (isDraft: boolean = false) => {
+    setLoading(true)
+    setError('')
+    
+    try {
+      const quoteData = {
+        title: formData.title,
+        description: formData.description,
+        clientId: formData.clientId,
+        projectType: formData.projectType,
+        estimatedHours: parseFloat(formData.estimatedHours) || 0,
+        timeline: formData.timeline,
+        techStack: JSON.stringify(formData.techStack),
+        setupFee: parseFloat(formData.setupFee) || 0,
+        developmentCost: parseFloat(formData.developmentCost) || 0,
+        designCost: parseFloat(formData.designCost) || 0,
+        monthlyHosting: parseFloat(formData.monthlyHosting) || 0,
+        monthlyMaintenance: parseFloat(formData.monthlyMaintenance) || 0,
+        monthlyRecurring: parseFloat(formData.monthlyRecurring) || 0,
+        yearlyRecurring: parseFloat(formData.yearlyRecurring) || 0,
+        deliverables: JSON.stringify(formData.deliverables),
+        hostingBreakdown: JSON.stringify(formData.hostingBreakdown),
+        milestones: JSON.stringify(formData.milestones),
+        validUntil: formData.validUntil,
+        notes: formData.notes,
+        terms: formData.terms,
+        status: isDraft ? 'draft' : 'sent',
+        phases: JSON.stringify((formData as any).developmentPhases || []),
+      }
+
+      const totalAmount = 
+        (parseFloat(formData.setupFee) || 0) +
+        (parseFloat(formData.developmentCost) || 0) +
+        (parseFloat(formData.designCost) || 0) +
+        ((parseFloat(formData.monthlyHosting) || 0) * 12)
+
+      const response = await fetch('/api/admin/quotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...quoteData, totalAmount }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setCreatedQuote(data.quote)
+        if (isDraft) {
+          setSuccess('Quote saved as draft successfully!')
+          setTimeout(() => {
+            window.location.href = '/admin/quotes'
+          }, 1500)
+        } else {
+          setShowSuccessModal(true)
+        }
+      } else {
+        setError(data.error || 'Failed to save quote')
+      }
+    } catch (err) {
+      console.error('Error saving quote:', err)
+      setError('Failed to save quote')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGenerateQuote = () => {
+    handleSaveQuote(false)
+  }
+
+  const handleSaveAsDraft = () => {
+    handleSaveQuote(true)
+  }
+
   const togglePhase = (index: number) => {
     const newCollapsed = new Set(collapsedPhases)
     if (newCollapsed.has(index)) {
@@ -1565,15 +1638,27 @@ export default function AdvancedQuoteGenerator({
                     )}
                   </div>
 
-                  {/* Download Button */}
-                  <div className="mt-8 text-center print:hidden">
-                    <Button
-                      onClick={handleDownloadQuote}
-                      className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg font-semibold"
+                  {/* Action Buttons */}
+                  <div className="mt-8 space-y-3 print:hidden">
+                    <button
+                      onClick={handleGenerateQuote}
+                      className="w-full px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg flex items-center justify-center gap-2"
                     >
-                      📥 Download Quote as PDF
-                    </Button>
-                    <p className="text-xs text-gray-500 mt-2">Click to save or print this quote</p>
+                      <span>📄</span>
+                      <span>Generate Quote</span>
+                    </button>
+                    
+                    <button
+                      onClick={handleSaveAsDraft}
+                      className="w-full px-6 py-4 border-2 border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-lg flex items-center justify-center gap-2"
+                    >
+                      <span>�</span>
+                      <span>Save as Draft</span>
+                    </button>
+                    
+                    <p className="text-xs text-gray-500 text-center mt-2">
+                      Generate to finalize and download PDF, or save as draft to continue later
+                    </p>
                   </div>
                 </div>
               </Card>
