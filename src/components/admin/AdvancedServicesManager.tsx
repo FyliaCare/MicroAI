@@ -420,7 +420,7 @@ export default function AdvancedServicesManager() {
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="">All Categories</option>
             <option value="web-development">Web Development</option>
@@ -434,7 +434,7 @@ export default function AdvancedServicesManager() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="">All Status</option>
             <option value="true">Active</option>
@@ -735,7 +735,7 @@ export default function AdvancedServicesManager() {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
                 required
               >
                 <option value="web-development">Web Development</option>
@@ -761,7 +761,7 @@ export default function AdvancedServicesManager() {
                 type="text"
                 value={formData.icon}
                 onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
                 placeholder="💻"
               />
             </div>
@@ -793,7 +793,7 @@ export default function AdvancedServicesManager() {
               <select
                 value={formData.priceType}
                 onChange={(e) => setFormData({ ...formData, priceType: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="fixed">Fixed Price</option>
                 <option value="hourly">Hourly Rate</option>
@@ -874,7 +874,7 @@ export default function AdvancedServicesManager() {
                     type="text"
                     value={feature}
                     onChange={(e) => handleArrayFieldChange(index, e.target.value, features, setFeatures)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
                     placeholder="Enter feature"
                   />
                   {features.length > 1 && (
@@ -912,7 +912,7 @@ export default function AdvancedServicesManager() {
                     type="text"
                     value={deliverable}
                     onChange={(e) => handleArrayFieldChange(index, e.target.value, deliverables, setDeliverables)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
                     placeholder="Enter deliverable"
                   />
                   {deliverables.length > 1 && (
@@ -950,7 +950,7 @@ export default function AdvancedServicesManager() {
                     type="text"
                     value={tag}
                     onChange={(e) => handleArrayFieldChange(index, e.target.value, tags, setTags)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
                     placeholder="Enter tag"
                   />
                   {tags.length > 1 && (

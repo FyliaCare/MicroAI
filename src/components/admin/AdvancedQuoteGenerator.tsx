@@ -361,7 +361,7 @@ export default function AdvancedQuoteGenerator({
                         <select
                           value={formData.clientId}
                           onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                         >
                           <option value="">Select a client...</option>
                           {clients.map((client) => (

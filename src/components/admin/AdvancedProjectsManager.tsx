@@ -392,7 +392,7 @@ export default function AdvancedProjectsManager() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="">All Status</option>
             <option value="planning">Planning</option>
@@ -407,7 +407,7 @@ export default function AdvancedProjectsManager() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="">All Types</option>
             <option value="web-app">Web App</option>
@@ -423,7 +423,7 @@ export default function AdvancedProjectsManager() {
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="">All Priorities</option>
             <option value="low">Low</option>
@@ -724,7 +724,7 @@ export default function AdvancedProjectsManager() {
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="web-app">Web App</option>
                 <option value="mobile-app">Mobile App</option>
@@ -741,7 +741,7 @@ export default function AdvancedProjectsManager() {
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="planning">Planning</option>
                 <option value="active">Active</option>
@@ -759,7 +759,7 @@ export default function AdvancedProjectsManager() {
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -773,7 +773,7 @@ export default function AdvancedProjectsManager() {
               <select
                 value={formData.clientId}
                 onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="">Select client</option>
                 {clients.map((client) => (
