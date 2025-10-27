@@ -55,6 +55,7 @@ export default function AdvancedSettingsManager() {
   const [showTemplateModal, setShowTemplateModal] = useState(false)
   const [showPhaseModal, setShowPhaseModal] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
 
   // Company Profile State
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({
@@ -221,6 +222,36 @@ All code and designs become client property upon final payment.
       alert('Failed to save company profile')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingLogo(true)
+    try {
+      const formData = new FormData()
+      formData.append('logo', file)
+
+      const response = await fetch('/api/admin/upload-logo', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setCompanyProfile({ ...companyProfile, logo: data.logoUrl })
+        alert('Logo uploaded successfully!')
+      } else {
+        alert(data.error || 'Failed to upload logo')
+      }
+    } catch (err) {
+      alert('Failed to upload logo')
+      console.error('Upload error:', err)
+    } finally {
+      setUploadingLogo(false)
     }
   }
 
@@ -454,6 +485,27 @@ All code and designs become client property upon final payment.
                 <p className="text-xs text-gray-500 mt-1">
                   Paste the URL to your logo image, or use a path relative to your public folder (e.g., /logo.png)
                 </p>
+
+                {/* Logo Upload Section */}
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Or upload a logo:</p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp"
+                      onChange={handleLogoUpload}
+                      disabled={uploadingLogo}
+                      className="text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200 disabled:opacity-50"
+                    />
+                    {uploadingLogo && (
+                      <span className="text-sm text-purple-600">Uploading...</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Accepted formats: PNG, JPG, SVG, WebP (max 5MB)
+                  </p>
+                </div>
+
                 {companyProfile.logo && (
                   <div className="mt-3">
                     <p className="text-sm font-medium text-gray-700 mb-2">Logo Preview:</p>
