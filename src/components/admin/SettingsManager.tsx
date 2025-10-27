@@ -512,10 +512,24 @@ All code and designs become client property upon final payment.
                     <img 
                       src={companyProfile.logo} 
                       alt="Company Logo Preview" 
-                      className="h-16 w-auto object-contain border border-gray-200 rounded p-2"
+                      className="h-16 w-auto object-contain border border-gray-200 rounded p-2 bg-white"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = ''
-                        alert('Failed to load logo. Please check the URL.')
+                        const img = e.target as HTMLImageElement
+                        img.style.display = 'none'
+                        const parent = img.parentElement
+                        if (parent && !parent.querySelector('.error-message')) {
+                          const errorMsg = document.createElement('p')
+                          errorMsg.className = 'error-message text-sm text-red-600 mt-2'
+                          errorMsg.textContent = 'Failed to load logo. Please check the URL or upload a new file.'
+                          parent.appendChild(errorMsg)
+                        }
+                      }}
+                      onLoad={(e) => {
+                        const img = e.target as HTMLImageElement
+                        img.style.display = 'block'
+                        const parent = img.parentElement
+                        const errorMsg = parent?.querySelector('.error-message')
+                        if (errorMsg) errorMsg.remove()
                       }}
                     />
                   </div>
