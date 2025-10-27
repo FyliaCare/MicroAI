@@ -12,6 +12,7 @@ export default defineConfig({
   engine: "classic",
   datasource: {
     url: env("DATABASE_URL"),
-    directUrl: env("DIRECT_URL"),
+    // directUrl is optional - only needed for migrations
+    ...(process.env.DIRECT_URL && { directUrl: env("DIRECT_URL") }),
   },
 });
