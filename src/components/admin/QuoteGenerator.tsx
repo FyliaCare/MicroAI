@@ -70,6 +70,12 @@ export default function AdvancedQuoteGenerator({
     deliverables: [] as string[],
     features: [] as string[],
     milestones: [] as any[],
+    developmentPhases: [] as Array<{
+      title: string
+      description: string
+      tasks: string[]
+      color: string
+    }>,
     monthlyRecurring: '',
     yearlyRecurring: '',
     validUntil: '',
@@ -683,6 +689,126 @@ export default function AdvancedQuoteGenerator({
                         </Button>
                       </div>
                     </div>
+
+                    {/* Development Phases */}
+                    <div>
+                      <label className="block text-sm font-medium mb-3 text-gray-900">
+                        Development Phases (For Quote Page 2)
+                      </label>
+                      <div className="space-y-4">
+                        {formData.developmentPhases.map((phase, phaseIndex) => (
+                          <div key={phaseIndex} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                            <div className="flex gap-2 mb-3">
+                              <div className="flex-1">
+                                <Input
+                                  value={phase.title}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const newPhases = [...formData.developmentPhases]
+                                    newPhases[phaseIndex].title = e.target.value
+                                    setFormData({ ...formData, developmentPhases: newPhases })
+                                  }}
+                                  placeholder="Phase title (e.g., Design & Prototyping)"
+                                  className="font-semibold"
+                                />
+                              </div>
+                              <select
+                                value={phase.color}
+                                onChange={(e) => {
+                                  const newPhases = [...formData.developmentPhases]
+                                  newPhases[phaseIndex].color = e.target.value
+                                  setFormData({ ...formData, developmentPhases: newPhases })
+                                }}
+                                className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900"
+                              >
+                                <option value="blue">Blue</option>
+                                <option value="green">Green</option>
+                                <option value="purple">Purple</option>
+                                <option value="orange">Orange</option>
+                                <option value="red">Red</option>
+                                <option value="gray">Gray</option>
+                              </select>
+                              <Button
+                                type="button"
+                                onClick={() => {
+                                  const newPhases = formData.developmentPhases.filter((_, i) => i !== phaseIndex)
+                                  setFormData({ ...formData, developmentPhases: newPhases })
+                                }}
+                                className="bg-red-500 hover:bg-red-600 px-3"
+                              >
+                                ✕
+                              </Button>
+                            </div>
+                            
+                            <Textarea
+                              value={phase.description}
+                              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                                const newPhases = [...formData.developmentPhases]
+                                newPhases[phaseIndex].description = e.target.value
+                                setFormData({ ...formData, developmentPhases: newPhases })
+                              }}
+                              placeholder="Phase description..."
+                              rows={2}
+                              className="mb-3"
+                            />
+
+                            <div className="space-y-2">
+                              <label className="text-xs font-medium text-gray-700">Tasks/Deliverables:</label>
+                              {phase.tasks.map((task, taskIndex) => (
+                                <div key={taskIndex} className="flex gap-2">
+                                  <Input
+                                    value={task}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                      const newPhases = [...formData.developmentPhases]
+                                      newPhases[phaseIndex].tasks[taskIndex] = e.target.value
+                                      setFormData({ ...formData, developmentPhases: newPhases })
+                                    }}
+                                    placeholder="Task or deliverable"
+                                    className="text-sm"
+                                  />
+                                  <Button
+                                    type="button"
+                                    onClick={() => {
+                                      const newPhases = [...formData.developmentPhases]
+                                      newPhases[phaseIndex].tasks = newPhases[phaseIndex].tasks.filter((_, i) => i !== taskIndex)
+                                      setFormData({ ...formData, developmentPhases: newPhases })
+                                    }}
+                                    className="bg-red-400 hover:bg-red-500 px-2 text-sm"
+                                  >
+                                    ✕
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                type="button"
+                                onClick={() => {
+                                  const newPhases = [...formData.developmentPhases]
+                                  newPhases[phaseIndex].tasks.push('')
+                                  setFormData({ ...formData, developmentPhases: newPhases })
+                                }}
+                                className="bg-green-500 hover:bg-green-600 w-full text-sm"
+                              >
+                                + Add Task
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          onClick={() => setFormData({ 
+                            ...formData, 
+                            developmentPhases: [...formData.developmentPhases, {
+                              title: '',
+                              description: '',
+                              tasks: [''],
+                              color: 'blue'
+                            }] 
+                          })}
+                          className="bg-blue-500 hover:bg-blue-600 w-full"
+                        >
+                          + Add Development Phase
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </Card>
 
@@ -839,107 +965,126 @@ export default function AdvancedQuoteGenerator({
                     Development Process & Phases
                   </h2>
 
-                  {/* Build Process Phases */}
+                  {/* Build Process Phases - Dynamic */}
                   <div className="space-y-6 mb-8">
-                    {/* Phase 1 */}
-                    <div className="border-l-4 border-blue-600 pl-4 py-2">
-                      <h3 className="font-bold text-lg text-blue-700 mb-2">Phase 1: Discovery & Planning</h3>
-                      <p className="text-sm text-gray-700 mb-2">
-                        Initial consultation to understand your business goals, target audience, and project requirements. 
-                        We'll create a detailed project roadmap and technical specifications document.
-                      </p>
-                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
-                        <li>Requirements gathering and analysis</li>
-                        <li>Competitive research and market analysis</li>
-                        <li>Information architecture development</li>
-                        <li>Project timeline and milestone planning</li>
-                        <li>Technology stack finalization</li>
-                      </ul>
-                    </div>
+                    {formData.developmentPhases.length > 0 ? (
+                      formData.developmentPhases.map((phase, index) => (
+                        <div key={index} className={`border-l-4 border-${phase.color}-600 pl-4 py-2`}>
+                          <h3 className={`font-bold text-lg text-${phase.color}-700 mb-2`}>
+                            Phase {index + 1}: {phase.title}
+                          </h3>
+                          {phase.description && (
+                            <p className="text-sm text-gray-700 mb-2">
+                              {phase.description}
+                            </p>
+                          )}
+                          {phase.tasks.length > 0 && phase.tasks[0] !== '' && (
+                            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                              {phase.tasks.filter(task => task.trim() !== '').map((task, taskIdx) => (
+                                <li key={taskIdx}>{task}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      /* Default Phases if none are defined */
+                      <>
+                        <div className="border-l-4 border-blue-600 pl-4 py-2">
+                          <h3 className="font-bold text-lg text-blue-700 mb-2">Phase 1: Discovery & Planning</h3>
+                          <p className="text-sm text-gray-700 mb-2">
+                            Initial consultation to understand your business goals, target audience, and project requirements. 
+                            We'll create a detailed project roadmap and technical specifications document.
+                          </p>
+                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                            <li>Requirements gathering and analysis</li>
+                            <li>Competitive research and market analysis</li>
+                            <li>Information architecture development</li>
+                            <li>Project timeline and milestone planning</li>
+                            <li>Technology stack finalization</li>
+                          </ul>
+                        </div>
 
-                    {/* Phase 2 */}
-                    <div className="border-l-4 border-green-600 pl-4 py-2">
-                      <h3 className="font-bold text-lg text-green-700 mb-2">Phase 2: Design & Prototyping</h3>
-                      <p className="text-sm text-gray-700 mb-2">
-                        Creation of wireframes, mockups, and interactive prototypes. Design system development including 
-                        color schemes, typography, and UI components aligned with your brand identity.
-                      </p>
-                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
-                        <li>Wireframe creation for all key pages</li>
-                        <li>High-fidelity mockup design</li>
-                        <li>Interactive prototype development</li>
-                        <li>Responsive design for mobile/tablet/desktop</li>
-                        <li>Design review and client approval</li>
-                      </ul>
-                    </div>
+                        <div className="border-l-4 border-green-600 pl-4 py-2">
+                          <h3 className="font-bold text-lg text-green-700 mb-2">Phase 2: Design & Prototyping</h3>
+                          <p className="text-sm text-gray-700 mb-2">
+                            Creation of wireframes, mockups, and interactive prototypes. Design system development including 
+                            color schemes, typography, and UI components aligned with your brand identity.
+                          </p>
+                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                            <li>Wireframe creation for all key pages</li>
+                            <li>High-fidelity mockup design</li>
+                            <li>Interactive prototype development</li>
+                            <li>Responsive design for mobile/tablet/desktop</li>
+                            <li>Design review and client approval</li>
+                          </ul>
+                        </div>
 
-                    {/* Phase 3 */}
-                    <div className="border-l-4 border-purple-600 pl-4 py-2">
-                      <h3 className="font-bold text-lg text-purple-700 mb-2">Phase 3: Development & Implementation</h3>
-                      <p className="text-sm text-gray-700 mb-2">
-                        Full-stack development using modern technologies. Building responsive front-end interfaces, 
-                        robust back-end systems, database architecture, and API integrations.
-                      </p>
-                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
-                        <li>Front-end development (HTML/CSS/JavaScript/React/Next.js)</li>
-                        <li>Back-end API development and database setup</li>
-                        <li>Content management system integration</li>
-                        <li>Third-party service integrations</li>
-                        <li>Performance optimization</li>
-                        <li>Security implementation and SSL setup</li>
-                      </ul>
-                    </div>
+                        <div className="border-l-4 border-purple-600 pl-4 py-2">
+                          <h3 className="font-bold text-lg text-purple-700 mb-2">Phase 3: Development & Implementation</h3>
+                          <p className="text-sm text-gray-700 mb-2">
+                            Full-stack development using modern technologies. Building responsive front-end interfaces, 
+                            robust back-end systems, database architecture, and API integrations.
+                          </p>
+                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                            <li>Front-end development (HTML/CSS/JavaScript/React/Next.js)</li>
+                            <li>Back-end API development and database setup</li>
+                            <li>Content management system integration</li>
+                            <li>Third-party service integrations</li>
+                            <li>Performance optimization</li>
+                            <li>Security implementation and SSL setup</li>
+                          </ul>
+                        </div>
 
-                    {/* Phase 4 */}
-                    <div className="border-l-4 border-orange-600 pl-4 py-2">
-                      <h3 className="font-bold text-lg text-orange-700 mb-2">Phase 4: Testing & Quality Assurance</h3>
-                      <p className="text-sm text-gray-700 mb-2">
-                        Comprehensive testing across all devices and browsers. Bug fixing, performance testing, 
-                        security audits, and user acceptance testing to ensure flawless functionality.
-                      </p>
-                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
-                        <li>Cross-browser compatibility testing</li>
-                        <li>Mobile responsiveness testing</li>
-                        <li>Performance and load testing</li>
-                        <li>Security vulnerability assessment</li>
-                        <li>User acceptance testing (UAT)</li>
-                        <li>Bug fixing and optimization</li>
-                      </ul>
-                    </div>
+                        <div className="border-l-4 border-orange-600 pl-4 py-2">
+                          <h3 className="font-bold text-lg text-orange-700 mb-2">Phase 4: Testing & Quality Assurance</h3>
+                          <p className="text-sm text-gray-700 mb-2">
+                            Comprehensive testing across all devices and browsers. Bug fixing, performance testing, 
+                            security audits, and user acceptance testing to ensure flawless functionality.
+                          </p>
+                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                            <li>Cross-browser compatibility testing</li>
+                            <li>Mobile responsiveness testing</li>
+                            <li>Performance and load testing</li>
+                            <li>Security vulnerability assessment</li>
+                            <li>User acceptance testing (UAT)</li>
+                            <li>Bug fixing and optimization</li>
+                          </ul>
+                        </div>
 
-                    {/* Phase 5 */}
-                    <div className="border-l-4 border-red-600 pl-4 py-2">
-                      <h3 className="font-bold text-lg text-red-700 mb-2">Phase 5: Deployment & Launch</h3>
-                      <p className="text-sm text-gray-700 mb-2">
-                        Final deployment to production servers, DNS configuration, analytics setup, and go-live support. 
-                        Post-launch monitoring and immediate issue resolution.
-                      </p>
-                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
-                        <li>Production server setup and configuration</li>
-                        <li>Domain and DNS configuration</li>
-                        <li>SSL certificate installation</li>
-                        <li>Analytics and tracking implementation</li>
-                        <li>Final content migration</li>
-                        <li>Launch day support and monitoring</li>
-                      </ul>
-                    </div>
+                        <div className="border-l-4 border-red-600 pl-4 py-2">
+                          <h3 className="font-bold text-lg text-red-700 mb-2">Phase 5: Deployment & Launch</h3>
+                          <p className="text-sm text-gray-700 mb-2">
+                            Final deployment to production servers, DNS configuration, analytics setup, and go-live support. 
+                            Post-launch monitoring and immediate issue resolution.
+                          </p>
+                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                            <li>Production server setup and configuration</li>
+                            <li>Domain and DNS configuration</li>
+                            <li>SSL certificate installation</li>
+                            <li>Analytics and tracking implementation</li>
+                            <li>Final content migration</li>
+                            <li>Launch day support and monitoring</li>
+                          </ul>
+                        </div>
 
-                    {/* Phase 6 */}
-                    <div className="border-l-4 border-gray-600 pl-4 py-2">
-                      <h3 className="font-bold text-lg text-gray-700 mb-2">Phase 6: Training & Handover</h3>
-                      <p className="text-sm text-gray-700 mb-2">
-                        Comprehensive training for your team on managing and updating the website. Complete documentation 
-                        and ongoing support to ensure you're confident managing your new platform.
-                      </p>
-                      <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
-                        <li>Admin panel training session</li>
-                        <li>Content management training</li>
-                        <li>Complete technical documentation</li>
-                        <li>Video tutorials for common tasks</li>
-                        <li>Source code and asset handover</li>
-                        <li>Post-launch support period</li>
-                      </ul>
-                    </div>
+                        <div className="border-l-4 border-gray-600 pl-4 py-2">
+                          <h3 className="font-bold text-lg text-gray-700 mb-2">Phase 6: Training & Handover</h3>
+                          <p className="text-sm text-gray-700 mb-2">
+                            Comprehensive training for your team on managing and updating the website. Complete documentation 
+                            and ongoing support to ensure you're confident managing your new platform.
+                          </p>
+                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                            <li>Admin panel training session</li>
+                            <li>Content management training</li>
+                            <li>Complete technical documentation</li>
+                            <li>Video tutorials for common tasks</li>
+                            <li>Source code and asset handover</li>
+                            <li>Post-launch support period</li>
+                          </ul>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Deliverables Checklist */}
