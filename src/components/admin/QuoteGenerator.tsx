@@ -70,7 +70,84 @@ export default function AdvancedQuoteGenerator({
     deliverables: [] as string[],
     features: [] as string[],
     milestones: [] as any[],
-    developmentPhases: [] as Array<{
+    developmentPhases: [
+      {
+        title: 'Discovery & Planning',
+        description: 'Initial consultation to understand your business goals, target audience, and project requirements. We\'ll create a detailed project roadmap and technical specifications document.',
+        tasks: [
+          'Requirements gathering and analysis',
+          'Competitive research and market analysis',
+          'Information architecture development',
+          'Project timeline and milestone planning',
+          'Technology stack finalization'
+        ],
+        color: 'blue'
+      },
+      {
+        title: 'Design & Prototyping',
+        description: 'Creation of wireframes, mockups, and interactive prototypes. Design system development including color schemes, typography, and UI components aligned with your brand identity.',
+        tasks: [
+          'Wireframe creation for all key pages',
+          'High-fidelity mockup design',
+          'Interactive prototype development',
+          'Responsive design for mobile/tablet/desktop',
+          'Design review and client approval'
+        ],
+        color: 'green'
+      },
+      {
+        title: 'Development & Implementation',
+        description: 'Full-stack development using modern technologies. Building responsive front-end interfaces, robust back-end systems, database architecture, and API integrations.',
+        tasks: [
+          'Front-end development (HTML/CSS/JavaScript/React/Next.js)',
+          'Back-end API development and database setup',
+          'Content management system integration',
+          'Third-party service integrations',
+          'Performance optimization',
+          'Security implementation and SSL setup'
+        ],
+        color: 'purple'
+      },
+      {
+        title: 'Testing & Quality Assurance',
+        description: 'Comprehensive testing across all devices and browsers. Bug fixing, performance testing, security audits, and user acceptance testing to ensure flawless functionality.',
+        tasks: [
+          'Cross-browser compatibility testing',
+          'Mobile responsiveness testing',
+          'Performance and load testing',
+          'Security vulnerability assessment',
+          'User acceptance testing (UAT)',
+          'Bug fixing and optimization'
+        ],
+        color: 'orange'
+      },
+      {
+        title: 'Deployment & Launch',
+        description: 'Final deployment to production servers, DNS configuration, analytics setup, and go-live support. Post-launch monitoring and immediate issue resolution.',
+        tasks: [
+          'Production server setup and configuration',
+          'Domain and DNS configuration',
+          'SSL certificate installation',
+          'Analytics and tracking implementation',
+          'Final content migration',
+          'Launch day support and monitoring'
+        ],
+        color: 'red'
+      },
+      {
+        title: 'Training & Handover',
+        description: 'Comprehensive training for your team on managing and updating the website. Complete documentation and ongoing support to ensure you\'re confident managing your new platform.',
+        tasks: [
+          'Admin panel training session',
+          'Content management training',
+          'Complete technical documentation',
+          'Video tutorials for common tasks',
+          'Source code and asset handover',
+          'Post-launch support period'
+        ],
+        color: 'gray'
+      }
+    ] as Array<{
       title: string
       description: string
       tasks: string[]
