@@ -216,6 +216,23 @@ export default function AdvancedQuotesManager() {
     setShowDeleteModal(true)
   }
 
+  const handleDuplicate = (quote: Quote) => {
+    // Create a copy of the quote with a new number
+    const duplicatedQuote = {
+      ...quote,
+      quoteNumber: `${quote.quoteNumber}-COPY`,
+      projectName: `${quote.projectName} (Copy)`,
+      status: 'draft',
+      createdAt: new Date().toISOString(),
+    }
+    
+    // Store the duplicated quote data
+    localStorage.setItem('duplicateQuoteData', JSON.stringify(duplicatedQuote))
+    
+    // Redirect to quote generator
+    window.location.href = '/admin/quotes/new?duplicate=true'
+  }
+
   const resetForm = () => {
     setFormData({
       clientId: '',
@@ -599,6 +616,15 @@ export default function AdvancedQuotesManager() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
+                      handleDuplicate(quote)
+                    }}
+                    className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm font-medium"
+                  >
+                    📋 Duplicate
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
                       confirmDelete(quote)
                     }}
                     className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
@@ -687,6 +713,12 @@ export default function AdvancedQuotesManager() {
                       className="text-blue-600 hover:text-blue-900 mr-3"
                     >
                       Edit
+                    </button>
+                    <button
+                      onClick={() => handleDuplicate(quote)}
+                      className="text-purple-600 hover:text-purple-900 mr-3"
+                    >
+                      Duplicate
                     </button>
                     <button
                       onClick={() => confirmDelete(quote)}
