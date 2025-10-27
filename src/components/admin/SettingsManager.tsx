@@ -93,7 +93,31 @@ All code and designs become client property upon final payment.
   useEffect(() => {
     fetchTemplates()
     fetchPhases()
+    loadCompanyProfile()
+    loadTermsOfService()
   }, [])
+
+  const loadCompanyProfile = () => {
+    try {
+      const saved = localStorage.getItem('companyProfile')
+      if (saved) {
+        setCompanyProfile(JSON.parse(saved))
+      }
+    } catch (error) {
+      console.error('Error loading company profile:', error)
+    }
+  }
+
+  const loadTermsOfService = () => {
+    try {
+      const saved = localStorage.getItem('termsOfService')
+      if (saved) {
+        setTermsOfService(saved)
+      }
+    } catch (error) {
+      console.error('Error loading terms:', error)
+    }
+  }
 
   const fetchTemplates = async () => {
     try {
@@ -108,7 +132,18 @@ All code and designs become client property upon final payment.
   }
 
   const fetchPhases = async () => {
-    // For now, use default phases - can be enhanced to fetch from API
+    // Check if phases are already loaded from localStorage
+    const saved = localStorage.getItem('developmentPhases')
+    if (saved) {
+      try {
+        setPhases(JSON.parse(saved))
+        return
+      } catch (error) {
+        console.error('Error parsing saved phases:', error)
+      }
+    }
+
+    // Otherwise use default phases
     setPhases([
       {
         id: '1',
