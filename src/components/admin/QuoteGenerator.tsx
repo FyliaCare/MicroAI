@@ -290,8 +290,45 @@ export default function AdvancedQuoteGenerator({
         {/* Template Selection */}
         <Card className="mb-6">
           <div className="p-6">
-            <h2 className="text-lg font-bold mb-4 text-gray-900">📋 Step 1: Select Quote Template</h2>
+            <h2 className="text-lg font-bold mb-4 text-gray-900">📋 Step 1: Select Quote Template or Start Custom</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Custom Quote Option */}
+              <button
+                onClick={() => {
+                  setSelectedTemplate({ id: 'custom' } as QuoteTemplate)
+                  setFormData({
+                    ...formData,
+                    title: '',
+                    description: '',
+                    projectType: '',
+                    estimatedHours: '',
+                    timeline: '',
+                    setupFee: '0',
+                    developmentCost: '0',
+                    designCost: '0',
+                    monthlyHosting: '0',
+                    monthlyMaintenance: '0',
+                  })
+                }}
+                className={`p-4 border-2 rounded-lg text-left transition-all hover:shadow-lg ${
+                  selectedTemplate?.id === 'custom'
+                    ? 'border-purple-600 bg-purple-50 shadow-md'
+                    : 'border-gray-300 hover:border-purple-400 border-dashed'
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-bold text-lg text-purple-600">✨ Custom Quote</h3>
+                  {selectedTemplate?.id === 'custom' && (
+                    <span className="text-purple-600 text-xl">✓</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 mb-3">Start from scratch with full flexibility to customize everything</p>
+                <div className="text-xs text-purple-600 font-medium mt-2 pt-2 border-t border-purple-200">
+                  Build your own quote →
+                </div>
+              </button>
+
+              {/* Existing Templates */}
               {templates.map((template) => (
                 <button
                   key={template.id}
