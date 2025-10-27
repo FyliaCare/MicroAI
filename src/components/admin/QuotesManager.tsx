@@ -240,6 +240,33 @@ export default function AdvancedQuotesManager() {
     return new Date(validUntil) < new Date()
   }
 
+  const handleDownloadPDF = (quote: Quote) => {
+    // Store quote data for PDF generation
+    localStorage.setItem('pdfQuoteData', JSON.stringify(quote))
+    // Open print dialog
+    window.print()
+  }
+
+  const handleGenerateReceipt = async (quote: Quote) => {
+    if (quote.status !== 'accepted') {
+      alert('Only accepted quotes can generate receipts')
+      return
+    }
+    
+    // Navigate to receipt generation page
+    window.location.href = `/admin/receipts/new?quoteId=${quote.id}`
+  }
+
+  const handleSaveAsDraft = async () => {
+    const updatedFormData = { ...formData, status: 'draft' }
+    setFormData(updatedFormData)
+    
+    // Submit with draft status
+    const e = new Event('submit') as any
+    e.preventDefault = () => {}
+    await handleSubmit(e)
+  }
+
   const filteredQuotes = quotes.filter(quote => {
     const matchesSearch = searchQuery === '' || 
       quote.quoteNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -553,25 +580,49 @@ export default function AdvancedQuotesManager() {
               </div>
 
               {/* Action Buttons */}
-              <div className="p-4 bg-gray-100 flex gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleEdit(quote)
-                  }}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleDelete(quote.id)
-                  }}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
-                >
-                  Delete
-                </button>
+              <div className="p-4 bg-gray-100 space-y-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleEdit(quote)
+                    }}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDelete(quote.id)
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
+                  >
+                    Delete
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDownloadPDF(quote)
+                    }}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+                  >
+                    📥 PDF
+                  </button>
+                  {quote.status === 'accepted' && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleGenerateReceipt(quote)
+                      }}
+                      className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm font-medium"
+                    >
+                      🧾 Receipt
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -802,8 +853,15 @@ export default function AdvancedQuotesManager() {
           />
 
           <div className="flex gap-3 pt-4">
+            <Button 
+              type="button"
+              onClick={handleSaveAsDraft}
+              className="flex-1 bg-gray-600 hover:bg-gray-700"
+            >
+              💾 Save as Draft
+            </Button>
             <Button type="submit" className="flex-1">
-              {editingQuote ? 'Update Quote' : 'Create Quote'}
+              {editingQuote ? '📤 Update Quote' : '📤 Send Quote'}
             </Button>
             <button
               type="button"
