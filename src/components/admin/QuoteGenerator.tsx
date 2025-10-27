@@ -321,19 +321,6 @@ export default function AdvancedQuoteGenerator({
     setCollapsedPhases(newCollapsed)
   }
 
-  const handleDownloadQuote = () => {
-    // Add a class to body to indicate we're printing
-    document.body.classList.add('printing-quote')
-    
-    // Trigger print
-    window.print()
-    
-    // Remove the class after printing
-    setTimeout(() => {
-      document.body.classList.remove('printing-quote')
-    }, 1000)
-  }
-
   const fetchTemplates = async () => {
     try {
       const response = await fetch('/api/admin/quote-templates?active=true')
