@@ -553,10 +553,143 @@ export default function AdvancedQuoteGenerator({
                   </div>
                 </Card>
 
+                {/* Development Details: Tech Stack, Features, Deliverables */}
+                <Card>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold mb-4 text-gray-900">🔧 Step 4: Development & Project Details</h3>
+                    
+                    {/* Tech Stack */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium mb-2 text-gray-900">
+                        Technology Stack
+                      </label>
+                      <div className="space-y-2">
+                        {formData.techStack.map((tech, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={tech}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newStack = [...formData.techStack]
+                                newStack[index] = e.target.value
+                                setFormData({ ...formData, techStack: newStack })
+                              }}
+                              placeholder="e.g., React, Next.js, TypeScript"
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                const newStack = formData.techStack.filter((_, i) => i !== index)
+                                setFormData({ ...formData, techStack: newStack })
+                              }}
+                              className="bg-red-500 hover:bg-red-600 px-3"
+                            >
+                              ✕
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          onClick={() => setFormData({ 
+                            ...formData, 
+                            techStack: [...formData.techStack, ''] 
+                          })}
+                          className="bg-blue-500 hover:bg-blue-600 w-full"
+                        >
+                          + Add Technology
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium mb-2 text-gray-900">
+                        Key Features
+                      </label>
+                      <div className="space-y-2">
+                        {formData.features.map((feature, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={feature}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newFeatures = [...formData.features]
+                                newFeatures[index] = e.target.value
+                                setFormData({ ...formData, features: newFeatures })
+                              }}
+                              placeholder="e.g., User authentication, Payment processing"
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                const newFeatures = formData.features.filter((_, i) => i !== index)
+                                setFormData({ ...formData, features: newFeatures })
+                              }}
+                              className="bg-red-500 hover:bg-red-600 px-3"
+                            >
+                              ✕
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          onClick={() => setFormData({ 
+                            ...formData, 
+                            features: [...formData.features, ''] 
+                          })}
+                          className="bg-blue-500 hover:bg-blue-600 w-full"
+                        >
+                          + Add Feature
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Deliverables */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium mb-2 text-gray-900">
+                        Project Deliverables
+                      </label>
+                      <div className="space-y-2">
+                        {formData.deliverables.map((deliverable, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={deliverable}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newDeliverables = [...formData.deliverables]
+                                newDeliverables[index] = e.target.value
+                                setFormData({ ...formData, deliverables: newDeliverables })
+                              }}
+                              placeholder="e.g., Fully functional website, Admin dashboard"
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                const newDeliverables = formData.deliverables.filter((_, i) => i !== index)
+                                setFormData({ ...formData, deliverables: newDeliverables })
+                              }}
+                              className="bg-red-500 hover:bg-red-600 px-3"
+                            >
+                              ✕
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          onClick={() => setFormData({ 
+                            ...formData, 
+                            deliverables: [...formData.deliverables, ''] 
+                          })}
+                          className="bg-blue-500 hover:bg-blue-600 w-full"
+                        >
+                          + Add Deliverable
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
                 {/* Notes & Terms */}
                 <Card>
                   <div className="p-6">
-                    <h3 className="text-lg font-bold mb-4 text-gray-900">📄 Step 4: Additional Details</h3>
+                    <h3 className="text-lg font-bold mb-4 text-gray-900">📄 Step 5: Additional Details</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-2 text-gray-900">
