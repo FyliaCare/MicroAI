@@ -290,7 +290,7 @@ export default function AdvancedQuoteGenerator({
         {/* Template Selection */}
         <Card className="mb-6">
           <div className="p-6">
-            <h2 className="text-lg font-bold mb-4">📋 Step 1: Select Quote Template</h2>
+            <h2 className="text-lg font-bold mb-4 text-gray-900">📋 Step 1: Select Quote Template</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {templates.map((template) => (
                 <button
@@ -339,7 +339,7 @@ export default function AdvancedQuoteGenerator({
                 {/* Basic Info */}
                 <Card>
                   <div className="p-6">
-                    <h3 className="text-lg font-bold mb-4">📝 Step 2: Quote Details</h3>
+                    <h3 className="text-lg font-bold mb-4 text-gray-900">📝 Step 2: Quote Details</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-2 text-gray-900">
@@ -428,7 +428,7 @@ export default function AdvancedQuoteGenerator({
                 {/* Pricing */}
                 <Card>
                   <div className="p-6">
-                    <h3 className="text-lg font-bold mb-4">💰 Step 3: Pricing Breakdown</h3>
+                    <h3 className="text-lg font-bold mb-4 text-gray-900">💰 Step 3: Pricing Breakdown</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-2 text-gray-900">
@@ -519,7 +519,7 @@ export default function AdvancedQuoteGenerator({
                 {/* Notes & Terms */}
                 <Card>
                   <div className="p-6">
-                    <h3 className="text-lg font-bold mb-4">📄 Step 4: Additional Details</h3>
+                    <h3 className="text-lg font-bold mb-4 text-gray-900">📄 Step 4: Additional Details</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-2 text-gray-900">
