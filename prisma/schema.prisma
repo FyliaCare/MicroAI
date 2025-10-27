@@ -85,14 +85,33 @@ model Quote {
   projectId       String?   @unique
   project         Project?  @relation(fields: [projectId], references: [id])
   
-  // Pricing
+  // Project Details
+  projectType     String?   // basic-website, business-website, web-app, ecommerce, saas
+  estimatedHours  Float?
+  timeline        String?   // e.g., "4-6 weeks"
+  techStack       String?   // JSON array of technologies
+  
+  // Pricing Breakdown
+  setupFee        Float     @default(0)
+  developmentCost Float     @default(0)
+  designCost      Float     @default(0)
+  monthlyHosting  Float     @default(0)
+  monthlyMaintenance Float  @default(0)
+  
   subtotal        Float
   tax             Float     @default(0)
   discount        Float     @default(0)
   total           Float
   
-  // Items/Services
-  items           String    // JSON string of line items
+  // Detailed Items
+  items           String    // JSON: development tasks, features, deliverables
+  hostingBreakdown String?  // JSON: hosting costs breakdown
+  deliverables    String?   // JSON: list of deliverables
+  milestones      String?   // JSON: project milestones with payments
+  
+  // Recurring Revenue
+  monthlyRecurring Float    @default(0)
+  yearlyRecurring  Float    @default(0)
   
   // Status
   status          String    @default("draft") // draft, sent, viewed, accepted, rejected, expired
@@ -318,4 +337,40 @@ model Notification {
   
   createdAt   DateTime  @default(now())
   readAt      DateTime?
+}
+
+model QuoteTemplate {
+  id              String    @id @default(uuid())
+  name            String    // e.g., "Basic Website", "E-commerce Platform"
+  category        String    // basic-website, business-website, web-app, ecommerce, saas
+  description     String?
+  
+  // Pricing Structure
+  setupFee        Float
+  developmentCost Float
+  designCost      Float     @default(0)
+  monthlyHosting  Float
+  monthlyMaintenance Float  @default(0)
+  
+  // Project Details
+  estimatedHours  Float
+  timeline        String    // e.g., "2-3 weeks"
+  techStack       String    // JSON array: ["Next.js", "TypeScript", "PostgreSQL"]
+  
+  // Breakdown
+  features        String    // JSON array of included features
+  deliverables    String    // JSON array of deliverables
+  hostingBreakdown String   // JSON: detailed hosting costs
+  milestones      String?   // JSON: payment milestones
+  
+  // Costs Breakdown (for transparency)
+  actualCosts     String?   // JSON: your actual costs per service
+  profitMargin    Float     @default(100) // Percentage markup
+  
+  // Display
+  isActive        Boolean   @default(true)
+  sortOrder       Int       @default(0)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }

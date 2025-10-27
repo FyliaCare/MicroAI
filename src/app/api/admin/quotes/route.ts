@@ -76,6 +76,21 @@ export async function POST(request: NextRequest) {
       validUntil,
       notes,
       terms,
+      // New enhanced fields
+      projectType,
+      estimatedHours,
+      timeline,
+      techStack,
+      setupFee,
+      developmentCost,
+      designCost,
+      monthlyHosting,
+      monthlyMaintenance,
+      hostingBreakdown,
+      deliverables,
+      milestones,
+      monthlyRecurring,
+      yearlyRecurring,
     } = body
 
     // Validation
@@ -126,6 +141,21 @@ export async function POST(request: NextRequest) {
         notes,
         terms,
         status: 'draft',
+        // Enhanced fields
+        projectType: projectType || null,
+        estimatedHours: estimatedHours ? parseInt(estimatedHours) : null,
+        timeline: timeline || null,
+        techStack: techStack ? JSON.stringify(techStack) : null,
+        setupFee: setupFee ? parseFloat(setupFee) : null,
+        developmentCost: developmentCost ? parseFloat(developmentCost) : null,
+        designCost: designCost ? parseFloat(designCost) : null,
+        monthlyHosting: monthlyHosting ? parseFloat(monthlyHosting) : null,
+        monthlyMaintenance: monthlyMaintenance ? parseFloat(monthlyMaintenance) : null,
+        hostingBreakdown: hostingBreakdown ? JSON.stringify(hostingBreakdown) : null,
+        deliverables: deliverables ? JSON.stringify(deliverables) : null,
+        milestones: milestones ? JSON.stringify(milestones) : null,
+        monthlyRecurring: monthlyRecurring ? parseFloat(monthlyRecurring) : null,
+        yearlyRecurring: yearlyRecurring ? parseFloat(yearlyRecurring) : null,
       },
       include: {
         client: true,
