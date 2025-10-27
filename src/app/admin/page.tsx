@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
-import AdvancedDashboard from '@/components/admin/AdvancedDashboard'
-import AdvancedProjectsManager from '@/components/admin/AdvancedProjectsManager'
-import AdvancedClientsManager from '@/components/admin/AdvancedClientsManager'
-import AdvancedQuotesManager from '@/components/admin/AdvancedQuotesManager'
-import AdvancedServicesManager from '@/components/admin/AdvancedServicesManager'
-import AdvancedAnalytics from '@/components/admin/AdvancedAnalytics'
-import AdvancedSettingsManager from '@/components/admin/AdvancedSettingsManager'
+import Dashboard from '@/components/admin/Dashboard'
+import ProjectsManager from '@/components/admin/ProjectsManager'
+import ClientsManager from '@/components/admin/ClientsManager'
+import QuotesManager from '@/components/admin/QuotesManager'
+import ServicesManager from '@/components/admin/ServicesManager'
+import Analytics from '@/components/admin/Analytics'
+import SettingsManager from '@/components/admin/SettingsManager'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -301,13 +301,13 @@ export default function AdminDashboard() {
 
         {/* Main Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full lg:w-auto">
-          {activeTab === 'overview' && <AdvancedDashboard />}
-          {activeTab === 'projects' && <AdvancedProjectsManager />}
-          {activeTab === 'clients' && <AdvancedClientsManager />}
-          {activeTab === 'quotes' && <AdvancedQuotesManager />}
-          {activeTab === 'services' && <AdvancedServicesManager />}
-          {activeTab === 'analytics' && <AdvancedAnalytics />}
-          {activeTab === 'settings' && <AdvancedSettingsManager />}
+          {activeTab === 'overview' && <Dashboard />}
+          {activeTab === 'projects' && <ProjectsManager />}
+          {activeTab === 'clients' && <ClientsManager />}
+          {activeTab === 'quotes' && <QuotesManager />}
+          {activeTab === 'services' && <ServicesManager />}
+          {activeTab === 'analytics' && <Analytics />}
+          {activeTab === 'settings' && <SettingsManager />}
         </main>
       </div>
     </div>

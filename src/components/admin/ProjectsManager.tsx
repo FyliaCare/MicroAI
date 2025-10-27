@@ -14,10 +14,14 @@ interface Project {
   status: string
   priority: string
   budget?: number
+  actualCost?: number
+  revenue?: number
   progress: number
   startDate?: string
   deadline?: string
   notes?: string
+  techStack?: string
+  repositoryUrl?: string
   client?: {
     id: string
     name: string
@@ -37,14 +41,20 @@ interface Client {
   company?: string
 }
 
-export default function ProjectsManager() {
+export default function AdvancedProjectsManager() {
   const [projects, setProjects] = useState<Project[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [filterStatus, setFilterStatus] = useState('')
   const [filterType, setFilterType] = useState('')
+  const [filterPriority, setFilterPriority] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [sortBy, setSortBy] = useState<'name' | 'deadline' | 'progress' | 'budget'>('name')
 
   const [formData, setFormData] = useState({
     name: '',
@@ -53,16 +63,21 @@ export default function ProjectsManager() {
     status: 'planning',
     priority: 'medium',
     budget: '',
+    actualCost: '',
+    revenue: '',
+    progress: '0',
     startDate: '',
     deadline: '',
     clientId: '',
     notes: '',
+    techStack: '',
+    repositoryUrl: '',
   })
 
   useEffect(() => {
     fetchProjects()
     fetchClients()
-  }, [filterStatus, filterType])
+  }, [filterStatus, filterType, filterPriority])
 
   const fetchProjects = async () => {
     try {
@@ -107,7 +122,13 @@ export default function ProjectsManager() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          budget: formData.budget ? parseFloat(formData.budget) : undefined,
+          actualCost: formData.actualCost ? parseFloat(formData.actualCost) : undefined,
+          revenue: formData.revenue ? parseFloat(formData.revenue) : undefined,
+          progress: parseInt(formData.progress),
+        }),
       })
 
       const data = await response.json()
@@ -118,7 +139,7 @@ export default function ProjectsManager() {
         resetForm()
         fetchProjects()
       } else {
-        alert(data.error || 'Operation failed')
+        alert(data.error || 'Failed to save project')
       }
     } catch (error) {
       console.error('Error saving project:', error)
@@ -126,8 +147,32 @@ export default function ProjectsManager() {
     }
   }
 
+  const handleEdit = (project: Project) => {
+    setEditingProject(project)
+    setFormData({
+      name: project.name,
+      description: project.description || '',
+      type: project.type,
+      status: project.status,
+      priority: project.priority,
+      budget: project.budget?.toString() || '',
+      actualCost: project.actualCost?.toString() || '',
+      revenue: project.revenue?.toString() || '',
+      progress: project.progress.toString(),
+      startDate: project.startDate || '',
+      deadline: project.deadline || '',
+      clientId: project.client?.id || '',
+      notes: project.notes || '',
+      techStack: project.techStack || '',
+      repositoryUrl: project.repositoryUrl || '',
+    })
+    setShowModal(true)
+  }
+
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this project?')) return
+    if (!confirm('Are you sure you want to delete this project? This will also delete related tasks, milestones, and quotes.')) {
+      return
+    }
 
     try {
       const response = await fetch(`/api/admin/projects/${id}`, {
@@ -137,10 +182,10 @@ export default function ProjectsManager() {
       const data = await response.json()
       
       if (data.success) {
-        alert(data.message)
+        alert('Project deleted successfully')
         fetchProjects()
       } else {
-        alert(data.error || 'Delete failed')
+        alert(data.error || 'Failed to delete project')
       }
     } catch (error) {
       console.error('Error deleting project:', error)
@@ -148,25 +193,7 @@ export default function ProjectsManager() {
     }
   }
 
-  const openEditModal = (project: Project) => {
-    setEditingProject(project)
-    setFormData({
-      name: project.name,
-      description: project.description || '',
-      type: project.type,
-      status: project.status,
-      priority: project.priority,
-      budget: project.budget?.toString() || '',
-      startDate: project.startDate?.split('T')[0] || '',
-      deadline: project.deadline?.split('T')[0] || '',
-      clientId: project.client?.id || '',
-      notes: project.notes || '',
-    })
-    setShowModal(true)
-  }
-
   const resetForm = () => {
-    setEditingProject(null)
     setFormData({
       name: '',
       description: '',
@@ -174,23 +201,29 @@ export default function ProjectsManager() {
       status: 'planning',
       priority: 'medium',
       budget: '',
+      actualCost: '',
+      revenue: '',
+      progress: '0',
       startDate: '',
       deadline: '',
       clientId: '',
       notes: '',
+      techStack: '',
+      repositoryUrl: '',
     })
+    setEditingProject(null)
   }
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      planning: 'bg-gray-100 text-gray-800',
-      'in-progress': 'bg-blue-100 text-blue-800',
-      review: 'bg-yellow-100 text-yellow-800',
-      completed: 'bg-green-100 text-green-800',
-      'on-hold': 'bg-orange-100 text-orange-800',
-      cancelled: 'bg-red-100 text-red-800',
+      planning: 'bg-gray-100 text-gray-800 border-gray-300',
+      active: 'bg-blue-100 text-blue-800 border-blue-300',
+      'in-progress': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      'on-hold': 'bg-orange-100 text-orange-800 border-orange-300',
+      completed: 'bg-green-100 text-green-800 border-green-300',
+      cancelled: 'bg-red-100 text-red-800 border-red-300',
     }
-    return colors[status] || 'bg-gray-100 text-gray-800'
+    return colors[status] || 'bg-gray-100 text-gray-800 border-gray-300'
   }
 
   const getPriorityColor = (priority: string) => {
@@ -198,9 +231,53 @@ export default function ProjectsManager() {
       low: 'text-gray-600',
       medium: 'text-blue-600',
       high: 'text-orange-600',
-      urgent: 'text-red-600',
+      critical: 'text-red-600',
     }
     return colors[priority] || 'text-gray-600'
+  }
+
+  const getProgressColor = (progress: number) => {
+    if (progress >= 100) return 'bg-green-500'
+    if (progress >= 75) return 'bg-blue-500'
+    if (progress >= 50) return 'bg-yellow-500'
+    if (progress >= 25) return 'bg-orange-500'
+    return 'bg-red-500'
+  }
+
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = searchQuery === '' || 
+      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      project.client?.name.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    const matchesPriority = filterPriority === '' || project.priority === filterPriority
+    
+    return matchesSearch && matchesPriority
+  })
+
+  const sortedProjects = [...filteredProjects].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name)
+      case 'deadline':
+        if (!a.deadline) return 1
+        if (!b.deadline) return -1
+        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+      case 'progress':
+        return b.progress - a.progress
+      case 'budget':
+        return (b.budget || 0) - (a.budget || 0)
+      default:
+        return 0
+    }
+  })
+
+  const stats = {
+    total: projects.length,
+    active: projects.filter(p => p.status === 'active' || p.status === 'in-progress').length,
+    completed: projects.filter(p => p.status === 'completed').length,
+    totalBudget: projects.reduce((sum, p) => sum + (p.budget || 0), 0),
+    totalRevenue: projects.reduce((sum, p) => sum + (p.revenue || 0), 0),
   }
 
   if (loading) {
@@ -212,149 +289,408 @@ export default function ProjectsManager() {
   }
 
   return (
-    <div>
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-            <p className="text-gray-600 mt-1">{projects.length} total projects</p>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+            <svg className="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Projects Management
+          </h1>
+          <p className="text-gray-600 mt-1">Manage and track all your projects in one place</p>
+        </div>
+        
+        <Button
+          onClick={() => {
+            resetForm()
+            setShowModal(true)
+          }}
+          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Create New Project
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-4 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium opacity-90">Total Projects</p>
+            <svg className="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
           </div>
-          <Button
-            onClick={() => {
-              resetForm()
-              setShowModal(true)
-            }}
-          >
-            + New Project
-          </Button>
+          <p className="text-3xl font-bold">{stats.total}</p>
         </div>
 
-        {/* Filters */}
-        <div className="mt-6 flex flex-wrap gap-4">
+        <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-4 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium opacity-90">Active</p>
+            <svg className="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <p className="text-3xl font-bold">{stats.active}</p>
+        </div>
+
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-4 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium opacity-90">Completed</p>
+            <svg className="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-3xl font-bold">{stats.completed}</p>
+        </div>
+
+        <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-lg p-4 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium opacity-90">Total Budget</p>
+            <svg className="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-2xl font-bold">${stats.totalBudget.toLocaleString()}</p>
+        </div>
+
+        <div className="bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg p-4 text-white shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium opacity-90">Total Revenue</p>
+            <svg className="w-6 h-6 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <p className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</p>
+        </div>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          {/* Search */}
+          <div className="lg:col-span-2">
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search projects, clients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Status Filter */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
-            <option value="">All Statuses</option>
+            <option value="">All Status</option>
             <option value="planning">Planning</option>
+            <option value="active">Active</option>
             <option value="in-progress">In Progress</option>
-            <option value="review">Review</option>
-            <option value="completed">Completed</option>
             <option value="on-hold">On Hold</option>
+            <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
           </select>
 
+          {/* Type Filter */}
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
           >
             <option value="">All Types</option>
-            <option value="web-app">Web Application</option>
-            <option value="saas">SaaS Platform</option>
+            <option value="web-app">Web App</option>
+            <option value="mobile-app">Mobile App</option>
+            <option value="saas">SaaS</option>
+            <option value="ecommerce">E-commerce</option>
             <option value="website">Website</option>
-            <option value="web-tool">Web Tool</option>
-            <option value="custom">Custom</option>
+            <option value="api">API</option>
+            <option value="other">Other</option>
           </select>
+
+          {/* Priority Filter */}
+          <select
+            value={filterPriority}
+            onChange={(e) => setFilterPriority(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
+          >
+            <option value="">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+
+          {/* View Mode Toggle */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`flex-1 px-4 py-2 rounded-md transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex-1 px-4 py-2 rounded-md transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <svg className="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Sort Options */}
+        <div className="mt-4 flex items-center gap-4">
+          <span className="text-sm text-gray-600 font-medium">Sort by:</span>
+          <div className="flex gap-2">
+            {[
+              { value: 'name', label: 'Name' },
+              { value: 'deadline', label: 'Deadline' },
+              { value: 'progress', label: 'Progress' },
+              { value: 'budget', label: 'Budget' },
+            ].map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setSortBy(option.value as any)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  sortBy === option.value
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {projects.map((project) => (
-          <div key={project.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
-                {project.client && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    {project.client.company || project.client.name}
+      {/* Projects Grid/List */}
+      {sortedProjects.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+          <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          </svg>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Projects Found</h3>
+          <p className="text-gray-600 mb-4">Get started by creating your first project</p>
+          <Button onClick={() => { resetForm(); setShowModal(true); }}>
+            Create Project
+          </Button>
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedProjects.map((project) => (
+            <div
+              key={project.id}
+              className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow overflow-hidden cursor-pointer group"
+              onClick={() => {
+                setSelectedProject(project)
+                setShowDetailsModal(true)
+              }}
+            >
+              {/* Project Header */}
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+                      {project.name}
+                    </h3>
+                    {project.client && (
+                      <p className="text-sm text-gray-600 flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        {project.client.name}
+                      </p>
+                    )}
+                  </div>
+                  <span className={`${getPriorityColor(project.priority)}`}>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z" />
+                    </svg>
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(project.status)}`}>
+                    {project.status}
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-300">
+                    {project.type}
+                  </span>
+                </div>
+
+                {project.description && (
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                    {project.description}
                   </p>
                 )}
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-                {project.status}
-              </span>
-            </div>
 
-            {project.description && (
-              <p className="text-sm text-gray-700 mb-4 line-clamp-2">{project.description}</p>
-            )}
-
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Type:</span>
-                <span className="font-medium text-gray-900 capitalize">{project.type.replace('-', ' ')}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Priority:</span>
-                <span className={`font-medium capitalize ${getPriorityColor(project.priority)}`}>
-                  {project.priority}
-                </span>
-              </div>
-              {project.budget && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Budget:</span>
-                  <span className="font-medium text-gray-900">
-                    ${project.budget.toLocaleString()}
-                  </span>
+              {/* Progress Section */}
+              <div className="p-6 bg-gray-50">
+                <div className="mb-3">
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="font-medium text-gray-700">Progress</span>
+                    <span className="font-bold text-gray-900">{project.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={`h-full ${getProgressColor(project.progress)} transition-all duration-300 rounded-full`}
+                      style={{ width: `${project.progress}%` }}
+                    ></div>
+                  </div>
                 </div>
-              )}
-              {project.deadline && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Deadline:</span>
-                  <span className="font-medium text-gray-900">
-                    {new Date(project.deadline).toLocaleDateString()}
-                  </span>
+
+                {/* Project Stats */}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {project.budget && (
+                    <div className="bg-white rounded-md p-2">
+                      <p className="text-gray-600 text-xs mb-1">Budget</p>
+                      <p className="font-bold text-gray-900">${project.budget.toLocaleString()}</p>
+                    </div>
+                  )}
+                  {project.deadline && (
+                    <div className="bg-white rounded-md p-2">
+                      <p className="text-gray-600 text-xs mb-1">Deadline</p>
+                      <p className="font-semibold text-gray-900">
+                        {new Date(project.deadline).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Progress Bar */}
-            <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Progress</span>
-                <span className="font-medium text-gray-900">{project.progress}%</span>
+                {/* Task Count */}
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    {project.tasks?.length || 0} tasks
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
+                    </svg>
+                    {project.milestones?.length || 0} milestones
+                  </div>
+                </div>
               </div>
-              <div className="bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full transition-all"
-                  style={{ width: `${project.progress}%` }}
-                />
+
+              {/* Action Buttons */}
+              <div className="p-4 bg-gray-100 flex gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleEdit(project)
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDelete(project.id)
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
+                >
+                  Delete
+                </button>
               </div>
             </div>
-
-            {/* Stats */}
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-4 pb-4 border-b border-gray-100">
-              <span>{project.tasks?.length || 0} tasks</span>
-              <span>{project.milestones?.length || 0} milestones</span>
-              {project.quote && <span className="text-green-600">✓ Quoted</span>}
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => openEditModal(project)}
-                className="flex-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors text-sm font-medium"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(project.id)}
-                className="flex-1 px-4 py-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors text-sm font-medium"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {projects.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-          <p className="text-gray-600 mb-4">No projects found</p>
-          <Button onClick={() => setShowModal(true)}>Create Your First Project</Button>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {sortedProjects.map((project) => (
+                <tr key={project.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{project.name}</div>
+                        <div className="text-sm text-gray-500">{project.type}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {project.client?.name || '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(project.status)}`}>
+                      {project.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="w-full bg-gray-200 rounded-full h-2 mr-2" style={{ width: '100px' }}>
+                        <div
+                          className={`h-full ${getProgressColor(project.progress)} rounded-full`}
+                          style={{ width: `${project.progress}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">{project.progress}%</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {project.budget ? `$${project.budget.toLocaleString()}` : '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {project.deadline ? new Date(project.deadline).toLocaleDateString() : '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => handleEdit(project)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(project.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -367,7 +703,7 @@ export default function ProjectsManager() {
         }}
         title={editingProject ? 'Edit Project' : 'Create New Project'}
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto">
           <Input
             label="Project Name"
             value={formData.name}
@@ -384,37 +720,34 @@ export default function ProjectsManager() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Type
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
-                <option value="web-app">Web Application</option>
-                <option value="saas">SaaS Platform</option>
+                <option value="web-app">Web App</option>
+                <option value="mobile-app">Mobile App</option>
+                <option value="saas">SaaS</option>
+                <option value="ecommerce">E-commerce</option>
                 <option value="website">Website</option>
-                <option value="web-tool">Web Tool</option>
-                <option value="custom">Custom</option>
+                <option value="api">API</option>
+                <option value="other">Other</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="planning">Planning</option>
+                <option value="active">Active</option>
                 <option value="in-progress">In Progress</option>
-                <option value="review">Review</option>
-                <option value="completed">Completed</option>
                 <option value="on-hold">On Hold</option>
+                <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
               </select>
             </div>
@@ -422,27 +755,73 @@ export default function ProjectsManager() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Priority
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
-                <option value="urgent">Urgent</option>
+                <option value="critical">Critical</option>
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>
+              <select
+                value={formData.clientId}
+                onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-gray-900"
+              >
+                <option value="">Select client</option>
+                {clients.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.name} {client.company && `(${client.company})`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
             <Input
               label="Budget ($)"
               type="number"
+              step="0.01"
               value={formData.budget}
               onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-              placeholder="0"
+            />
+
+            <Input
+              label="Actual Cost ($)"
+              type="number"
+              step="0.01"
+              value={formData.actualCost}
+              onChange={(e) => setFormData({ ...formData, actualCost: e.target.value })}
+            />
+
+            <Input
+              label="Revenue ($)"
+              type="number"
+              step="0.01"
+              value={formData.revenue}
+              onChange={(e) => setFormData({ ...formData, revenue: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Progress: {formData.progress}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={formData.progress}
+              onChange={(e) => setFormData({ ...formData, progress: e.target.value })}
+              className="w-full"
             />
           </div>
 
@@ -462,23 +841,20 @@ export default function ProjectsManager() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Client
-            </label>
-            <select
-              value={formData.clientId}
-              onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">No client</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.name} {client.company && `(${client.company})`}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Input
+            label="Tech Stack (comma-separated)"
+            value={formData.techStack}
+            onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
+            placeholder="React, Node.js, MongoDB"
+          />
+
+          <Input
+            label="Repository URL"
+            type="url"
+            value={formData.repositoryUrl}
+            onChange={(e) => setFormData({ ...formData, repositoryUrl: e.target.value })}
+            placeholder="https://github.com/username/repo"
+          />
 
           <Textarea
             label="Notes"
@@ -504,6 +880,170 @@ export default function ProjectsManager() {
           </div>
         </form>
       </Modal>
+
+      {/* Project Details Modal */}
+      {selectedProject && (
+        <Modal
+          isOpen={showDetailsModal}
+          onClose={() => {
+            setShowDetailsModal(false)
+            setSelectedProject(null)
+          }}
+          title="Project Details"
+        >
+          <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedProject.name}</h2>
+              {selectedProject.description && (
+                <p className="text-gray-600">{selectedProject.description}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-1">Status</p>
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(selectedProject.status)}`}>
+                  {selectedProject.status}
+                </span>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-1">Priority</p>
+                <p className={`font-semibold capitalize ${getPriorityColor(selectedProject.priority)}`}>
+                  {selectedProject.priority}
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-1">Type</p>
+                <p className="font-semibold text-gray-900 capitalize">{selectedProject.type}</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-1">Progress</p>
+                <p className="font-semibold text-gray-900">{selectedProject.progress}%</p>
+              </div>
+            </div>
+
+            {selectedProject.client && (
+              <div className="bg-blue-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-2">Client</p>
+                <p className="font-semibold text-gray-900">{selectedProject.client.name}</p>
+                <p className="text-sm text-gray-600">{selectedProject.client.email}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-3 gap-4">
+              {selectedProject.budget && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">Budget</p>
+                  <p className="font-bold text-gray-900">${selectedProject.budget.toLocaleString()}</p>
+                </div>
+              )}
+              
+              {selectedProject.actualCost && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">Actual Cost</p>
+                  <p className="font-bold text-gray-900">${selectedProject.actualCost.toLocaleString()}</p>
+                </div>
+              )}
+
+              {selectedProject.revenue && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-1">Revenue</p>
+                  <p className="font-bold text-green-600">${selectedProject.revenue.toLocaleString()}</p>
+                </div>
+              )}
+            </div>
+
+            {(selectedProject.startDate || selectedProject.deadline) && (
+              <div className="grid grid-cols-2 gap-4">
+                {selectedProject.startDate && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-1">Start Date</p>
+                    <p className="font-semibold text-gray-900">
+                      {new Date(selectedProject.startDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+                
+                {selectedProject.deadline && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-1">Deadline</p>
+                    <p className="font-semibold text-gray-900">
+                      {new Date(selectedProject.deadline).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {selectedProject.techStack && (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-2">Tech Stack</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProject.techStack.split(',').map((tech, index) => (
+                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                      {tech.trim()}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedProject.repositoryUrl && (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-2">Repository</p>
+                <a
+                  href={selectedProject.repositoryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline break-all"
+                >
+                  {selectedProject.repositoryUrl}
+                </a>
+              </div>
+            )}
+
+            {selectedProject.notes && (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-2">Notes</p>
+                <p className="text-gray-900">{selectedProject.notes}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-1">Tasks</p>
+                <p className="font-bold text-gray-900">{selectedProject.tasks?.length || 0}</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-1">Milestones</p>
+                <p className="font-bold text-gray-900">{selectedProject.milestones?.length || 0}</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false)
+                  handleEdit(selectedProject)
+                }}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+              >
+                Edit Project
+              </button>
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }
