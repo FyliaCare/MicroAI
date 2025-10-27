@@ -259,8 +259,8 @@ export default function AdvancedQuotesManager() {
   const handleDownloadPDF = (quote: Quote) => {
     // Store quote data for PDF generation
     localStorage.setItem('pdfQuoteData', JSON.stringify(quote))
-    // Open print dialog
-    window.print()
+    // Open PDF page in new window
+    window.open('/admin/quotes/pdf', '_blank')
   }
 
   const handleGenerateReceipt = async (quote: Quote) => {

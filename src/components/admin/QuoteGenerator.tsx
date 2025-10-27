@@ -264,32 +264,43 @@ export default function AdvancedQuoteGenerator({
   }
 
   const handleDownloadQuote = () => {
-    // Add class to body for targeted printing
-    document.body.classList.add('printing-quote')
+    // Store the current quote data
+    const quoteData: any = {
+      ...formData,
+      setupFee: formData.setupFee,
+      developmentCost: formData.developmentCost,
+      designCost: formData.designCost,
+      monthlyHosting: formData.monthlyHosting,
+      phases: (formData as any).phases || []
+    }
     
-    // Trigger print dialog
-    window.print()
+    sessionStorage.setItem('quoteToPrint', JSON.stringify(quoteData))
     
-    // Remove class after printing
-    setTimeout(() => {
-      document.body.classList.remove('printing-quote')
-    }, 1000)
+    // Open PDF page in new window
+    window.open('/admin/quotes/pdf', '_blank')
   }
 
   const handleDownloadCreatedQuote = () => {
     if (!createdQuote) return
     
-    // Store the quote data in sessionStorage
-    sessionStorage.setItem('quoteToPrint', JSON.stringify(createdQuote))
+    // Store the quote data
+    const quoteData: any = {
+      ...formData,
+      ...createdQuote,
+      setupFee: formData.setupFee,
+      developmentCost: formData.developmentCost,
+      designCost: formData.designCost,
+      monthlyHosting: formData.monthlyHosting,
+      phases: (formData as any).phases || []
+    }
     
-    // Download the quote
-    handleDownloadQuote()
+    sessionStorage.setItem('quoteToPrint', JSON.stringify(quoteData))
     
-    // Close modal and redirect
+    // Open PDF page in new window
+    window.open('/admin/quotes/pdf', '_blank')
+    
+    // Close modal
     setShowSuccessModal(false)
-    setTimeout(() => {
-      window.location.href = '/admin/quotes'
-    }, 500)
   }
 
   const handleSaveAsDraftAndClose = async () => {
