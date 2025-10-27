@@ -5,6 +5,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
+import Modal from '@/components/ui/Modal'
 
 interface QuoteTemplate {
   id: string
@@ -52,6 +53,8 @@ export default function AdvancedQuoteGenerator({
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [collapsedPhases, setCollapsedPhases] = useState<Set<number>>(new Set())
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [createdQuote, setCreatedQuote] = useState<any>(null)
   
   // Company Profile State
   const [companyProfile, setCompanyProfile] = useState({
@@ -195,6 +198,55 @@ export default function AdvancedQuoteGenerator({
       }
     } catch (err) {
       console.error('Error loading company profile:', err)
+    }
+  }
+
+  const handleDownloadQuote = () => {
+    // Add class to body for targeted printing
+    document.body.classList.add('printing-quote')
+    
+    // Trigger print dialog
+    window.print()
+    
+    // Remove class after printing
+    setTimeout(() => {
+      document.body.classList.remove('printing-quote')
+    }, 1000)
+  }
+
+  const handleDownloadCreatedQuote = () => {
+    if (!createdQuote) return
+    
+    // Store the quote data in sessionStorage
+    sessionStorage.setItem('quoteToPrint', JSON.stringify(createdQuote))
+    
+    // Download the quote
+    handleDownloadQuote()
+    
+    // Close modal and redirect
+    setShowSuccessModal(false)
+    setTimeout(() => {
+      window.location.href = '/admin/quotes'
+    }, 500)
+  }
+
+  const handleSaveAsDraftAndClose = async () => {
+    if (!createdQuote) return
+    
+    try {
+      // Update quote status to draft
+      await fetch(`/api/admin/quotes/${createdQuote.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'draft' }),
+      })
+      
+      setShowSuccessModal(false)
+      window.location.href = '/admin/quotes'
+    } catch (error) {
+      console.error('Error saving as draft:', error)
+      // Still redirect even if update fails
+      window.location.href = '/admin/quotes'
     }
   }
 
@@ -361,12 +413,11 @@ export default function AdvancedQuoteGenerator({
 
       if (data.success) {
         setSuccess('Quote created successfully!')
+        setCreatedQuote(data.quote)
+        setShowSuccessModal(true)
         if (onQuoteCreated) {
           onQuoteCreated(data.quote)
         }
-        setTimeout(() => {
-          window.location.href = '/admin/quotes'
-        }, 1500)
       } else {
         setError(data.error || 'Failed to create quote')
       }
@@ -1470,6 +1521,75 @@ export default function AdvancedQuoteGenerator({
           </div>
         )}
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && createdQuote && (
+        <Modal
+          isOpen={showSuccessModal}
+          onClose={() => {
+            setShowSuccessModal(false)
+            window.location.href = '/admin/quotes'
+          }}
+          title="Quote Created Successfully! 🎉"
+        >
+          <div className="space-y-6">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-green-800 font-medium mb-2">
+                ✓ Your quote has been created successfully!
+              </p>
+              <p className="text-green-700 text-sm">
+                Choose what you'd like to do next:
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Quote Number:</span>
+                <span className="font-semibold text-gray-900">{createdQuote.quoteNumber || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Project:</span>
+                <span className="font-semibold text-gray-900">{formData.title || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Total Amount:</span>
+                <span className="font-semibold text-green-600 text-lg">
+                  ${((parseFloat(formData.setupFee || '0') + parseFloat(formData.developmentCost || '0') + parseFloat(formData.designCost || '0') + (parseFloat(formData.monthlyHosting || '0') * 12)) || 0).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleDownloadCreatedQuote}
+                className="w-full px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2"
+              >
+                <span>📥</span>
+                <span>Download PDF</span>
+              </button>
+              
+              <button
+                onClick={handleSaveAsDraftAndClose}
+                className="w-full px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors font-medium flex items-center justify-center gap-2"
+              >
+                <span>💾</span>
+                <span>Save as Draft</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  setShowSuccessModal(false)
+                  window.location.href = '/admin/quotes'
+                }}
+                className="w-full px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors font-medium flex items-center justify-center gap-2"
+              >
+                <span>✓</span>
+                <span>Done - Go to Quotes Dashboard</span>
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }
