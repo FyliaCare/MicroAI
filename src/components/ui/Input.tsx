@@ -2,6 +2,7 @@ interface InputProps {
   type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'date'
   label?: string
   name?: string
+  id?: string
   placeholder?: string
   value?: string
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -18,6 +19,7 @@ export default function Input({
   type = 'text',
   label,
   name,
+  id,
   placeholder,
   value,
   onChange,
@@ -32,11 +34,12 @@ export default function Input({
   return (
     <div className={`mb-4 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor={id}>
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
       <input
+        id={id}
         type={type}
         name={name}
         placeholder={placeholder}

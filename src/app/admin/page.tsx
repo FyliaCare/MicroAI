@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import AdvancedDashboard from '@/components/admin/AdvancedDashboard'
 import AdvancedProjectsManager from '@/components/admin/AdvancedProjectsManager'
@@ -12,6 +13,11 @@ import AdvancedAnalytics from '@/components/admin/AdvancedAnalytics'
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { data: session } = useSession()
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/admin/login' })
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -35,8 +41,18 @@ export default function AdminDashboard() {
               <span className="text-sm sm:text-lg text-gray-600 hidden sm:inline">Management Dashboard</span>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
+              {session?.user?.name && (
+                <span className="text-sm text-gray-600 hidden sm:inline">
+                  {session.user.name}
+                </span>
+              )}
               <button className="text-gray-600 hover:text-gray-900 hidden sm:block">Settings</button>
-              <button className="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-red-700 text-sm sm:text-base min-h-[44px] touch-manipulation">Logout</button>
+              <button 
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-red-700 text-sm sm:text-base min-h-[44px] touch-manipulation"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>

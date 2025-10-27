@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import SessionProvider from '@/components/auth/SessionProvider'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard - MicroAI',
@@ -10,5 +11,9 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <SessionProvider>
+      {children}
+    </SessionProvider>
+  )
 }
