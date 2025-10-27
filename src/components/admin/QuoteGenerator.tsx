@@ -1294,7 +1294,7 @@ export default function AdvancedQuoteGenerator({
                           <td className="p-3">1</td>
                           <td className="p-3">
                             <div className="font-semibold">Setup & Initialization Fee</div>
-                            <div className="text-xs text-gray-600">Project setup, development environment, initial configuration</div>
+                            <div className="text-sm text-gray-700 mt-1">Project setup, development environment, initial configuration</div>
                           </td>
                           <td className="text-center p-3">1</td>
                           <td className="text-right p-3">${parseFloat(formData.setupFee || '0').toLocaleString()}</td>
@@ -1306,7 +1306,7 @@ export default function AdvancedQuoteGenerator({
                             <td className="p-3">2</td>
                             <td className="p-3">
                               <div className="font-semibold">Development Services</div>
-                              <div className="text-xs text-gray-600">Custom development work, coding, feature implementation</div>
+                              <div className="text-sm text-gray-700 mt-1">Custom development work, coding, feature implementation</div>
                             </td>
                             <td className="text-center p-3">1</td>
                             <td className="text-right p-3">${parseFloat(formData.developmentCost || '0').toLocaleString()}</td>
@@ -1319,7 +1319,7 @@ export default function AdvancedQuoteGenerator({
                             <td className="p-3">{parseFloat(formData.developmentCost || '0') > 0 ? '3' : '2'}</td>
                             <td className="p-3">
                               <div className="font-semibold">Design Services</div>
-                              <div className="text-xs text-gray-600">UI/UX design, graphics, branding, visual assets</div>
+                              <div className="text-sm text-gray-700 mt-1">UI/UX design, graphics, branding, visual assets</div>
                             </td>
                             <td className="text-center p-3">1</td>
                             <td className="text-right p-3">${parseFloat(formData.designCost || '0').toLocaleString()}</td>
@@ -1331,7 +1331,7 @@ export default function AdvancedQuoteGenerator({
                           <td className="p-3">{(parseFloat(formData.developmentCost || '0') > 0 ? 3 : 2) + (parseFloat(formData.designCost || '0') > 0 ? 1 : 0)}</td>
                           <td className="p-3">
                             <div className="font-semibold">Hosting & Maintenance Services</div>
-                            <div className="text-xs text-gray-600">Monthly hosting, SSL, backups, updates, technical support</div>
+                            <div className="text-sm text-gray-700 mt-1">Monthly hosting, SSL, backups, updates, technical support</div>
                           </td>
                           <td className="text-center p-3">12 months</td>
                           <td className="text-right p-3">${parseFloat(formData.monthlyHosting || '0').toLocaleString()}/mo</td>
@@ -1375,7 +1375,7 @@ export default function AdvancedQuoteGenerator({
                           </tr>
                         </tbody>
                       </table>
-                      <p className="text-xs text-gray-600 mt-3 italic">
+                      <p className="text-sm text-gray-700 mt-3 italic">
                         * Ongoing monthly investment after first year: ${parseFloat(formData.monthlyHosting || '0').toLocaleString()}/month 
                         (${(parseFloat(formData.monthlyHosting || '0') * 12).toLocaleString()}/year)
                       </p>
