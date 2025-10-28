@@ -134,14 +134,16 @@ export const createTeamMemberSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
   email: emailSchema,
   phone: phoneSchema,
-  role: z.enum(['developer', 'designer', 'project-manager', 'qa', 'devops']),
-  title: z.string().max(100).optional(),
+  role: z.enum(['DEVELOPER', 'DESIGNER', 'PROJECT_MANAGER', 'QA', 'DEVOPS', 'ADMIN']),
+  position: z.string().max(100).optional(),
+  department: z.string().max(100).optional(),
   skills: z.array(z.string()).optional(),
   hourlyRate: positiveNumberSchema.optional(),
-  availability: z.enum(['available', 'busy', 'unavailable']).default('available'),
   bio: z.string().optional(),
+  avatarUrl: urlSchema,
 })
 
+export const teamMemberSchema = createTeamMemberSchema
 export const updateTeamMemberSchema = createTeamMemberSchema.partial()
 
 // Time Entry validation schemas
