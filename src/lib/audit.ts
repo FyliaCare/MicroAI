@@ -52,13 +52,13 @@ export async function createAuditLog(data: AuditLogData) {
     await prisma.auditLog.create({
       data: {
         action: data.action,
-        entityType: data.entityType,
+        entity: data.entityType, // entityType -> entity
         entityId: data.entityId,
         userId: data.userId,
-        changes: data.changes,
-        metadata: data.metadata,
-        ipAddress: data.ipAddress,
+        oldValue: data.changes ? JSON.stringify(data.changes) : undefined, // changes -> oldValue/newValue
+        userIp: data.ipAddress, // ipAddress -> userIp
         userAgent: data.userAgent,
+        metadata: data.metadata ? JSON.stringify(data.metadata) : undefined,
       },
     })
   } catch (error) {
@@ -150,7 +150,7 @@ export async function getAuditLogs(
 ) {
   return await prisma.auditLog.findMany({
     where: {
-      entityType,
+      entity: entityType, // entityType -> entity
       entityId,
     },
     orderBy: {
@@ -190,7 +190,7 @@ export async function getAuditLogsByDateRange(
         gte: startDate,
         lte: endDate,
       },
-      ...(entityType && { entityType }),
+      ...(entityType && { entity: entityType }), // entityType -> entity
       ...(action && { action }),
     },
     orderBy: {
@@ -216,7 +216,7 @@ export async function searchAuditLogs(filters: {
   return await prisma.auditLog.findMany({
     where: {
       ...(userId && { userId }),
-      ...(entityType && { entityType }),
+      ...(entityType && { entity: entityType }), // entityType -> entity
       ...(entityId && { entityId }),
       ...(action && { action }),
       ...(startDate || endDate ? {

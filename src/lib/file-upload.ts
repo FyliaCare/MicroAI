@@ -147,8 +147,8 @@ export async function saveDocument(
   const document = await prisma.document.create({
     data: {
       name: data.name,
-      filename: upload.filename,
-      filePath: upload.path,
+      description: `${upload.filename} (${upload.mimeType})`,
+      type: 'other',
       fileUrl: upload.url,
       fileSize: upload.size,
       mimeType: upload.mimeType,
@@ -173,9 +173,10 @@ export async function deleteDocument(documentId: string) {
     throw new Error('Document not found')
   }
   
-  // Delete file from storage
-  if (document.filePath) {
-    await deleteFile(document.filePath)
+  // Delete file from storage (extract path from URL if needed)
+  if (document.fileUrl) {
+    const filePath = document.fileUrl.replace(/^\/uploads\//, '')
+    await deleteFile(filePath)
   }
   
   // Delete from database
@@ -207,11 +208,13 @@ export async function getDocumentContent(documentId: string): Promise<Buffer> {
     where: { id: documentId },
   })
   
-  if (!document || !document.filePath) {
+  if (!document || !document.fileUrl) {
     throw new Error('Document not found')
   }
   
-  return await readFile(document.filePath)
+  // Extract file path from URL
+  const filePath = document.fileUrl.replace(/^\/uploads\//, '')
+  return await readFile(filePath)
 }
 
 /**

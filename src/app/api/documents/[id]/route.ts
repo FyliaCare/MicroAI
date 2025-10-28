@@ -41,16 +41,9 @@ export const GET = asyncHandler(async (request: NextRequest, { params }: RouteCo
   }
   
   // If download requested, return file content
-  if (download && document.filePath) {
-    const fileContent = await readFile(document.filePath)
-    
-    return new NextResponse(fileContent, {
-      headers: {
-        'Content-Type': document.mimeType,
-        'Content-Disposition': `attachment; filename="${document.filename}"`,
-        'Content-Length': document.fileSize.toString(),
-      },
-    })
+  if (download) {
+    // For now, redirect to the file URL since we don't have file path
+    return NextResponse.redirect(document.fileUrl)
   }
   
   // Otherwise return document metadata
@@ -69,17 +62,7 @@ export const DELETE = asyncHandler(async (request: NextRequest, { params }: Rout
     throw new NotFoundError(`Document with ID ${params.id} not found`)
   }
   
-  // Delete file from storage
-  if (document.filePath) {
-    try {
-      await deleteFile(document.filePath)
-    } catch (error) {
-      console.error('Failed to delete file from storage:', error)
-      // Continue with database deletion even if file deletion fails
-    }
-  }
-  
-  // Delete from database
+  // Delete from database (file deletion handled separately if needed)
   await prisma.document.delete({
     where: { id: params.id },
   })

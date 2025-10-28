@@ -30,7 +30,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   
   const { skip, limit, page } = getPagination(request)
   const filters = getFilters(request)
-  const sort = getSort(request, { createdAt: 'desc' })
+  const sort: any = getSort(request, { createdAt: 'desc' })
   
   const where: any = {}
   
@@ -39,7 +39,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   }
   
   if (filters.assignedToId) {
-    where.assignedToId = filters.assignedToId
+    where.assignedTo = filters.assignedToId
   }
   
   if (filters.status) {
@@ -73,13 +73,6 @@ export const GET = asyncHandler(async (request: NextRequest) => {
           select: {
             id: true,
             name: true,
-          },
-        },
-        assignedTo: {
-          select: {
-            id: true,
-            name: true,
-            avatarUrl: true,
           },
         },
         timeEntries: {
@@ -150,17 +143,11 @@ export const POST = asyncHandler(async (request: NextRequest) => {
       dueDate: data.dueDate,
       completedAt: data.completedAt,
       projectId: data.projectId,
-      assignedToId: data.assignedToId,
-      tags: data.tags,
+      assignedTo: data.assignedToId,
+      tags: data.tags ? JSON.stringify(data.tags) : undefined,
     },
     include: {
       project: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-      assignedTo: {
         select: {
           id: true,
           name: true,

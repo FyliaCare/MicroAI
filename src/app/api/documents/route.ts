@@ -13,7 +13,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   
   const { skip, limit, page } = getPagination(request)
   const filters = getFilters(request)
-  const sort = getSort(request, { createdAt: 'desc' })
+  const sort: any = getSort(request, { createdAt: 'desc' })
   
   const where: any = {}
   
@@ -105,8 +105,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   const document = await prisma.document.create({
     data: {
       name,
-      filename: upload.filename,
-      filePath: upload.path,
+      type: 'other', // You can make this dynamic based on MIME type
       fileUrl: upload.url,
       fileSize: upload.size,
       mimeType: upload.mimeType,

@@ -44,14 +44,6 @@ export const GET = asyncHandler(async (request: NextRequest, { params }: RouteCo
           },
         },
       },
-      assignedTo: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          avatarUrl: true,
-        },
-      },
       timeEntries: {
         orderBy: { date: 'desc' },
         include: {
@@ -70,7 +62,7 @@ export const GET = asyncHandler(async (request: NextRequest, { params }: RouteCo
             select: {
               id: true,
               name: true,
-              avatarUrl: true,
+              avatar: true,
             },
           },
         },
@@ -111,7 +103,6 @@ export const PATCH = asyncHandler(async (request: NextRequest, { params }: Route
     data: updateData,
     include: {
       project: true,
-      assignedTo: true,
     },
   })
   

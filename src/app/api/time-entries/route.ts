@@ -26,7 +26,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   
   const { skip, limit, page } = getPagination(request)
   const filters = getFilters(request)
-  const sort = getSort(request, { date: 'desc' })
+  const sort: any = getSort(request, { createdAt: 'desc' })
   
   const where: any = {}
   
@@ -64,7 +64,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
             id: true,
             name: true,
             role: true,
-            avatarUrl: true,
+            avatar: true,
           },
         },
         project: {

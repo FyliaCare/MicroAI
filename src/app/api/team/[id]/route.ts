@@ -17,13 +17,12 @@ export const GET = asyncHandler(async (request: NextRequest, { params }: RouteCo
   const teamMember = await prisma.teamMember.findUnique({
     where: { id: params.id },
     include: {
-      projects: {
+      projectAssignments: {
         include: {
           project: {
             select: {
               id: true,
               name: true,
-              status: true,
               startDate: true,
               endDate: true,
             },
@@ -41,10 +40,6 @@ export const GET = asyncHandler(async (request: NextRequest, { params }: RouteCo
             },
           },
         },
-      },
-      tasks: {
-        orderBy: { createdAt: 'desc' },
-        take: 10,
       },
       comments: {
         orderBy: { createdAt: 'desc' },
@@ -73,13 +68,29 @@ export const PATCH = asyncHandler(async (request: NextRequest, { params }: Route
   }
   
   const body = await request.json()
-  const data = validate(updateTeamMemberSchema, body)
+  const validated = validate(updateTeamMemberSchema, body)
+  
+  // Transform data to match database schema
+  const data: any = {
+    name: validated.name,
+    email: validated.email,
+    phone: validated.phone,
+    role: validated.role,
+    title: validated.position, // position -> title
+    skills: validated.skills ? JSON.stringify(validated.skills) : undefined,
+    hourlyRate: validated.hourlyRate,
+    bio: validated.bio,
+    avatar: validated.avatarUrl, // avatarUrl -> avatar
+  }
+  
+  // Remove undefined values
+  Object.keys(data).forEach(key => data[key] === undefined && delete data[key])
   
   const teamMember = await prisma.teamMember.update({
     where: { id: params.id },
     data,
     include: {
-      projects: true,
+      projectAssignments: true,
     },
   })
   

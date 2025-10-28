@@ -20,8 +20,8 @@ export const GET = asyncHandler(async (request: NextRequest) => {
     where.role = filters.role
   }
   
-  if (filters.status) {
-    where.status = filters.status
+  if (filters.isActive !== undefined) {
+    where.isActive = filters.isActive === 'true'
   }
   
   if (filters.search) {
@@ -38,13 +38,12 @@ export const GET = asyncHandler(async (request: NextRequest) => {
       take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
-        projects: {
+        projectAssignments: {
           include: {
             project: {
               select: {
                 id: true,
                 name: true,
-                status: true,
               },
             },
           },
@@ -81,24 +80,23 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   const session = await requireRole(request, ['SUPER_ADMIN', 'ADMIN'])
   
   const body = await request.json()
-  const data = await validate(teamMemberSchema, body)
+  const validated = await validate(teamMemberSchema, body)
   
   const teamMember = await prisma.teamMember.create({
     data: {
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      role: data.role,
-      position: data.position,
-      department: data.department,
-      hourlyRate: data.hourlyRate,
-      skills: data.skills,
-      bio: data.bio,
-      avatarUrl: data.avatarUrl,
-      status: 'ACTIVE',
+      name: validated.name,
+      email: validated.email,
+      phone: validated.phone,
+      role: validated.role,
+      title: validated.position, // position -> title
+      hourlyRate: validated.hourlyRate,
+      skills: validated.skills ? JSON.stringify(validated.skills) : undefined,
+      bio: validated.bio,
+      avatar: validated.avatarUrl, // avatarUrl -> avatar
+      isActive: true,
     },
     include: {
-      projects: true,
+      projectAssignments: true,
     },
   })
   

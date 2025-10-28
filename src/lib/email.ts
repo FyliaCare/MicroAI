@@ -88,10 +88,11 @@ async function logEmail(data: {
   try {
     await prisma.emailLog.create({
       data: {
-        to: data.to,
+        to: data.to.join(', '), // Convert array to comma-separated string
+        from: process.env.EMAIL_FROM || 'noreply@microai.com',
         subject: data.subject,
-        status: data.status,
-        messageId: data.messageId,
+        status: data.status.toLowerCase(),
+        providerId: data.messageId,
         error: data.error,
         sentAt: data.status === 'SENT' ? new Date() : undefined,
       },
@@ -108,16 +109,12 @@ export async function renderEmailTemplate(
   templateKey: string,
   variables: Record<string, any>
 ): Promise<string> {
-  const template = await prisma.emailTemplate.findUnique({
-    where: { key: templateKey },
+  const template = await prisma.emailTemplate.findFirst({
+    where: { type: templateKey, isActive: true },
   })
   
   if (!template) {
     throw new Error(`Email template not found: ${templateKey}`)
-  }
-  
-  if (!template.isActive) {
-    throw new Error(`Email template is inactive: ${templateKey}`)
   }
   
   // Simple template variable replacement
@@ -138,8 +135,8 @@ export async function sendTemplatedEmail(
   to: string | string[],
   variables: Record<string, any>
 ) {
-  const template = await prisma.emailTemplate.findUnique({
-    where: { key: templateKey },
+  const template = await prisma.emailTemplate.findFirst({
+    where: { type: templateKey, isActive: true },
   })
   
   if (!template) {

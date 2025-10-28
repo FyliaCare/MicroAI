@@ -11,15 +11,14 @@ import { z } from 'zod'
 // Communication schema
 const communicationSchema = z.object({
   type: z.enum(['EMAIL', 'PHONE', 'MEETING', 'VIDEO_CALL', 'CHAT']),
-  subject: z.string().min(1, 'Subject is required').max(255),
+  subject: z.string().optional(),
   content: z.string(),
   direction: z.enum(['INBOUND', 'OUTBOUND']),
-  date: z.string().transform((val) => new Date(val)),
   clientId: z.string().uuid(),
-  projectId: z.string().uuid().optional(),
-  participants: z.array(z.string()).optional(),
+  from: z.string().optional(),
+  to: z.string().optional(),
+  cc: z.array(z.string()).optional(),
   attachments: z.array(z.string()).optional(),
-  metadata: z.record(z.any()).optional(),
 })
 
 // GET /api/communications - Get all communications
@@ -28,16 +27,12 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   
   const { skip, limit, page } = getPagination(request)
   const filters = getFilters(request)
-  const sort = getSort(request, { date: 'desc' })
+  const sort: any = getSort(request, { createdAt: 'desc' })
   
   const where: any = {}
   
   if (filters.clientId) {
     where.clientId = filters.clientId
-  }
-  
-  if (filters.projectId) {
-    where.projectId = filters.projectId
   }
   
   if (filters.type) {
@@ -56,12 +51,12 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   }
   
   if (filters.startDate || filters.endDate) {
-    where.date = {}
+    where.createdAt = {}
     if (filters.startDate) {
-      where.date.gte = new Date(filters.startDate)
+      where.createdAt.gte = new Date(filters.startDate)
     }
     if (filters.endDate) {
-      where.date.lte = new Date(filters.endDate)
+      where.createdAt.lte = new Date(filters.endDate)
     }
   }
   
@@ -77,12 +72,6 @@ export const GET = asyncHandler(async (request: NextRequest) => {
             id: true,
             name: true,
             email: true,
-          },
-        },
-        project: {
-          select: {
-            id: true,
-            name: true,
           },
         },
       },
@@ -124,12 +113,11 @@ export const POST = asyncHandler(async (request: NextRequest) => {
       subject: data.subject,
       content: data.content,
       direction: data.direction,
-      date: data.date,
       clientId: data.clientId,
-      projectId: data.projectId,
-      participants: data.participants,
-      attachments: data.attachments,
-      metadata: data.metadata,
+      from: data.from,
+      to: data.to,
+      cc: data.cc ? JSON.stringify(data.cc) : undefined,
+      attachments: data.attachments ? JSON.stringify(data.attachments) : undefined,
     },
     include: {
       client: {
@@ -137,12 +125,6 @@ export const POST = asyncHandler(async (request: NextRequest) => {
           id: true,
           name: true,
           email: true,
-        },
-      },
-      project: {
-        select: {
-          id: true,
-          name: true,
         },
       },
     },

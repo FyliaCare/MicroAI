@@ -30,7 +30,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   const totalRevenue = await prisma.invoice.aggregate({
     where: {
       status: 'PAID',
-      paidAt: {
+      paymentDate: {
         gte: startDate,
         lte: endDate,
       },
@@ -80,9 +80,9 @@ export const GET = asyncHandler(async (request: NextRequest) => {
     },
   })
   
-  const profitabilityData = projectRevenue.map(project => {
-    const revenue = project.invoices.reduce((sum, inv) => sum + inv.total, 0)
-    const expenses = project.expenses.reduce((sum, exp) => sum + exp.amount, 0)
+  const profitabilityData = projectRevenue.map((project: any) => {
+    const revenue = project.invoices.reduce((sum: number, inv: any) => sum + inv.total, 0)
+    const expenses = project.expenses.reduce((sum: number, exp: any) => sum + exp.amount, 0)
     const profit = revenue - expenses
     const margin = revenue > 0 ? (profit / revenue) * 100 : 0
     
@@ -124,7 +124,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   })
   
   const teamUtilization = await prisma.teamMember.findMany({
-    where: { status: 'ACTIVE' },
+    where: { isActive: true },
     select: {
       id: true,
       name: true,
@@ -144,11 +144,11 @@ export const GET = asyncHandler(async (request: NextRequest) => {
     },
   })
   
-  const utilizationData = teamUtilization.map(member => {
-    const totalHours = member.timeEntries.reduce((sum, entry) => sum + entry.hours, 0)
+  const utilizationData = teamUtilization.map((member: any) => {
+    const totalHours = member.timeEntries.reduce((sum: number, entry: any) => sum + entry.hours, 0)
     const billableHours = member.timeEntries
-      .filter(entry => entry.billable)
-      .reduce((sum, entry) => sum + entry.hours, 0)
+      .filter((entry: any) => entry.billable)
+      .reduce((sum: number, entry: any) => sum + entry.hours, 0)
     const workingDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
     const expectedHours = workingDays * 8 // Assuming 8-hour workday
     const utilization = expectedHours > 0 ? (totalHours / expectedHours) * 100 : 0
@@ -199,13 +199,13 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   // Monthly revenue trend
   const monthlyRevenue = await prisma.$queryRaw<Array<{ month: Date; revenue: number }>>`
     SELECT 
-      DATE_TRUNC('month', "paidAt") as month,
+      DATE_TRUNC('month', "paymentDate") as month,
       SUM(total) as revenue
     FROM "Invoice"
     WHERE status = 'PAID'
-      AND "paidAt" >= ${startDate}
-      AND "paidAt" <= ${endDate}
-    GROUP BY DATE_TRUNC('month', "paidAt")
+      AND "paymentDate" >= ${startDate}
+      AND "paymentDate" <= ${endDate}
+    GROUP BY DATE_TRUNC('month', "paymentDate")
     ORDER BY month
   `
   
@@ -216,7 +216,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
         endDate,
       },
       revenue: {
-        total: totalRevenue._sum.total || 0,
+        total: totalRevenue._sum?.total || 0,
         outstanding: outstandingRevenue._sum.total || 0,
         byStatus: revenueData,
         monthlyTrend: monthlyRevenue,
@@ -233,7 +233,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
       },
       team: {
         utilization: utilizationData,
-        topPerformers: utilizationData.sort((a, b) => b.billableHours - a.billableHours).slice(0, 5),
+        topPerformers: utilizationData.sort((a: any, b: any) => b.billableHours - a.billableHours).slice(0, 5),
       },
       clients: {
         topClients: clientRevenueData,

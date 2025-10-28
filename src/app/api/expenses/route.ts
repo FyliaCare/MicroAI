@@ -13,15 +13,13 @@ const expenseSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   amount: z.number().positive('Amount must be positive'),
   category: z.string().min(1, 'Category is required'),
-  date: z.string().transform((val) => new Date(val)),
+  date: z.string().transform((val) => new Date(val)).optional(),
   projectId: z.string().uuid(),
   receipt: z.string().optional(),
   vendor: z.string().optional(),
   notes: z.string().optional(),
-  billable: z.boolean().default(true),
-  reimbursable: z.boolean().default(false),
-  approvedBy: z.string().uuid().optional(),
-  approvedAt: z.string().transform((val) => new Date(val)).optional(),
+  paymentMethod: z.string().optional(),
+  status: z.enum(['pending', 'paid', 'reimbursed']).default('pending'),
 })
 
 // GET /api/expenses - Get all expenses
@@ -30,7 +28,7 @@ export const GET = asyncHandler(async (request: NextRequest) => {
   
   const { skip, limit, page } = getPagination(request)
   const filters = getFilters(request)
-  const sort = getSort(request, { date: 'desc' })
+  const sort: any = getSort(request, { createdAt: 'desc' })
   
   const where: any = {}
   
@@ -42,12 +40,8 @@ export const GET = asyncHandler(async (request: NextRequest) => {
     where.category = filters.category
   }
   
-  if (filters.billable !== undefined) {
-    where.billable = filters.billable === 'true'
-  }
-  
-  if (filters.reimbursable !== undefined) {
-    where.reimbursable = filters.reimbursable === 'true'
+  if (filters.status) {
+    where.status = filters.status
   }
   
   if (filters.search) {
@@ -136,10 +130,8 @@ export const POST = asyncHandler(async (request: NextRequest) => {
       receipt: data.receipt,
       vendor: data.vendor,
       notes: data.notes,
-      billable: data.billable,
-      reimbursable: data.reimbursable,
-      approvedBy: data.approvedBy,
-      approvedAt: data.approvedAt,
+      paymentMethod: data.paymentMethod,
+      status: data.status,
     },
     include: {
       project: {
