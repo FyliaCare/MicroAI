@@ -15,7 +15,7 @@ export default function Footer() {
             <div className="space-y-4">
               <div>
                 <h3 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-3">
-                  MicroAI
+                  MicroAI Systems
                 </h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
                   Revolutionary AI-powered development delivering enterprise-grade projects 10x faster than traditional companies.
@@ -164,7 +164,7 @@ export default function Footer() {
         <div className="border-t border-gray-800/50 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-500 text-sm text-center md:text-left">
-              &copy; {new Date().getFullYear()} MicroAI. All rights reserved.
+              &copy; {new Date().getFullYear()} MicroAI Systems. All rights reserved.
             </p>
             
             <div className="flex items-center space-x-6">

@@ -25,7 +25,7 @@ interface AIProjectModalProps {
 
 export default function AIProjectModal({ isOpen, onClose }: AIProjectModalProps) {
   const [messages, setMessages] = useState<Message[]>([
-    { type: 'bot', text: "👋 Hi! I'm MicroAI's project assistant. I'm here to help bring your idea to life - even if it's just a rough concept! Let's start simple: What kind of project are you thinking about?" }
+    { type: 'bot', text: "👋 Hi! I'm MicroAI Systems' project assistant. I'm here to help bring your idea to life - even if it's just a rough concept! Let's start simple: What kind of project are you thinking about?" }
   ])
   const [input, setInput] = useState('')
   const [step, setStep] = useState(0)
@@ -115,7 +115,7 @@ export default function AIProjectModal({ isOpen, onClose }: AIProjectModalProps)
       addBotMessage(questions[step + 1].question)
     } else {
       // All questions answered
-      addBotMessage("🎉 Perfect! I have all the information. We're processing your request and will send you a Teams meeting invite shortly to your email. In the meantime, feel free to check out our portfolio!\n\nThanks for choosing MicroAI - where we build 10x faster! ⚡")
+      addBotMessage("🎉 Perfect! I have all the information. We're processing your request and will send you a Teams meeting invite shortly to your email. In the meantime, feel free to check out our portfolio!\n\nThanks for choosing MicroAI Systems - where we build 10x faster! ⚡")
       
       // Submit the data to API
       const finalData = { ...projectData, phone: input }
@@ -140,7 +140,7 @@ export default function AIProjectModal({ isOpen, onClose }: AIProjectModalProps)
       setTimeout(() => {
         onClose()
         // Reset for next time
-        setMessages([{ type: 'bot', text: "👋 Hi! I'm MicroAI's project assistant. I'm here to help bring your idea to life - even if it's just a rough concept! Let's start simple: What kind of project are you thinking about?" }])
+        setMessages([{ type: 'bot', text: "👋 Hi! I'm MicroAI Systems' project assistant. I'm here to help bring your idea to life - even if it's just a rough concept! Let's start simple: What kind of project are you thinking about?" }])
         setStep(0)
         setProjectData({})
       }, 5000)
@@ -192,7 +192,7 @@ export default function AIProjectModal({ isOpen, onClose }: AIProjectModalProps)
               <span className="text-2xl">🤖</span>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">MicroAI Project Assistant</h3>
+              <h3 className="text-xl font-bold text-white">MicroAI Systems Project Assistant</h3>
               <p className="text-sm text-blue-400">Powered by AI • 10x Faster ⚡</p>
             </div>
           </div>

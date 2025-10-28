@@ -4,7 +4,7 @@ import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
-  title: 'Portfolio - MicroAI | Real Projects Delivered',
+  title: 'Portfolio - MicroAI Systems | Real Projects Delivered',
   description: 'Explore our portfolio of live, successful web applications and platforms built with cutting-edge technology.',
 }
 

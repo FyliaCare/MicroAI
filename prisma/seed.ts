@@ -26,7 +26,7 @@ async function main() {
       data: {
         email: defaultEmail,
         password: hashedPassword,
-        name: 'MicroAI Labs',
+        name: 'MicroAI Systems',
         role: 'super-admin',
         isActive: true,
       }

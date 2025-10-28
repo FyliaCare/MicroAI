@@ -15,14 +15,14 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'MicroAI - 10x Faster Web Development',
-    template: '%s | MicroAI',
+    default: 'MicroAI Systems - 10x Faster Web Development',
+    template: '%s | MicroAI Systems',
   },
   description: 'Revolutionary development technology delivering web applications, SaaS platforms, and digital solutions in 1/10th the time of traditional companies. Experience the future of web development.',
   keywords: ['web development', 'SaaS', 'web applications', 'fast development', 'AI development', 'Next.js', 'TypeScript'],
-  authors: [{ name: 'MicroAI' }],
-  creator: 'MicroAI',
-  publisher: 'MicroAI',
+  authors: [{ name: 'MicroAI Systems' }],
+  creator: 'MicroAI Systems',
+  publisher: 'MicroAI Systems',
   metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'),
   alternates: {
     canonical: '/',
@@ -31,13 +31,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: '/',
-    title: 'MicroAI - 10x Faster Web Development',
+    title: 'MicroAI Systems - 10x Faster Web Development',
     description: 'Revolutionary development technology delivering web applications 10x faster',
-    siteName: 'MicroAI',
+    siteName: 'MicroAI Systems',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MicroAI - 10x Faster Web Development',
+    title: 'MicroAI Systems - 10x Faster Web Development',
     description: 'Revolutionary development technology delivering web applications 10x faster',
   },
   robots: {

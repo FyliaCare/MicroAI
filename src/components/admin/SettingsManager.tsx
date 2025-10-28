@@ -59,7 +59,7 @@ export default function AdvancedSettingsManager() {
 
   // Company Profile State
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({
-    name: 'MicroAI',
+    name: 'MicroAI Systems',
     email: 'contact@microai.com',
     phone: '+1 (555) 123-4567',
     address: '123 Tech Street, Silicon Valley, CA 94000',

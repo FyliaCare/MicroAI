@@ -1,8 +1,6 @@
-# MicroAI Platform# MicroAI Platform
+# MicroAI Systems Platform
 
-
-
-A comprehensive full-stack web platform for MicroAI, featuring a professional company website and a complete business management system.A comprehensive full-stack web platform for MicroAI, featuring a professional company website and a complete business management system.
+A comprehensive full-stack web platform for MicroAI Systems, featuring a professional company website and a complete business management system.
 
 
 
@@ -458,4 +456,4 @@ MIT License - feel free to use this project for your business needs.
 
 ---
 
-**MicroAI Platform** - Professional web solutions for modern businesses.
+**MicroAI Systems Platform** - Professional web solutions for modern businesses.

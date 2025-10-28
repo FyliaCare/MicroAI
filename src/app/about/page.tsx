@@ -10,8 +10,8 @@ const CountingStats = dynamic(() => import('@/components/CountingStats'), {
 })
 
 export const metadata: Metadata = {
-  title: 'About Us - MicroAI | Revolutionary Development Technology',
-  description: 'Discover the technology and team behind MicroAI - delivering web applications 10x faster than traditional development companies.',
+  title: 'About Us - MicroAI Systems | Revolutionary Development Technology',
+  description: 'Discover the technology and team behind MicroAI Systems - delivering web applications 10x faster than traditional development companies.',
 }
 
 export default function AboutPage() {
@@ -37,7 +37,7 @@ export default function AboutPage() {
           </div>
           
           <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight animate-fadeIn delay-200">
-            We&apos;re <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">MicroAI</span>
+            We&apos;re <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">MicroAI Systems</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed animate-fadeIn delay-500">

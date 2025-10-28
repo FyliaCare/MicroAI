@@ -58,7 +58,7 @@ export default function AdvancedQuoteGenerator({
   
   // Company Profile State
   const [companyProfile, setCompanyProfile] = useState({
-    name: 'MicroAI',
+    name: 'MicroAI Systems',
     email: 'contact@microai.com',
     phone: '+1 (555) 123-4567',
     address: '123 Tech Street, Silicon Valley, CA 94000',
@@ -249,7 +249,7 @@ export default function AdvancedQuoteGenerator({
       if (savedProfile) {
         const profile = JSON.parse(savedProfile)
         setCompanyProfile({
-          name: profile.name || 'MicroAI',
+          name: profile.name || 'MicroAI Systems',
           email: profile.email || 'contact@microai.com',
           phone: profile.phone || '+1 (555) 123-4567',
           address: profile.address || '123 Tech Street, Silicon Valley, CA 94000',

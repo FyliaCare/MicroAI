@@ -18,17 +18,17 @@ function PDFQuoteContent() {
         if (savedProfile) {
           const profile = JSON.parse(savedProfile)
           setCompanyProfile(profile)
-          document.title = `${profile.name || 'MicroAI'} - Quote`
+          document.title = `${profile.name || 'MicroAI Systems'} - Quote`
         } else {
           setCompanyProfile({
-            name: 'MicroAI',
+            name: 'MicroAI Systems',
             email: 'contact@microai.com',
             phone: '+1 (555) 123-4567',
             address: '123 Tech Street, Silicon Valley, CA 94000',
             website: 'https://microai.com',
             description: 'Professional Web Development Services'
           })
-          document.title = 'MicroAI - Quote'
+          document.title = 'MicroAI Systems - Quote'
         }
       } catch (err) {
         console.error('Error loading company profile:', err)
@@ -99,13 +99,13 @@ function PDFQuoteContent() {
 
   return (
     <>
-      <title>{companyProfile?.name || 'MicroAI'} - Quote</title>
+      <title>{companyProfile?.name || 'MicroAI Systems'} - Quote</title>
       
       <div className="quote-document">
         {/* Simple Header */}
         <div className="header">
           <div className="header-left">
-            <h1>{companyProfile?.name || 'MicroAI'}</h1>
+            <h1>{companyProfile?.name || 'MicroAI Systems'}</h1>
             <p>{companyProfile?.description || 'Professional Web Development'}</p>
           </div>
           <div className="header-right">
@@ -217,11 +217,11 @@ function PDFQuoteContent() {
         {/* Footer */}
         <div className="footer">
           <div className="footer-contact">
-            <p><strong>{companyProfile?.name || 'MicroAI'}</strong></p>
+            <p><strong>{companyProfile?.name || 'MicroAI Systems'}</strong></p>
             <p>{companyProfile?.email || 'contact@microai.com'} | {companyProfile?.phone || '+1 (555) 123-4567'}</p>
             {companyProfile?.address && <p>{companyProfile.address}</p>}
           </div>
-          <p className="copyright">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI'}. All rights reserved.</p>
+          <p className="copyright">© {new Date().getFullYear()} {companyProfile?.name || 'MicroAI Systems'}. All rights reserved.</p>
         </div>
       </div>
 

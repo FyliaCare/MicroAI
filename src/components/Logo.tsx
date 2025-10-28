@@ -59,10 +59,10 @@ export default function Logo({ className = '', linkTo = '/', height = 40, width 
       <div className="flex flex-col leading-none">
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Micro
+            MicroAI
           </span>
-          <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            AI
+          <span className="text-xl font-semibold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Systems
           </span>
         </div>
         <span className="text-[10px] text-gray-400 tracking-wider uppercase -mt-1">

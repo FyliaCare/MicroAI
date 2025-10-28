@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
               </div>
             </div>
             <div class="footer">
-              <p style="margin: 0;">MicroAI - 10x Faster Development</p>
+              <p style="margin: 0;">MicroAI Systems - 10x Faster Development</p>
               <p style="margin: 5px 0 0 0;">This is an automated notification from your AI Project Assistant.</p>
             </div>
           </div>
@@ -206,7 +206,7 @@ Next Step: Send Teams meeting invite to ${body.email}
     
     try {
       const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'MicroAI AI Bot <onboarding@resend.dev>',
+        from: process.env.RESEND_FROM_EMAIL || 'MicroAI Systems AI Bot <onboarding@resend.dev>',
         to: [adminEmail], // Changed to verified email
         subject: `🤖 New AI Bot Inquiry from ${body.name} - ${formattedProjectType}`,
         replyTo: body.email,
@@ -306,7 +306,7 @@ Next Step: Send Teams meeting invite to ${body.email}
               </div>
 
               <div class="section" style="background: #EFF6FF; padding: 20px; border-radius: 10px; border-left: 4px solid #3B82F6;">
-                <h3 style="color: #1F2937; margin-top: 0;">🚀 Why MicroAI is Different</h3>
+                <h3 style="color: #1F2937; margin-top: 0;">🚀 Why MicroAI Systems is Different</h3>
                 <ul style="margin: 10px 0; padding-left: 20px; color: #4B5563;">
                   <li><strong>10x Faster:</strong> We deliver complete projects in weeks, not months</li>
                   <li><strong>AI-Powered Development:</strong> Cutting-edge technology stack</li>
@@ -333,7 +333,7 @@ Next Step: Send Teams meeting invite to ${body.email}
             </div>
 
             <div class="footer">
-              <p style="margin: 0; font-size: 14px; color: #D1D5DB;"><strong>MicroAI</strong></p>
+              <p style="margin: 0; font-size: 14px; color: #D1D5DB;"><strong>MicroAI Systems</strong></p>
               <p style="margin: 5px 0;">10x Faster Development | Takoradi, Ghana</p>
               <p style="margin: 5px 0;">
                 📧 <a href="mailto:microailabs@outlook.com" style="color: #60A5FA;">microailabs@outlook.com</a>
@@ -367,7 +367,7 @@ Timeline: ${formattedTimeline}
 Budget Range: ${formattedBudget}
 Date Submitted: ${new Date().toLocaleDateString()}
 
-WHY MICROAI IS DIFFERENT:
+WHY MICROAI SYSTEMS IS DIFFERENT:
 • 10x Faster - We deliver complete projects in weeks, not months
 • AI-Powered Development - Cutting-edge technology stack
 • Transparent Process - You'll know exactly what to expect
@@ -375,9 +375,9 @@ WHY MICROAI IS DIFFERENT:
 • Local + Global - Ghana-based with international standards
 
 Best regards,
-The MicroAI Team
+The MicroAI Systems Team
 
-MicroAI - 10x Faster Development
+MicroAI Systems - 10x Faster Development
 Takoradi, Ghana
 microailabs@outlook.com
     `
@@ -385,9 +385,9 @@ microailabs@outlook.com
     // Send auto-reply to client
     try {
       const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'MicroAI AI Assistant <onboarding@resend.dev>',
+        from: process.env.RESEND_FROM_EMAIL || 'MicroAI Systems AI Assistant <onboarding@resend.dev>',
         to: [body.email],
-        subject: `🚀 Your Project Details Received - MicroAI`,
+        subject: `🚀 Your Project Details Received - MicroAI Systems`,
         html: clientEmailHtml,
       })
 

@@ -51,7 +51,7 @@ function LoginForm() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">MicroAI Admin</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">MicroAI Systems Admin</h1>
           <p className="text-slate-400">Sign in to access the dashboard</p>
         </div>
 
@@ -146,7 +146,7 @@ function LoginForm() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-slate-500">
-          <p>© 2025 MicroAI Platform. All rights reserved.</p>
+          <p>© 2025 MicroAI Systems. All rights reserved.</p>
         </div>
       </div>
     </div>

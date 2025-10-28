@@ -56,11 +56,11 @@ export default function SpeedComparison() {
           </div>
         </div>
         
-        {/* MicroAI Technology */}
+        {/* MicroAI Systems Technology */}
         <div className="animate-slideInRight">
           <div className="flex items-center mb-4">
             <div className="text-2xl mr-3 animate-pulse">⚡</div>
-            <h4 className="text-xl font-semibold text-blue-400">MicroAI Technology</h4>
+            <h4 className="text-xl font-semibold text-blue-400">MicroAI Systems Technology</h4>
           </div>
           <div className="space-y-3">
             <div className="flex items-center">
