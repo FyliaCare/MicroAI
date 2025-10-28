@@ -3,13 +3,14 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
+  previewFeatures = ["fullTextSearch", "fullTextSearchPostgres"]
   binaryTargets = ["native"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Client {
@@ -20,8 +21,26 @@ model Client {
   company     String?
   website     String?
   address     String?
+  city        String?
+  country     String?   @default("Ghana")
+  taxId       String?
   notes       String?
   status      String    @default("active") // active, inactive, archived
+  
+  // Communication preferences
+  preferredContact String? // email, phone, teams
+  timezone         String? @default("Africa/Accra")
+  
+  // Business info
+  industry         String?
+  companySize      String? // solo, small, medium, enterprise
+  
+  // Metadata
+  source           String? // referral, website, social-media, other
+  referredBy       String?
+  tags             String? // JSON array
+  customFields     String? // JSON for extensibility
+  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
@@ -29,18 +48,23 @@ model Client {
   projects    Project[]
   quotes      Quote[]
   invoices    Invoice[]
+  contracts   Contract[]
+  communications Communication[]
+  documents   Document[]
 
   @@index([email])
   @@index([status])
   @@index([createdAt])
   @@index([name])
+  @@index([company])
+  @@index([country])
 }
 
 model Project {
   id            String    @id @default(uuid())
   name          String
   description   String?
-  type          String    // web-app, saas, website, web-tool, custom
+  type          String    // web-app, saas, website, web-tool, custom, ecommerce
   status        String    @default("planning") // planning, in-progress, review, completed, on-hold, cancelled
   priority      String    @default("medium") // low, medium, high, urgent
   
@@ -49,33 +73,59 @@ model Project {
   actualCost    Float?
   revenue       Float?
   profitMargin  Float?
+  currency      String    @default("GHS")
   
   // Timeline
   startDate     DateTime?
   endDate       DateTime?
   deadline      DateTime?
   completedAt   DateTime?
+  estimatedHours Float?
+  actualHours    Float?
   
   // Technical
   techStack     String?   // JSON string of technologies
   githubRepo    String?
   liveUrl       String?
   stagingUrl    String?
+  demoUrl       String?
+  
+  // Deployment
+  hosting       String?   // vercel, render, aws, custom
+  domain        String?
+  sslCertificate Boolean  @default(false)
   
   // Management
   progress      Int       @default(0) // 0-100
   notes         String?
+  requirements  String?   // JSON of detailed requirements
+  attachments   String?   // JSON array of file URLs
+  
+  // Performance tracking
+  health        String    @default("good") // good, warning, critical
+  uptime        Float     @default(100)
+  lastChecked   DateTime?
+  
+  // Custom fields
+  customFields  String?   // JSON for extensibility
+  tags          String?   // JSON array
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
   // Relations
   clientId      String?
-  client        Client?   @relation(fields: [clientId], references: [id])
+  client        Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  teamMembers   ProjectTeam[]
   tasks         Task[]
   milestones    Milestone[]
   invoices      Invoice[]
   quote         Quote?
+  timeEntries   TimeEntry[]
+  documents     Document[]
+  comments      Comment[]
+  deployments   Deployment[]
+  expenses      Expense[]
 
   @@index([clientId])
   @@index([status])
@@ -84,6 +134,7 @@ model Project {
   @@index([createdAt])
   @@index([deadline])
   @@index([name])
+  @@index([health])
 }
 
 model Quote {
@@ -160,22 +211,25 @@ model Invoice {
   
   // Client & Project
   clientId        String?
-  client          Client?   @relation(fields: [clientId], references: [id])
+  client          Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
   projectId       String?
-  project         Project?  @relation(fields: [projectId], references: [id])
+  project         Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
   
   // Amounts
   subtotal        Float
   tax             Float     @default(0)
+  taxRate         Float     @default(0)
   discount        Float     @default(0)
+  discountType    String    @default("amount") // amount, percentage
   total           Float
   paidAmount      Float     @default(0)
+  currency        String    @default("GHS")
   
   // Items/Services
   items           String    // JSON string of line items
   
   // Status & Payment
-  status          String    @default("draft") // draft, sent, viewed, partial, paid, overdue, cancelled
+  status          String    @default("draft") // draft, sent, viewed, partial, paid, overdue, cancelled, refunded
   paymentMethod   String?
   paymentDate     DateTime?
   
@@ -184,11 +238,29 @@ model Invoice {
   dueDate         DateTime?
   sentAt          DateTime?
   
+  // Payment tracking
+  payments        Payment[]
+  
+  // Reminders
+  remindersSent   Int       @default(0)
+  lastReminderAt  DateTime?
+  
   notes           String?
   terms           String?
   
+  // Recurring invoice
+  isRecurring     Boolean   @default(false)
+  recurringPeriod String?   // monthly, quarterly, yearly
+  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  
+  @@index([clientId])
+  @@index([projectId])
+  @@index([status])
+  @@index([invoiceNumber])
+  @@index([dueDate])
+  @@index([issuedAt])
 }
 
 model Task {
@@ -212,12 +284,24 @@ model Task {
   
   // Relations
   projectId     String?
-  project       Project?  @relation(fields: [projectId], references: [id])
+  project       Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  timeEntries   TimeEntry[]
+  comments      Comment[]
+  
+  // Checklist
+  checklist     String?   // JSON array of subtasks
   
   tags          String?   // JSON array of tags
+  attachments   String?   // JSON array of file URLs
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
 }
 
 model Milestone {
@@ -400,4 +484,498 @@ model QuoteTemplate {
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+// ==================== NEW ADVANCED MODELS ====================
+
+model TeamMember {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  phone         String?
+  role          String    // developer, designer, project-manager, qa, devops
+  title         String?   // Senior Developer, Lead Designer, etc.
+  
+  // Skills & Expertise
+  skills        String?   // JSON array of skills
+  hourlyRate    Float?
+  availability  String    @default("available") // available, busy, unavailable
+  
+  // Authentication (if they need login access)
+  password      String?   // Hashed
+  isActive      Boolean   @default(true)
+  
+  // Profile
+  avatar        String?
+  bio           String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  projectAssignments ProjectTeam[]
+  timeEntries        TimeEntry[]
+  comments           Comment[]
+  
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+}
+
+model ProjectTeam {
+  id            String    @id @default(uuid())
+  role          String    // lead, developer, designer, etc.
+  
+  // Relations
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  memberId      String
+  member        TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  
+  assignedAt    DateTime  @default(now())
+  
+  @@unique([projectId, memberId])
+  @@index([projectId])
+  @@index([memberId])
+}
+
+model TimeEntry {
+  id            String    @id @default(uuid())
+  description   String
+  hours         Float
+  date          DateTime  @default(now())
+  billable      Boolean   @default(true)
+  hourlyRate    Float?
+  
+  // Relations
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  taskId        String?
+  task          Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  
+  memberId      String?
+  member        TeamMember? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([taskId])
+  @@index([memberId])
+  @@index([date])
+}
+
+model Document {
+  id            String    @id @default(uuid())
+  name          String
+  description   String?
+  type          String    // contract, proposal, design, requirement, other
+  fileUrl       String
+  fileSize      Int?      // in bytes
+  mimeType      String?
+  
+  // Access control
+  isPublic      Boolean   @default(false)
+  
+  // Relations
+  clientId      String?
+  client        Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  uploadedBy    String?   // Admin ID
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([clientId])
+  @@index([projectId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model Comment {
+  id            String    @id @default(uuid())
+  content       String
+  isInternal    Boolean   @default(false) // Internal team notes vs client-visible
+  
+  // Relations
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  taskId        String?
+  task          Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  authorId      String?
+  author        TeamMember? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  
+  // Threading
+  parentId      String?
+  parent        Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies       Comment[] @relation("CommentReplies")
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([taskId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+model Communication {
+  id            String    @id @default(uuid())
+  type          String    // email, call, meeting, chat
+  subject       String?
+  content       String
+  direction     String    // inbound, outbound
+  
+  // Relations
+  clientId      String?
+  client        Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  from          String?
+  to            String?
+  cc            String?   // JSON array
+  attachments   String?   // JSON array
+  
+  sentBy        String?   // Admin ID
+  
+  createdAt     DateTime  @default(now())
+  
+  @@index([clientId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model Contract {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  type          String    // service-agreement, nda, sow, amendment
+  status        String    @default("draft") // draft, sent, signed, active, completed, terminated
+  
+  // Content
+  content       String    // Full contract text or JSON template
+  
+  // Parties
+  clientId      String?
+  client        Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  
+  // Dates
+  startDate     DateTime?
+  endDate       DateTime?
+  signedAt      DateTime?
+  
+  // Financial
+  value         Float?
+  currency      String    @default("GHS")
+  
+  // Files
+  documentUrl   String?
+  signedDocumentUrl String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([clientId])
+  @@index([status])
+  @@index([type])
+  @@index([startDate])
+}
+
+model Deployment {
+  id            String    @id @default(uuid())
+  version       String    // v1.0.0, v1.1.0
+  environment   String    // development, staging, production
+  status        String    // pending, in-progress, success, failed, rolled-back
+  
+  // Deployment info
+  commitHash    String?
+  branch        String?
+  deployedBy    String?   // Admin/Team member ID
+  
+  // URLs
+  url           String?
+  
+  // Metadata
+  notes         String?
+  changelog     String?   // JSON array of changes
+  
+  // Performance
+  buildTime     Int?      // in seconds
+  
+  // Relations
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  deployedAt    DateTime  @default(now())
+  
+  @@index([projectId])
+  @@index([environment])
+  @@index([status])
+  @@index([deployedAt])
+}
+
+model Expense {
+  id            String    @id @default(uuid())
+  description   String
+  category      String    // hosting, tools, subscriptions, marketing, other
+  amount        Float
+  currency      String    @default("GHS")
+  
+  // Payment info
+  paymentMethod String?   // bank-transfer, card, mobile-money
+  receipt       String?   // URL to receipt/invoice
+  
+  // Relations
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  // Dates
+  date          DateTime  @default(now())
+  paidAt        DateTime?
+  
+  // Status
+  status        String    @default("pending") // pending, paid, reimbursed
+  
+  // Metadata
+  vendor        String?
+  notes         String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([category])
+  @@index([date])
+  @@index([status])
+}
+
+model Payment {
+  id            String    @id @default(uuid())
+  amount        Float
+  currency      String    @default("GHS")
+  method        String    // bank-transfer, card, mobile-money, paypal
+  
+  // Reference
+  reference     String?   // Transaction reference
+  receipt       String?   // Receipt URL
+  
+  // Relations
+  invoiceId     String?
+  invoice       Invoice?  @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  
+  // Status
+  status        String    @default("pending") // pending, completed, failed, refunded
+  
+  // Dates
+  paidAt        DateTime?
+  
+  notes         String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([invoiceId])
+  @@index([status])
+  @@index([paidAt])
+  @@index([reference])
+}
+
+model Setting {
+  id            String    @id @default(uuid())
+  key           String    @unique
+  value         String    // JSON string for complex values
+  type          String    // string, number, boolean, json
+  category      String    // company, email, payment, general
+  description   String?
+  
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([category])
+}
+
+model AuditLog {
+  id            String    @id @default(uuid())
+  action        String    // CREATE, UPDATE, DELETE, LOGIN, LOGOUT
+  entity        String    // Project, Client, Quote, Admin, etc.
+  entityId      String?
+  
+  // Changes
+  oldValue      String?   // JSON snapshot before change
+  newValue      String?   // JSON snapshot after change
+  
+  // User
+  userId        String?
+  userEmail     String?
+  userIp        String?
+  userAgent     String?
+  
+  // Metadata
+  description   String?
+  metadata      String?   // Additional JSON data
+  
+  createdAt     DateTime  @default(now())
+  
+  @@index([entity])
+  @@index([entityId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model EmailTemplate {
+  id            String    @id @default(uuid())
+  name          String
+  subject       String
+  content       String    // HTML content with placeholders
+  type          String    // quote-sent, invoice-sent, project-update, welcome
+  
+  // Variables used in template
+  variables     String?   // JSON array of variable names
+  
+  isActive      Boolean   @default(true)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([type])
+  @@index([isActive])
+}
+
+model EmailLog {
+  id            String    @id @default(uuid())
+  to            String
+  from          String
+  subject       String
+  content       String?
+  
+  // Status
+  status        String    @default("pending") // pending, sent, failed, bounced
+  provider      String?   // resend, smtp, etc.
+  providerId    String?   // Provider's message ID
+  
+  // Error handling
+  error         String?
+  retryCount    Int       @default(0)
+  
+  // Relations
+  templateId    String?
+  clientId      String?
+  
+  sentAt        DateTime?
+  createdAt     DateTime  @default(now())
+  
+  @@index([to])
+  @@index([status])
+  @@index([createdAt])
+  @@index([templateId])
+}
+
+model ApiKey {
+  id            String    @id @default(uuid())
+  name          String
+  key           String    @unique
+  description   String?
+  
+  // Permissions
+  permissions   String    // JSON array of allowed endpoints
+  
+  // Rate limiting
+  rateLimit     Int       @default(1000) // Requests per hour
+  
+  // Status
+  isActive      Boolean   @default(true)
+  expiresAt     DateTime?
+  
+  // Usage tracking
+  lastUsedAt    DateTime?
+  usageCount    Int       @default(0)
+  
+  createdBy     String?   // Admin ID
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([key])
+  @@index([isActive])
+}
+
+model WebhookEndpoint {
+  id            String    @id @default(uuid())
+  url           String
+  events        String    // JSON array of events to listen to
+  secret        String?   // For signature verification
+  
+  isActive      Boolean   @default(true)
+  
+  // Retry configuration
+  maxRetries    Int       @default(3)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  deliveries    WebhookDelivery[]
+  
+  @@index([isActive])
+}
+
+model WebhookDelivery {
+  id            String    @id @default(uuid())
+  event         String    // project.created, invoice.paid, etc.
+  payload       String    // JSON payload
+  
+  // Status
+  status        String    @default("pending") // pending, success, failed
+  responseCode  Int?
+  responseBody  String?
+  
+  // Retry
+  attempts      Int       @default(0)
+  nextRetryAt   DateTime?
+  
+  // Relations
+  webhookId     String
+  webhook       WebhookEndpoint @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  
+  deliveredAt   DateTime?
+  createdAt     DateTime  @default(now())
+  
+  @@index([webhookId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Backup {
+  id            String    @id @default(uuid())
+  type          String    // database, files, full
+  status        String    @default("pending") // pending, in-progress, completed, failed
+  
+  // Storage
+  fileUrl       String?
+  fileSize      Int?      // in bytes
+  
+  // Metadata
+  recordCount   Int?
+  duration      Int?      // in seconds
+  error         String?
+  
+  // Schedule info
+  isScheduled   Boolean   @default(false)
+  
+  triggeredBy   String?   // Admin ID or "system"
+  
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
 }
