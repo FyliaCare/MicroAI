@@ -14,10 +14,29 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   },
 })
 
-// Connection pooling optimization
+// Connection pooling optimization with retry logic
 if (process.env.NODE_ENV === 'production') {
-  // Ensure connections are cleaned up
-  prisma.$connect()
+  // Ensure connections are established with retry
+  const connectWithRetry = async (retries = 5, delay = 2000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        await prisma.$connect()
+        console.log('✓ Database connected successfully')
+        break
+      } catch (error) {
+        console.error(`Database connection attempt ${i + 1}/${retries} failed:`, error)
+        if (i === retries - 1) {
+          console.error('✗ All database connection attempts failed')
+          throw error
+        }
+        await new Promise(resolve => setTimeout(resolve, delay))
+      }
+    }
+  }
+  
+  connectWithRetry().catch(err => {
+    console.error('Fatal: Could not connect to database:', err)
+  })
 }
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
