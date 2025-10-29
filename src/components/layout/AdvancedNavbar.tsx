@@ -92,10 +92,18 @@ export default function AdvancedNavbar() {
               </Link>
             ))}
             
+            {/* Client Portal Link */}
+            <Link
+              href="/client/login"
+              className="ml-2 px-4 py-2 text-sm font-medium text-gray-300 hover:text-white border border-gray-700 hover:border-gray-600 rounded-lg transition-all duration-200"
+            >
+              Client Portal
+            </Link>
+            
             {/* CTA Button */}
             <Link
               href="/contact"
-              className="ml-4 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+              className="ml-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
             >
               Start Project
             </Link>
@@ -188,7 +196,14 @@ export default function AdvancedNavbar() {
             </div>
 
             {/* Mobile CTA */}
-            <div className="mt-8 pt-8 border-t border-gray-800">
+            <div className="mt-8 pt-8 border-t border-gray-800 space-y-3">
+              <Link
+                href="/client/login"
+                className="block w-full px-6 py-4 bg-gray-900 border border-gray-700 text-white text-center text-lg font-semibold rounded-xl hover:bg-gray-800 hover:border-gray-600 transition-all duration-200 active:scale-95"
+              >
+                🔐 Client Portal
+              </Link>
+              
               <Link
                 href="/contact"
                 className="block w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center text-lg font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg shadow-blue-500/25 active:scale-95"
