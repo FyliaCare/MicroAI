@@ -152,7 +152,7 @@ export default function Step3Pricing({
                   </label>
                   <Input
                     type="number"
-                    value={item.quantity}
+                    value={item.quantity.toString()}
                     onChange={(e) =>
                       updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)
                     }
@@ -168,7 +168,7 @@ export default function Step3Pricing({
                   </label>
                   <Input
                     type="number"
-                    value={item.unitPrice}
+                    value={item.unitPrice.toString()}
                     onChange={(e) =>
                       updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)
                     }
@@ -184,7 +184,7 @@ export default function Step3Pricing({
                   </label>
                   <Input
                     type="number"
-                    value={item.discount}
+                    value={item.discount.toString()}
                     onChange={(e) =>
                       updateItem(item.id, 'discount', parseFloat(e.target.value) || 0)
                     }
@@ -264,7 +264,7 @@ export default function Step3Pricing({
             </label>
             <Input
               type="number"
-              value={quoteData.discountValue}
+              value={quoteData.discountValue.toString()}
               onChange={(e) =>
                 setQuoteData((prev) => ({
                   ...prev,
@@ -283,7 +283,7 @@ export default function Step3Pricing({
             </label>
             <Input
               type="number"
-              value={quoteData.taxRate}
+              value={quoteData.taxRate.toString()}
               onChange={(e) =>
                 setQuoteData((prev) => ({
                   ...prev,

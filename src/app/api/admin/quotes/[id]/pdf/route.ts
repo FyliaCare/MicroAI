@@ -23,30 +23,68 @@ export async function GET(
       return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
     }
 
-    // Parse JSON fields
+    // Parse JSON fields safely
+    const parseJSON = (field: any): any => {
+      if (!field) return []
+      if (typeof field === 'string') {
+        try {
+          return JSON.parse(field)
+        } catch {
+          return []
+        }
+      }
+      return field
+    }
+
+    const quoteAny = quote as any
+
     const quoteData = {
       ...quote,
-      items: quote.items as any[],
-      milestones: quote.milestones as any[],
-      paymentTerms: quote.paymentTerms as any[],
-      objectives: quote.objectives as string[],
-      scopeOfWork: quote.scopeOfWork as string[],
-      deliverables: quote.deliverables as string[],
-      exclusions: quote.exclusions as string[],
-      assumptions: quote.assumptions as string[],
-      constraints: quote.constraints as string[],
+      items: parseJSON(quoteAny.items) as any[],
+      milestones: parseJSON(quoteAny.milestones) as any[],
+      paymentTerms: parseJSON(quoteAny.pricingItems || quoteAny.paymentTerms) as any[],
+      objectives: parseJSON(quoteAny.executiveSummary) as string[],
+      scope: parseJSON(quoteAny.scopeOfWork || quoteAny.scope) as string[],
+      outOfScope: parseJSON(quoteAny.exclusions || quoteAny.outOfScope) as string[],
+      assumptions: parseJSON(quoteAny.assumptions) as string[],
+      constraints: [] as string[],
+      currency: quoteAny.currency || 'USD',
+      taxRate: quoteAny.taxRate || 0,
+      discountValue: quoteAny.discount || 0,
+      discountType: (quoteAny.discountType as 'percentage' | 'fixed') || 'fixed',
+      estimatedDuration: Math.ceil((quoteAny.estimatedHours || 0) / 8),
+      startDate: quote.issuedAt?.toISOString().split('T')[0] || '',
+      validUntil: quote.validUntil?.toISOString().split('T')[0] || '',
+      lateFeePercentage: 0,
+      earlyPaymentDiscount: 0,
+      acceptedPaymentMethods: [] as string[],
+      termsAndConditions: quote.terms || '',
+      warranties: '',
+      supportTerms: '',
+      brandColor: '#6366f1',
+      includeCompanyLogo: true,
+      includePortfolio: false,
+      includeTestimonials: false,
+      customCoverMessage: '',
+      footerText: '',
+      criticalPath: [] as string[],
     }
 
     // Generate PDF
     const pdfBuffer = await renderToBuffer(
       React.createElement(QuotePDFDocument, {
         quoteData: quoteData as any,
-        client: quote.client || undefined,
-      })
+        client: quote.client ? {
+          ...quote.client,
+          company: quote.client.company || undefined,
+          phone: quote.client.phone || undefined,
+          address: quote.client.address || undefined,
+        } : undefined,
+      }) as any // Type assertion for renderToBuffer
     )
 
     // Return PDF
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(Buffer.from(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="quote-${quote.quoteNumber}.pdf"`,

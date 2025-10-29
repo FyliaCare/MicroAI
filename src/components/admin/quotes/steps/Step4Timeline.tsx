@@ -79,7 +79,7 @@ export default function Step4Timeline({
           </label>
           <Input
             type="number"
-            value={quoteData.estimatedDuration}
+            value={quoteData.estimatedDuration.toString()}
             onChange={(e) =>
               setQuoteData((prev) => ({
                 ...prev,
@@ -178,7 +178,7 @@ export default function Step4Timeline({
                   </label>
                   <Input
                     type="number"
-                    value={milestone.duration}
+                    value={milestone.duration.toString()}
                     onChange={(e) =>
                       updateMilestone(milestone.id, 'duration', parseInt(e.target.value) || 0)
                     }
@@ -192,7 +192,7 @@ export default function Step4Timeline({
                   </label>
                   <Input
                     type="number"
-                    value={milestone.percentage}
+                    value={milestone.percentage.toString()}
                     onChange={(e) =>
                       updateMilestone(milestone.id, 'percentage', parseFloat(e.target.value) || 0)
                     }

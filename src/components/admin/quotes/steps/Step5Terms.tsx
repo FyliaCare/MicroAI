@@ -104,7 +104,7 @@ export default function Step5Terms({
                   </label>
                   <Input
                     type="number"
-                    value={term.percentage}
+                    value={term.percentage.toString()}
                     onChange={(e) =>
                       updatePaymentTerm(
                         term.id,
@@ -248,7 +248,7 @@ export default function Step5Terms({
             </label>
             <Input
               type="number"
-              value={quoteData.lateFeePercentage}
+              value={quoteData.lateFeePercentage.toString()}
               onChange={(e) =>
                 setQuoteData((prev) => ({
                   ...prev,
@@ -267,7 +267,7 @@ export default function Step5Terms({
             </label>
             <Input
               type="number"
-              value={quoteData.earlyPaymentDiscount}
+              value={quoteData.earlyPaymentDiscount.toString()}
               onChange={(e) =>
                 setQuoteData((prev) => ({
                   ...prev,

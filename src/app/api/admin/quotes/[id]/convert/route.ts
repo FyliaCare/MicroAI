@@ -103,7 +103,7 @@ export async function POST(
           originalTotal: quote.total,
           projectType: projectType,
         }),
-      },
+      } as any, // Type assertion for Prisma client sync
     })
 
     // Update quote with project reference

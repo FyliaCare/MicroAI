@@ -65,7 +65,7 @@ export async function POST(
           clientSignedBy: signerName,
           clientSignedAt: new Date(),
           respondedAt: new Date(),
-        },
+        } as any, // Type assertion for Prisma client sync
       })
 
       // Log activity

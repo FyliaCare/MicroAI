@@ -4,8 +4,9 @@ interface InputProps {
   name?: string
   id?: string
   placeholder?: string
-  value?: string
+  value?: string | number
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   required?: boolean
   className?: string
   error?: string
@@ -23,6 +24,7 @@ export default function Input({
   placeholder,
   value,
   onChange,
+  onKeyPress,
   required = false,
   className = '',
   error,
@@ -45,6 +47,7 @@ export default function Input({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        onKeyPress={onKeyPress}
         required={required}
         disabled={disabled}
         min={min}

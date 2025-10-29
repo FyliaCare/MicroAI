@@ -290,30 +290,20 @@ export default function QuotePDFDocument({ quoteData, client }: QuotePDFDocument
         )}
 
         {/* Scope of Work */}
-        {quoteData.scopeOfWork.length > 0 && (
+        {quoteData.scope.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Scope of Work</Text>
-            {quoteData.scopeOfWork.map((scope, idx) => (
+            {quoteData.scope.map((scope: string, idx: number) => (
               <Text key={idx} style={styles.bullet}>• {scope}</Text>
             ))}
           </View>
         )}
 
-        {/* Deliverables */}
-        {quoteData.deliverables.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Deliverables</Text>
-            {quoteData.deliverables.map((deliverable, idx) => (
-              <Text key={idx} style={styles.bullet}>• {deliverable}</Text>
-            ))}
-          </View>
-        )}
-
         {/* Exclusions */}
-        {quoteData.exclusions.length > 0 && (
+        {quoteData.outOfScope.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Exclusions</Text>
-            {quoteData.exclusions.map((exclusion, idx) => (
+            <Text style={styles.sectionTitle}>Exclusions / Out of Scope</Text>
+            {quoteData.outOfScope.map((exclusion: string, idx: number) => (
               <Text key={idx} style={styles.bullet}>• {exclusion}</Text>
             ))}
           </View>
@@ -489,10 +479,10 @@ export default function QuotePDFDocument({ quoteData, client }: QuotePDFDocument
         )}
 
         {/* Warranty */}
-        {quoteData.warrantyTerms && (
+        {quoteData.warranties && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Warranty</Text>
-            <Text style={{ fontSize: 9, lineHeight: 1.5 }}>{quoteData.warrantyTerms}</Text>
+            <Text style={{ fontSize: 9, lineHeight: 1.5 }}>{quoteData.warranties}</Text>
           </View>
         )}
 

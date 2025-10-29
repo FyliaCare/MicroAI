@@ -18,38 +18,21 @@ export async function GET(
         description: true,
         status: true,
         total: true,
-        currency: true,
         validUntil: true,
         createdAt: true,
         issuedAt: true,
-        
-        // Company info
-        companyName: true,
-        companyEmail: true,
-        companyPhone: true,
-        companyAddress: true,
-        companyWebsite: true,
-        companyLogo: true,
-        
-        // Client info
-        clientName: true,
-        clientCompany: true,
-        clientEmail: true,
-        clientPhone: true,
-        clientAddress: true,
         
         // Project details
         projectType: true,
         
         // Scope
-        scopeOfWork: true,
-        exclusions: true,
+        deliverables: true,
         
         // Pricing
-        pricingItems: true,
         subtotal: true,
         tax: true,
         discount: true,
+        items: true,
         
         // Timeline
         timeline: true,
@@ -57,17 +40,9 @@ export async function GET(
         milestones: true,
         
         // Terms
-        paymentTerms: true,
-        assumptions: true,
-        clientObligations: true,
         terms: true,
-        
-        // Signatures
-        clientSignature: true,
-        clientSignedAt: true,
-        clientSignedBy: true,
       },
-    })
+    } as any) // Type assertion for Prisma client sync
 
     if (!quote) {
       return NextResponse.json(
