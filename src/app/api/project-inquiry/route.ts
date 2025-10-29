@@ -401,6 +401,35 @@ microailabs@outlook.com
       // Continue anyway
     }
 
+    // Create admin notification in database
+    try {
+      const { prisma } = await import('@/lib/prisma')
+      await prisma.notification.create({
+        data: {
+          title: `🤖 New AI Bot Inquiry from ${body.name}`,
+          message: `${formattedProjectType} project - ${formattedBudget} budget, ${formattedTimeline} timeline`,
+          type: 'project_request',
+          entityType: 'project_inquiry',
+          entityId: `inquiry-${Date.now()}`,
+          data: JSON.stringify({
+            name: body.name,
+            email: body.email,
+            phone: body.phone,
+            projectIdea: body.projectIdea,
+            projectType: formattedProjectType,
+            timeline: formattedTimeline,
+            budget: formattedBudget,
+            source: 'ai-bot'
+          }),
+          isRead: false,
+        },
+      })
+      console.log('✅ Admin notification created in database')
+    } catch (notifError) {
+      console.error('❌ Failed to create notification:', notifError)
+      // Continue anyway - don't fail the request if notification fails
+    }
+
     // Log submission
     console.log('🤖 AI Bot project inquiry:', body)
 
