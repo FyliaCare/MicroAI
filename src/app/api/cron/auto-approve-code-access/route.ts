@@ -155,10 +155,10 @@ export async function GET(request: NextRequest) {
         nextRunAt: new Date(now.getTime() + 60 * 60 * 1000), // Next hour
         lastStatus: errors.length > 0 ? 'partial-success' : 'success',
         executionCount: 1,
-        config: {
+        config: JSON.stringify({
           description: 'Auto-approve code access requests after 24 hours',
           approvalDelay: '24 hours',
-        },
+        }),
       },
       update: {
         lastRunAt: now,
