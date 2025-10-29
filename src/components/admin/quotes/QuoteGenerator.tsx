@@ -41,7 +41,12 @@ import Step4Timeline from './steps/Step4Timeline'
 import Step5Terms from './steps/Step5Terms'
 import Step6Review from './steps/Step6Review'
 
-export default function QuoteGenerator() {
+interface QuoteGeneratorProps {
+  editMode?: boolean
+  quoteId?: string
+}
+
+export default function QuoteGenerator({ editMode = false, quoteId }: QuoteGeneratorProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const totalSteps = 6
 
@@ -100,6 +105,13 @@ export default function QuoteGenerator() {
     loadClients()
   }, [])
 
+  // Load quote data in edit mode
+  useEffect(() => {
+    if (editMode && quoteId) {
+      loadQuoteData()
+    }
+  }, [editMode, quoteId])
+
   const loadClients = async () => {
     try {
       setLoading(true)
@@ -110,6 +122,61 @@ export default function QuoteGenerator() {
       }
     } catch (err) {
       console.error('Failed to load clients:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadQuoteData = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch(`/api/admin/quotes/${quoteId}`)
+      if (res.ok) {
+        const data = await res.json()
+        const quote = data.quote
+        
+        // Parse and set quote data - mapping DB fields to QuoteData interface
+        setQuoteData({
+          quoteNumber: quote.quoteNumber || '',
+          clientId: quote.clientId || '',
+          title: quote.title || '',
+          projectType: quote.projectType || 'web-development',
+          industry: quote.industry || 'technology',
+          currency: quote.currency || 'USD',
+          validUntil: quote.validUntil || '',
+          internalNotes: quote.internalNotes || '',
+          executiveSummary: quote.executiveSummary || '',
+          objectives: quote.objectives ? JSON.parse(quote.objectives) : [],
+          scope: quote.scopeOfWork ? JSON.parse(quote.scopeOfWork) : [],
+          outOfScope: quote.exclusions ? JSON.parse(quote.exclusions) : [],
+          assumptions: quote.assumptions ? JSON.parse(quote.assumptions) : [],
+          constraints: quote.constraints ? JSON.parse(quote.constraints) : [],
+          items: quote.items ? JSON.parse(quote.items) : [],
+          discountType: quote.discountType || 'percentage',
+          discountValue: quote.discountValue || 0,
+          taxRate: quote.taxRate || 0,
+          startDate: quote.startDate || '',
+          estimatedDuration: quote.estimatedDuration || 0,
+          milestones: quote.milestones ? JSON.parse(quote.milestones) : [],
+          criticalPath: [],
+          paymentTerms: quote.paymentTerms ? JSON.parse(quote.paymentTerms) : [],
+          lateFeePercentage: quote.lateFeePercentage || 0,
+          earlyPaymentDiscount: quote.earlyPaymentDiscount || 0,
+          acceptedPaymentMethods: [],
+          termsAndConditions: quote.termsAndConditions || '',
+          warranties: quote.warranties || '',
+          supportTerms: quote.supportTerms || '',
+          brandColor: '#6366f1',
+          includeCompanyLogo: true,
+          includePortfolio: false,
+          includeTestimonials: false,
+          customCoverMessage: '',
+          footerText: quote.footerText || '',
+        })
+      }
+    } catch (err) {
+      console.error('Failed to load quote:', err)
+      setError('Failed to load quote data')
     } finally {
       setLoading(false)
     }
@@ -325,26 +392,29 @@ export default function QuoteGenerator() {
         status: 'draft',
       }
 
-      const res = await fetch('/api/admin/quotes', {
-        method: 'POST',
+      const url = editMode ? `/api/admin/quotes/${quoteId}` : '/api/admin/quotes'
+      const method = editMode ? 'PUT' : 'POST'
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Failed to create quote')
+        throw new Error(data.error || `Failed to ${editMode ? 'update' : 'create'} quote`)
       }
 
       const data = await res.json()
-      setSuccess('Quote created successfully!')
+      setSuccess(`Quote ${editMode ? 'updated' : 'created'} successfully!`)
       localStorage.removeItem('quote_draft')
 
       setTimeout(() => {
         window.location.href = '/admin/quotes'
       }, 1500)
     } catch (err: any) {
-      setError(err.message || 'Failed to create quote')
+      setError(err.message || `Failed to ${editMode ? 'update' : 'create'} quote`)
     } finally {
       setSaving(false)
     }
@@ -378,10 +448,12 @@ export default function QuoteGenerator() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Create Professional Quote
+                {editMode ? 'Edit Quote' : 'Create Professional Quote'}
               </h1>
               <p className="text-slate-600 dark:text-slate-400 mt-2">
-                Build comprehensive quotes with our advanced wizard
+                {editMode
+                  ? 'Update quote details and save changes'
+                  : 'Build comprehensive quotes with our advanced wizard'}
               </p>
             </div>
           </div>
@@ -508,7 +580,13 @@ export default function QuoteGenerator() {
                   disabled={saving}
                   className="px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
                 >
-                  {saving ? 'Creating...' : '✨ Create Quote'}
+                  {saving
+                    ? editMode
+                      ? 'Updating...'
+                      : 'Creating...'
+                    : editMode
+                    ? '💾 Update Quote'
+                    : '✨ Create Quote'}
                 </Button>
               )}
             </div>
