@@ -256,11 +256,27 @@ export default function AdvancedQuotesManager() {
     return new Date(validUntil) < new Date()
   }
 
-  const handleDownloadPDF = (quote: Quote) => {
-    // Store quote data for PDF generation
-    localStorage.setItem('pdfQuoteData', JSON.stringify(quote))
-    // Open PDF page in new window
-    window.open('/admin/quotes/pdf', '_blank')
+  const handleDownloadPDF = async (quote: Quote) => {
+    try {
+      // Use our new PDF API endpoint
+      const response = await fetch(`/api/admin/quotes/${quote.id}/pdf`)
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `quote-${quote.quoteNumber}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      } else {
+        alert('Failed to generate PDF')
+      }
+    } catch (error) {
+      console.error('PDF download error:', error)
+      alert('Failed to download PDF')
+    }
   }
 
   const handleGenerateReceipt = async (quote: Quote) => {

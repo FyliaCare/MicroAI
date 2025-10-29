@@ -1,7 +1,15 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 import { QuoteData, Client } from '../types'
 import { formatCurrency } from '../utils'
+import dynamic from 'next/dynamic'
+
+const PDFPreviewModal = dynamic(() => import('../pdf/PDFPreviewModal'), {
+  ssr: false,
+})
 
 interface Step6Props {
   quoteData: QuoteData
@@ -21,16 +29,29 @@ export default function Step6Review({
   clients,
 }: Step6Props) {
   const client = clients.find((c) => c.id === quoteData.clientId)
+  const [showPDFPreview, setShowPDFPreview] = useState(false)
 
   return (
     <Card className="p-8">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-          Review & Confirm
-        </h2>
-        <p className="text-slate-600 dark:text-slate-400">
-          Review all details before creating the quote
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              Review & Confirm
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400">
+              Review all details before creating the quote
+            </p>
+          </div>
+          <Button
+            onClick={() => setShowPDFPreview(true)}
+            variant="outline"
+            className="border-indigo-300 text-indigo-600 hover:bg-indigo-50"
+          >
+            <span className="mr-2">📄</span>
+            Preview PDF
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-8">
@@ -224,6 +245,15 @@ export default function Step6Review({
           <span>All required fields completed</span>
         </div>
       </div>
+
+      {/* PDF Preview Modal */}
+      {showPDFPreview && (
+        <PDFPreviewModal
+          quoteData={quoteData}
+          client={client}
+          onClose={() => setShowPDFPreview(false)}
+        />
+      )}
     </Card>
   )
 }
