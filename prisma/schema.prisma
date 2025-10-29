@@ -143,45 +143,102 @@ model Quote {
   title           String
   description     String?
   
-  // Client
+  // 1. Company/Provider Details (pulled from settings)
+  companyName     String?
+  companyEmail    String?
+  companyPhone    String?
+  companyAddress  String?
+  companyWebsite  String?
+  companyLogo     String?
+  
+  // 2. Client Information
   clientId        String?
   client          Client?   @relation(fields: [clientId], references: [id])
+  clientName      String?
+  clientCompany   String?
+  clientEmail     String?
+  clientPhone     String?
+  clientAddress   String?
+  contactPerson   String?
   
-  // Project
+  // 3. Project Details
   projectId       String?   @unique
   project         Project?  @relation(fields: [projectId], references: [id])
-  
-  // Project Details
   projectType     String?   // basic-website, business-website, web-app, ecommerce, saas
+  
+  // 4. Executive Summary
+  executiveSummary String?  // JSON: { problem, solution, businessImpact }
+  
+  // 5. Scope of Work / Deliverables
+  scopeOfWork     String?   // JSON array of deliverable objects
+  exclusions      String?   // JSON array of what's NOT included
+  
+  // 6. Technical Stack
+  techStack       String?   // JSON: { frameworks, libraries, hosting, thirdParty }
+  
+  // 7. Timeline & Milestones
+  timeline        String?   // e.g., "6-8 weeks"
   estimatedHours  Float?
-  timeline        String?   // e.g., "4-6 weeks"
-  techStack       String?   // JSON array of technologies
+  milestones      String?   // JSON: [{ phase, duration, deliverables, payment }]
   
-  // Pricing Breakdown
-  setupFee        Float     @default(0)
-  developmentCost Float     @default(0)
-  designCost      Float     @default(0)
-  monthlyHosting  Float     @default(0)
-  monthlyMaintenance Float  @default(0)
+  // 8. Pricing Breakdown
+  pricingItems    String?   // JSON: [{ category, description, amount, isRecurring, frequency }]
+  subtotal        Float?
+  tax             Float?    @default(0)
+  taxRate         Float?    @default(0)
+  discount        Float?    @default(0)
+  discountType    String?   // percentage, fixed
+  total           Float?
+  currency        String?   @default("USD")
   
-  subtotal        Float
-  tax             Float     @default(0)
-  discount        Float     @default(0)
-  total           Float
+  // 9. Payment Terms
+  paymentTerms    String?   // JSON: { depositPercent, milestonePayments, finalPayment, methods, latePenalty }
+  depositAmount   Float?
+  depositPercent  Float?
   
-  // Detailed Items
-  items           String    // JSON: development tasks, features, deliverables
+  // 10. Assumptions & Client Obligations
+  assumptions     String?   // JSON array of assumptions
+  clientObligations String? // JSON array of client responsibilities
+  
+  // 11. Maintenance & Support
+  maintenanceTerms String?  // JSON: { freeSupportDuration, ongoingOptions }
+  freeSupportMonths Int?    @default(1)
+  monthlyMaintenance Float?  @default(0)
+  
+  // 12. Intellectual Property Rights
+  ipRights        String?   // Text describing IP ownership
+  
+  // 13. Revisions Policy
+  revisionsPolicy String?   // JSON: { includedRevisions, additionalCost }
+  includedRevisions Int?    @default(2)
+  revisionCost    Float?
+  
+  // 14. Confidentiality
+  confidentialityClause String? // NDA/confidentiality text
+  
+  // 15. Signatures
+  clientSignature     String?  // Base64 or URL
+  clientSignedAt      DateTime?
+  clientSignedBy      String?
+  providerSignature   String?  // Base64 or URL
+  providerSignedAt    DateTime?
+  providerSignedBy    String?
+  
+  // Legacy fields (keeping for backward compatibility)
+  setupFee        Float?     @default(0)
+  developmentCost Float?     @default(0)
+  designCost      Float?     @default(0)
+  monthlyHosting  Float?     @default(0)
+  items           String?   // JSON: development tasks, features, deliverables
   hostingBreakdown String?  // JSON: hosting costs breakdown
   deliverables    String?   // JSON: list of deliverables
-  milestones      String?   // JSON: project milestones with payments
+  monthlyRecurring Float?    @default(0)
+  yearlyRecurring  Float?    @default(0)
   
-  // Recurring Revenue
-  monthlyRecurring Float    @default(0)
-  yearlyRecurring  Float    @default(0)
-  
-  // Status
+  // Status & Validity
   status          String    @default("draft") // draft, sent, viewed, accepted, rejected, expired
   validUntil      DateTime?
+  validityDays    Int       @default(30)
   
   // Dates
   issuedAt        DateTime?
@@ -190,7 +247,8 @@ model Quote {
   respondedAt     DateTime?
   
   notes           String?
-  terms           String?
+  terms           String?   // General T&C
+  internalNotes   String?   // Private notes not shown to client
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

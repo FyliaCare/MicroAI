@@ -173,6 +173,55 @@ export default function AdvancedQuoteGenerator({
     validUntil: '',
     notes: '',
     terms: 'Payment terms: 50% upfront, 50% upon completion. All prices in USD. Quote valid for 30 days.',
+    // New comprehensive quote fields
+    clientName: '',
+    clientCompany: '',
+    clientEmail: '',
+    contactPerson: '',
+    executiveSummary: {
+      problem: '',
+      solution: '',
+      businessImpact: ''
+    },
+    scopeOfWork: [] as Array<{
+      title: string
+      description: string
+      deliverables: string[]
+    }>,
+    exclusions: [] as string[],
+    technicalStack: [] as Array<{
+      category: string
+      tools: string[]
+    }>,
+    pricingItems: [] as Array<{
+      name: string
+      description: string
+      amount: string
+    }>,
+    paymentTerms: [] as Array<{
+      milestone: string
+      percentage: number
+      description: string
+    }>,
+    assumptions: [] as string[],
+    clientObligations: [] as string[],
+    maintenanceTerms: {
+      coverage: '',
+      responseTime: '',
+      updates: ''
+    },
+    intellectualProperty: {
+      sourceCode: '',
+      designAssets: '',
+      thirdParty: ''
+    },
+    revisionsPolicy: {
+      included: '',
+      additional: '',
+      changeProcess: ''
+    },
+    confidentiality: '',
+    authorizedSignatory: '',
   })
 
   useEffect(() => {
@@ -538,6 +587,30 @@ export default function AdvancedQuoteGenerator({
         milestones: formData.milestones,
         monthlyRecurring: parseFloat(formData.monthlyRecurring),
         yearlyRecurring: parseFloat(formData.yearlyRecurring),
+        // New comprehensive quote fields
+        companyName: companyProfile.name,
+        companyEmail: companyProfile.email,
+        companyPhone: companyProfile.phone,
+        companyAddress: companyProfile.address,
+        companyWebsite: companyProfile.website,
+        companyLogo: companyProfile.logo,
+        clientName: formData.clientName,
+        clientCompany: formData.clientCompany,
+        clientEmail: formData.clientEmail,
+        contactPerson: formData.contactPerson,
+        executiveSummary: formData.executiveSummary,
+        scopeOfWork: formData.scopeOfWork,
+        exclusions: formData.exclusions,
+        technicalStack: formData.technicalStack,
+        pricingItems: formData.pricingItems,
+        paymentTerms: formData.paymentTerms,
+        assumptions: formData.assumptions,
+        clientObligations: formData.clientObligations,
+        maintenanceTerms: formData.maintenanceTerms,
+        intellectualProperty: formData.intellectualProperty,
+        revisionsPolicy: formData.revisionsPolicy,
+        confidentiality: formData.confidentiality,
+        authorizedSignatory: formData.authorizedSignatory,
       }
 
       const response = await fetch('/api/admin/quotes', {
@@ -1166,6 +1239,253 @@ export default function AdvancedQuoteGenerator({
                             setFormData({ ...formData, terms: e.target.value })}
                           rows={4}
                         />
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Executive Summary */}
+                <Card>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold mb-4 text-gray-900">📊 Executive Summary</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
+                          Client Challenge / Problem
+                        </label>
+                        <Textarea
+                          value={formData.executiveSummary.problem}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                            setFormData({ 
+                              ...formData, 
+                              executiveSummary: { ...formData.executiveSummary, problem: e.target.value }
+                            })}
+                          rows={3}
+                          placeholder="Describe the client's main challenge or problem..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
+                          Our Solution
+                        </label>
+                        <Textarea
+                          value={formData.executiveSummary.solution}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                            setFormData({ 
+                              ...formData, 
+                              executiveSummary: { ...formData.executiveSummary, solution: e.target.value }
+                            })}
+                          rows={3}
+                          placeholder="How will you solve their problem..."
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
+                          Expected Business Impact
+                        </label>
+                        <Textarea
+                          value={formData.executiveSummary.businessImpact}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => 
+                            setFormData({ 
+                              ...formData, 
+                              executiveSummary: { ...formData.executiveSummary, businessImpact: e.target.value }
+                            })}
+                          rows={3}
+                          placeholder="What business results will this deliver..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Scope of Work */}
+                <Card>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold mb-4 text-gray-900">📋 Scope of Work</h3>
+                    <div className="space-y-4">
+                      {formData.scopeOfWork.map((item, index) => (
+                        <div key={index} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                          <div className="flex gap-2 mb-3">
+                            <Input
+                              value={item.title}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newScope = [...formData.scopeOfWork]
+                                newScope[index].title = e.target.value
+                                setFormData({ ...formData, scopeOfWork: newScope })
+                              }}
+                              placeholder="Scope item title"
+                              className="flex-1 font-semibold"
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                const newScope = formData.scopeOfWork.filter((_, i) => i !== index)
+                                setFormData({ ...formData, scopeOfWork: newScope })
+                              }}
+                              className="bg-red-500 hover:bg-red-600 px-3"
+                            >
+                              ✕
+                            </Button>
+                          </div>
+                          <Textarea
+                            value={item.description}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                              const newScope = [...formData.scopeOfWork]
+                              newScope[index].description = e.target.value
+                              setFormData({ ...formData, scopeOfWork: newScope })
+                            }}
+                            placeholder="Description..."
+                            rows={2}
+                            className="mb-3"
+                          />
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-gray-700">Deliverables:</label>
+                            {item.deliverables.map((deliverable, dIndex) => (
+                              <div key={dIndex} className="flex gap-2">
+                                <Input
+                                  value={deliverable}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    const newScope = [...formData.scopeOfWork]
+                                    newScope[index].deliverables[dIndex] = e.target.value
+                                    setFormData({ ...formData, scopeOfWork: newScope })
+                                  }}
+                                  placeholder="Deliverable"
+                                  className="text-sm"
+                                />
+                                <Button
+                                  type="button"
+                                  onClick={() => {
+                                    const newScope = [...formData.scopeOfWork]
+                                    newScope[index].deliverables = newScope[index].deliverables.filter((_, i) => i !== dIndex)
+                                    setFormData({ ...formData, scopeOfWork: newScope })
+                                  }}
+                                  className="bg-red-400 hover:bg-red-500 px-2 text-sm"
+                                >
+                                  ✕
+                                </Button>
+                              </div>
+                            ))}
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                const newScope = [...formData.scopeOfWork]
+                                newScope[index].deliverables.push('')
+                                setFormData({ ...formData, scopeOfWork: newScope })
+                              }}
+                              className="bg-green-500 hover:bg-green-600 w-full text-sm"
+                            >
+                              + Add Deliverable
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        onClick={() => setFormData({ 
+                          ...formData, 
+                          scopeOfWork: [...formData.scopeOfWork, {
+                            title: '',
+                            description: '',
+                            deliverables: ['']
+                          }] 
+                        })}
+                        className="bg-blue-500 hover:bg-blue-600 w-full"
+                      >
+                        + Add Scope Item
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Exclusions & Assumptions */}
+                <Card>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold mb-4 text-gray-900">⚠️ Exclusions & Assumptions</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
+                          What's NOT Included (Exclusions)
+                        </label>
+                        <div className="space-y-2">
+                          {formData.exclusions.map((exclusion, index) => (
+                            <div key={index} className="flex gap-2">
+                              <Input
+                                value={exclusion}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                  const newExclusions = [...formData.exclusions]
+                                  newExclusions[index] = e.target.value
+                                  setFormData({ ...formData, exclusions: newExclusions })
+                                }}
+                                placeholder="e.g., Custom logo design"
+                                className="text-sm"
+                              />
+                              <Button
+                                type="button"
+                                onClick={() => {
+                                  const newExclusions = formData.exclusions.filter((_, i) => i !== index)
+                                  setFormData({ ...formData, exclusions: newExclusions })
+                                }}
+                                className="bg-red-500 hover:bg-red-600 px-2 text-sm"
+                              >
+                                ✕
+                              </Button>
+                            </div>
+                          ))}
+                          <Button
+                            type="button"
+                            onClick={() => setFormData({ 
+                              ...formData, 
+                              exclusions: [...formData.exclusions, ''] 
+                            })}
+                            className="bg-green-500 hover:bg-green-600 w-full text-sm"
+                          >
+                            + Add Exclusion
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-900">
+                          Assumptions
+                        </label>
+                        <div className="space-y-2">
+                          {formData.assumptions.map((assumption, index) => (
+                            <div key={index} className="flex gap-2">
+                              <Input
+                                value={assumption}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                  const newAssumptions = [...formData.assumptions]
+                                  newAssumptions[index] = e.target.value
+                                  setFormData({ ...formData, assumptions: newAssumptions })
+                                }}
+                                placeholder="e.g., Client provides all content"
+                                className="text-sm"
+                              />
+                              <Button
+                                type="button"
+                                onClick={() => {
+                                  const newAssumptions = formData.assumptions.filter((_, i) => i !== index)
+                                  setFormData({ ...formData, assumptions: newAssumptions })
+                                }}
+                                className="bg-red-500 hover:bg-red-600 px-2 text-sm"
+                              >
+                                ✕
+                              </Button>
+                            </div>
+                          ))}
+                          <Button
+                            type="button"
+                            onClick={() => setFormData({ 
+                              ...formData, 
+                              assumptions: [...formData.assumptions, ''] 
+                            })}
+                            className="bg-green-500 hover:bg-green-600 w-full text-sm"
+                          >
+                            + Add Assumption
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>

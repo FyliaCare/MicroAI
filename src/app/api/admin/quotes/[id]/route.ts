@@ -86,7 +86,7 @@ export async function PUT(
       notes,
       terms,
       status,
-      // Enhanced fields
+      // Legacy enhanced fields
       projectType,
       estimatedHours,
       timeline,
@@ -101,6 +101,30 @@ export async function PUT(
       milestones,
       monthlyRecurring,
       yearlyRecurring,
+      // New comprehensive quote fields
+      companyName,
+      companyEmail,
+      companyPhone,
+      companyAddress,
+      companyWebsite,
+      companyLogo,
+      clientName,
+      clientCompany,
+      clientEmail,
+      contactPerson,
+      executiveSummary,
+      scopeOfWork,
+      exclusions,
+      technicalStack,
+      paymentTerms,
+      assumptions,
+      clientObligations,
+      maintenanceTerms,
+      intellectualProperty,
+      revisionsPolicy,
+      confidentiality,
+      authorizedSignatory,
+      pricingItems,
     } = body
 
     // Calculate total if financial fields are provided
@@ -132,16 +156,41 @@ export async function PUT(
     if (estimatedHours !== undefined) updateData.estimatedHours = estimatedHours ? parseInt(estimatedHours) : null
     if (timeline !== undefined) updateData.timeline = timeline
     if (techStack !== undefined) updateData.techStack = techStack ? JSON.stringify(techStack) : null
-    if (setupFee !== undefined) updateData.setupFee = parseFloat(setupFee)
-    if (developmentCost !== undefined) updateData.developmentCost = parseFloat(developmentCost)
-    if (designCost !== undefined) updateData.designCost = parseFloat(designCost)
-    if (monthlyHosting !== undefined) updateData.monthlyHosting = parseFloat(monthlyHosting)
-    if (monthlyMaintenance !== undefined) updateData.monthlyMaintenance = parseFloat(monthlyMaintenance)
+    if (setupFee !== undefined) updateData.setupFee = setupFee ? parseFloat(setupFee) : null
+    if (developmentCost !== undefined) updateData.developmentCost = developmentCost ? parseFloat(developmentCost) : null
+    if (designCost !== undefined) updateData.designCost = designCost ? parseFloat(designCost) : null
+    if (monthlyHosting !== undefined) updateData.monthlyHosting = monthlyHosting ? parseFloat(monthlyHosting) : null
+    if (monthlyMaintenance !== undefined) updateData.monthlyMaintenance = monthlyMaintenance ? parseFloat(monthlyMaintenance) : null
     if (hostingBreakdown !== undefined) updateData.hostingBreakdown = hostingBreakdown ? JSON.stringify(hostingBreakdown) : null
     if (deliverables !== undefined) updateData.deliverables = deliverables ? JSON.stringify(deliverables) : null
     if (milestones !== undefined) updateData.milestones = milestones ? JSON.stringify(milestones) : null
-    if (monthlyRecurring !== undefined) updateData.monthlyRecurring = parseFloat(monthlyRecurring)
-    if (yearlyRecurring !== undefined) updateData.yearlyRecurring = parseFloat(yearlyRecurring)
+    if (monthlyRecurring !== undefined) updateData.monthlyRecurring = monthlyRecurring ? parseFloat(monthlyRecurring) : null
+    if (yearlyRecurring !== undefined) updateData.yearlyRecurring = yearlyRecurring ? parseFloat(yearlyRecurring) : null
+
+    // New comprehensive quote fields
+    if (companyName !== undefined) updateData.companyName = companyName
+    if (companyEmail !== undefined) updateData.companyEmail = companyEmail
+    if (companyPhone !== undefined) updateData.companyPhone = companyPhone
+    if (companyAddress !== undefined) updateData.companyAddress = companyAddress
+    if (companyWebsite !== undefined) updateData.companyWebsite = companyWebsite
+    if (companyLogo !== undefined) updateData.companyLogo = companyLogo
+    if (clientName !== undefined) updateData.clientName = clientName
+    if (clientCompany !== undefined) updateData.clientCompany = clientCompany
+    if (clientEmail !== undefined) updateData.clientEmail = clientEmail
+    if (contactPerson !== undefined) updateData.contactPerson = contactPerson
+    if (executiveSummary !== undefined) updateData.executiveSummary = executiveSummary ? JSON.stringify(executiveSummary) : null
+    if (scopeOfWork !== undefined) updateData.scopeOfWork = scopeOfWork ? JSON.stringify(scopeOfWork) : null
+    if (exclusions !== undefined) updateData.exclusions = exclusions ? JSON.stringify(exclusions) : null
+    if (technicalStack !== undefined) updateData.techStack = technicalStack ? JSON.stringify(technicalStack) : null
+    if (paymentTerms !== undefined) updateData.paymentTerms = paymentTerms ? JSON.stringify(paymentTerms) : null
+    if (assumptions !== undefined) updateData.assumptions = assumptions ? JSON.stringify(assumptions) : null
+    if (clientObligations !== undefined) updateData.clientObligations = clientObligations ? JSON.stringify(clientObligations) : null
+    if (maintenanceTerms !== undefined) updateData.maintenanceTerms = maintenanceTerms ? JSON.stringify(maintenanceTerms) : null
+    if (intellectualProperty !== undefined) updateData.ipRights = intellectualProperty ? JSON.stringify(intellectualProperty) : null
+    if (revisionsPolicy !== undefined) updateData.revisionsPolicy = revisionsPolicy ? JSON.stringify(revisionsPolicy) : null
+    if (confidentiality !== undefined) updateData.confidentialityClause = confidentiality
+    if (authorizedSignatory !== undefined) updateData.providerSignedBy = authorizedSignatory
+    if (pricingItems !== undefined) updateData.pricingItems = pricingItems ? JSON.stringify(pricingItems) : null
 
     const quote = await prisma.quote.update({
       where: { id },
