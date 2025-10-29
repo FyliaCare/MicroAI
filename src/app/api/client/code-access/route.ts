@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
           projectName: project.name,
           requestNumber,
           reason: reason || 'No reason provided',
-          autoApproveAt: autoApproveAt.toLocaleString(),
+          autoApproveAt: autoApprovedAt.toLocaleString(),
         }),
         templateType: 'code-access-request',
         priority: 'high',
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
         id: codeAccessRequest.id,
         requestNumber,
         status: 'pending',
-        autoApproveAt,
+        autoApprovedAt,
       },
     })
   } catch (error) {

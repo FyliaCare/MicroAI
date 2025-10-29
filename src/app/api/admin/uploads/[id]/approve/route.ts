@@ -59,7 +59,8 @@ export async function POST(
         message: `Your ${upload.category} "${upload.name}" has been approved`,
         link: `/client/project/${upload.projectId}?tab=documents`,
         priority: 'normal',
-        clientId: upload.clientId,
+        entityType: 'Upload',
+        entityId: upload.id,
       },
     })
 

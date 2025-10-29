@@ -75,12 +75,6 @@ export async function GET(request: NextRequest) {
     const updates = await prisma.projectUpdate.findMany({
       where,
       include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
         readBy: {
           where: {
             userId: session.user.id,
@@ -93,21 +87,39 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     })
 
+    // Get all unique project IDs
+    const projectIds = [...new Set(updates.map(u => u.projectId))]
+    
+    // Fetch all projects
+    const projects = await prisma.project.findMany({
+      where: { id: { in: projectIds } },
+      select: {
+        id: true,
+        name: true,
+      },
+    })
+
+    // Create a map for quick lookup
+    const projectMap = new Map(projects.map(p => [p.id, p]))
+
     return NextResponse.json({
       success: true,
-      updates: updates.map((update) => ({
-        id: update.id,
-        projectId: update.projectId,
-        projectName: update.project.name,
-        title: update.title,
-        content: update.content,
-        type: update.type,
-        progressBefore: update.progressBefore,
-        progressAfter: update.progressAfter,
-        isRead: update.readBy.length > 0,
-        readAt: update.readBy[0]?.readAt || null,
-        createdAt: update.createdAt,
-      })),
+      updates: updates.map((update) => {
+        const project = projectMap.get(update.projectId)
+        return {
+          id: update.id,
+          projectId: update.projectId,
+          projectName: project?.name || 'Unknown Project',
+          title: update.title,
+          content: update.content,
+          type: update.type,
+          progressBefore: update.progressBefore,
+          progressAfter: update.progressAfter,
+          isRead: update.readBy.length > 0,
+          readAt: update.readBy[0]?.readAt || null,
+          createdAt: update.createdAt,
+        }
+      }),
       stats: {
         total: updates.length,
         unread: updates.filter((u) => u.readBy.length === 0).length,
@@ -180,17 +192,29 @@ export async function POST(request: NextRequest) {
     const update = await prisma.projectUpdate.findFirst({
       where: {
         id: updateId,
-        project: {
-          clientId: session.user.client.id,
-        },
         isPublic: true,
       },
     })
 
     if (!update) {
       return NextResponse.json(
-        { success: false, error: 'Update not found or access denied' },
+        { success: false, error: 'Update not found' },
         { status: 404 }
+      )
+    }
+
+    // Verify client has access to this project
+    const project = await prisma.project.findFirst({
+      where: {
+        id: update.projectId,
+        clientId: session.user.client.id,
+      },
+    })
+
+    if (!project) {
+      return NextResponse.json(
+        { success: false, error: 'Access denied to this project update' },
+        { status: 403 }
       )
     }
 

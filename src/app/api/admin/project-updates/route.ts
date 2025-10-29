@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
           message: title,
           link: `/client/project/${projectId}?tab=updates`,
           priority: type === 'issue' ? 'high' : 'normal',
-          clientId: project.clientId,
+          entityType: 'Project',
+          entityId: projectId,
         },
       })
     }
@@ -167,18 +168,6 @@ export async function GET(request: NextRequest) {
     const updates = await prisma.projectUpdate.findMany({
       where,
       include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-            client: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
         readBy: {
           select: {
             userId: true,
@@ -189,23 +178,45 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     })
 
+    // Get all unique project IDs
+    const projectIds = [...new Set(updates.map(u => u.projectId))]
+    
+    // Fetch all projects
+    const projects = await prisma.project.findMany({
+      where: { id: { in: projectIds } },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
+
+    // Create a map for quick lookup
+    const projectMap = new Map(projects.map(p => [p.id, p]))
+
     return NextResponse.json({
       success: true,
-      updates: updates.map((update) => ({
-        id: update.id,
-        title: update.title,
-        content: update.content,
-        type: update.type,
-        isPublic: update.isPublic,
-        progressBefore: update.progressBefore,
-        progressAfter: update.progressAfter,
-        emailSent: update.emailSent,
-        projectId: update.projectId,
-        projectName: update.project.name,
-        clientName: update.project.client?.name,
-        readCount: update.readBy.length,
-        createdAt: update.createdAt,
-      })),
+      updates: updates.map((update) => {
+        const project = projectMap.get(update.projectId)
+        return {
+          id: update.id,
+          title: update.title,
+          content: update.content,
+          type: update.type,
+          isPublic: update.isPublic,
+          progressBefore: update.progressBefore,
+          progressAfter: update.progressAfter,
+          emailSent: update.emailSent,
+          projectId: update.projectId,
+          projectName: project?.name || 'Unknown Project',
+          clientName: project?.client?.name || 'Unknown Client',
+          readCount: update.readBy.length,
+          createdAt: update.createdAt,
+        }
+      }),
     })
   } catch (error) {
     console.error('Get project updates error:', error)

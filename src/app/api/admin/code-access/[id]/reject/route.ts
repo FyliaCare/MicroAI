@@ -24,11 +24,6 @@ export async function POST(
     const codeRequest = await prisma.codeAccessRequest.findUnique({
       where: { id: requestId },
       include: {
-        project: {
-          include: {
-            client: true,
-          },
-        },
         user: true,
       },
     })
@@ -54,12 +49,25 @@ export async function POST(
       )
     }
 
+    // Get project separately
+    const project = await prisma.project.findUnique({
+      where: { id: codeRequest.projectId },
+      include: { client: true },
+    })
+
+    if (!project) {
+      return NextResponse.json(
+        { success: false, error: 'Project not found' },
+        { status: 404 }
+      )
+    }
+
     // Reject request
     const updatedRequest = await prisma.codeAccessRequest.update({
       where: { id: requestId },
       data: {
         status: 'rejected',
-        rejectedAt: new Date(),
+        reviewedAt: new Date(),
         rejectionReason: reason,
       },
     })
@@ -69,30 +77,32 @@ export async function POST(
       data: {
         type: 'code-access-rejected',
         title: 'Code Access Request Declined',
-        message: `Your code access request for ${codeRequest.project.name} was declined`,
+        message: `Your code access request for ${project.name} was declined`,
         link: `/client/project/${codeRequest.projectId}`,
         priority: 'normal',
-        clientId: codeRequest.project.clientId,
+        entityType: 'CodeAccessRequest',
+        entityId: codeRequest.id,
       },
     })
 
     // Queue email to client
-    await prisma.emailQueue.create({
-      data: {
-        to: codeRequest.user.email,
-        subject: 'Code Access Request Update',
-        htmlContent: generateRejectionEmail({
-          clientName: codeRequest.user.name,
-          projectName: codeRequest.project.name,
-          requestNumber: codeRequest.requestNumber,
-          reason,
-        }),
-        templateType: 'code-access-rejected',
-        priority: 'normal',
-        userId: codeRequest.userId,
-        clientId: codeRequest.project.clientId,
-      },
-    })
+    if (codeRequest.user) {
+      await prisma.emailQueue.create({
+        data: {
+          to: codeRequest.user.email,
+          subject: 'Code Access Request Update',
+          htmlContent: generateRejectionEmail({
+            clientName: codeRequest.user.name,
+            projectName: project.name,
+            requestNumber: codeRequest.requestNumber,
+            reason,
+          }),
+          templateType: 'code-access-rejected',
+          priority: 'normal',
+          userId: codeRequest.userId,
+        },
+      })
+    }
 
     // Create activity feed
     await prisma.activityFeed.create({
@@ -105,9 +115,9 @@ export async function POST(
         actorName: 'Admin',
         targetType: 'project',
         targetId: codeRequest.projectId,
-        targetName: codeRequest.project.name,
+        targetName: project.name,
         isPublic: false,
-        clientId: codeRequest.project.clientId,
+        clientId: project.clientId,
         icon: '❌',
         color: '#ef4444',
       },
