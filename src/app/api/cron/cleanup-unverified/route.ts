@@ -93,11 +93,6 @@ export async function GET(request: NextRequest) {
               where: { clientEmail: user.email },
             })
 
-            // Delete notifications
-            await tx.notification.deleteMany({
-              where: { clientId: user.client.id },
-            })
-
             // Delete activity feed entries for client
             await tx.activityFeed.deleteMany({
               where: {
@@ -174,10 +169,10 @@ export async function GET(request: NextRequest) {
         nextRunAt: new Date(now.getTime() + 24 * 60 * 60 * 1000), // Tomorrow
         lastStatus: errors.length > 0 ? 'partial-success' : 'success',
         executionCount: 1,
-        config: {
+        config: JSON.stringify({
           description: 'Delete unverified client accounts after 30 days',
           retentionDays: 30,
-        },
+        }),
       },
       update: {
         lastRunAt: now,

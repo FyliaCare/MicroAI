@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate auto-approval time (24 hours from now)
-    const autoApproveAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    const autoApprovedAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
     // Create code access request
     const codeAccessRequest = await prisma.codeAccessRequest.create({
@@ -112,9 +112,11 @@ export async function POST(request: NextRequest) {
         requestNumber,
         projectId,
         userId: session.user.id,
+        clientName: session.user.client.name,
+        clientEmail: session.user.client.email,
         reason: reason || 'Client requested code access',
         status: 'pending',
-        autoApproveAt,
+        autoApprovedAt,
       },
     })
 
@@ -258,17 +260,16 @@ export async function GET(request: NextRequest) {
     // Get requests
     const requests = await prisma.codeAccessRequest.findMany({
       where,
-      include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-            githubRepo: true,
-          },
-        },
-      },
       orderBy: { createdAt: 'desc' },
     })
+
+    // Get project names separately
+    const projectIds = [...new Set(requests.map(r => r.projectId))]
+    const projects = await prisma.project.findMany({
+      where: { id: { in: projectIds } },
+      select: { id: true, name: true, githubRepo: true },
+    })
+    const projectMap = new Map(projects.map(p => [p.id, p]))
 
     return NextResponse.json({
       success: true,
@@ -276,16 +277,15 @@ export async function GET(request: NextRequest) {
         id: req.id,
         requestNumber: req.requestNumber,
         projectId: req.projectId,
-        projectName: req.project.name,
+        projectName: projectMap.get(req.projectId)?.name || 'Unknown Project',
         reason: req.reason,
         status: req.status,
         accessGranted: req.accessGranted,
         repoUrl: req.repoUrl,
         downloadUrl: req.downloadUrl,
         downloadExpiry: req.downloadExpiry,
-        autoApproveAt: req.autoApproveAt,
-        approvedAt: req.approvedAt,
-        rejectedAt: req.rejectedAt,
+        autoApprovedAt: req.autoApprovedAt,
+        reviewedAt: req.reviewedAt,
         rejectionReason: req.rejectionReason,
         createdAt: req.createdAt,
       })),

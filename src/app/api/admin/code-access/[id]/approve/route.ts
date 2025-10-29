@@ -17,11 +17,6 @@ export async function POST(
     const codeRequest = await prisma.codeAccessRequest.findUnique({
       where: { id: requestId },
       include: {
-        project: {
-          include: {
-            client: true,
-          },
-        },
         user: true,
       },
     })
@@ -47,8 +42,21 @@ export async function POST(
       )
     }
 
+    // Get project and client separately
+    const project = await prisma.project.findUnique({
+      where: { id: codeRequest.projectId },
+      include: { client: true },
+    })
+
+    if (!project) {
+      return NextResponse.json(
+        { success: false, error: 'Project not found' },
+        { status: 404 }
+      )
+    }
+
     // Prepare repo URLs
-    let repoUrl = codeRequest.project.githubRepo
+    let repoUrl = project.githubRepo
     let downloadUrl = null
     let downloadExpiry = null
 
@@ -66,47 +74,37 @@ export async function POST(
       data: {
         status: 'approved',
         accessGranted: true,
-        approvedAt: new Date(),
+        accessGrantedAt: new Date(),
+        reviewedAt: new Date(),
         repoUrl,
         downloadUrl,
         downloadExpiry,
         inviteSent: grantGithubAccess,
-        adminNotes: notes,
-      },
-    })
-
-    // Create notification for client
-    await prisma.notification.create({
-      data: {
-        type: 'code-access-approved',
-        title: 'Code Access Approved',
-        message: `Your code access request for ${codeRequest.project.name} has been approved`,
-        link: `/client/project/${codeRequest.projectId}?tab=code`,
-        priority: 'high',
-        clientId: codeRequest.project.clientId,
+        reviewNotes: notes,
       },
     })
 
     // Queue email to client
-    await prisma.emailQueue.create({
-      data: {
-        to: codeRequest.user.email,
-        subject: 'Code Access Approved',
-        htmlContent: generateApprovalEmail({
-          clientName: codeRequest.user.name,
-          projectName: codeRequest.project.name,
-          requestNumber: codeRequest.requestNumber,
-          repoUrl: repoUrl || 'Repository URL will be provided separately',
-          downloadUrl,
-          downloadExpiry: downloadExpiry?.toLocaleDateString() || null,
-          notes,
-        }),
-        templateType: 'code-access-approved',
-        priority: 'high',
-        userId: codeRequest.userId,
-        clientId: codeRequest.project.clientId,
-      },
-    })
+    if (codeRequest.user) {
+      await prisma.emailQueue.create({
+        data: {
+          to: codeRequest.user.email,
+          subject: 'Code Access Approved',
+          htmlContent: generateApprovalEmail({
+            clientName: codeRequest.user.name,
+            projectName: project.name,
+            requestNumber: codeRequest.requestNumber,
+            repoUrl: repoUrl || 'Repository URL will be provided separately',
+            downloadUrl,
+            downloadExpiry: downloadExpiry?.toLocaleDateString() || null,
+            notes,
+          }),
+          templateType: 'code-access-approved',
+          priority: 'high',
+          userId: codeRequest.userId,
+        },
+      })
+    }
 
     // Create activity feed
     await prisma.activityFeed.create({
@@ -119,9 +117,9 @@ export async function POST(
         actorName: 'Admin',
         targetType: 'project',
         targetId: codeRequest.projectId,
-        targetName: codeRequest.project.name,
+        targetName: project.name,
         isPublic: true,
-        clientId: codeRequest.project.clientId,
+        clientId: project.clientId,
         icon: '✅',
         color: '#10b981',
       },

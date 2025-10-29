@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { Modal } from '@/components/ui/Modal'
-import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/Textarea'
+import { useState, useEffect } from 'react'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import Modal from '@/components/ui/Modal'
+import Input from '@/components/ui/Input'
+import Textarea from '@/components/ui/Textarea'
 
 interface Upload {
   id: string
@@ -351,7 +351,7 @@ export default function DocumentUploads({ projectId, sessionToken, onUploadCompl
             <label className="block text-sm font-medium text-gray-700 mb-1">Document Name</label>
             <Input
               value={uploadName}
-              onChange={(e) => setUploadName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUploadName(e.target.value)}
               placeholder="e.g., Company Logo"
               required
             />
@@ -362,7 +362,7 @@ export default function DocumentUploads({ projectId, sessionToken, onUploadCompl
             <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
             <Textarea
               value={uploadDescription}
-              onChange={(e) => setUploadDescription(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setUploadDescription(e.target.value)}
               placeholder="Add any notes or context..."
               rows={3}
             />
@@ -376,7 +376,7 @@ export default function DocumentUploads({ projectId, sessionToken, onUploadCompl
               </label>
               <Input
                 value={colorPalette}
-                onChange={(e) => setColorPalette(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColorPalette(e.target.value)}
                 placeholder='e.g., {"primary":"#3B82F6","secondary":"#10B981"}'
               />
               <p className="text-xs text-gray-500 mt-1">JSON format with color codes</p>

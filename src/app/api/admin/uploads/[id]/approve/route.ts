@@ -18,7 +18,6 @@ export async function POST(
       where: { id: uploadId },
       include: {
         client: true,
-        project: true,
       },
     })
 
@@ -35,6 +34,11 @@ export async function POST(
         { status: 400 }
       )
     }
+
+    // Get project info separately
+    const project = upload.projectId
+      ? await prisma.project.findUnique({ where: { id: upload.projectId } })
+      : null
 
     // Approve upload
     const updatedUpload = await prisma.clientUpload.update({
@@ -60,22 +64,23 @@ export async function POST(
     })
 
     // Queue email to client
-    await prisma.emailQueue.create({
-      data: {
-        to: upload.client.email,
-        subject: 'Document Approved',
-        htmlContent: generateApprovalEmail({
-          clientName: upload.client.name,
-          documentName: upload.name,
-          projectName: upload.project.name,
-          category: upload.category,
-          notes,
-        }),
-        templateType: 'upload-approved',
-        priority: 'normal',
-        clientId: upload.clientId,
-      },
-    })
+    if (upload.client) {
+      await prisma.emailQueue.create({
+        data: {
+          to: upload.client.email,
+          subject: 'Document Approved',
+          htmlContent: generateApprovalEmail({
+            clientName: upload.client.name,
+            documentName: upload.name,
+            projectName: project?.name || 'your project',
+            category: upload.category,
+            notes,
+          }),
+          templateType: 'upload-approved',
+          priority: 'normal',
+        },
+      })
+    }
 
     // Create activity feed
     await prisma.activityFeed.create({
@@ -87,8 +92,8 @@ export async function POST(
         actorId: 'admin', // TODO: Use actual admin ID
         actorName: 'Admin',
         targetType: 'project',
-        targetId: upload.projectId,
-        targetName: upload.project.name,
+        targetId: upload.projectId || '',
+        targetName: project?.name || 'Unknown Project',
         isPublic: true,
         clientId: upload.clientId,
         icon: '✅',

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 
 interface Project {
   id: string

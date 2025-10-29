@@ -114,8 +114,8 @@ export async function POST(request: NextRequest) {
     const upload = await prisma.clientUpload.create({
       data: {
         name,
+        originalName: file.name,
         description,
-        fileName: file.name,
         fileUrl: `/uploads/${projectId}/${safeFileName}`,
         fileSize: file.size,
         mimeType: file.type,
@@ -123,8 +123,9 @@ export async function POST(request: NextRequest) {
         version: 1,
         projectId,
         clientId: session.user.client.id,
-        uploadedById: session.user.id,
-        colorPalette: colorPalette ? JSON.parse(colorPalette) : null,
+        uploadedBy: session.user.id,
+        uploadedByRole: 'client',
+        colorPalette: colorPalette || undefined,
       },
     })
 
@@ -256,7 +257,7 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
       include: {
-        approvedByUser: {
+        client: {
           select: {
             name: true,
             email: true,
@@ -270,14 +271,14 @@ export async function GET(request: NextRequest) {
       id: upload.id,
       name: upload.name,
       description: upload.description,
-      fileName: upload.fileName,
+      originalName: upload.originalName,
       fileUrl: upload.fileUrl,
       fileSize: upload.fileSize,
       mimeType: upload.mimeType,
       category: upload.category,
       version: upload.version,
       isApproved: upload.isApproved,
-      approvedBy: upload.approvedByUser?.name || null,
+      approvedBy: upload.approvedBy || null,
       approvedAt: upload.approvedAt,
       colorPalette: upload.colorPalette,
       createdAt: upload.createdAt,
@@ -370,7 +371,7 @@ export async function DELETE(request: NextRequest) {
       where: {
         id: uploadId,
         clientId: session.user.client.id,
-        uploadedById: session.user.id,
+        uploadedBy: session.user.id,
       },
     })
 
