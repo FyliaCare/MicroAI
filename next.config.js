@@ -50,6 +50,27 @@ const nextConfig = {
     },
   },
 
+  // Webpack configuration for @react-pdf/renderer
+  webpack: (config, { isServer }) => {
+    // Don't externalize @react-pdf/renderer - bundle it instead
+    if (isServer) {
+      config.externals = config.externals.filter(
+        (external) => {
+          if (typeof external === 'string') {
+            return !external.includes('@react-pdf/renderer')
+          }
+          return true
+        }
+      )
+    }
+    
+    // Handle canvas dependency (optional for @react-pdf/renderer)
+    config.resolve.alias.canvas = false
+    config.resolve.alias.encoding = false
+    
+    return config
+  },
+
   // Build optimizations
   generateBuildId: async () => {
     return process.env.BUILD_ID || `build-${Date.now()}`
