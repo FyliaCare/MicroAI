@@ -407,21 +407,13 @@ microailabs@outlook.com
       await prisma.notification.create({
         data: {
           title: `🤖 New AI Bot Inquiry from ${body.name}`,
-          message: `${formattedProjectType} project - ${formattedBudget} budget, ${formattedTimeline} timeline`,
+          message: `${body.email} | ${formattedProjectType} | ${formattedBudget} | ${formattedTimeline}\n\n${body.projectIdea.substring(0, 150)}${body.projectIdea.length > 150 ? '...' : ''}`,
           type: 'project_request',
           entityType: 'project_inquiry',
           entityId: `inquiry-${Date.now()}`,
-          data: JSON.stringify({
-            name: body.name,
-            email: body.email,
-            phone: body.phone,
-            projectIdea: body.projectIdea,
-            projectType: formattedProjectType,
-            timeline: formattedTimeline,
-            budget: formattedBudget,
-            source: 'ai-bot'
-          }),
+          link: `/admin`,
           isRead: false,
+          priority: 'high',
         },
       })
       console.log('✅ Admin notification created in database')
