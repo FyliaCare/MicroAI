@@ -1085,6 +1085,8 @@ model User {
   
   // Relations
   client            Client?   // One-to-one with Client
+  sessions          ClientSession[]
+  emailQueue        EmailQueue[]
   codeAccessRequests CodeAccessRequest[]
   projectUpdatesRead ProjectUpdateRead[]
   
