@@ -1379,6 +1379,7 @@ model EmailQueue {
   
   // Relations
   userId            String?
+  user              User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   clientId          String?
   projectId         String?
   
@@ -1395,8 +1396,8 @@ model EmailQueue {
 
 model ScheduledTask {
   id                String    @id @default(uuid())
-  name              String
-  type              String    // delete-unverified-accounts, auto-approve-code-access, send-reminders, etc.
+  taskName          String    @unique
+  taskType          String    // cleanup, automation, reminder, etc.
   
   // Schedule
   cronExpression    String    // e.g., "0 0 * * *" for daily at midnight
@@ -1404,25 +1405,21 @@ model ScheduledTask {
   
   // Execution
   lastRunAt         DateTime?
-  lastRunStatus     String?   // success, failed
+  lastStatus        String?   // success, failed, partial-success, error
   lastRunDuration   Int?      // in seconds
-  lastRunResult     String?   // JSON: execution results
-  lastRunError      String?
+  lastError         String?
   
   nextRunAt         DateTime?
-  runCount          Int       @default(0)
-  failureCount      Int       @default(0)
+  executionCount    Int       @default(0)
   
   // Configuration
   config            String?   // JSON: task-specific configuration
   
-  // Metadata
-  description       String?
-  
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   
-  @@index([type])
+  @@index([taskName])
+  @@index([taskType])
   @@index([isActive])
   @@index([nextRunAt])
   @@index([lastRunAt])
@@ -1474,6 +1471,7 @@ model GitHubIntegration {
 model ClientSession {
   id                String    @id @default(uuid())
   userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   sessionToken      String    @unique
   
   // Device info
