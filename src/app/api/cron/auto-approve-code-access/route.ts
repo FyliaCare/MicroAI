@@ -21,14 +21,9 @@ export async function GET(request: NextRequest) {
     const readyRequests = await prisma.codeAccessRequest.findMany({
       where: {
         status: 'pending',
-        autoApproveAt: { lte: now },
+        autoApprovedAt: { lte: now },
       },
       include: {
-        project: {
-          include: {
-            client: true,
-          },
-        },
         user: true,
       },
     })
@@ -40,8 +35,19 @@ export async function GET(request: NextRequest) {
 
     for (const request of readyRequests) {
       try {
+        // Fetch project separately
+        const project = await prisma.project.findUnique({
+          where: { id: request.projectId },
+          include: { client: true },
+        })
+
+        if (!project) {
+          errors.push(`Project not found for request ${request.requestNumber}`)
+          continue
+        }
+
         // Prepare repo access
-        let repoUrl = request.project.githubRepo
+        let repoUrl = project.githubRepo
         let downloadUrl = repoUrl
         let downloadExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days
 
@@ -51,12 +57,13 @@ export async function GET(request: NextRequest) {
           data: {
             status: 'approved',
             accessGranted: true,
-            approvedAt: now,
+            accessGrantedAt: now,
+            reviewedAt: now,
             repoUrl,
             downloadUrl,
             downloadExpiry,
             inviteSent: true,
-            adminNotes: 'Auto-approved after 24 hours',
+            reviewNotes: 'Auto-approved after 24 hours',
           },
         })
 
@@ -65,32 +72,34 @@ export async function GET(request: NextRequest) {
           data: {
             type: 'code-access-approved',
             title: 'Code Access Approved',
-            message: `Your code access request for ${request.project.name} has been automatically approved`,
+            message: `Your code access request for ${project.name} has been automatically approved`,
             link: `/client/project/${request.projectId}?tab=code`,
             priority: 'high',
-            clientId: request.project.clientId,
+            entityType: 'CodeAccessRequest',
+            entityId: request.id,
           },
         })
 
         // Queue email to client
-        await prisma.emailQueue.create({
-          data: {
-            to: request.user.email,
-            subject: 'Code Access Approved',
-            htmlContent: generateApprovalEmail({
-              clientName: request.user.name,
-              projectName: request.project.name,
-              requestNumber: request.requestNumber,
-              repoUrl: repoUrl || 'Repository information will be provided separately',
-              downloadUrl,
-              downloadExpiry: downloadExpiry.toLocaleDateString(),
-            }),
-            templateType: 'code-access-auto-approved',
-            priority: 'high',
-            userId: request.userId,
-            clientId: request.project.clientId,
-          },
-        })
+        if (request.user) {
+          await prisma.emailQueue.create({
+            data: {
+              to: request.user.email,
+              subject: 'Code Access Approved',
+              htmlContent: generateApprovalEmail({
+                clientName: request.user.name,
+                projectName: project.name,
+                requestNumber: request.requestNumber,
+                repoUrl: repoUrl || 'Repository information will be provided separately',
+                downloadUrl,
+                downloadExpiry: downloadExpiry.toLocaleDateString(),
+              }),
+              templateType: 'code-access-auto-approved',
+              priority: 'high',
+              userId: request.userId,
+            },
+          })
+        }
 
         // Create activity feed
         await prisma.activityFeed.create({
@@ -103,9 +112,9 @@ export async function GET(request: NextRequest) {
             actorName: 'System',
             targetType: 'project',
             targetId: request.projectId,
-            targetName: request.project.name,
+            targetName: project.name,
             isPublic: true,
-            clientId: request.project.clientId,
+            clientId: project.clientId,
             icon: '⏰',
             color: '#10b981',
           },
@@ -119,9 +128,11 @@ export async function GET(request: NextRequest) {
           data: {
             type: 'code-access-auto-approved',
             title: 'Code Access Auto-Approved',
-            message: `Request ${request.requestNumber} for ${request.project.name} was automatically approved`,
+            message: `Request ${request.requestNumber} for ${project.name} was automatically approved`,
             link: `/admin/code-access/${request.id}`,
             priority: 'normal',
+            entityType: 'CodeAccessRequest',
+            entityId: request.id,
           },
         })
 
