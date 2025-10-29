@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import ConvertToProjectModal from '@/components/admin/quotes/ConvertToProjectModal'
 
 interface Quote {
   id: string
@@ -37,6 +38,8 @@ export default function QuotesListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'date' | 'number' | 'amount' | 'client'>('date')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [convertModalOpen, setConvertModalOpen] = useState(false)
+  const [selectedQuoteForConvert, setSelectedQuoteForConvert] = useState<Quote | null>(null)
 
   useEffect(() => {
     fetchQuotes()
@@ -138,6 +141,19 @@ export default function QuotesListPage() {
       console.error('PDF download error:', error)
       alert('Failed to download PDF')
     }
+  }
+
+  const handleOpenConvertModal = (quote: Quote) => {
+    setSelectedQuoteForConvert(quote)
+    setConvertModalOpen(true)
+  }
+
+  const handleConversionSuccess = (projectId: string) => {
+    alert('Quote successfully converted to project!')
+    // Refresh quotes list to show updated status
+    fetchQuotes()
+    // Navigate to the new project
+    router.push(`/admin/projects/${projectId}`)
   }
 
   const getStatusColor = (status: string) => {
@@ -388,6 +404,15 @@ export default function QuotesListPage() {
                   >
                     📥 PDF
                   </Button>
+                  {quote.status === 'accepted' && (
+                    <Button
+                      onClick={() => handleOpenConvertModal(quote)}
+                      variant="primary"
+                      className="flex-1 text-sm"
+                    >
+                      🚀
+                    </Button>
+                  )}
                   <Button
                     onClick={() => handleDelete(quote.id)}
                     variant="outline"
@@ -483,6 +508,14 @@ export default function QuotesListPage() {
                         >
                           PDF
                         </button>
+                        {quote.status === 'accepted' && (
+                          <button
+                            onClick={() => handleOpenConvertModal(quote)}
+                            className="text-purple-600 hover:text-purple-700 font-medium text-sm"
+                          >
+                            Convert
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDelete(quote.id)}
                           className="text-red-600 hover:text-red-700 font-medium text-sm"
@@ -498,6 +531,25 @@ export default function QuotesListPage() {
           </Card>
         )}
       </div>
+
+      {/* Conversion Modal */}
+      {selectedQuoteForConvert && (
+        <ConvertToProjectModal
+          isOpen={convertModalOpen}
+          onClose={() => {
+            setConvertModalOpen(false)
+            setSelectedQuoteForConvert(null)
+          }}
+          quote={{
+            id: selectedQuoteForConvert.id,
+            quoteNumber: selectedQuoteForConvert.quoteNumber,
+            title: selectedQuoteForConvert.title,
+            clientName: selectedQuoteForConvert.client?.name,
+            total: selectedQuoteForConvert.total,
+          }}
+          onSuccess={handleConversionSuccess}
+        />
+      )}
     </div>
   )
 }
