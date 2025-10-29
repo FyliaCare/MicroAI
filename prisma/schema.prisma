@@ -41,6 +41,11 @@ model Client {
   tags             String? // JSON array
   customFields     String? // JSON for extensibility
   
+  // Portal Access (NEW)
+  hasPortalAccess  Boolean   @default(false)
+  userId           String?   @unique // Link to User account
+  user             User?     @relation(fields: [userId], references: [id])
+  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
@@ -51,6 +56,8 @@ model Client {
   contracts   Contract[]
   communications Communication[]
   documents   Document[]
+  projectRequests ProjectRequest[] // NEW
+  uploads     ClientUpload[] // NEW
 
   @@index([email])
   @@index([status])
@@ -58,6 +65,8 @@ model Client {
   @@index([name])
   @@index([company])
   @@index([country])
+  @@index([userId])
+  @@index([hasPortalAccess])
 }
 
 model Project {
@@ -1036,4 +1045,496 @@ model Backup {
   @@index([type])
   @@index([status])
   @@index([createdAt])
+}
+
+// ==================== CLIENT PORTAL SYSTEM ====================
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  password          String    // Hashed
+  name              String
+  role              String    @default("client") // admin, client, team-member
+  
+  // Account status
+  isActive          Boolean   @default(true)
+  isVerified        Boolean   @default(false)
+  mustChangePassword Boolean  @default(true) // Force password change on first login
+  
+  // Security
+  lastLoginAt       DateTime?
+  loginAttempts     Int       @default(0)
+  lockedUntil       DateTime?
+  passwordChangedAt DateTime?
+  
+  // Portal access expiry
+  accessExpiresAt   DateTime? // Auto-delete unverified accounts after 30 days
+  verificationToken String?   @unique
+  verificationExpiry DateTime?
+  resetToken        String?   @unique
+  resetTokenExpiry  DateTime?
+  
+  // Profile
+  avatar            String?
+  phone             String?
+  timezone          String?   @default("Africa/Accra")
+  
+  // Preferences
+  emailNotifications Boolean  @default(true)
+  smsNotifications   Boolean  @default(false)
+  
+  // Relations
+  client            Client?   // One-to-one with Client
+  codeAccessRequests CodeAccessRequest[]
+  projectUpdatesRead ProjectUpdateRead[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([isVerified])
+  @@index([accessExpiresAt])
+}
+
+model ProjectRequest {
+  id                String    @id @default(uuid())
+  requestNumber     String    @unique // REQ-2025-0001
+  
+  // Client Information (from bot/form)
+  clientName        String
+  clientEmail       String
+  clientPhone       String?
+  clientCompany     String?
+  clientWebsite     String?
+  
+  // Project Details
+  projectName       String
+  projectType       String    // web-app, saas, website, ecommerce, custom
+  description       String
+  industry          String?
+  
+  // Requirements (from AI chat)
+  requirements      String    // JSON: detailed requirements from conversation
+  features          String?   // JSON array: requested features
+  techPreferences   String?   // JSON: preferred technologies
+  
+  // Budget & Timeline
+  budget            Float?
+  budgetRange       String?   // "5000-10000", "10000-25000", "25000+"
+  timeline          String?   // "1-2 months", "3-4 months", "6+ months"
+  startDate         DateTime?
+  deadline          DateTime?
+  
+  // Urgency
+  priority          String    @default("normal") // low, normal, high, urgent
+  
+  // Status
+  status            String    @default("pending") // pending, reviewed, approved, rejected, converted
+  
+  // Admin Review
+  reviewedBy        String?   // Admin ID
+  reviewedAt        DateTime?
+  reviewNotes       String?
+  rejectionReason   String?
+  
+  // Conversion
+  convertedToProject Boolean  @default(false)
+  projectId          String?
+  clientId           String?
+  client             Client?   @relation(fields: [clientId], references: [id])
+  
+  // Communication
+  chatTranscript    String?   // Full AI chat transcript
+  attachments       String?   // JSON array: uploaded files
+  
+  // Source tracking
+  source            String    @default("website") // website, bot, referral, form
+  referrer          String?
+  utmSource         String?
+  utmMedium         String?
+  utmCampaign       String?
+  
+  // IP & Location
+  ipAddress         String?
+  country           String?
+  city              String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([status])
+  @@index([clientEmail])
+  @@index([projectType])
+  @@index([createdAt])
+  @@index([requestNumber])
+  @@index([convertedToProject])
+}
+
+model ClientUpload {
+  id                String    @id @default(uuid())
+  name              String
+  originalName      String
+  description       String?
+  category          String    // logo, brand-colors, flyer, image, document, requirements, design-assets
+  
+  // File info
+  fileUrl           String
+  fileSize          Int       // in bytes
+  mimeType          String
+  format            String?   // png, jpg, pdf, etc.
+  
+  // Image metadata (if applicable)
+  width             Int?
+  height            Int?
+  colorPalette      String?   // JSON: extracted colors from logo/images
+  
+  // Version control
+  version           Int       @default(1)
+  previousVersionId String?
+  isLatest          Boolean   @default(true)
+  
+  // Status
+  status            String    @default("active") // active, archived, deleted
+  isApproved        Boolean   @default(false)
+  approvedBy        String?   // Admin ID
+  approvedAt        DateTime?
+  
+  // Relations
+  projectId         String?
+  clientId          String?
+  client            Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  uploadedBy        String?   // User ID (client or admin)
+  uploadedByRole    String?   // client, admin
+  
+  // Metadata
+  tags              String?   // JSON array
+  notes             String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([clientId])
+  @@index([category])
+  @@index([status])
+  @@index([isLatest])
+  @@index([createdAt])
+}
+
+model ProjectUpdate {
+  id                String    @id @default(uuid())
+  title             String
+  content           String    // Rich text/HTML content
+  type              String    @default("progress") // progress, milestone, issue, completed, announcement
+  
+  // Visibility
+  isPublic          Boolean   @default(true) // Visible to client
+  isImportant       Boolean   @default(false) // Highlighted update
+  
+  // Content
+  summary           String?   // Brief summary for email
+  attachments       String?   // JSON array: screenshots, files
+  
+  // Progress tracking
+  progressBefore    Int?      // Project progress % before update
+  progressAfter     Int?      // Project progress % after update
+  
+  // Relations
+  projectId         String
+  
+  postedBy          String?   // Admin/Team member ID
+  postedByName      String?
+  
+  // Email notification
+  emailSent         Boolean   @default(false)
+  emailSentAt       DateTime?
+  emailRecipients   String?   // JSON array
+  
+  // Read tracking
+  readBy            ProjectUpdateRead[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([type])
+  @@index([isPublic])
+  @@index([createdAt])
+  @@index([emailSent])
+}
+
+model ProjectUpdateRead {
+  id                String    @id @default(uuid())
+  
+  updateId          String
+  update            ProjectUpdate @relation(fields: [updateId], references: [id], onDelete: Cascade)
+  
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  readAt            DateTime  @default(now())
+  
+  @@unique([updateId, userId])
+  @@index([updateId])
+  @@index([userId])
+  @@index([readAt])
+}
+
+model CodeAccessRequest {
+  id                String    @id @default(uuid())
+  requestNumber     String    @unique // CAR-2025-0001
+  
+  // Project & Client
+  projectId         String
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientName        String
+  clientEmail       String
+  
+  // Request details
+  reason            String?   // Why client needs code access
+  githubUsername    String?   // Client's GitHub username (optional)
+  
+  // Status
+  status            String    @default("pending") // pending, approved, rejected, auto-approved
+  
+  // Approval (24hr window)
+  requestedAt       DateTime  @default(now())
+  reviewedAt        DateTime?
+  reviewedBy        String?   // Admin ID
+  reviewNotes       String?
+  rejectionReason   String?
+  
+  // Auto-approval
+  autoApprovedAt    DateTime? // If 24 hours passed without manual review
+  
+  // GitHub Integration
+  repoUrl           String?   // GitHub repository URL
+  accessGranted     Boolean   @default(false)
+  accessGrantedAt   DateTime?
+  inviteSent        Boolean   @default(false)
+  inviteAccepted    Boolean   @default(false)
+  
+  // Credentials (if not using GitHub)
+  accessMethod      String?   // github, zip-download, ftp, other
+  accessCredentials String?   // JSON: encrypted credentials
+  downloadUrl       String?   // Temporary download link
+  downloadExpiry    DateTime?
+  
+  // Notification
+  emailSent         Boolean   @default(false)
+  emailSentAt       DateTime?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([userId])
+  @@index([status])
+  @@index([requestedAt])
+  @@index([autoApprovedAt])
+  @@index([requestNumber])
+}
+
+model EmailQueue {
+  id                String    @id @default(uuid())
+  to                String
+  cc                String?   // JSON array
+  bcc               String?   // JSON array
+  
+  // Content
+  subject           String
+  htmlContent       String
+  textContent       String?
+  
+  // Template
+  templateType      String?   // welcome, project-update, code-access, password-reset
+  templateVars      String?   // JSON: variables for template
+  
+  // Status
+  status            String    @default("pending") // pending, sending, sent, failed, cancelled
+  priority          String    @default("normal") // low, normal, high, urgent
+  
+  // Retry logic
+  attempts          Int       @default(0)
+  maxAttempts       Int       @default(3)
+  lastAttemptAt     DateTime?
+  nextRetryAt       DateTime?
+  
+  // Error tracking
+  error             String?
+  errorDetails      String?   // JSON
+  
+  // Provider
+  provider          String?   // resend, sendgrid, smtp
+  providerId        String?   // External message ID
+  
+  // Metadata
+  metadata          String?   // JSON: additional data
+  
+  // Relations
+  userId            String?
+  clientId          String?
+  projectId         String?
+  
+  sentAt            DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+  @@index([nextRetryAt])
+  @@index([to])
+}
+
+model ScheduledTask {
+  id                String    @id @default(uuid())
+  name              String
+  type              String    // delete-unverified-accounts, auto-approve-code-access, send-reminders, etc.
+  
+  // Schedule
+  cronExpression    String    // e.g., "0 0 * * *" for daily at midnight
+  isActive          Boolean   @default(true)
+  
+  // Execution
+  lastRunAt         DateTime?
+  lastRunStatus     String?   // success, failed
+  lastRunDuration   Int?      // in seconds
+  lastRunResult     String?   // JSON: execution results
+  lastRunError      String?
+  
+  nextRunAt         DateTime?
+  runCount          Int       @default(0)
+  failureCount      Int       @default(0)
+  
+  // Configuration
+  config            String?   // JSON: task-specific configuration
+  
+  // Metadata
+  description       String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([type])
+  @@index([isActive])
+  @@index([nextRunAt])
+  @@index([lastRunAt])
+}
+
+model GitHubIntegration {
+  id                String    @id @default(uuid())
+  projectId         String    @unique
+  
+  // Repository info
+  repoName          String
+  repoOwner         String    // Organization or username
+  repoFullName      String    // owner/repo
+  repoUrl           String
+  repoId            Int?      // GitHub repo ID
+  
+  // Access
+  isPrivate         Boolean   @default(true)
+  defaultBranch     String    @default("main")
+  
+  // Webhooks
+  webhookId         Int?
+  webhookSecret     String?
+  webhookActive     Boolean   @default(false)
+  
+  // Clone/Deploy
+  cloneUrl          String?
+  sshUrl            String?
+  
+  // Status
+  isActive          Boolean   @default(true)
+  lastSync          DateTime?
+  syncStatus        String?   // success, failed, pending
+  syncError         String?
+  
+  // Metadata
+  language          String?
+  description       String?
+  topics            String?   // JSON array
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([projectId])
+  @@index([repoFullName])
+  @@index([isActive])
+}
+
+model ClientSession {
+  id                String    @id @default(uuid())
+  userId            String
+  sessionToken      String    @unique
+  
+  // Device info
+  ipAddress         String?
+  userAgent         String?
+  deviceType        String?   // desktop, mobile, tablet
+  browser           String?
+  os                String?
+  
+  // Location
+  country           String?
+  city              String?
+  
+  // Status
+  isActive          Boolean   @default(true)
+  expiresAt         DateTime
+  
+  // Activity
+  lastActivityAt    DateTime  @default(now())
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+model ActivityFeed {
+  id                String    @id @default(uuid())
+  type              String    // project-created, update-posted, code-access-granted, document-uploaded
+  title             String
+  description       String?
+  
+  // Actors
+  actorType         String    // admin, client, system
+  actorId           String?
+  actorName         String?
+  
+  // Target
+  targetType        String?   // project, document, code-access
+  targetId          String?
+  targetName        String?
+  
+  // Visibility
+  isPublic          Boolean   @default(true)
+  visibleToClients  String?   // JSON array: client IDs who can see this
+  
+  // Relations
+  projectId         String?
+  clientId          String?
+  
+  // Metadata
+  metadata          String?   // JSON: additional contextual data
+  icon              String?   // Icon or emoji
+  color             String?   // Color code
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([type])
+  @@index([projectId])
+  @@index([clientId])
+  @@index([isPublic])
+  @@index([createdAt])
+  @@index([actorType])
 }
