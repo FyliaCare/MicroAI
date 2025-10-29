@@ -13,6 +13,7 @@ interface Step3Props {
   updateItem: (id: string, field: keyof QuoteItem, value: any) => void
   removeItem: (id: string) => void
   subtotal: number
+  onUseTemplate?: () => void
 }
 
 export default function Step3Pricing({
@@ -22,6 +23,7 @@ export default function Step3Pricing({
   updateItem,
   removeItem,
   subtotal,
+  onUseTemplate,
 }: Step3Props) {
   const currencySymbol = getCurrencySymbol(quoteData.currency)
 
@@ -46,11 +48,21 @@ export default function Step3Pricing({
       </div>
 
       {/* Add Item Button */}
-      <div className="mb-6">
+      <div className="mb-6 flex gap-3">
         <Button onClick={addItem} className="w-full md:w-auto">
           <span className="mr-2">+</span>
           Add Line Item
         </Button>
+        {onUseTemplate && (
+          <Button
+            onClick={onUseTemplate}
+            variant="outline"
+            className="w-full md:w-auto border-indigo-300 text-indigo-600 hover:bg-indigo-50"
+          >
+            <span className="mr-2">📋</span>
+            Use Template
+          </Button>
+        )}
       </div>
 
       {/* Line Items */}

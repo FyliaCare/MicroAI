@@ -11,6 +11,7 @@ interface Step4Props {
   addMilestone: () => void
   updateMilestone: (id: string, field: keyof Milestone, value: any) => void
   removeMilestone: (id: string) => void
+  onUseTemplate?: () => void
 }
 
 export default function Step4Timeline({
@@ -19,6 +20,7 @@ export default function Step4Timeline({
   addMilestone,
   updateMilestone,
   removeMilestone,
+  onUseTemplate,
 }: Step4Props) {
   const [newDeliverable, setNewDeliverable] = useState<{[key: string]: string}>({})
 
@@ -90,11 +92,21 @@ export default function Step4Timeline({
       </div>
 
       {/* Add Milestone Button */}
-      <div className="mb-6">
+      <div className="mb-6 flex gap-3">
         <Button onClick={addMilestone} className="w-full md:w-auto">
           <span className="mr-2">+</span>
           Add Milestone
         </Button>
+        {onUseTemplate && (
+          <Button
+            onClick={onUseTemplate}
+            variant="outline"
+            className="w-full md:w-auto border-indigo-300 text-indigo-600 hover:bg-indigo-50"
+          >
+            <span className="mr-2">📋</span>
+            Use Template
+          </Button>
+        )}
       </div>
 
       {/* Milestones */}

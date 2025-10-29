@@ -21,6 +21,17 @@ import {
 // Components
 import ProgressTracker from './components/ProgressTracker'
 import QuoteSummary from './components/QuoteSummary'
+import TemplateModal from './components/TemplateModal'
+
+// Templates
+import {
+  pricingTemplates,
+  milestoneTemplates,
+  paymentTermTemplates,
+  PricingTemplate,
+  MilestoneTemplate,
+  PaymentTermTemplate,
+} from './templates'
 
 // Steps
 import Step1BasicInfo from './steps/Step1BasicInfo'
@@ -39,6 +50,12 @@ export default function QuoteGenerator() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  
+  // Template modals
+  const [showPricingTemplates, setShowPricingTemplates] = useState(false)
+  const [showMilestoneTemplates, setShowMilestoneTemplates] = useState(false)
+  const [showPaymentTemplates, setShowPaymentTemplates] = useState(false)
 
   const [quoteData, setQuoteData] = useState<QuoteData>({
     title: '',
@@ -205,6 +222,94 @@ export default function QuoteGenerator() {
     }))
   }
 
+  // Template Handlers
+  const applyPricingTemplate = (template: PricingTemplate) => {
+    const templateItems: QuoteItem[] = template.items.map((item, index) => ({
+      id: `item-${Date.now()}-${index}`,
+      category: item.category,
+      name: item.name,
+      description: item.description,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      discount: item.discount || 0,
+      taxable: true,
+    }))
+    
+    setQuoteData((prev) => ({
+      ...prev,
+      items: [...prev.items, ...templateItems],
+      estimatedDuration: template.estimatedDuration || prev.estimatedDuration,
+    }))
+    
+    setShowPricingTemplates(false)
+    setSuccess(`Applied "${template.name}" template with ${template.items.length} items`)
+    setTimeout(() => setSuccess(''), 3000)
+  }
+
+  const applyMilestoneTemplate = (template: MilestoneTemplate) => {
+    const templateMilestones: Milestone[] = template.milestones.map((ms, index) => ({
+      id: `milestone-${Date.now()}-${index}`,
+      title: ms.title,
+      description: ms.description,
+      deliverables: ms.deliverables,
+      duration: ms.duration,
+      percentage: ms.percentage,
+      dependencies: ms.dependencies || [],
+    }))
+    
+    setQuoteData((prev) => ({
+      ...prev,
+      milestones: [...prev.milestones, ...templateMilestones],
+    }))
+    
+    setShowMilestoneTemplates(false)
+    setSuccess(`Applied "${template.name}" template with ${template.milestones.length} milestones`)
+    setTimeout(() => setSuccess(''), 3000)
+  }
+
+  const applyPaymentTemplate = (template: PaymentTermTemplate) => {
+    const templateTerms: PaymentTerm[] = template.terms.map((term, index) => ({
+      id: `payment-${Date.now()}-${index}`,
+      title: term.title,
+      percentage: term.percentage,
+      dueDate: term.dueDate,
+      milestoneId: term.milestoneId,
+      description: term.description,
+    }))
+    
+    setQuoteData((prev) => ({
+      ...prev,
+      paymentTerms: [...prev.paymentTerms, ...templateTerms],
+    }))
+    
+    setShowPaymentTemplates(false)
+    setSuccess(`Applied "${template.name}" template with ${template.terms.length} payment terms`)
+    setTimeout(() => setSuccess(''), 3000)
+  }
+
+  // Auto-save functionality
+  useEffect(() => {
+    const saveTimer = setTimeout(() => {
+      localStorage.setItem('quote_draft', JSON.stringify(quoteData))
+      setLastSaved(new Date())
+    }, 3000) // Auto-save after 3 seconds of inactivity
+
+    return () => clearTimeout(saveTimer)
+  }, [quoteData])
+
+  // Load draft on mount
+  useEffect(() => {
+    const draft = localStorage.getItem('quote_draft')
+    if (draft) {
+      try {
+        const parsedDraft = JSON.parse(draft)
+        setQuoteData(parsedDraft)
+      } catch (err) {
+        console.error('Failed to load draft:', err)
+      }
+    }
+  }, [])
+
   // Form Submission
   const handleSubmit = async () => {
     try {
@@ -294,19 +399,32 @@ export default function QuoteGenerator() {
         {/* Alert Messages */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 flex items-center gap-2">
-            <span className="text-xl">⚠️</span>
-            <span>{error}</span>
-          </div>
-        )}
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 flex items-center gap-2">
-            <span className="text-xl">✅</span>
-            <span>{success}</span>
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 flex items-center gap-2">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            {success}
+          </div>
+        )}
+
+        {lastSaved && (
+          <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 flex items-center gap-2 text-sm">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+            </svg>
+            Draft auto-saved at {lastSaved.toLocaleTimeString()}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">{/* Main Content */}
           <div className="lg:col-span-2">
             <AnimatePresence mode="wait">
               <motion.div
@@ -334,6 +452,7 @@ export default function QuoteGenerator() {
                     updateItem={updateItem}
                     removeItem={removeItem}
                     subtotal={subtotal}
+                    onUseTemplate={() => setShowPricingTemplates(true)}
                   />
                 )}
                 {currentStep === 4 && (
@@ -343,6 +462,7 @@ export default function QuoteGenerator() {
                     addMilestone={addMilestone}
                     updateMilestone={updateMilestone}
                     removeMilestone={removeMilestone}
+                    onUseTemplate={() => setShowMilestoneTemplates(true)}
                   />
                 )}
                 {currentStep === 5 && (
@@ -352,6 +472,7 @@ export default function QuoteGenerator() {
                     addPaymentTerm={addPaymentTerm}
                     updatePaymentTerm={updatePaymentTerm}
                     removePaymentTerm={removePaymentTerm}
+                    onUseTemplate={() => setShowPaymentTemplates(true)}
                   />
                 )}
                 {currentStep === 6 && (
@@ -404,6 +525,29 @@ export default function QuoteGenerator() {
             />
           </div>
         </div>
+
+        {/* Template Modals */}
+        {showPricingTemplates && (
+          <TemplateModal
+            type="pricing"
+            onClose={() => setShowPricingTemplates(false)}
+            onApply={applyPricingTemplate}
+          />
+        )}
+        {showMilestoneTemplates && (
+          <TemplateModal
+            type="milestone"
+            onClose={() => setShowMilestoneTemplates(false)}
+            onApply={applyMilestoneTemplate}
+          />
+        )}
+        {showPaymentTemplates && (
+          <TemplateModal
+            type="payment"
+            onClose={() => setShowPaymentTemplates(false)}
+            onApply={applyPaymentTemplate}
+          />
+        )}
       </div>
     </div>
   )
