@@ -247,18 +247,75 @@ export default function AdvancedQuoteGenerator({
       const savedQuote = localStorage.getItem('editQuoteData')
       if (savedQuote) {
         const quote = JSON.parse(savedQuote)
-        // Pre-fill form with quote data
+        
+        // Helper to safely parse JSON fields
+        const parseJSON = (field: any) => {
+          if (!field) return null
+          if (typeof field === 'object') return field
+          try { return JSON.parse(field) } catch { return null }
+        }
+
+        // Pre-fill form with ALL quote data including new comprehensive fields
         setFormData({
-          ...formData,
-          title: quote.projectName || '',
+          title: quote.title || '',
           description: quote.description || '',
           clientId: quote.clientId || '',
+          projectId: quote.projectId || '',
+          projectType: quote.projectType || '',
+          estimatedHours: quote.estimatedHours?.toString() || '',
+          timeline: quote.timeline || '',
+          techStack: parseJSON(quote.techStack) || [],
           setupFee: quote.setupFee?.toString() || '',
           developmentCost: quote.developmentCost?.toString() || '',
           designCost: quote.designCost?.toString() || '',
           monthlyHosting: quote.monthlyHosting?.toString() || '',
+          monthlyMaintenance: quote.monthlyMaintenance?.toString() || '',
+          hostingBreakdown: parseJSON(quote.hostingBreakdown) || {},
+          deliverables: parseJSON(quote.deliverables) || [],
+          features: parseJSON(quote.features) || [],
+          milestones: parseJSON(quote.milestones) || [],
+          developmentPhases: formData.developmentPhases, // Keep default phases or load if saved
+          monthlyRecurring: quote.monthlyRecurring?.toString() || '',
+          yearlyRecurring: quote.yearlyRecurring?.toString() || '',
+          validUntil: quote.validUntil ? new Date(quote.validUntil).toISOString().split('T')[0] : '',
           notes: quote.notes || '',
+          terms: quote.terms || formData.terms,
+          // New comprehensive quote fields
+          clientName: quote.clientName || '',
+          clientCompany: quote.clientCompany || '',
+          clientEmail: quote.clientEmail || '',
+          contactPerson: quote.contactPerson || '',
+          executiveSummary: parseJSON(quote.executiveSummary) || {
+            problem: '',
+            solution: '',
+            businessImpact: ''
+          },
+          scopeOfWork: parseJSON(quote.scopeOfWork) || [],
+          exclusions: parseJSON(quote.exclusions) || [],
+          technicalStack: parseJSON(quote.techStack) || [], // This maps to techStack in DB
+          pricingItems: parseJSON(quote.pricingItems) || [],
+          paymentTerms: parseJSON(quote.paymentTerms) || [],
+          assumptions: parseJSON(quote.assumptions) || [],
+          clientObligations: parseJSON(quote.clientObligations) || [],
+          maintenanceTerms: parseJSON(quote.maintenanceTerms) || {
+            coverage: '',
+            responseTime: '',
+            updates: ''
+          },
+          intellectualProperty: parseJSON(quote.ipRights) || { // Note: maps from ipRights
+            sourceCode: '',
+            designAssets: '',
+            thirdParty: ''
+          },
+          revisionsPolicy: parseJSON(quote.revisionsPolicy) || {
+            included: '',
+            additional: '',
+            changeProcess: ''
+          },
+          confidentiality: quote.confidentialityClause || '', // Note: maps from confidentialityClause
+          authorizedSignatory: quote.providerSignedBy || '', // Note: maps from providerSignedBy
         })
+        
         // Clear localStorage
         localStorage.removeItem('editQuoteData')
       }
@@ -272,18 +329,75 @@ export default function AdvancedQuoteGenerator({
       const savedQuote = localStorage.getItem('duplicateQuoteData')
       if (savedQuote) {
         const quote = JSON.parse(savedQuote)
-        // Pre-fill form with duplicated quote data
+        
+        // Helper to safely parse JSON fields
+        const parseJSON = (field: any) => {
+          if (!field) return null
+          if (typeof field === 'object') return field
+          try { return JSON.parse(field) } catch { return null }
+        }
+
+        // Pre-fill form with ALL duplicated quote data (excluding ID)
         setFormData({
-          ...formData,
-          title: quote.projectName || '',
+          title: quote.title || '',
           description: quote.description || '',
           clientId: quote.clientId || '',
+          projectId: quote.projectId || '',
+          projectType: quote.projectType || '',
+          estimatedHours: quote.estimatedHours?.toString() || '',
+          timeline: quote.timeline || '',
+          techStack: parseJSON(quote.techStack) || [],
           setupFee: quote.setupFee?.toString() || '',
           developmentCost: quote.developmentCost?.toString() || '',
           designCost: quote.designCost?.toString() || '',
           monthlyHosting: quote.monthlyHosting?.toString() || '',
+          monthlyMaintenance: quote.monthlyMaintenance?.toString() || '',
+          hostingBreakdown: parseJSON(quote.hostingBreakdown) || {},
+          deliverables: parseJSON(quote.deliverables) || [],
+          features: parseJSON(quote.features) || [],
+          milestones: parseJSON(quote.milestones) || [],
+          developmentPhases: formData.developmentPhases,
+          monthlyRecurring: quote.monthlyRecurring?.toString() || '',
+          yearlyRecurring: quote.yearlyRecurring?.toString() || '',
+          validUntil: quote.validUntil ? new Date(quote.validUntil).toISOString().split('T')[0] : '',
           notes: quote.notes || '',
+          terms: quote.terms || formData.terms,
+          // New comprehensive quote fields
+          clientName: quote.clientName || '',
+          clientCompany: quote.clientCompany || '',
+          clientEmail: quote.clientEmail || '',
+          contactPerson: quote.contactPerson || '',
+          executiveSummary: parseJSON(quote.executiveSummary) || {
+            problem: '',
+            solution: '',
+            businessImpact: ''
+          },
+          scopeOfWork: parseJSON(quote.scopeOfWork) || [],
+          exclusions: parseJSON(quote.exclusions) || [],
+          technicalStack: parseJSON(quote.techStack) || [],
+          pricingItems: parseJSON(quote.pricingItems) || [],
+          paymentTerms: parseJSON(quote.paymentTerms) || [],
+          assumptions: parseJSON(quote.assumptions) || [],
+          clientObligations: parseJSON(quote.clientObligations) || [],
+          maintenanceTerms: parseJSON(quote.maintenanceTerms) || {
+            coverage: '',
+            responseTime: '',
+            updates: ''
+          },
+          intellectualProperty: parseJSON(quote.ipRights) || {
+            sourceCode: '',
+            designAssets: '',
+            thirdParty: ''
+          },
+          revisionsPolicy: parseJSON(quote.revisionsPolicy) || {
+            included: '',
+            additional: '',
+            changeProcess: ''
+          },
+          confidentiality: quote.confidentialityClause || '',
+          authorizedSignatory: quote.providerSignedBy || '',
         })
+        
         // Clear localStorage
         localStorage.removeItem('duplicateQuoteData')
       }
