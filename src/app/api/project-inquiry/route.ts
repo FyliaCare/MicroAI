@@ -401,42 +401,95 @@ microailabs@outlook.com
       // Continue anyway
     }
 
-    // Create admin notification in database
+    // Create database records (Client, Project, Notification)
+    let clientId, projectId
     try {
       const { prisma } = await import('@/lib/prisma')
+      
+      // Create or find client in database
+      let client = await prisma.client.findUnique({
+        where: { email: body.email }
+      })
+
+      if (!client) {
+        client = await prisma.client.create({
+          data: {
+            name: body.name,
+            email: body.email,
+            phone: body.phone || null,
+            status: 'active',
+            notes: `AI Bot inquiry: ${body.projectIdea}`
+          }
+        })
+      }
+      clientId = client.id
+
+      // Create a project request
+      const project = await prisma.project.create({
+        data: {
+          name: `${body.name} - AI Bot ${formattedProjectType}`,
+          description: body.projectIdea,
+          type: 'web-app',
+          status: 'planning',
+          priority: 'high',
+          clientId: client.id,
+          notes: `Source: AI Bot Assistant\nProject Type: ${formattedProjectType}\nTimeline: ${formattedTimeline}\nBudget: ${formattedBudget}\nPhone: ${body.phone || 'Not provided'}`
+        }
+      })
+      projectId = project.id
+
+      // Create notification for admin
       await prisma.notification.create({
         data: {
+          type: 'new-project',
           title: `🤖 New AI Bot Inquiry from ${body.name}`,
-          message: `${body.email} | ${formattedProjectType} | ${formattedBudget} | ${formattedTimeline}\n\n${body.projectIdea.substring(0, 150)}${body.projectIdea.length > 150 ? '...' : ''}`,
-          type: 'project_request',
-          entityType: 'project_inquiry',
-          entityId: `inquiry-${Date.now()}`,
-          link: `/admin`,
-          isRead: false,
+          message: `${formattedProjectType} project - ${formattedBudget} budget, ${formattedTimeline} timeline`,
+          link: `/admin?tab=projects`,
           priority: 'high',
-        },
+          entityType: 'Project',
+          entityId: project.id
+        }
       })
-      console.log('✅ Admin notification created in database')
-    } catch (notifError) {
-      console.error('❌ Failed to create notification:', notifError)
-      // Continue anyway - don't fail the request if notification fails
+
+      // Log activity
+      await prisma.activityLog.create({
+        data: {
+          action: 'Created',
+          entity: 'Project',
+          entityId: project.id,
+          description: `New project inquiry from AI Bot: ${body.name}`,
+          metadata: JSON.stringify({
+            source: 'ai-bot',
+            projectType: formattedProjectType,
+            timeline: formattedTimeline,
+            budget: formattedBudget,
+            email: body.email
+          })
+        }
+      })
+
+      console.log('✅ Database records created:', {
+        clientId: client.id,
+        projectId: project.id
+      })
+    } catch (dbError) {
+      console.error('❌ Failed to create database records:', dbError)
+      // Continue anyway - don't fail the request if database fails
     }
 
     // Log submission
     console.log('🤖 AI Bot project inquiry:', body)
 
-    const submission = {
-      id: Math.random().toString(36).substring(7),
-      ...body,
-      submittedAt: new Date().toISOString(),
-      status: 'new',
-      source: 'ai-bot'
-    }
-
     return NextResponse.json({
       success: true,
       message: 'Project inquiry received! Check your email for confirmation.',
-      data: submission
+      data: {
+        clientId,
+        projectId,
+        submittedAt: new Date().toISOString(),
+        status: 'new',
+        source: 'ai-bot'
+      }
     }, { status: 201 })
 
   } catch (error) {
