@@ -48,22 +48,15 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    // Explicitly exclude @react-pdf/renderer from server components external packages
+    serverComponentsExternalPackages: [],
   },
+
+  // Transpile @react-pdf/renderer to handle ES modules
+  transpilePackages: ['@react-pdf/renderer'],
 
   // Webpack configuration for @react-pdf/renderer
   webpack: (config, { isServer }) => {
-    // Don't externalize @react-pdf/renderer - bundle it instead
-    if (isServer) {
-      config.externals = config.externals.filter(
-        (external) => {
-          if (typeof external === 'string') {
-            return !external.includes('@react-pdf/renderer')
-          }
-          return true
-        }
-      )
-    }
-    
     // Handle canvas dependency (optional for @react-pdf/renderer)
     config.resolve.alias.canvas = false
     config.resolve.alias.encoding = false
