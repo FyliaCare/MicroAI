@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET /api/cron/cleanup-unverified - Delete unverified accounts after 30 days
 // This endpoint should be called daily by a cron job (e.g., via Render Cron Jobs or Vercel Cron)
 export async function GET(request: NextRequest) {
