@@ -260,7 +260,7 @@ export default function TaskManager() {
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                   <span>{status.icon}</span>
                   <span>{status.label}</span>
-                  <span className="text-sm text-gray-500">({getTasksByStatus(status.id).length})</span>
+                  <span className="text-sm text-gray-600">({getTasksByStatus(status.id).length})</span>
                 </h3>
               </div>
 
@@ -276,7 +276,7 @@ export default function TaskManager() {
 
                     <p className="text-xs text-gray-600 mb-3 line-clamp-2">{task.description}</p>
 
-                    <div className="space-y-2 text-xs text-gray-500">
+                    <div className="space-y-2 text-xs text-gray-600">
                       {task.project && (
                         <div className="flex items-center gap-1">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,7 +324,7 @@ export default function TaskManager() {
                     <select
                       value={task.status}
                       onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                      className="w-full mt-2 text-xs px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      className="w-full mt-2 text-xs px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     >
                       {statuses.map((s) => (
                         <option key={s.id} value={s.id}>{s.label}</option>
@@ -334,7 +334,7 @@ export default function TaskManager() {
                 ))}
 
                 {getTasksByStatus(status.id).length === 0 && (
-                  <div className="text-center py-8 text-gray-400 text-sm">
+                  <div className="text-center py-8 text-gray-600 text-sm">
                     No tasks
                   </div>
                 )}
@@ -351,13 +351,13 @@ export default function TaskManager() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Task</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Project</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assignee</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Task</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Project</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Assignee</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Priority</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Due Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -366,7 +366,7 @@ export default function TaskManager() {
                     <td className="px-6 py-4">
                       <div>
                         <p className="font-medium text-gray-900">{task.title}</p>
-                        <p className="text-sm text-gray-500 line-clamp-1">{task.description}</p>
+                        <p className="text-sm text-gray-600 line-clamp-1">{task.description}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">{task.project?.name || 'N/A'}</td>
@@ -408,12 +408,12 @@ export default function TaskManager() {
             {tasks.length === 0 && (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No Tasks</h3>
-                <p className="text-gray-600">Create your first task to get started</p>
+                <p className="text-gray-700">Create your first task to get started</p>
               </div>
             )}
           </div>
@@ -430,7 +430,7 @@ export default function TaskManager() {
                 <h2 className="text-2xl font-bold text-gray-900">
                   {editingTask ? 'Edit Task' : 'Create Task'}
                 </h2>
-                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+                <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-gray-700">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -445,7 +445,7 @@ export default function TaskManager() {
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     placeholder="Task title"
                   />
                 </div>
@@ -456,7 +456,7 @@ export default function TaskManager() {
                     rows={3}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     placeholder="Task description"
                   />
                 </div>
@@ -468,7 +468,7 @@ export default function TaskManager() {
                       required
                       value={formData.projectId}
                       onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     >
                       <option value="">Select Project</option>
                       {projects.map((project) => (
@@ -482,7 +482,7 @@ export default function TaskManager() {
                     <select
                       value={formData.assigneeId}
                       onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     >
                       <option value="">Unassigned</option>
                       {teamMembers.map((member) => (
@@ -497,7 +497,7 @@ export default function TaskManager() {
                       required
                       value={formData.priority}
                       onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -512,7 +512,7 @@ export default function TaskManager() {
                       required
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     >
                       <option value="todo">To Do</option>
                       <option value="in-progress">In Progress</option>
@@ -527,7 +527,7 @@ export default function TaskManager() {
                       type="date"
                       value={formData.dueDate}
                       onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     />
                   </div>
                 </div>

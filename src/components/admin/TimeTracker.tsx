@@ -269,7 +269,7 @@ export default function TimeTracker() {
             <select
               value={filterProject}
               onChange={(e) => setFilterProject(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
             >
               <option value="">All Projects</option>
               {projects.map((project) => (
@@ -283,7 +283,7 @@ export default function TimeTracker() {
             <select
               value={filterMember}
               onChange={(e) => setFilterMember(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
             >
               <option value="">All Members</option>
               {teamMembers.map((member) => (
@@ -300,13 +300,13 @@ export default function TimeTracker() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team Member</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Project</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Team Member</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Description</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Hours</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Value</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Type</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -350,12 +350,12 @@ export default function TimeTracker() {
           {filteredEntries.length === 0 && (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Time Entries</h3>
-              <p className="text-gray-600">Start tracking time or add a manual entry</p>
+              <p className="text-gray-700">Start tracking time or add a manual entry</p>
             </div>
           )}
         </div>
@@ -369,7 +369,7 @@ export default function TimeTracker() {
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
               <div className="border-b px-6 py-4 flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Add Time Entry</h2>
-                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+                <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-gray-700">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -384,7 +384,7 @@ export default function TimeTracker() {
                       required
                       value={formData.projectId}
                       onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     >
                       <option value="">Select Project</option>
                       {projects.map((project) => (
@@ -399,7 +399,7 @@ export default function TimeTracker() {
                       required
                       value={formData.teamMemberId}
                       onChange={(e) => setFormData({ ...formData, teamMemberId: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     >
                       <option value="">Select Member</option>
                       {teamMembers.map((member) => (
@@ -415,7 +415,7 @@ export default function TimeTracker() {
                       required
                       value={formData.date}
                       onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     />
                   </div>
 
@@ -428,7 +428,7 @@ export default function TimeTracker() {
                       step="0.25"
                       value={formData.hours}
                       onChange={(e) => setFormData({ ...formData, hours: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     />
                   </div>
                 </div>
@@ -440,7 +440,7 @@ export default function TimeTracker() {
                     rows={3}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
                     placeholder="What did you work on?"
                   />
                 </div>

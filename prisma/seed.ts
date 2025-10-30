@@ -40,8 +40,62 @@ async function main() {
   // Create some sample data (optional)
   console.log('\n📊 Creating sample data...')
 
-  // Sample client
+  // Create client user for portal access
+  const clientEmail = 'chiefclient@microaisystems.com'
+  const clientPassword = '1Billion7991.'
+  
+  const existingClientUser = await prisma.user.findUnique({
+    where: { email: clientEmail }
+  })
+
+  let clientUser
+  if (existingClientUser) {
+    console.log('✅ Client user already exists:', clientEmail)
+    clientUser = existingClientUser
+  } else {
+    const hashedClientPassword = await bcrypt.hash(clientPassword, 10)
+    
+    clientUser = await prisma.user.create({
+      data: {
+        email: clientEmail,
+        password: hashedClientPassword,
+        name: 'Chief Client',
+        role: 'client',
+        isActive: true,
+        isVerified: true,
+        mustChangePassword: false,
+      }
+    })
+    
+    console.log('✅ Created client user:')
+    console.log('   Email:', clientUser.email)
+    console.log('   Password: 1Billion7991.')
+  }
+
+  // Sample client with portal access
   const client = await prisma.client.upsert({
+    where: { email: clientEmail },
+    update: {
+      hasPortalAccess: true,
+      userId: clientUser.id,
+    },
+    create: {
+      name: 'Chief Client',
+      email: clientEmail,
+      phone: '+233 244486837',
+      company: 'MicroAI Systems',
+      website: 'https://microaisystems.com',
+      status: 'active',
+      hasPortalAccess: true,
+      userId: clientUser.id,
+      notes: 'Primary client with full portal access'
+    }
+  })
+
+  console.log('✅ Created client with portal access:', client.name)
+
+  // Sample client without portal access
+  const sampleClient = await prisma.client.upsert({
     where: { email: 'john@example.com' },
     update: {},
     create: {
@@ -55,7 +109,7 @@ async function main() {
     }
   })
 
-  console.log('✅ Created sample client:', client.name)
+  console.log('✅ Created sample client:', sampleClient.name)
 
   // Sample project
   const project = await prisma.project.create({
@@ -120,6 +174,10 @@ async function main() {
   console.log('   Email: microailabs@gmail.com')
   console.log('   Password: 1Billion7991.')
   console.log('   Login at: http://localhost:3000/admin/login')
+  console.log('\n👤 Client Portal Credentials:')
+  console.log('   Email: chiefclient@microaisystems.com')
+  console.log('   Password: 1Billion7991.')
+  console.log('   Login at: http://localhost:3000/client/login')
 }
 
 main()

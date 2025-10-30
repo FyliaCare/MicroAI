@@ -25,7 +25,7 @@ export default function Footer() {
               {/* Social Links */}
               <div className="flex space-x-4 pt-2">
                 <a 
-                  href="mailto:microailabs@outlook.com"
+                  href="mailto:sales@microaisystems.com"
                   className="text-gray-400 hover:text-blue-400 transition-colors"
                   aria-label="Email"
                 >
@@ -59,12 +59,6 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/pricing" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
-                    <span className="w-0 group-hover:w-2 h-0.5 bg-blue-400 transition-all mr-0 group-hover:mr-2"></span>
-                    Pricing
-                  </Link>
-                </li>
-                <li>
                   <Link href="/contact" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
                     <span className="w-0 group-hover:w-2 h-0.5 bg-blue-400 transition-all mr-0 group-hover:mr-2"></span>
                     Contact
@@ -89,25 +83,25 @@ export default function Footer() {
               <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Our Services</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link href="/services" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
+                  <Link href="/services/web-applications" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
                     <span className="text-blue-500 mr-2">💻</span>
                     Web Applications
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
+                  <Link href="/services/saas-platforms" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
                     <span className="text-purple-500 mr-2">🚀</span>
                     SaaS Platforms
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
+                  <Link href="/services/professional-websites" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
                     <span className="text-pink-500 mr-2">🌐</span>
                     Company Websites
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
+                  <Link href="/services/web-tools" className="text-gray-400 hover:text-blue-400 transition-colors text-sm flex items-center group">
                     <span className="text-cyan-500 mr-2">🛠️</span>
                     Custom Web Tools
                   </Link>
@@ -126,10 +120,10 @@ export default function Footer() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Email</p>
                     <a 
-                      href="mailto:microailabs@outlook.com" 
+                      href="mailto:sales@microaisystems.com" 
                       className="text-gray-300 hover:text-blue-400 transition-colors text-sm"
                     >
-                      microailabs@outlook.com
+                      sales@microaisystems.com
                     </a>
                   </div>
                 </div>
@@ -140,18 +134,31 @@ export default function Footer() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Location</p>
+                    <p className="text-xs text-gray-500 mb-1">Headquarters</p>
+                    <p className="text-gray-300 text-sm">BR253 Pasture St.</p>
                     <p className="text-gray-300 text-sm">Takoradi, Ghana</p>
+                    <p className="text-xs text-gray-500 mt-1">🌍 Serving Worldwide</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
                   <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Response Time</p>
-                    <p className="text-gray-300 text-sm">Within 24 hours</p>
+                    <p className="text-xs text-gray-500 mb-1">Phone / WhatsApp</p>
+                    <a 
+                      href="tel:+233244486837" 
+                      className="text-gray-300 hover:text-blue-400 transition-colors text-sm block"
+                    >
+                      +233 244 486 837
+                    </a>
+                    <a 
+                      href="tel:+233544230568" 
+                      className="text-gray-300 hover:text-blue-400 transition-colors text-sm block"
+                    >
+                      +233 544 230 568
+                    </a>
                   </div>
                 </div>
               </div>

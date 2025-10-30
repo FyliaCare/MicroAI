@@ -42,18 +42,33 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
   
+  // Output optimization for production
+  output: 'standalone',
+  
   // Experimental optimizations
   experimental: {
-    optimizePackageImports: ['@prisma/client', 'react-icons', 'lucide-react'],
+    optimizePackageImports: ['react-icons', 'lucide-react'],
     serverActions: {
       bodySizeLimit: '2mb',
+      allowedOrigins: ['*'],
     },
-    // Explicitly exclude @react-pdf/renderer from server components external packages
-    serverComponentsExternalPackages: [],
+    // Enable PPR for better performance
+    ppr: false,
+    // Enable modern build output
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+    // External packages for server components
+    serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs'],
   },
 
-  // Transpile @react-pdf/renderer to handle ES modules
-  transpilePackages: ['@react-pdf/renderer'],
+  // Transpile packages to handle ES modules
+  transpilePackages: ['@react-pdf/renderer', 'jspdf'],
 
   // Webpack configuration for @react-pdf/renderer
   webpack: (config, { isServer }) => {

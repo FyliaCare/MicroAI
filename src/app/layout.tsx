@@ -15,12 +15,54 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'MicroAI Systems - 10x Faster Web Development',
+    default: 'MicroAI Systems - 10x Faster Web Development | Enterprise-Grade Applications',
     template: '%s | MicroAI Systems',
   },
-  description: 'Revolutionary development technology delivering web applications, SaaS platforms, and digital solutions in 1/10th the time of traditional companies. Experience the future of web development.',
-  keywords: ['web development', 'SaaS', 'web applications', 'fast development', 'AI development', 'Next.js', 'TypeScript'],
-  authors: [{ name: 'MicroAI Systems' }],
+  description: 'Revolutionary development technology delivering enterprise-grade web applications, SaaS platforms, and digital solutions in 1/10th the time. Custom web apps in 1-2 weeks. Professional websites in 3-5 days. Expert Next.js, TypeScript & AI-powered development serving clients worldwide in Africa, USA, Canada, UK, and Australia.',
+  keywords: [
+    // Core services
+    'web development',
+    'web application development',
+    'SaaS development',
+    'custom web applications',
+    'professional website design',
+    'web tools development',
+    
+    // Technologies
+    'Next.js development',
+    'TypeScript development',
+    'React development',
+    'full-stack development',
+    'AI-powered development',
+    'fast web development',
+    
+    // Global location-based keywords
+    'web development Africa',
+    'web development USA',
+    'web development Canada',
+    'web development UK',
+    'web development Australia',
+    'international web development',
+    'global software development',
+    'remote web development',
+    'offshore web development',
+    
+    // Business benefits
+    '10x faster development',
+    'rapid application development',
+    'quick website delivery',
+    'enterprise-grade applications',
+    'scalable web solutions',
+    'business automation tools',
+    
+    // Specific solutions
+    'CRM development',
+    'e-commerce development',
+    'booking system development',
+    'dashboard development',
+    'API development',
+  ],
+  authors: [{ name: 'MicroAI Systems', url: 'https://www.microaisystems.com' }],
   creator: 'MicroAI Systems',
   publisher: 'MicroAI Systems',
   metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'),
@@ -31,18 +73,30 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: '/',
-    title: 'MicroAI Systems - 10x Faster Web Development',
-    description: 'Revolutionary development technology delivering web applications 10x faster',
+    title: 'MicroAI Systems - 10x Faster Web Development | Enterprise Applications',
+    description: 'Revolutionary development delivering web applications, SaaS platforms, and websites 10x faster. Custom solutions in weeks, not months. Serving clients worldwide across Africa, North America, Europe, UK, and Australia.',
     siteName: 'MicroAI Systems',
+    images: [
+      {
+        url: '/microAi logo main.png',
+        width: 1200,
+        height: 630,
+        alt: 'MicroAI Systems - 10x Faster Web Development',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'MicroAI Systems - 10x Faster Web Development',
-    description: 'Revolutionary development technology delivering web applications 10x faster',
+    description: 'Revolutionary development delivering web applications 10x faster. Custom solutions in weeks, not months.',
+    images: ['/microAi logo main.png'],
+    creator: '@microaisystems',
+    site: '@microaisystems',
   },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
@@ -51,6 +105,15 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  category: 'technology',
+  classification: 'Web Development Services',
+  verification: {
+    // Add when available
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+    // bing: 'your-bing-verification-code',
+  },
+  manifest: '/manifest.json',
 }
 
 export const viewport = {
@@ -72,9 +135,35 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
+        {/* Preconnect to external resources */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        
+        {/* Favicon and App Icons */}
+        <link rel="icon" href="/microAi logo main.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/microAi logo main.png" />
+        
+        {/* Additional SEO meta tags */}
+        <meta name="application-name" content="MicroAI Systems" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="MicroAI" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="msapplication-TileColor" content="#000000" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        
+        {/* Global SEO - No specific geo restrictions */}
+        <meta name="geo.region" content="INTL" />
+        <meta name="geo.placename" content="Global" />
+        <meta name="target-audience" content="international" />
+        <meta name="coverage" content="Worldwide" />
+        <meta name="distribution" content="Global" />
       </head>
       <body className={inter.className}>
         <WebVitals />

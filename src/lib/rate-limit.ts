@@ -1,13 +1,19 @@
-// Rate Limiting Utilities
+// Optimized Rate Limiting with Sliding Window
+
+interface RateLimitEntry {
+  timestamps: number[]
+  lastCleanup: number
+}
 
 interface RateLimitStore {
-  [key: string]: {
-    count: number
-    resetTime: number
-  }
+  [key: string]: RateLimitEntry
 }
 
 const store: RateLimitStore = {}
+
+// Performance optimization: cleanup counter
+let cleanupCounter = 0
+const CLEANUP_INTERVAL = 100 // Clean up every 100 requests
 
 export interface RateLimitConfig {
   windowMs: number // Time window in milliseconds
@@ -30,7 +36,7 @@ export const AUTH_RATE_LIMIT: RateLimitConfig = {
 }
 
 /**
- * Check if a request should be rate limited
+ * Optimized sliding window rate limiter
  * @param identifier - Unique identifier (IP address, user ID, API key)
  * @param config - Rate limit configuration
  * @returns Object with allowed status and remaining requests
@@ -44,30 +50,52 @@ export function checkRateLimit(
   resetTime: number
 } {
   const now = Date.now()
-  const key = `${identifier}:${config.windowMs}:${config.maxRequests}`
+  const key = `${identifier}:${config.windowMs}`
+  const windowStart = now - config.windowMs
   
   // Get or initialize rate limit data
   let limitData = store[key]
   
-  if (!limitData || now > limitData.resetTime) {
-    // Create new window
+  if (!limitData) {
     limitData = {
-      count: 0,
-      resetTime: now + config.windowMs,
+      timestamps: [],
+      lastCleanup: now,
     }
     store[key] = limitData
   }
   
-  // Increment count
-  limitData.count++
+  // Remove timestamps outside the window (sliding window)
+  // Only cleanup periodically for performance
+  if (now - limitData.lastCleanup > 10000) { // Cleanup every 10 seconds
+    limitData.timestamps = limitData.timestamps.filter(t => t > windowStart)
+    limitData.lastCleanup = now
+  }
   
-  const allowed = limitData.count <= config.maxRequests
-  const remaining = Math.max(0, config.maxRequests - limitData.count)
+  // Count requests in current window
+  const requestsInWindow = limitData.timestamps.filter(t => t > windowStart).length
+  
+  // Check if allowed
+  const allowed = requestsInWindow < config.maxRequests
+  
+  if (allowed) {
+    limitData.timestamps.push(now)
+  }
+  
+  const remaining = Math.max(0, config.maxRequests - requestsInWindow - (allowed ? 1 : 0))
+  const oldestTimestamp = limitData.timestamps[0] || now
+  const resetTime = oldestTimestamp + config.windowMs
+  
+  // Periodic global cleanup
+  cleanupCounter++
+  if (cleanupCounter >= CLEANUP_INTERVAL) {
+    cleanupCounter = 0
+    setImmediate(() => cleanupRateLimitStore())
+  }
   
   return {
     allowed,
     remaining,
-    resetTime: limitData.resetTime,
+    resetTime,
   }
 }
 
@@ -94,8 +122,14 @@ export function getClientIdentifier(request: Request, userId?: string): string {
 export function cleanupRateLimitStore() {
   const now = Date.now()
   Object.keys(store).forEach(key => {
-    if (now > store[key].resetTime) {
-      delete store[key]
+    const entry = store[key]
+    if (entry && entry.timestamps.length > 0) {
+      // Remove old timestamps
+      entry.timestamps = entry.timestamps.filter(t => t > now - 3600000) // Keep last hour
+      // Delete entry if no recent timestamps
+      if (entry.timestamps.length === 0) {
+        delete store[key]
+      }
     }
   })
 }

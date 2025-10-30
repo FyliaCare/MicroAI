@@ -4,8 +4,44 @@ import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
-  title: 'Services - MicroAI Systems',
-  description: 'Explore our comprehensive range of web development services including web applications, SaaS solutions, and digital tools.',
+  title: 'Web Development Services - Custom Apps, SaaS, Websites | MicroAI Systems',
+  description: 'Expert web development services delivered 10x faster: Custom Web Applications (1-2 weeks), SaaS Platforms (2-3 weeks), Professional Websites (3-5 days), Web Tools & Automation. Next.js, TypeScript, React development. Enterprise-grade quality with revolutionary speed.',
+  keywords: [
+    'web development services',
+    'custom web application development',
+    'SaaS platform development',
+    'professional website design',
+    'web tools development',
+    'fast web development',
+    'enterprise web applications',
+    'React development services',
+    'Next.js development',
+    'full-stack development',
+    'rapid application development',
+    'business automation tools',
+  ],
+  openGraph: {
+    title: 'Web Development Services - 10x Faster Delivery | MicroAI Systems',
+    description: 'Custom Web Apps in 1-2 weeks. Professional Websites in 3-5 days. SaaS Platforms in 2-3 weeks. Enterprise-grade quality, revolutionary speed.',
+    url: '/services',
+    type: 'website',
+    images: [
+      {
+        url: '/microAi logo main.png',
+        width: 1200,
+        height: 630,
+        alt: 'MicroAI Systems Services',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Web Development Services - 10x Faster | MicroAI',
+    description: 'Custom Web Apps, SaaS Platforms, Professional Websites delivered at revolutionary speed.',
+  },
+  alternates: {
+    canonical: '/services',
+  },
 }
 
 const services = [
@@ -24,7 +60,8 @@ const services = [
       'Ongoing maintenance for what we build'
     ],
     pricing: 'Custom Quote',
-    timeline: '1-2 weeks (vs 10-20 weeks traditional)'
+    timeline: '1-2 weeks (vs 10-20 weeks traditional)',
+    link: '/services/web-applications'
   },
   {
     id: 2,
@@ -41,7 +78,8 @@ const services = [
       'Maintenance & updates included'
     ],
     pricing: 'Custom Quote',
-    timeline: '2-3 weeks (vs 20-30 weeks traditional)'
+    timeline: '2-3 weeks (vs 20-30 weeks traditional)',
+    link: '/services/saas-platforms'
   },
   {
     id: 3,
@@ -58,7 +96,8 @@ const services = [
       'Ongoing maintenance available'
     ],
     pricing: 'Custom Quote',
-    timeline: '3-5 days (vs 3-5 weeks traditional)'
+    timeline: '3-5 days (vs 3-5 weeks traditional)',
+    link: '/services/professional-websites'
   },
   {
     id: 4,
@@ -75,7 +114,8 @@ const services = [
       'Maintenance for our builds'
     ],
     pricing: 'Custom Quote',
-    timeline: '1-2 weeks (vs 10-15 weeks traditional)'
+    timeline: '1-2 weeks (vs 10-15 weeks traditional)',
+    link: '/services/web-tools'
   }
 ]
 
@@ -145,12 +185,20 @@ export default function ServicesPage() {
                     <span className="text-sm text-gray-400">Timeline:</span>
                     <span className="font-semibold text-green-400">{service.timeline}</span>
                   </div>
-                  <Link 
-                    href="/contact"
-                    className="block w-full text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale"
-                  >
-                    Get Started →
-                  </Link>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link 
+                      href={service.link}
+                      className="block text-center bg-gray-800 border border-gray-700 text-white px-6 py-3 rounded-lg hover:border-blue-500 hover:bg-gray-700 transition-all font-medium"
+                    >
+                      Learn More
+                    </Link>
+                    <Link 
+                      href="/contact"
+                      className="block text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale"
+                    >
+                      Get Started →
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}

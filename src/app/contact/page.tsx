@@ -206,8 +206,23 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="text-gray-400 text-sm">Email Us</p>
-                        <a href="mailto:microailabs@outlook.com" className="text-blue-400 hover:text-blue-300 transition-colors">
-                          microailabs@outlook.com
+                        <a href="mailto:sales@microaisystems.com" className="text-blue-400 hover:text-blue-300 transition-colors">
+                          sales@microaisystems.com
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 group/item">
+                      <div className="bg-green-600/20 p-3 rounded-lg group-hover/item:bg-green-600/30 transition-colors">
+                        <span className="text-2xl">📞</span>
+                      </div>
+                      <div>
+                        <p className="text-gray-400 text-sm">Phone / WhatsApp</p>
+                        <a href="tel:+233244486837" className="text-green-400 hover:text-green-300 transition-colors block text-sm">
+                          +233 244 486 837
+                        </a>
+                        <a href="tel:+233544230568" className="text-green-400 hover:text-green-300 transition-colors block text-sm">
+                          +233 544 230 568
                         </a>
                       </div>
                     </div>
@@ -217,8 +232,10 @@ export default function ContactPage() {
                         <span className="text-2xl">📍</span>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-sm">Location</p>
+                        <p className="text-gray-400 text-sm">Headquarters</p>
+                        <p className="text-pink-400 font-semibold">BR253 Pasture St.</p>
                         <p className="text-pink-400">Takoradi, Ghana</p>
+                        <p className="text-xs text-pink-400/70 mt-1">🌍 Serving Worldwide</p>
                       </div>
                     </div>
 

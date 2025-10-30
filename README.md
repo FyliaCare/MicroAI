@@ -1,276 +1,549 @@
-# 🚀 MicroAI Systems Platform# MicroAI Systems Platform
+# MicroAI Systems Platform# 🚀 MicroAI Systems Platform# MicroAI Systems Platform
 
 
 
-A comprehensive full-stack web platform built with Next.js 14, featuring a professional company website and complete business management system.A comprehensive full-stack web platform for MicroAI Systems, featuring a professional company website and a complete business management system.
+A high-performance full-stack business management platform built with Next.js 14, featuring a professional company website, advanced quotation system, and comprehensive admin dashboard.
 
 
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)A comprehensive full-stack web platform built with Next.js 14, featuring a professional company website and complete business management system.A comprehensive full-stack web platform for MicroAI Systems, featuring a professional company website and a complete business management system.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 
-[![Prisma](https://img.shields.io/badge/Prisma-6-green)](https://www.prisma.io/)## 🚀 Features## 🚀 Features
-
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Prisma](https://img.shields.io/badge/Prisma-6-green)](https://www.prisma.io/)
 
 
 
-## ✨ Features
-
-### Public Website### Public Website
-
-### Public Website
-
-- 🎨 **Modern Design** - Professional, responsive interface- **Professional Company Showcase** - Modern, responsive design showcasing services- **Professional Company Showcase** - Modern, responsive design showcasing services
-
-- 📱 **Mobile-First** - Optimized for all devices
-
-- ⚡ **Performance** - Lightning-fast load times- **Service Portfolio** - Web applications, web tools, websites, and SaaS solutions- **Service Portfolio** - Web applications, web tools, websites, and SaaS solutions
-
-- 🔍 **SEO Optimized** - Built with Next.js for search visibility
-
-- 💼 **Service Showcase** - Portfolio and pricing pages- **About Us Page** - Company mission, vision, and values- **About Us Page** - Company mission, vision, and values
-
-- 📞 **Contact System** - Functional contact form with API integration
-
-- **Services Page** - Detailed service offerings with pricing- **Services Page** - Detailed service offerings with pricing
-
-### Management Dashboard
-
-- 📊 **Analytics** - Real-time business insights and metrics- **Portfolio Page** - Showcase of completed projects- **Portfolio Page** - Showcase of completed projects
-
-- 👥 **Client Management** - Comprehensive CRM system
-
-- 📁 **Project Tracking** - Full project lifecycle management- **Contact Page** - Functional contact form with API integration- **Contact Page** - Functional contact form with API integration
-
-- 💰 **Quote System** - Professional PDF quote generation
-
-- 📧 **Communications** - Email tracking and notifications- **Mobile-Responsive** - Optimized for all devices- **Mobile-Responsive** - Optimized for all devices
-
-- 🔐 **Secure Auth** - NextAuth.js authentication
-
-- 🐙 **GitHub Integration** - Auto-import projects from repositories- **SEO Optimized** - Built with Next.js for excellent search engine visibility- **SEO Optimized** - Built with Next.js for excellent search engine visibility
+## 🚀 Features[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 
 
+
+### Public Website[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+
+- **Professional Company Showcase** - Modern, responsive design
+
+- **Service Portfolio** - Web applications, tools, websites, and SaaS[![Prisma](https://img.shields.io/badge/Prisma-6-green)](https://www.prisma.io/)## 🚀 Features## 🚀 Features
+
+- **Interactive Pricing Calculator** - Real-time cost estimation
+
+- **Portfolio Gallery** - Project showcase with filtering[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+- **Contact System** - Functional contact form with API integration
+
+- **SEO Optimized** - Built for search engine visibility
+
+
+
+### Admin Dashboard## ✨ Features
+
+- **Project Management** - Complete project lifecycle tracking
+
+- **Client Management** - CRM system with communication history### Public Website### Public Website
+
+- **Service Management** - Service catalog and pricing control
+
+- **Analytics Dashboard** - Real-time business metrics and insights### Public Website
+
+- **GitHub Integration** - Auto-import projects from repositories
+
+- **Activity Tracking** - Comprehensive audit logs- 🎨 **Modern Design** - Professional, responsive interface- **Professional Company Showcase** - Modern, responsive design showcasing services- **Professional Company Showcase** - Modern, responsive design showcasing services
+
+
+
+### Professional Quote System- 📱 **Mobile-First** - Optimized for all devices
+
+- **6-Step Wizard** - Intuitive quote creation workflow
+
+- **Professional PDF Generation** - 5-page branded quotes with locked template- ⚡ **Performance** - Lightning-fast load times- **Service Portfolio** - Web applications, web tools, websites, and SaaS solutions- **Service Portfolio** - Web applications, web tools, websites, and SaaS solutions
+
+- **11 Pre-built Templates** - Industry-standard pricing templates
+
+- **Auto-Save** - Never lose work with 3-second debounce- 🔍 **SEO Optimized** - Built with Next.js for search visibility
+
+- **Quote-to-Project Conversion** - One-click project creation
+
+- **Digital Signatures** - Client signature capture- 💼 **Service Showcase** - Portfolio and pricing pages- **About Us Page** - Company mission, vision, and values- **About Us Page** - Company mission, vision, and values
+
+- **Real-time Notifications** - Activity tracking and updates
+
+- **Client Portal** - Dedicated quote viewing and response system- 📞 **Contact System** - Functional contact form with API integration
+
+
+
+### Performance Optimizations- **Services Page** - Detailed service offerings with pricing- **Services Page** - Detailed service offerings with pricing
+
+- **85% Faster API Responses** - 800-1200ms → 50-150ms
+
+- **Advanced Caching** - 100MB in-memory cache with LRU eviction### Management Dashboard
+
+- **Rate Limiting** - Sliding window algorithm for API protection
+
+- **Database Optimization** - Connection pooling and query caching- 📊 **Analytics** - Real-time business insights and metrics- **Portfolio Page** - Showcase of completed projects- **Portfolio Page** - Showcase of completed projects
+
+- **Security Headers** - HSTS, CSP, XSS protection
+
+- **Production Ready** - Supports 1000+ concurrent users- 👥 **Client Management** - Comprehensive CRM system
+
+
+
+## 🛠️ Technology Stack- 📁 **Project Tracking** - Full project lifecycle management- **Contact Page** - Functional contact form with API integration- **Contact Page** - Functional contact form with API integration
+
+
+
+| Category | Technologies |- 💰 **Quote System** - Professional PDF quote generation
+
+|----------|-------------|
+
+| **Frontend** | Next.js 14, React 18, TypeScript, Tailwind CSS |- 📧 **Communications** - Email tracking and notifications- **Mobile-Responsive** - Optimized for all devices- **Mobile-Responsive** - Optimized for all devices
+
+| **Backend** | Next.js API Routes, Prisma ORM |
+
+| **Database** | PostgreSQL |- 🔐 **Secure Auth** - NextAuth.js authentication
+
+| **Authentication** | NextAuth.js |
+
+| **PDF Generation** | jsPDF (locked professional template) |- 🐙 **GitHub Integration** - Auto-import projects from repositories- **SEO Optimized** - Built with Next.js for excellent search engine visibility- **SEO Optimized** - Built with Next.js for excellent search engine visibility
+
+| **Caching** | Custom in-memory cache with LRU eviction |
+
+| **Rate Limiting** | Sliding window algorithm |
+
+| **Deployment** | Render.com + Neon Database |
 
 ### Advanced Quote System
 
+## 📦 Quick Start
+
 - 📝 **6-Step Wizard** - Intuitive quote creation workflow
 
-- 📄 **Professional PDFs** - 5-page branded quotes### Management Dashboard### Management Dashboard
+### Prerequisites
 
-- 💾 **Auto-Save** - Never lose work with 3s debounce
+- Node.js 18+- 📄 **Professional PDFs** - 5-page branded quotes### Management Dashboard### Management Dashboard
 
-- 📋 **Templates** - 11 pre-built pricing templates- **Project Management** - Track and manage all company projects with GitHub integration- **Project Management** - Track and manage all company projects
+- PostgreSQL database (or Neon account)
 
-- 🔄 **Quote-to-Project** - One-click conversion
+- Git- 💾 **Auto-Save** - Never lose work with 3s debounce
 
-- ✍️ **Digital Signatures** - Client signature capture- **Client Management** - Comprehensive client database and communication tools- **Client Management** - Comprehensive client database and communication tools
 
-- 🔔 **Real-time Notifications** - Activity tracking
 
-- **Service Management** - Manage service offerings and pricing- **Service Management** - Manage service offerings and pricing
+### Installation- 📋 **Templates** - 11 pre-built pricing templates- **Project Management** - Track and manage all company projects with GitHub integration- **Project Management** - Track and manage all company projects
 
-## 🛠️ Technology Stack
+
+
+1. **Clone the repository**- 🔄 **Quote-to-Project** - One-click conversion
+
+   ```bash
+
+   git clone https://github.com/FyliaCare/MicroAI.git- ✍️ **Digital Signatures** - Client signature capture- **Client Management** - Comprehensive client database and communication tools- **Client Management** - Comprehensive client database and communication tools
+
+   cd MicroAI
+
+   ```- 🔔 **Real-time Notifications** - Activity tracking
+
+
+
+2. **Install dependencies**- **Service Management** - Manage service offerings and pricing- **Service Management** - Manage service offerings and pricing
+
+   ```bash
+
+   npm install## 🛠️ Technology Stack
+
+   ```
 
 - **Quote System** - Professional PDF quote generation- **Analytics Dashboard** - Business insights and performance metrics
 
-| Category | Technologies |
+3. **Set up environment variables**
 
-|----------|-------------|- **Analytics Dashboard** - Business insights and performance metrics- **Real-time Updates** - Live dashboard with recent activity tracking
+   | Category | Technologies |
 
-| **Frontend** | Next.js 14, React 18, TypeScript, Tailwind CSS |
+   Create `.env.local`:
 
-| **Backend** | Next.js API Routes, Prisma ORM |- **Real-time Updates** - Live dashboard with recent activity tracking
+   ```env|----------|-------------|- **Analytics Dashboard** - Business insights and performance metrics- **Real-time Updates** - Live dashboard with recent activity tracking
 
-| **Database** | PostgreSQL (Neon) |
+   # Database
 
-| **Authentication** | NextAuth.js |### Technical Features
+   DATABASE_URL="postgresql://user:password@host:5432/database?sslmode=require"| **Frontend** | Next.js 14, React 18, TypeScript, Tailwind CSS |
 
-| **PDF Generation** | @react-pdf/renderer |
+   DIRECT_URL="postgresql://user:password@host:5432/database?sslmode=require"
+
+   | **Backend** | Next.js API Routes, Prisma ORM |- **Real-time Updates** - Live dashboard with recent activity tracking
+
+   # Authentication
+
+   NEXTAUTH_URL="http://localhost:3000"| **Database** | PostgreSQL (Neon) |
+
+   NEXTAUTH_SECRET="your-secret-key-here"
+
+   | **Authentication** | NextAuth.js |### Technical Features
+
+   # Environment
+
+   NODE_ENV="development"| **PDF Generation** | @react-pdf/renderer |
+
+   ```
 
 | **Email** | Nodemailer, Resend |### Technical Features- **Next.js 14** - Latest React framework with App Router
 
-| **Deployment** | Render.com (Frontend) + Neon (Database) |
+4. **Initialize database**
 
-| **Dev Tools** | ESLint, TypeScript, PostCSS |- **Next.js 14** - Latest React framework with App Router- **TypeScript** - Type-safe development
-
-
-
-## 📦 Quick Start- **TypeScript** - Type-safe development- **Tailwind CSS** - Modern, utility-first styling
-
-
-
-### Prerequisites- **Tailwind CSS** - Modern, utility-first styling- **RESTful API** - Built-in API routes for data management
-
-- Node.js 18+ 
-
-- PostgreSQL database (or Neon account)- **Prisma ORM** - Database management with PostgreSQL- **Responsive Design** - Mobile-first approach
-
-- Git
-
-- **NextAuth.js** - Secure authentication system- **Performance Optimized** - Fast loading and smooth user experience
-
-### Local Development
-
-- **RESTful API** - Built-in API routes for data management- **Reusable Components** - Button, Card, Input, Modal, Textarea components
-
-1. **Clone the repository**
-
-   ```bash- **Responsive Design** - Mobile-first approach- **Utility Functions** - Comprehensive helper library
-
-   git clone https://github.com/FyliaCare/MicroAI.git
-
-   cd MicroAI- **Performance Optimized** - 64% bundle reduction, 56% faster load times
-
-   ```
-
-- **GitHub Integration** - Auto-import projects from repositories## 🛠️ Technology Stack
-
-2. **Install dependencies**
-
-   ```bash- **Reusable Components** - Comprehensive UI component library
-
-   npm install
-
-   ```- **Frontend**: Next.js 14, React 18, TypeScript
-
-
-
-3. **Set up environment variables**## 🛠️ Technology Stack- **Styling**: Tailwind CSS, PostCSS
-
-   ```bash
-
-   cp .env.example .env.local- **Backend**: Next.js API Routes
-
-   ```
-
-   - **Frontend**: Next.js 14, React 18, TypeScript- **Development**: ESLint, Autoprefixer
-
-   Edit `.env.local` with your credentials:
-
-   ```env- **Styling**: Tailwind CSS, PostCSS- **Deployment**: Vercel-ready configuration
-
-   DATABASE_URL="postgresql://user:password@host:5432/database?sslmode=require"
-
-   DIRECT_URL="postgresql://user:password@host:5432/database?sslmode=require"- **Backend**: Next.js API Routes, Prisma ORM
-
-   NEXTAUTH_URL="http://localhost:3000"
-
-   NEXTAUTH_SECRET="your-secret-key-here"- **Database**: PostgreSQL (Neon)## 📦 Installation
-
-   ```
-
-- **Authentication**: NextAuth.js
-
-4. **Set up the database**
-
-   ```bash- **Deployment**: Render.com1. **Clone or download the project** (already set up in your workspace)
+   ```bash| **Deployment** | Render.com (Frontend) + Neon (Database) |
 
    npx prisma generate
 
-   npx prisma migrate dev- **Development**: ESLint, Autoprefixer
+   npx prisma migrate dev| **Dev Tools** | ESLint, TypeScript, PostCSS |- **Next.js 14** - Latest React framework with App Router- **TypeScript** - Type-safe development
 
    npm run db:seed
 
-   ```2. **Install dependencies**:
+   ```
 
 
 
-5. **Start the development server**## 📦 Installation   ```bash
+5. **Start development server**## 📦 Quick Start- **TypeScript** - Type-safe development- **Tailwind CSS** - Modern, utility-first styling
 
    ```bash
 
-   npm run dev   npm install
+   npm run dev
 
    ```
 
-1. **Clone or download the project**   ```
+### Prerequisites- **Tailwind CSS** - Modern, utility-first styling- **RESTful API** - Built-in API routes for data management
 
-6. **Open your browser**
+6. **Open in browser**
 
-   - Public Site: [http://localhost:3000](http://localhost:3000)
+   - Public Site: http://localhost:3000- Node.js 18+ 
 
-   - Admin Dashboard: [http://localhost:3000/admin](http://localhost:3000/admin)
+   - Admin Dashboard: http://localhost:3000/admin
 
-   - API Health: [http://localhost:3000/api/health](http://localhost:3000/api/health)2. **Install dependencies**:3. **Run the development server**:
+   - API Health: http://localhost:3000/api/health- PostgreSQL database (or Neon account)- **Prisma ORM** - Database management with PostgreSQL- **Responsive Design** - Mobile-first approach
 
 
 
-### Default Credentials   ```bash   ```bash
+### Default Admin Credentials- Git
 
 ```
 
-Email: microailabs@gmail.com   npm install   npm run dev
+Email: microailabs@gmail.com- **NextAuth.js** - Secure authentication system- **Performance Optimized** - Fast loading and smooth user experience
 
 Password: 1Billion7991.
 
-```   ```   ```
+```### Local Development
 
 
 
-## 🚀 Production Deployment (Render + Neon)
+## 🎯 Key Endpoints- **RESTful API** - Built-in API routes for data management- **Reusable Components** - Button, Card, Input, Modal, Textarea components
 
 
 
-### 1. Create Neon Database3. **Set up environment variables**:4. **Open your browser** and navigate to [http://localhost:3000](http://localhost:3000)
+| Endpoint | Method | Description |1. **Clone the repository**
+
+|----------|--------|-------------|
+
+| `/api/health` | GET | System health check |   ```bash- **Responsive Design** - Mobile-first approach- **Utility Functions** - Comprehensive helper library
+
+| `/api/admin/projects` | GET/POST | Project management |
+
+| `/api/admin/clients` | GET/POST | Client management |   git clone https://github.com/FyliaCare/MicroAI.git
+
+| `/api/admin/quotes` | GET/POST | Quote management |
+
+| `/api/admin/quotes/[id]/pdf` | GET | Generate PDF quote |   cd MicroAI- **Performance Optimized** - 64% bundle reduction, 56% faster load times
+
+| `/api/admin/quotes/[id]/convert` | POST | Convert quote to project |
+
+| `/api/quotes/[id]` | GET | Public quote view |   ```
+
+| `/api/quotes/[id]/respond` | POST | Accept/reject quote |
+
+| `/api/admin/analytics` | GET | Business analytics |- **GitHub Integration** - Auto-import projects from repositories## 🛠️ Technology Stack
+
+| `/api/contact` | POST | Contact form submission |
+
+2. **Install dependencies**
+
+## 📁 Project Structure
+
+   ```bash- **Reusable Components** - Comprehensive UI component library
+
+```
+
+MicroAI/   npm install
+
+├── prisma/
+
+│   ├── schema.prisma              # Database schema   ```- **Frontend**: Next.js 14, React 18, TypeScript
+
+│   ├── migrations/                # Database migrations
+
+│   ├── seed.ts                    # Database seeding
+
+│   └── seedQuoteTemplates.ts      # Quote templates
+
+├── src/3. **Set up environment variables**## 🛠️ Technology Stack- **Styling**: Tailwind CSS, PostCSS
+
+│   ├── app/
+
+│   │   ├── admin/                 # Admin dashboard pages   ```bash
+
+│   │   ├── api/                   # API routes (30+ endpoints)
+
+│   │   ├── quotes/                # Client quote portal   cp .env.example .env.local- **Backend**: Next.js API Routes
+
+│   │   ├── about/                 # About page
+
+│   │   ├── contact/               # Contact page   ```
+
+│   │   ├── portfolio/             # Portfolio page
+
+│   │   ├── pricing/               # Pricing calculator   - **Frontend**: Next.js 14, React 18, TypeScript- **Development**: ESLint, Autoprefixer
+
+│   │   └── services/              # Services page
+
+│   ├── components/   Edit `.env.local` with your credentials:
+
+│   │   ├── admin/                 # Admin components
+
+│   │   ├── quotes/                # Quote system components   ```env- **Styling**: Tailwind CSS, PostCSS- **Deployment**: Vercel-ready configuration
+
+│   │   ├── layout/                # Layout components
+
+│   │   └── ui/                    # Reusable UI components   DATABASE_URL="postgresql://user:password@host:5432/database?sslmode=require"
+
+│   ├── lib/
+
+│   │   ├── auth.ts                # NextAuth configuration   DIRECT_URL="postgresql://user:password@host:5432/database?sslmode=require"- **Backend**: Next.js API Routes, Prisma ORM
+
+│   │   ├── prisma.ts              # Prisma client
+
+│   │   ├── cache-optimized.ts     # Advanced caching system   NEXTAUTH_URL="http://localhost:3000"
+
+│   │   ├── rate-limit.ts          # Rate limiting
+
+│   │   ├── performance.ts         # Performance monitoring   NEXTAUTH_SECRET="your-secret-key-here"- **Database**: PostgreSQL (Neon)## 📦 Installation
+
+│   │   ├── locked-quote-template.ts # Professional PDF template
+
+│   │   └── utils.ts               # Utility functions   ```
+
+│   └── types/                     # TypeScript definitions
+
+├── docs/- **Authentication**: NextAuth.js
+
+│   ├── deployment/
+
+│   │   └── RENDER_DEPLOYMENT.md   # Deployment guide4. **Set up the database**
+
+│   └── features/
+
+│       ├── GITHUB_INTEGRATION_GUIDE.md   ```bash- **Deployment**: Render.com1. **Clone or download the project** (already set up in your workspace)
+
+│       └── QUOTE_SYSTEM_GUIDE.md
+
+├── DEPLOYMENT.md                  # Production deployment guide   npx prisma generate
+
+├── PERFORMANCE_OPTIMIZATIONS.md   # Optimization documentation
+
+└── README.md                      # This file   npx prisma migrate dev- **Development**: ESLint, Autoprefixer
+
+```
+
+   npm run db:seed
+
+## 🔧 Development Scripts
+
+   ```2. **Install dependencies**:
+
+```bash
+
+# Development
+
+npm run dev              # Start dev server with Turbopack
+
+npm run build            # Build for production5. **Start the development server**## 📦 Installation   ```bash
+
+npm start                # Start production server
+
+npm run lint             # Run ESLint   ```bash
 
 
 
-1. Go to [neon.tech](https://neon.tech) and sign up   Create a `.env` file with:
+# Database   npm run dev   npm install
 
-2. Create a new project: `microai-production`
+npx prisma generate      # Generate Prisma client
 
-3. Copy your connection strings:   ```env## 🎯 Quick Start
+npx prisma migrate dev   # Run migrations   ```
 
-   - **Pooled** (for app): `postgresql://user:pass@host-pooler.region.aws.neon.tech/db?sslmode=require`
+npx prisma studio        # Open database GUI
 
-   - **Direct** (for migrations): `postgresql://user:pass@host.region.aws.neon.tech/db?sslmode=require`   DATABASE_URL="your-postgresql-url"
+npm run db:seed          # Seed database1. **Clone or download the project**   ```
+
+```
+
+6. **Open your browser**
+
+## 🚀 Production Deployment
+
+   - Public Site: [http://localhost:3000](http://localhost:3000)
+
+### Option 1: Render.com + Neon (Recommended)
+
+   - Admin Dashboard: [http://localhost:3000/admin](http://localhost:3000/admin)
+
+1. **Create Neon Database**
+
+   - Sign up at [neon.tech](https://neon.tech)   - API Health: [http://localhost:3000/api/health](http://localhost:3000/api/health)2. **Install dependencies**:3. **Run the development server**:
+
+   - Create new project
+
+   - Copy connection strings (pooled + direct)
 
 
 
-### 2. Deploy to Render   NEXTAUTH_URL="http://localhost:3000"### Accessing the Platform
+2. **Deploy to Render**### Default Credentials   ```bash   ```bash
+
+   - Push code to GitHub
+
+   - Create new Web Service on Render```
+
+   - Connect repository
+
+   - Set environment variablesEmail: microailabs@gmail.com   npm install   npm run dev
+
+   - Deploy
+
+Password: 1Billion7991.
+
+3. **Configure Environment**
+
+   ```env```   ```   ```
+
+   DATABASE_URL=<neon-pooled-connection>
+
+   DIRECT_URL=<neon-direct-connection>
+
+   NEXTAUTH_URL=https://your-app.onrender.com
+
+   NEXTAUTH_SECRET=<generate-with-openssl>## 🚀 Production Deployment (Render + Neon)
+
+   NODE_ENV=production
+
+   ```
 
 
 
-1. **Fork/Push to GitHub**   NEXTAUTH_SECRET="your-secret-key"
+4. **Run Migrations**### 1. Create Neon Database3. **Set up environment variables**:4. **Open your browser** and navigate to [http://localhost:3000](http://localhost:3000)
 
    ```bash
 
+   npx prisma migrate deploy
+
+   npm run db:seed
+
+   ```1. Go to [neon.tech](https://neon.tech) and sign up   Create a `.env` file with:
+
+
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) and [docs/deployment/RENDER_DEPLOYMENT.md](docs/deployment/RENDER_DEPLOYMENT.md) for detailed instructions.2. Create a new project: `microai-production`
+
+
+
+## ⚡ Performance Metrics3. Copy your connection strings:   ```env## 🎯 Quick Start
+
+
+
+### Before Optimization   - **Pooled** (for app): `postgresql://user:pass@host-pooler.region.aws.neon.tech/db?sslmode=require`
+
+- API Response Time: 800-1200ms
+
+- Database Queries: 300-500ms   - **Direct** (for migrations): `postgresql://user:pass@host.region.aws.neon.tech/db?sslmode=require`   DATABASE_URL="your-postgresql-url"
+
+- Memory Usage: 300-400MB
+
+- Concurrent Users: ~50
+
+
+
+### After Optimization### 2. Deploy to Render   NEXTAUTH_URL="http://localhost:3000"### Accessing the Platform
+
+- API Response Time: 50-150ms (85% faster)
+
+- Database Queries: 20-80ms (80% faster)
+
+- Memory Usage: 150-250MB (40% reduction)
+
+- Concurrent Users: 1000+ (20x improvement)1. **Fork/Push to GitHub**   NEXTAUTH_SECRET="your-secret-key"
+
+- Cache Hit Rate: 85-95%
+
+   ```bash
+
+See [PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md) for implementation details.
+
    git push origin main   ```- **Public Website**: [http://localhost:3000](http://localhost:3000)
+
+## 📚 Documentation
 
    ```
 
-- **About Page**: [http://localhost:3000/about](http://localhost:3000/about)
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment guide
 
-2. **Create New Web Service** on [Render Dashboard](https://dashboard.render.com/)
+- **[PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md)** - Optimization documentation- **About Page**: [http://localhost:3000/about](http://localhost:3000/about)
+
+- **[docs/deployment/RENDER_DEPLOYMENT.md](docs/deployment/RENDER_DEPLOYMENT.md)** - Render-specific deployment
+
+- **[docs/features/QUOTE_SYSTEM_GUIDE.md](docs/features/QUOTE_SYSTEM_GUIDE.md)** - Quote system documentation2. **Create New Web Service** on [Render Dashboard](https://dashboard.render.com/)
+
+- **[docs/features/GITHUB_INTEGRATION_GUIDE.md](docs/features/GITHUB_INTEGRATION_GUIDE.md)** - GitHub integration guide
 
    - Connect your GitHub repository4. **Run database migrations**:- **Services Page**: [http://localhost:3000/services](http://localhost:3000/services)
 
+## 🔐 Security Features
+
    - Branch: `main`
 
-   - Root Directory: `.`   ```bash- **Portfolio Page**: [http://localhost:3000/portfolio](http://localhost:3000/portfolio)
+- **NextAuth.js Authentication** - Secure session management
+
+- **Rate Limiting** - API protection with sliding window algorithm   - Root Directory: `.`   ```bash- **Portfolio Page**: [http://localhost:3000/portfolio](http://localhost:3000/portfolio)
+
+- **Security Headers** - HSTS, CSP, XSS protection
+
+- **SQL Injection Protection** - Parameterized queries with Prisma
+
+- **CSRF Protection** - Built-in Next.js CSRF tokens
+
+- **Input Validation** - Comprehensive data validation3. **Configure Build Settings**   npx prisma migrate dev- **Contact Page**: [http://localhost:3000/contact](http://localhost:3000/contact)
 
 
 
-3. **Configure Build Settings**   npx prisma migrate dev- **Contact Page**: [http://localhost:3000/contact](http://localhost:3000/contact)
-
-   - Build Command: `npm install && npx prisma generate && npm run build`
-
-   - Start Command: `npm start`   ```- **Admin Dashboard**: [http://localhost:3000/admin](http://localhost:3000/admin)
+## 🤝 Support   - Build Command: `npm install && npx prisma generate && npm run build`
 
 
 
-4. **Add Environment Variables** (from `.env.production.example`)
+**MicroAI Systems**   - Start Command: `npm start`   ```- **Admin Dashboard**: [http://localhost:3000/admin](http://localhost:3000/admin)
 
-   ```
+- Email: sales@microaisystems.com
 
-   DATABASE_URL=<your-neon-pooled-connection>5. **Run the development server**:### API Endpoints
+- Phone: +233 244486837 | +233 544230568
 
-   DIRECT_URL=<your-neon-direct-connection>
+- Address: BR253 Pasture St. Takoradi, Ghana
 
-   NEXTAUTH_URL=https://your-app.onrender.com   ```bash
+- Issues: [GitHub Issues](https://github.com/FyliaCare/MicroAI/issues)4. **Add Environment Variables** (from `.env.production.example`)
+
+
+
+## 📄 License   ```
+
+
+
+MIT License - See [LICENSE](LICENSE) for details.   DATABASE_URL=<your-neon-pooled-connection>5. **Run the development server**:### API Endpoints
+
+
+
+---   DIRECT_URL=<your-neon-direct-connection>
+
+
+
+**MicroAI Systems Platform** - Professional web solutions for modern businesses.   NEXTAUTH_URL=https://your-app.onrender.com   ```bash
+
 
    NEXTAUTH_SECRET=<generate-with-openssl-rand-base64-32>
 

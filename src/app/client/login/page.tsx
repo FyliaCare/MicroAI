@@ -147,7 +147,7 @@ function LoginForm() {
             </p>
             <p className="text-sm text-gray-600">
               Need help?{' '}
-              <a href="mailto:support@microai.systems" className="text-blue-600 hover:underline">
+              <a href="mailto:sales@microaisystems.com" className="text-blue-600 hover:underline">
                 Contact Support
               </a>
             </p>

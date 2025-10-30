@@ -28,6 +28,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# sensitive keys and credentials
+KEYS_STORAGE.md
+
 # vercel
 .vercel
 

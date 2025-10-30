@@ -123,8 +123,11 @@ export default function QuotesListPage() {
 
   const handleDownloadPDF = async (quote: Quote) => {
     try {
+      console.log('Downloading PDF for quote:', quote.id)
       const response = await fetch(`/api/admin/quotes/${quote.id}/pdf`)
+      
       if (response.ok) {
+        console.log('PDF download successful')
         const blob = await response.blob()
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
@@ -135,11 +138,13 @@ export default function QuotesListPage() {
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
       } else {
-        alert('Failed to generate PDF')
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('PDF generation failed:', errorData)
+        alert(`Failed to generate PDF: ${errorData.error}${errorData.details ? ' - ' + errorData.details : ''}`)
       }
     } catch (error) {
       console.error('PDF download error:', error)
-      alert('Failed to download PDF')
+      alert(`Failed to download PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -195,7 +200,7 @@ export default function QuotesListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -224,7 +229,7 @@ export default function QuotesListPage() {
             </Card>
             <Card className="p-4">
               <p className="text-sm text-slate-600 dark:text-slate-400">Draft</p>
-              <p className="text-2xl font-bold text-slate-500">{stats.draft}</p>
+              <p className="text-2xl font-bold text-slate-600">{stats.draft}</p>
             </Card>
             <Card className="p-4">
               <p className="text-sm text-slate-600 dark:text-slate-400">Sent</p>
@@ -287,26 +292,28 @@ export default function QuotesListPage() {
                 </select>
 
                 {/* View Toggle */}
-                <div className="flex gap-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+                <div className="flex gap-1 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-700 dark:to-slate-600 rounded-lg p-1 border border-indigo-200 dark:border-slate-600">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`px-3 py-1 rounded ${
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                       viewMode === 'grid'
-                        ? 'bg-white dark:bg-slate-600 shadow'
-                        : 'text-slate-600 dark:text-slate-400'
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'
                     }`}
+                    title="Grid View"
                   >
-                    ⊞
+                    <span className="text-lg">⊞</span>
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`px-3 py-1 rounded ${
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                       viewMode === 'list'
-                        ? 'bg-white dark:bg-slate-600 shadow'
-                        : 'text-slate-600 dark:text-slate-400'
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'
                     }`}
+                    title="List View"
                   >
-                    ☰
+                    <span className="text-lg">☰</span>
                   </button>
                 </div>
               </div>
@@ -349,7 +356,7 @@ export default function QuotesListPage() {
                       {quote.client?.name || 'No client'}
                     </p>
                     {quote.client?.company && (
-                      <p className="text-xs text-slate-500">{quote.client.company}</p>
+                      <p className="text-xs text-slate-600">{quote.client.company}</p>
                     )}
                   </div>
                   <span
@@ -392,34 +399,32 @@ export default function QuotesListPage() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <Link href={`/admin/quotes/${quote.id}/edit`} className="flex-1">
-                    <Button variant="outline" className="w-full text-sm">
-                      ✏️ Edit
-                    </Button>
-                  </Link>
-                  <Button
+                  <button
+                    onClick={() => router.push(`/admin/quotes/${quote.id}/edit`)}
+                    className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
                     onClick={() => handleDownloadPDF(quote)}
-                    variant="outline"
-                    className="flex-1 text-sm"
+                    className="flex-1 px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
                   >
                     📥 PDF
-                  </Button>
+                  </button>
                   {quote.status === 'accepted' && (
-                    <Button
+                    <button
                       onClick={() => handleOpenConvertModal(quote)}
-                      variant="primary"
-                      className="flex-1 text-sm"
+                      className="flex-1 px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all"
                     >
                       🚀
-                    </Button>
+                    </button>
                   )}
-                  <Button
+                  <button
                     onClick={() => handleDelete(quote.id)}
-                    variant="outline"
-                    className="text-sm text-red-600 border-red-300 hover:bg-red-50"
+                    className="px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
                   >
                     🗑️
-                  </Button>
+                  </button>
                 </div>
               </Card>
             ))}
@@ -427,32 +432,33 @@ export default function QuotesListPage() {
         ) : (
           // List View
           <Card className="overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
-                    Quote #
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
-                    Client
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
-                    Project
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 border-b-2 border-indigo-700">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Quote #
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Client
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Project
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                 {filteredQuotes.map((quote) => (
                   <tr
@@ -527,7 +533,8 @@ export default function QuotesListPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
           </Card>
         )}
       </div>

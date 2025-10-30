@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { cachedQuery, invalidatePattern } from '@/lib/cache-optimized'
+import { checkRateLimit, getClientIdentifier, DEFAULT_RATE_LIMIT } from '@/lib/rate-limit'
 
 // Generate unique quote number
 function generateQuoteNumber(): string {
@@ -10,46 +12,90 @@ function generateQuoteNumber(): string {
   return `QT-${year}${month}-${random}`
 }
 
-// GET /api/admin/quotes - List all quotes
+// GET /api/admin/quotes - List all quotes (optimized with caching)
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const requestIdentifier = getClientIdentifier(request)
+    const rateLimit = checkRateLimit(requestIdentifier, DEFAULT_RATE_LIMIT)
+    
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': String(DEFAULT_RATE_LIMIT.maxRequests),
+            'X-RateLimit-Remaining': String(rateLimit.remaining),
+            'X-RateLimit-Reset': String(rateLimit.resetTime),
+          }
+        }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const clientId = searchParams.get('clientId')
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100) // Max 100 per page
 
     const where: any = {}
     if (status) where.status = status
     if (clientId) where.clientId = clientId
 
-    const quotes = await prisma.quote.findMany({
-      where,
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            company: true,
-          },
-        },
-        project: {
-          select: {
-            id: true,
-            name: true,
-            status: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
+    // Create cache key based on query parameters
+    const cacheKey = `quotes:list:${JSON.stringify(where)}:${page}:${limit}`
 
-    return NextResponse.json({
-      success: true,
-      quotes,
-      count: quotes.length,
-    })
+    // Use cached query with 2-minute cache
+    const quotes = await cachedQuery(
+      cacheKey,
+      async () => {
+        return await prisma.quote.findMany({
+          where,
+          include: {
+            client: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                company: true,
+              },
+            },
+            project: {
+              select: {
+                id: true,
+                name: true,
+                status: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          skip: (page - 1) * limit,
+          take: limit,
+        })
+      },
+      120 // 2 minutes cache
+    )
+
+    // Add rate limit headers to response
+    return NextResponse.json(
+      {
+        success: true,
+        quotes,
+        count: quotes.length,
+        page,
+        limit,
+      },
+      {
+        headers: {
+          'X-RateLimit-Limit': String(DEFAULT_RATE_LIMIT.maxRequests),
+          'X-RateLimit-Remaining': String(rateLimit.remaining),
+          'Cache-Control': 'private, max-age=60', // Browser cache for 1 minute
+        }
+      }
+    )
   } catch (error: any) {
     console.error('Error fetching quotes:', error)
     return NextResponse.json(
@@ -59,9 +105,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/admin/quotes - Create a new quote
+// POST /api/admin/quotes - Create a new quote (optimized)
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting for mutations
+    const clientIdentifier = getClientIdentifier(request)
+    const rateLimit = checkRateLimit(clientIdentifier, { windowMs: 60 * 1000, maxRequests: 30 }) // 30 per minute
+    
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please slow down.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
     
     const {
@@ -210,15 +267,18 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Log activity
-    await prisma.activityLog.create({
+    // Log activity (async, don't wait)
+    prisma.activityLog.create({
       data: {
         action: 'Created',
         entity: 'Quote',
         entityId: quote.id,
         description: `Created quote: ${quote.quoteNumber} - ${quote.title}`,
       },
-    })
+    }).catch(err => console.error('Failed to log activity:', err))
+
+    // Invalidate quotes cache
+    await invalidatePattern('quotes:list')
 
     return NextResponse.json({
       success: true,

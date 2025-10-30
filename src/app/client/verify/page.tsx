@@ -170,7 +170,7 @@ function VerifyContent() {
             <li>• Check if the link in your email is complete</li>
             <li>• Make sure you're using the latest verification email</li>
             <li>• Try copying the entire link and pasting it in your browser</li>
-            <li>• Contact us at <a href="mailto:support@microai.systems" className="underline">support@microai.systems</a></li>
+            <li>• Contact us at <a href="mailto:sales@microaisystems.com" className="underline">sales@microaisystems.com</a></li>
           </ul>
         </div>
 

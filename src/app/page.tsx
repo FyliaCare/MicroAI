@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { StartProjectButton } from '@/components/HomeClient'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
+import { OrganizationSchema, WebsiteSchema, GlobalBusinessSchema } from '@/components/StructuredData'
 
 const SpeedComparison = dynamic(() => import('@/components/SpeedComparison'), {
   loading: () => <div className="h-64 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl animate-pulse" />,
@@ -19,6 +20,11 @@ const AnimatedStats = dynamic(() => import('@/components/AnimatedStats'), {
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white overflow-hidden">
+      {/* Structured Data for SEO */}
+      <OrganizationSchema />
+      <WebsiteSchema />
+      <GlobalBusinessSchema />
+      
       {/* Advanced Navigation */}
       <AdvancedNavbar />
 
@@ -127,34 +133,34 @@ export default function Home() {
             <p className="text-base sm:text-lg md:text-xl text-gray-400">Powerful digital solutions delivered at revolutionary speed</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition-all cursor-pointer hover-lift animate-fadeIn">
+            <Link href="/services/web-applications" className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-blue-500 transition-all cursor-pointer hover-lift animate-fadeIn block">
               <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-400 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform hover-glow">
                 <span className="text-2xl">💻</span>
               </div>
               <h3 className="text-xl font-semibold mb-2">Web Applications</h3>
               <p className="text-gray-400 text-sm">Custom web apps built with cutting-edge technology and delivered fast.</p>
-            </div>
-            <div className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-purple-500 transition-all cursor-pointer hover-lift animate-fadeIn delay-200">
+            </Link>
+            <Link href="/services/web-tools" className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-purple-500 transition-all cursor-pointer hover-lift animate-fadeIn delay-200 block">
               <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-400 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform hover-glow">
                 <span className="text-2xl">🛠️</span>
               </div>
               <h3 className="text-xl font-semibold mb-2">Web Tools</h3>
               <p className="text-gray-400 text-sm">Specialized tools that streamline operations and boost productivity.</p>
-            </div>
-            <div className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-pink-500 transition-all cursor-pointer hover-lift animate-fadeIn delay-500">
+            </Link>
+            <Link href="/services/professional-websites" className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-pink-500 transition-all cursor-pointer hover-lift animate-fadeIn delay-500 block">
               <div className="w-14 h-14 bg-gradient-to-br from-pink-600 to-pink-400 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform hover-glow">
                 <span className="text-2xl">🌐</span>
               </div>
               <h3 className="text-xl font-semibold mb-2">Websites</h3>
               <p className="text-gray-400 text-sm">Professional, responsive websites that convert visitors to customers.</p>
-            </div>
-            <div className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-cyan-500 transition-all cursor-pointer hover-lift animate-fadeIn delay-700">
+            </Link>
+            <Link href="/services/saas-platforms" className="group bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-cyan-500 transition-all cursor-pointer hover-lift animate-fadeIn delay-700 block">
               <div className="w-14 h-14 bg-gradient-to-br from-cyan-600 to-cyan-400 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform hover-glow">
                 <span className="text-2xl">☁️</span>
               </div>
               <h3 className="text-xl font-semibold mb-2">SaaS Platforms</h3>
               <p className="text-gray-400 text-sm">Scalable software-as-a-service solutions ready to launch fast.</p>
-            </div>
+            </Link>
           </div>
         </div>
       </section>

@@ -1,0 +1,27 @@
+{
+  "name": "MicroAI Systems - 10x Faster Web Development",
+  "short_name": "MicroAI",
+  "description": "Revolutionary development technology delivering web applications, SaaS platforms, and digital solutions in 1/10th the time.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/microAi logo main.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "business",
+    "productivity",
+    "development"
+  ],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
+}
