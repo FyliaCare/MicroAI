@@ -796,6 +796,15 @@ model User {
   resetTokenExpiry   DateTime?
   avatar             String?
   phone              String?
+  company            String?
+  website            String?
+  address            String?
+  city               String?
+  state              String?
+  country            String?             @default("Ghana")
+  zipCode            String?
+  bio                String?
+  jobTitle           String?
   timezone           String?             @default("Africa/Accra")
   emailNotifications Boolean             @default(true)
   smsNotifications   Boolean             @default(false)

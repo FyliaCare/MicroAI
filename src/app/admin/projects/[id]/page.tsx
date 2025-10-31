@@ -25,6 +25,7 @@ interface Project {
     email: string
     phone: string | null
     company: string | null
+    userId: string | null
   }
   createdAt: string
   updatedAt: string
@@ -280,7 +281,12 @@ export default function AdminProjectDetailPage() {
                 </div>
               )}
               <Button
-                onClick={() => router.push(`/admin/clients/${project.client.id}`)}
+                onClick={() => {
+                  // Navigate to client profile using the userId from client
+                  if (project.client.userId) {
+                    router.push(`/admin/clients/${project.client.userId}/profile`)
+                  }
+                }}
                 className="w-full mt-4 bg-gray-600 hover:bg-gray-700"
               >
                 View Client Profile
