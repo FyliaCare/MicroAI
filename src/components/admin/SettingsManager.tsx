@@ -47,7 +47,7 @@ interface DevelopmentPhase {
 }
 
 export default function AdvancedSettingsManager() {
-  const [activeTab, setActiveTab] = useState<'templates' | 'company' | 'terms' | 'phases'>('templates')
+  const [activeTab, setActiveTab] = useState<'templates' | 'company' | 'terms' | 'phases' | 'email' | 'notifications' | 'system' | 'queue' | 'users'>('templates')
   const [templates, setTemplates] = useState<QuoteTemplate[]>([])
   const [phases, setPhases] = useState<DevelopmentPhase[]>([])
   const [editingTemplate, setEditingTemplate] = useState<QuoteTemplate | null>(null)
@@ -56,6 +56,56 @@ export default function AdvancedSettingsManager() {
   const [showPhaseModal, setShowPhaseModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
+
+  // Email Settings State
+  const [emailSettings, setEmailSettings] = useState({
+    adminEmail: '',
+    fromEmail: '',
+    replyToEmail: '',
+    resendApiKey: '',
+    smtpHost: '',
+    smtpPort: '',
+    smtpUser: '',
+    smtpPassword: '',
+    provider: 'resend' // 'resend' or 'smtp'
+  })
+
+  // Notification Settings State
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailNotifications: true,
+    newProjectRequest: true,
+    projectApproved: true,
+    projectRejected: true,
+    newQuoteRequest: true,
+    quoteAccepted: true,
+    quoteDenied: true,
+    lowPriorityDelay: 5,
+    mediumPriorityDelay: 2,
+    highPriorityDelay: 0
+  })
+
+  // System Health State
+  const [systemHealth, setSystemHealth] = useState({
+    database: 'checking',
+    email: 'checking',
+    storage: 'checking',
+    cache: 'checking',
+    lastCheck: new Date().toISOString()
+  })
+
+  // Email Queue State
+  const [emailQueue, setEmailQueue] = useState({
+    pending: 0,
+    processing: 0,
+    sent: 0,
+    failed: 0,
+    total: 0,
+    lastProcessed: null as string | null
+  })
+
+  // Users State
+  const [users, setUsers] = useState([])
+  const [loadingUsers, setLoadingUsers] = useState(false)
 
   // Company Profile State
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({
@@ -95,7 +145,20 @@ All code and designs become client property upon final payment.
     fetchPhases()
     loadCompanyProfile()
     loadTermsOfService()
+    loadEmailSettings()
+    loadNotificationSettings()
+    checkSystemHealth()
+    fetchEmailQueueStats()
+    if (activeTab === 'users') {
+      fetchUsers()
+    }
   }, [])
+
+  useEffect(() => {
+    if (activeTab === 'users' && users.length === 0) {
+      fetchUsers()
+    }
+  }, [activeTab])
 
   const loadCompanyProfile = () => {
     try {
@@ -318,6 +381,156 @@ All code and designs become client property upon final payment.
     }
   }
 
+  // Email Settings Functions
+  const loadEmailSettings = () => {
+    try {
+      const saved = localStorage.getItem('emailSettings')
+      if (saved) {
+        setEmailSettings(JSON.parse(saved))
+      }
+    } catch (error) {
+      console.error('Error loading email settings:', error)
+    }
+  }
+
+  const handleSaveEmailSettings = async () => {
+    setLoading(true)
+    try {
+      localStorage.setItem('emailSettings', JSON.stringify(emailSettings))
+      alert('Email settings saved successfully!')
+    } catch (error) {
+      console.error('Error saving email settings:', error)
+      alert('Failed to save email settings')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Notification Settings Functions
+  const loadNotificationSettings = () => {
+    try {
+      const saved = localStorage.getItem('notificationSettings')
+      if (saved) {
+        setNotificationSettings(JSON.parse(saved))
+      }
+    } catch (error) {
+      console.error('Error loading notification settings:', error)
+    }
+  }
+
+  const handleSaveNotificationSettings = async () => {
+    setLoading(true)
+    try {
+      localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings))
+      alert('Notification settings saved successfully!')
+    } catch (error) {
+      console.error('Error saving notification settings:', error)
+      alert('Failed to save notification settings')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // System Health Functions
+  const checkSystemHealth = async () => {
+    try {
+      const response = await fetch('/api/admin/system-health')
+      if (response.ok) {
+        const data = await response.json()
+        setSystemHealth({
+          ...data,
+          lastCheck: new Date().toISOString()
+        })
+      }
+    } catch (error) {
+      console.error('Error checking system health:', error)
+      setSystemHealth({
+        database: 'error',
+        email: 'error',
+        storage: 'error',
+        cache: 'error',
+        lastCheck: new Date().toISOString()
+      })
+    }
+  }
+
+  // Email Queue Functions
+  const fetchEmailQueueStats = async () => {
+    try {
+      const response = await fetch('/api/admin/email-queue/stats')
+      if (response.ok) {
+        const data = await response.json()
+        setEmailQueue(data)
+      }
+    } catch (error) {
+      console.error('Error fetching email queue stats:', error)
+    }
+  }
+
+  const handleTriggerEmailQueue = async () => {
+    if (!confirm('Manually trigger email queue processing?')) return
+
+    setLoading(true)
+    try {
+      const response = await fetch('/api/cron/process-email-queue', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || ''}`
+        }
+      })
+
+      const data = await response.json()
+      
+      if (response.ok) {
+        alert(`Email queue processed!\nSent: ${data.sent}\nFailed: ${data.failed}\nProcessed: ${data.processed}`)
+        await fetchEmailQueueStats()
+      } else {
+        alert(`Failed to process email queue: ${data.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error triggering email queue:', error)
+      alert('Failed to trigger email queue')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Users Functions
+  const fetchUsers = async () => {
+    setLoadingUsers(true)
+    try {
+      const response = await fetch('/api/admin/users')
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data.users || [])
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+    } finally {
+      setLoadingUsers(false)
+    }
+  }
+
+  const handleToggleUserStatus = async (userId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'active' ? 'suspended' : 'active'
+    
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (response.ok) {
+        await fetchUsers()
+        alert(`User ${newStatus === 'active' ? 'activated' : 'suspended'} successfully!`)
+      }
+    } catch (error) {
+      console.error('Error toggling user status:', error)
+      alert('Failed to update user status')
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -375,6 +588,56 @@ All code and designs become client property upon final payment.
               }`}
             >
               🔄 Development Phases
+            </button>
+            <button
+              onClick={() => setActiveTab('email')}
+              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'email'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📧 Email Settings
+            </button>
+            <button
+              onClick={() => setActiveTab('notifications')}
+              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'notifications'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              🔔 Notifications
+            </button>
+            <button
+              onClick={() => setActiveTab('system')}
+              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'system'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              🏥 System Health
+            </button>
+            <button
+              onClick={() => setActiveTab('queue')}
+              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'queue'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📨 Email Queue
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'users'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              👥 Users
             </button>
           </nav>
         </div>
@@ -679,6 +942,716 @@ All code and designs become client property upon final payment.
               >
                 {loading ? 'Saving...' : 'Save Phase Changes'}
               </Button>
+            </div>
+          )}
+
+          {/* Email Settings Tab */}
+          {activeTab === 'email' && (
+            <div className="max-w-3xl space-y-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Email Configuration</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Configure email delivery settings for notifications and client communications
+                </p>
+              </div>
+
+              {/* Provider Selection */}
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Provider</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="provider"
+                      value="resend"
+                      checked={emailSettings.provider === 'resend'}
+                      onChange={(e) => setEmailSettings({ ...emailSettings, provider: e.target.value })}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <div className="ml-3">
+                      <div className="font-medium text-gray-900">Resend (Recommended)</div>
+                      <div className="text-sm text-gray-500">Modern API-based email delivery with Google Workspace integration</div>
+                    </div>
+                  </label>
+                  <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="provider"
+                      value="smtp"
+                      checked={emailSettings.provider === 'smtp'}
+                      onChange={(e) => setEmailSettings({ ...emailSettings, provider: e.target.value })}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <div className="ml-3">
+                      <div className="font-medium text-gray-900">SMTP</div>
+                      <div className="text-sm text-gray-500">Traditional SMTP server configuration</div>
+                    </div>
+                  </label>
+                </div>
+              </Card>
+
+              {/* General Email Settings */}
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">General Settings</h3>
+                <div className="space-y-4">
+                  <Input
+                    label="Admin Email"
+                    type="email"
+                    value={emailSettings.adminEmail}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setEmailSettings({ ...emailSettings, adminEmail: e.target.value })
+                    }
+                    placeholder="admin@microaisystems.com"
+                    helpText="Receives system notifications and project requests"
+                  />
+                  <Input
+                    label="From Email"
+                    type="email"
+                    value={emailSettings.fromEmail}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setEmailSettings({ ...emailSettings, fromEmail: e.target.value })
+                    }
+                    placeholder="sales@microaisystems.com"
+                    helpText="Email address shown as sender to clients"
+                  />
+                  <Input
+                    label="Reply-To Email"
+                    type="email"
+                    value={emailSettings.replyToEmail}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setEmailSettings({ ...emailSettings, replyToEmail: e.target.value })
+                    }
+                    placeholder="sales@microaisystems.com"
+                    helpText="Where client replies will be sent"
+                  />
+                </div>
+              </Card>
+
+              {/* Resend Settings */}
+              {emailSettings.provider === 'resend' && (
+                <Card className="p-6 bg-purple-50 border-purple-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                    Resend API Configuration
+                  </h3>
+                  <Input
+                    label="Resend API Key"
+                    type="password"
+                    value={emailSettings.resendApiKey}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setEmailSettings({ ...emailSettings, resendApiKey: e.target.value })
+                    }
+                    placeholder="re_••••••••••••••••••••"
+                    helpText="Get your API key from resend.com/api-keys"
+                  />
+                  <div className="mt-4 p-3 bg-white rounded-lg border border-purple-200">
+                    <p className="text-sm text-gray-700">
+                      <strong>Current Environment:</strong> Check Render dashboard for configured RESEND_API_KEY
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Environment variables take precedence over settings saved here
+                    </p>
+                  </div>
+                </Card>
+              )}
+
+              {/* SMTP Settings */}
+              {emailSettings.provider === 'smtp' && (
+                <Card className="p-6 bg-blue-50 border-blue-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                    </svg>
+                    SMTP Server Configuration
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="SMTP Host"
+                        value={emailSettings.smtpHost}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                          setEmailSettings({ ...emailSettings, smtpHost: e.target.value })
+                        }
+                        placeholder="smtp.gmail.com"
+                      />
+                      <Input
+                        label="SMTP Port"
+                        type="number"
+                        value={emailSettings.smtpPort}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                          setEmailSettings({ ...emailSettings, smtpPort: e.target.value })
+                        }
+                        placeholder="587"
+                      />
+                    </div>
+                    <Input
+                      label="SMTP Username"
+                      value={emailSettings.smtpUser}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                        setEmailSettings({ ...emailSettings, smtpUser: e.target.value })
+                      }
+                      placeholder="your-email@gmail.com"
+                    />
+                    <Input
+                      label="SMTP Password"
+                      type="password"
+                      value={emailSettings.smtpPassword}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                        setEmailSettings({ ...emailSettings, smtpPassword: e.target.value })
+                      }
+                      placeholder="••••••••••••••••"
+                      helpText="For Gmail, use an App Password"
+                    />
+                  </div>
+                </Card>
+              )}
+
+              <Button
+                onClick={handleSaveEmailSettings}
+                disabled={loading}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {loading ? 'Saving...' : 'Save Email Settings'}
+              </Button>
+            </div>
+          )}
+
+          {/* Notification Settings Tab */}
+          {activeTab === 'notifications' && (
+            <div className="max-w-3xl space-y-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Notification Preferences</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Configure which events trigger notifications and their delivery settings
+                </p>
+              </div>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">General</h3>
+                <label className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                  <div>
+                    <div className="font-medium text-gray-900">Email Notifications</div>
+                    <div className="text-sm text-gray-500">Send email notifications for important events</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings.emailNotifications}
+                    onChange={(e) => setNotificationSettings({ 
+                      ...notificationSettings, 
+                      emailNotifications: e.target.checked 
+                    })}
+                    className="w-5 h-5 text-purple-600 rounded"
+                  />
+                </label>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Project Events</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div>
+                      <div className="font-medium text-gray-900">New Project Request</div>
+                      <div className="text-sm text-gray-500">When a new project request is submitted</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.newProjectRequest}
+                      onChange={(e) => setNotificationSettings({ 
+                        ...notificationSettings, 
+                        newProjectRequest: e.target.checked 
+                      })}
+                      className="w-5 h-5 text-purple-600 rounded"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div>
+                      <div className="font-medium text-gray-900">Project Approved</div>
+                      <div className="text-sm text-gray-500">When a project request is approved</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.projectApproved}
+                      onChange={(e) => setNotificationSettings({ 
+                        ...notificationSettings, 
+                        projectApproved: e.target.checked 
+                      })}
+                      className="w-5 h-5 text-purple-600 rounded"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div>
+                      <div className="font-medium text-gray-900">Project Rejected</div>
+                      <div className="text-sm text-gray-500">When a project request is rejected</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.projectRejected}
+                      onChange={(e) => setNotificationSettings({ 
+                        ...notificationSettings, 
+                        projectRejected: e.target.checked 
+                      })}
+                      className="w-5 h-5 text-purple-600 rounded"
+                    />
+                  </label>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quote Events</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div>
+                      <div className="font-medium text-gray-900">New Quote Request</div>
+                      <div className="text-sm text-gray-500">When a quote is requested</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.newQuoteRequest}
+                      onChange={(e) => setNotificationSettings({ 
+                        ...notificationSettings, 
+                        newQuoteRequest: e.target.checked 
+                      })}
+                      className="w-5 h-5 text-purple-600 rounded"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div>
+                      <div className="font-medium text-gray-900">Quote Accepted</div>
+                      <div className="text-sm text-gray-500">When a client accepts a quote</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.quoteAccepted}
+                      onChange={(e) => setNotificationSettings({ 
+                        ...notificationSettings, 
+                        quoteAccepted: e.target.checked 
+                      })}
+                      className="w-5 h-5 text-purple-600 rounded"
+                    />
+                  </label>
+                  <label className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div>
+                      <div className="font-medium text-gray-900">Quote Denied</div>
+                      <div className="text-sm text-gray-500">When a client denies a quote</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={notificationSettings.quoteDenied}
+                      onChange={(e) => setNotificationSettings({ 
+                        ...notificationSettings, 
+                        quoteDenied: e.target.checked 
+                      })}
+                      className="w-5 h-5 text-purple-600 rounded"
+                    />
+                  </label>
+                </div>
+              </Card>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Priority Delays (minutes)</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Set delay before sending notifications based on priority level
+                </p>
+                <div className="grid grid-cols-3 gap-4">
+                  <Input
+                    label="High Priority"
+                    type="number"
+                    min="0"
+                    value={notificationSettings.highPriorityDelay.toString()}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setNotificationSettings({ 
+                        ...notificationSettings, 
+                        highPriorityDelay: parseInt(e.target.value) || 0 
+                      })
+                    }
+                  />
+                  <Input
+                    label="Medium Priority"
+                    type="number"
+                    min="0"
+                    value={notificationSettings.mediumPriorityDelay.toString()}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setNotificationSettings({ 
+                        ...notificationSettings, 
+                        mediumPriorityDelay: parseInt(e.target.value) || 0 
+                      })
+                    }
+                  />
+                  <Input
+                    label="Low Priority"
+                    type="number"
+                    min="0"
+                    value={notificationSettings.lowPriorityDelay.toString()}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setNotificationSettings({ 
+                        ...notificationSettings, 
+                        lowPriorityDelay: parseInt(e.target.value) || 0 
+                      })
+                    }
+                  />
+                </div>
+              </Card>
+
+              <Button
+                onClick={handleSaveNotificationSettings}
+                disabled={loading}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {loading ? 'Saving...' : 'Save Notification Settings'}
+              </Button>
+            </div>
+          )}
+
+          {/* System Health Tab */}
+          {activeTab === 'system' && (
+            <div className="max-w-4xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">System Health</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Monitor the health status of critical system components
+                  </p>
+                </div>
+                <Button
+                  onClick={checkSystemHealth}
+                  disabled={loading}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  🔄 Refresh Status
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Database Health */}
+                <Card className={`p-6 ${
+                  systemHealth.database === 'healthy' ? 'border-green-300 bg-green-50' :
+                  systemHealth.database === 'error' ? 'border-red-300 bg-red-50' :
+                  'border-yellow-300 bg-yellow-50'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                      </svg>
+                      Database
+                    </h3>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      systemHealth.database === 'healthy' ? 'bg-green-200 text-green-800' :
+                      systemHealth.database === 'error' ? 'bg-red-200 text-red-800' :
+                      'bg-yellow-200 text-yellow-800'
+                    }`}>
+                      {systemHealth.database === 'healthy' ? '✓ Healthy' :
+                       systemHealth.database === 'error' ? '✗ Error' :
+                       '⟳ Checking'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    PostgreSQL connection and query performance
+                  </p>
+                </Card>
+
+                {/* Email Service Health */}
+                <Card className={`p-6 ${
+                  systemHealth.email === 'healthy' ? 'border-green-300 bg-green-50' :
+                  systemHealth.email === 'error' ? 'border-red-300 bg-red-50' :
+                  'border-yellow-300 bg-yellow-50'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Email Service
+                    </h3>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      systemHealth.email === 'healthy' ? 'bg-green-200 text-green-800' :
+                      systemHealth.email === 'error' ? 'bg-red-200 text-red-800' :
+                      'bg-yellow-200 text-yellow-800'
+                    }`}>
+                      {systemHealth.email === 'healthy' ? '✓ Healthy' :
+                       systemHealth.email === 'error' ? '✗ Error' :
+                       '⟳ Checking'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    Resend API connectivity and email delivery
+                  </p>
+                </Card>
+
+                {/* Storage Health */}
+                <Card className={`p-6 ${
+                  systemHealth.storage === 'healthy' ? 'border-green-300 bg-green-50' :
+                  systemHealth.storage === 'error' ? 'border-red-300 bg-red-50' :
+                  'border-yellow-300 bg-yellow-50'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                      </svg>
+                      Storage
+                    </h3>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      systemHealth.storage === 'healthy' ? 'bg-green-200 text-green-800' :
+                      systemHealth.storage === 'error' ? 'bg-red-200 text-red-800' :
+                      'bg-yellow-200 text-yellow-800'
+                    }`}>
+                      {systemHealth.storage === 'healthy' ? '✓ Healthy' :
+                       systemHealth.storage === 'error' ? '✗ Error' :
+                       '⟳ Checking'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    File uploads and static asset storage
+                  </p>
+                </Card>
+
+                {/* Cache Health */}
+                <Card className={`p-6 ${
+                  systemHealth.cache === 'healthy' ? 'border-green-300 bg-green-50' :
+                  systemHealth.cache === 'error' ? 'border-red-300 bg-red-50' :
+                  'border-yellow-300 bg-yellow-50'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      Cache
+                    </h3>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      systemHealth.cache === 'healthy' ? 'bg-green-200 text-green-800' :
+                      systemHealth.cache === 'error' ? 'bg-red-200 text-red-800' :
+                      'bg-yellow-200 text-yellow-800'
+                    }`}>
+                      {systemHealth.cache === 'healthy' ? '✓ Healthy' :
+                       systemHealth.cache === 'error' ? '✗ Error' :
+                       '⟳ Checking'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700">
+                    In-memory cache performance and hit rate
+                  </p>
+                </Card>
+              </div>
+
+              <Card className="p-6 bg-gray-50">
+                <div className="flex items-center text-sm text-gray-600">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Last checked: {new Date(systemHealth.lastCheck).toLocaleString()}
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {/* Email Queue Tab */}
+          {activeTab === 'queue' && (
+            <div className="max-w-4xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Email Queue Monitor</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Track and manage queued emails
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={fetchEmailQueueStats}
+                    disabled={loading}
+                    className="bg-gray-600 hover:bg-gray-700"
+                  >
+                    🔄 Refresh
+                  </Button>
+                  <Button
+                    onClick={handleTriggerEmailQueue}
+                    disabled={loading}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    ⚡ Process Now
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <Card className="p-4 bg-yellow-50 border-yellow-200">
+                  <div className="text-3xl font-bold text-yellow-700">{emailQueue.pending}</div>
+                  <div className="text-sm text-gray-600 mt-1">Pending</div>
+                </Card>
+                <Card className="p-4 bg-blue-50 border-blue-200">
+                  <div className="text-3xl font-bold text-blue-700">{emailQueue.processing}</div>
+                  <div className="text-sm text-gray-600 mt-1">Processing</div>
+                </Card>
+                <Card className="p-4 bg-green-50 border-green-200">
+                  <div className="text-3xl font-bold text-green-700">{emailQueue.sent}</div>
+                  <div className="text-sm text-gray-600 mt-1">Sent</div>
+                </Card>
+                <Card className="p-4 bg-red-50 border-red-200">
+                  <div className="text-3xl font-bold text-red-700">{emailQueue.failed}</div>
+                  <div className="text-sm text-gray-600 mt-1">Failed</div>
+                </Card>
+                <Card className="p-4 bg-purple-50 border-purple-200">
+                  <div className="text-3xl font-bold text-purple-700">{emailQueue.total}</div>
+                  <div className="text-sm text-gray-600 mt-1">Total</div>
+                </Card>
+              </div>
+
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Queue Information</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between p-3 bg-gray-50 rounded">
+                    <span className="text-gray-600">Last Processed:</span>
+                    <span className="font-semibold text-gray-900">
+                      {emailQueue.lastProcessed 
+                        ? new Date(emailQueue.lastProcessed).toLocaleString()
+                        : 'Never'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between p-3 bg-gray-50 rounded">
+                    <span className="text-gray-600">Success Rate:</span>
+                    <span className="font-semibold text-gray-900">
+                      {emailQueue.total > 0 
+                        ? `${((emailQueue.sent / emailQueue.total) * 100).toFixed(1)}%`
+                        : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between p-3 bg-gray-50 rounded">
+                    <span className="text-gray-600">Cron Job Status:</span>
+                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                      Active (Every 10 minutes)
+                    </span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-blue-50 border-blue-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  How It Works
+                </h3>
+                <ul className="text-sm text-gray-700 space-y-2">
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    Emails are queued when generated (welcome emails, notifications, etc.)
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    Cron job processes queue every 10 minutes automatically
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    Failed emails retry with exponential backoff (5min, 10min, 20min)
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    After 3 failed attempts, emails are marked as permanently failed
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    Use "Process Now" to manually trigger immediate processing
+                  </li>
+                </ul>
+              </Card>
+            </div>
+          )}
+
+          {/* Users Tab */}
+          {activeTab === 'users' && (
+            <div className="max-w-6xl space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">User Management</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Manage admin and client accounts
+                  </p>
+                </div>
+                <Button
+                  onClick={fetchUsers}
+                  disabled={loadingUsers}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {loadingUsers ? 'Loading...' : '🔄 Refresh'}
+                </Button>
+              </div>
+
+              {loadingUsers ? (
+                <Card className="p-12">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                  </div>
+                </Card>
+              ) : users.length === 0 ? (
+                <Card className="p-12 text-center">
+                  <p className="text-gray-500">No users found</p>
+                </Card>
+              ) : (
+                <Card className="overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {users.map((user: any) => (
+                          <tr key={user.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="font-medium text-gray-900">{user.name || 'N/A'}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {user.email}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                user.role === 'admin' 
+                                  ? 'bg-purple-100 text-purple-800' 
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {user.role}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                user.status === 'active' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {user.status || 'active'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {new Date(user.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button
+                                onClick={() => handleToggleUserStatus(user.id, user.status || 'active')}
+                                className={`px-3 py-1 rounded ${
+                                  (user.status || 'active') === 'active'
+                                    ? 'text-red-600 hover:bg-red-50'
+                                    : 'text-green-600 hover:bg-green-50'
+                                }`}
+                              >
+                                {(user.status || 'active') === 'active' ? 'Suspend' : 'Activate'}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+              )}
             </div>
           )}
         </div>

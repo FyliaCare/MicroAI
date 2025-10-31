@@ -14,6 +14,7 @@ interface InputProps {
   min?: string
   max?: string
   step?: string
+  helpText?: string
 }
 
 export default function Input({
@@ -31,7 +32,8 @@ export default function Input({
   disabled = false,
   min,
   max,
-  step
+  step,
+  helpText
 }: InputProps) {
   return (
     <div className={`mb-4 ${className}`}>
@@ -58,6 +60,7 @@ export default function Input({
         } ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {helpText && <p className="mt-1 text-xs text-gray-500">{helpText}</p>}
     </div>
   )
 }
