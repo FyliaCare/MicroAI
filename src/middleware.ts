@@ -70,9 +70,10 @@ export async function middleware(request: NextRequest) {
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()')
   
   // Additional security headers to prevent clickjacking and injection attacks
-  response.headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
+  // Note: COEP can break browser extensions, using unsafe-none for compatibility
+  response.headers.set('Cross-Origin-Embedder-Policy', 'unsafe-none')
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin')
-  response.headers.set('Cross-Origin-Resource-Policy', 'same-origin')
+  response.headers.set('Cross-Origin-Resource-Policy', 'cross-origin')
   
   // Strict Transport Security (HSTS) - only in production
   if (process.env.NODE_ENV === 'production') {
