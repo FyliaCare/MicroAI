@@ -235,14 +235,17 @@ export async function POST(request: NextRequest) {
       try {
         await prisma.projectRequest.create({
           data: {
-            name: updatedData.name || 'Anonymous',
-            email: updatedData.email,
-            projectType: 'Web Application',
+            requestNumber: `REQ-${Date.now()}`,
+            clientName: updatedData.name || 'Anonymous',
+            clientEmail: updatedData.email,
+            projectName: 'Live Chat Inquiry',
+            projectType: 'web',
             description: updatedData.projectDetails || updatedData.projectDescription || message,
-            budget: updatedData.budget || 'Not specified',
+            requirements: updatedData.projectDetails || updatedData.projectDescription || message,
+            budgetRange: updatedData.budget || 'Not specified',
             timeline: updatedData.timeline || 'ASAP',
             status: 'pending',
-            source: 'Live Chat Bot',
+            source: 'chat',
           },
         })
       } catch (error) {

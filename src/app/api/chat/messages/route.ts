@@ -76,7 +76,6 @@ export async function POST(request: NextRequest) {
         const notificationPromises = admins.map((admin) =>
           prisma.notification.create({
             data: {
-              userId: admin.id,
               type: 'CHAT_MESSAGE',
               title: 'New Chat Message',
               message: `${session?.visitorName || 'Visitor'} sent a message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
