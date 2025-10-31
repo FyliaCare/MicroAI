@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
+import { authOptions } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
+
+export const dynamic = 'force-dynamic'
 
 // POST /api/admin/project-requests/[id]/approve - Approve project request
 export async function POST(
@@ -8,8 +12,22 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const session = await getServerSession(authOptions)
+    
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - Admin access required' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
-    const { adminId, adminName, notes } = body
+    const { notes } = body
+    
+    // Use session data for admin info
+    const adminId = session.user.id
+    const adminName = session.user.name
 
     // Get the project request
     const projectRequest = await prisma.projectRequest.findUnique({

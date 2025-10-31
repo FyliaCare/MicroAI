@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
+import { authOptions } from '@/lib/auth'
+
+export const dynamic = 'force-dynamic'
 
 // POST /api/admin/project-requests/[id]/reject - Reject project request
 export async function POST(
@@ -7,8 +11,22 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Verify admin authentication
+    const session = await getServerSession(authOptions)
+    
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - Admin access required' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
-    const { adminId, adminName, reason, notes } = body
+    const { reason, notes } = body
+    
+    // Use session data for admin info
+    const adminId = session.user.id
+    const adminName = session.user.name
 
     if (!reason) {
       return NextResponse.json(

@@ -9,15 +9,32 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   try {
     console.log('📥 GET /api/admin/project-requests - Request received')
+    console.log('🔑 Request headers:', {
+      cookie: request.headers.get('cookie') ? 'present' : 'missing',
+      authorization: request.headers.get('authorization') ? 'present' : 'missing'
+    })
     
     const session = await getServerSession(authOptions)
-    console.log('👤 Session:', { userId: session?.user?.id, role: session?.user?.role })
+    console.log('👤 Session:', { 
+      exists: !!session,
+      userId: session?.user?.id, 
+      role: session?.user?.role,
+      email: session?.user?.email
+    })
 
-    if (!session || session.user.role !== 'admin') {
-      console.log('❌ Unauthorized access attempt')
+    if (!session) {
+      console.log('❌ No session found')
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'No session - please login again' },
         { status: 401 }
+      )
+    }
+
+    if (session.user.role !== 'admin') {
+      console.log('❌ User is not admin, role:', session.user.role)
+      return NextResponse.json(
+        { success: false, error: 'Admin access required' },
+        { status: 403 }
       )
     }
 

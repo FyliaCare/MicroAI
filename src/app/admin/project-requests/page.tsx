@@ -88,8 +88,6 @@ export default function ProjectRequestsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          adminId: session?.user?.id,
-          adminName: session?.user?.name,
           notes: approveNotes,
         }),
       })
@@ -127,8 +125,6 @@ export default function ProjectRequestsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          adminId: session?.user?.id,
-          adminName: session?.user?.name,
           reason: rejectReason,
           notes: rejectNotes,
         }),
