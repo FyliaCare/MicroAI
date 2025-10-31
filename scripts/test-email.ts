@@ -8,6 +8,11 @@
  */
 
 import { Resend } from 'resend'
+import dotenv from 'dotenv'
+import { resolve } from 'path'
+
+// Load .env.local
+dotenv.config({ path: resolve(process.cwd(), '.env.local') })
 
 async function testEmail() {
   console.log('🧪 Testing Email Configuration...\n')
