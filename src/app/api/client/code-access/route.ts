@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
         type: 'code-access-request',
         title: 'Code Access Request',
         message: `${session.user.client.name} requested code access for ${project.name}`,
-        link: `/admin/code-access/${codeAccessRequest.id}`,
+        link: `/admin/projects/${project.id}`,
         priority: 'high',
       },
     })
