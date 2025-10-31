@@ -56,17 +56,22 @@ export default function ProjectRequestsPage() {
 
   const fetchRequests = async () => {
     try {
+      console.log('Fetching project requests...')
       const response = await fetch('/api/admin/project-requests')
       const data = await response.json()
       
+      console.log('API Response:', data)
+      console.log('Requests count:', data.requests?.length)
+      
       if (data.success) {
-        setRequests(data.requests)
+        setRequests(data.requests || [])
+        console.log('Set requests:', data.requests)
       } else {
         setError(data.error)
       }
     } catch (err) {
       setError('Failed to load project requests')
-      console.error(err)
+      console.error('Fetch error:', err)
     } finally {
       setLoading(false)
     }

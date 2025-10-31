@@ -719,27 +719,29 @@ export default function ClientDashboard() {
             </div>
           </div>
 
-          {/* Support Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white shadow-lg">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Support Card - Redesigned Compact */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full">
+            <div className="p-6">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">Need Help?</h3>
-                  <p className="text-sm text-gray-600">We're here to assist you</p>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900">Need Help?</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">We're here to assist</p>
                 </div>
               </div>
-              <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-                Have questions about your projects or need technical assistance? Our support team is ready to help.
+              
+              <p className="text-sm text-gray-600 mb-4 leading-snug">
+                Questions about your projects or need technical assistance?
               </p>
-              <div className="space-y-3">
+              
+              <div className="space-y-2.5">
                 <Button
                   onClick={() => window.location.href = 'mailto:sales@microaisystems.com'}
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm py-2.5"
                   size="sm"
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -747,18 +749,17 @@ export default function ClientDashboard() {
                   </svg>
                   Contact Support
                 </Button>
-                <div className="grid grid-cols-2 gap-3 text-xs text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                
+                <div className="flex items-center justify-between pt-2 pb-1 px-2 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    <span>+233 244 486 837</span>
+                    <span className="text-xs text-gray-700 font-medium">+233 244 486 837</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>24/7 Available</span>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-600 font-semibold">24/7</span>
                   </div>
                 </div>
               </div>
