@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import { X, Minimize2, Send, Paperclip, Smile, ArrowDown } from 'lucide-react'
 
 interface Message {
@@ -27,6 +28,7 @@ interface ChatSession {
 }
 
 export default function ChatWidget() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [session, setSession] = useState<ChatSession | null>(null)
@@ -37,6 +39,11 @@ export default function ChatWidget() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [uploading, setUploading] = useState(false)
   const [showScrollButton, setShowScrollButton] = useState(false)
+  
+  // Hide chat widget on admin and client portal pages
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/client')) {
+    return null
+  }
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
