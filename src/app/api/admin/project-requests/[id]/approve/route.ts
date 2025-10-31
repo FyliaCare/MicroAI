@@ -112,16 +112,6 @@ export async function POST(
       }
 
       // 3. Create Project
-      const requirements = projectRequest.requirements
-        ? JSON.parse(projectRequest.requirements)
-        : {}
-      const features = projectRequest.features
-        ? JSON.parse(projectRequest.features)
-        : []
-      const techPrefs = projectRequest.techPreferences
-        ? JSON.parse(projectRequest.techPreferences)
-        : []
-
       const project = await tx.project.create({
         data: {
           name: projectRequest.projectName,
@@ -133,10 +123,10 @@ export async function POST(
           startDate: projectRequest.startDate,
           deadline: projectRequest.deadline,
           clientId: client.id,
-          requirements: JSON.stringify(requirements),
-          techStack: JSON.stringify(techPrefs),
-          tags: JSON.stringify(features),
-          notes: `Created from project request ${projectRequest.requestNumber}`,
+          requirements: projectRequest.requirements || '',
+          techStack: projectRequest.techPreferences || '',
+          tags: projectRequest.features || '',
+          notes: `Created from project request ${projectRequest.requestNumber}${notes ? '\n\nAdmin Notes: ' + notes : ''}`,
         },
       })
 
