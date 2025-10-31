@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
+import { Resend } from 'resend'
 
 export const dynamic = 'force-dynamic'
 
@@ -216,8 +217,56 @@ export async function POST(
         client,
         project,
         updatedRequest,
+        welcomeEmailHtml: generateWelcomeEmail({
+          clientName: projectRequest.clientName,
+          projectName: projectRequest.projectName,
+          email: projectRequest.clientEmail,
+          tempPassword,
+          loginUrl: `${process.env.NEXT_PUBLIC_APP_URL}/client/login`,
+          verifyUrl: `${process.env.NEXT_PUBLIC_APP_URL}/client/verify?token=${verificationToken}`,
+          expiryDays: 30,
+        }),
       }
     })
+
+    // Send welcome email immediately via Resend
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@microaisystems.com'
+
+      const { data, error } = await resend.emails.send({
+        from: fromEmail,
+        to: projectRequest.clientEmail,
+        subject: '🎉 Welcome to MicroAI Systems - Your Project Has Been Approved!',
+        html: result.welcomeEmailHtml,
+        replyTo: process.env.ADMIN_EMAIL || 'sales@microaisystems.com',
+      })
+
+      if (error) {
+        console.error('❌ Failed to send welcome email:', error)
+        // Don't fail the request - email is already queued
+      } else {
+        console.log('✅ Welcome email sent successfully! Email ID:', data?.id)
+        
+        // Update email queue record to mark as sent
+        await prisma.emailQueue.updateMany({
+          where: {
+            to: projectRequest.clientEmail,
+            status: 'pending',
+            templateType: 'welcome',
+          },
+          data: {
+            status: 'sent',
+            sentAt: new Date(),
+            provider: 'resend',
+            lastAttemptAt: new Date(),
+          },
+        })
+      }
+    } catch (emailError: any) {
+      console.error('❌ Error sending welcome email:', emailError.message)
+      // Continue - email is queued and will be retried by cron job
+    }
 
     return NextResponse.json({
       success: true,

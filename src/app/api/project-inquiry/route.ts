@@ -201,13 +201,12 @@ Next Step: Send Teams meeting invite to ${body.email}
     `
 
     // Send email to admin
-    // Temporary: Send to verified email for testing
-    const adminEmail = process.env.RESEND_TO_EMAIL || 'microailabsglobal@gmail.com'
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.RESEND_TO_EMAIL || 'sales@microaisystems.com'
     
     try {
       const { data, error } = await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'MicroAI Systems AI Bot <onboarding@resend.dev>',
-        to: [adminEmail], // Changed to verified email
+        to: [adminEmail],
         subject: `🤖 New AI Bot Inquiry from ${body.name} - ${formattedProjectType}`,
         replyTo: body.email,
         html: adminEmailHtml,

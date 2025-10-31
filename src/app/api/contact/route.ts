@@ -126,8 +126,7 @@ Submitted: ${new Date().toLocaleString()}
     // Send email to admin using Resend
     console.log('📧 Attempting to send email via Resend API...')
     
-    // Temporary: Send to verified email for testing
-    const adminEmail = process.env.RESEND_TO_EMAIL || 'microailabsglobal@gmail.com'
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.RESEND_TO_EMAIL || 'sales@microaisystems.com'
     
     console.log('Resend Config:', {
       hasApiKey: !!process.env.RESEND_API_KEY,
@@ -138,7 +137,7 @@ Submitted: ${new Date().toLocaleString()}
     try {
       const { data, error } = await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
-        to: [adminEmail], // Changed to verified email
+        to: [adminEmail],
         subject: `🚀 New Client Request from ${body.name}${body.company ? ` - ${body.company}` : ''}`,
         replyTo: body.email,
         html: emailHtml,
