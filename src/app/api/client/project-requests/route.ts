@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// POST /api/client/project-requests - Create new project request
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
+// POST /api/client/project-requests - Create new project request (pending admin approval)
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -44,27 +47,33 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Combine features into requirements since features field doesn't exist in schema
-    const combinedRequirements = [
-      requirements || '',
-      features ? `\n\nKey Features:\n${features}` : ''
-    ].filter(Boolean).join('')
+    const client = session.user.client
 
-    // Create project with 'planning' status (admin needs to approve/review)
-    const project = await prisma.project.create({
+    // Generate unique request number
+    const requestCount = await prisma.projectRequest.count()
+    const requestNumber = `PR-${String(requestCount + 1).padStart(4, '0')}`
+
+    // Create PROJECT REQUEST (not project yet - awaiting admin approval)
+    const projectRequest = await prisma.projectRequest.create({
       data: {
-        name,
+        requestNumber,
+        clientName: client.name,
+        clientEmail: client.email,
+        clientPhone: client.phone,
+        clientCompany: client.company,
+        clientWebsite: client.website,
+        projectName: name,
+        projectType: type,
         description,
-        type: type || 'web-app',
-        status: 'planning', // Starts in planning, admin can change
-        priority: priority || 'medium',
-        progress: 0,
-        clientId: session.user.client.id,
+        requirements: requirements || '',
+        features: features || null,
+        techPreferences: techPreferences || null,
         budget: budget ? parseFloat(budget) : null,
         deadline: deadline ? new Date(deadline) : null,
-        requirements: combinedRequirements || null,
-        techStack: techPreferences || null,
-        notes: `Requested by client via portal.`,
+        priority: priority || 'normal',
+        status: 'pending', // Awaiting admin review
+        clientId: client.id,
+        source: 'client-portal',
       },
     })
 
@@ -73,11 +82,11 @@ export async function POST(request: NextRequest) {
       data: {
         type: 'new-project-request',
         title: `New Project Request: ${name}`,
-        message: `${session.user.client.name} has submitted a new project request.`,
-        link: `/admin/projects?projectId=${project.id}`,
+        message: `${client.name} has submitted a new project request (${requestNumber}). Click to review and approve.`,
+        link: `/admin/project-requests?requestId=${projectRequest.id}`,
         priority: 'high',
-        entityType: 'Project',
-        entityId: project.id,
+        entityType: 'ProjectRequest',
+        entityId: projectRequest.id,
       },
     })
 
@@ -85,24 +94,26 @@ export async function POST(request: NextRequest) {
     await prisma.activityLog.create({
       data: {
         action: 'Created',
-        entity: 'Project',
-        entityId: project.id,
-        description: `Client ${session.user.client.name} requested new project: ${name}`,
+        entity: 'ProjectRequest',
+        entityId: projectRequest.id,
+        description: `Client ${client.name} submitted project request: ${name} (${requestNumber})`,
         metadata: JSON.stringify({
-          clientId: session.user.client.id,
+          clientId: client.id,
           projectType: type,
           source: 'client-portal',
+          requestNumber,
         }),
       },
     })
 
     return NextResponse.json({
       success: true,
-      message: 'Project request submitted successfully',
-      project: {
-        id: project.id,
-        name: project.name,
-        status: project.status,
+      message: 'Project request submitted successfully! Our team will review it shortly.',
+      projectRequest: {
+        id: projectRequest.id,
+        requestNumber: projectRequest.requestNumber,
+        projectName: projectRequest.projectName,
+        status: projectRequest.status,
       },
     })
   } catch (error) {
@@ -132,16 +143,7 @@ export async function GET(request: NextRequest) {
       include: {
         user: {
           include: {
-            client: {
-              include: {
-                projects: {
-                  where: {
-                    status: 'planning', // Only show pending requests
-                  },
-                  orderBy: { createdAt: 'desc' },
-                },
-              },
-            },
+            client: true,
           },
         },
       },
@@ -154,9 +156,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Get project requests for this client
+    const requests = await prisma.projectRequest.findMany({
+      where: {
+        clientId: session.user.client.id,
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
     return NextResponse.json({
       success: true,
-      requests: session.user.client.projects,
+      requests,
     })
   } catch (error) {
     console.error('Get project requests error:', error)

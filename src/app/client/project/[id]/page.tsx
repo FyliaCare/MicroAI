@@ -45,7 +45,7 @@ export default function ProjectDetailPage() {
   const fetchProject = async () => {
     try {
       const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
-      const token = session.sessionToken
+      const token = session.token
 
       if (!token) {
         router.push('/client/login')
@@ -80,7 +80,7 @@ export default function ProjectDetailPage() {
   const fetchUploads = async () => {
     try {
       const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
-      const token = session.sessionToken
+      const token = session.token
 
       if (!token) return
 
@@ -102,7 +102,7 @@ export default function ProjectDetailPage() {
   const fetchComments = async () => {
     try {
       const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
-      const token = session.sessionToken
+      const token = session.token
 
       if (!token) return
 

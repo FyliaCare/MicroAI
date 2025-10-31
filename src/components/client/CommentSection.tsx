@@ -62,7 +62,7 @@ export default function CommentSection({
 
     try {
       const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
-      const token = session.sessionToken
+      const token = session.token
 
       if (!token) {
         throw new Error('No session token found')
@@ -104,7 +104,7 @@ export default function CommentSection({
 
     try {
       const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
-      const token = session.sessionToken
+      const token = session.token
 
       if (!token) {
         throw new Error('No session token found')

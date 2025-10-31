@@ -37,7 +37,7 @@ export default function NewProjectRequestModal({
 
     try {
       const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
-      const token = session.sessionToken
+      const token = session.token
 
       if (!token) {
         throw new Error('No session token found')
