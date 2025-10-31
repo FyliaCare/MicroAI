@@ -30,13 +30,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    if (session.user.role !== 'admin') {
+    // Allow both 'admin' and 'super-admin' roles
+    if (session.user.role !== 'admin' && session.user.role !== 'super-admin') {
       console.log('❌ User is not admin, role:', session.user.role)
       return NextResponse.json(
         { success: false, error: 'Admin access required' },
         { status: 403 }
       )
     }
+    
+    console.log('✅ Admin access granted for role:', session.user.role)
 
     // Get query params for filtering
     const { searchParams } = new URL(request.url)
