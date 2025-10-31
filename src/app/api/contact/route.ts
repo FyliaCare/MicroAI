@@ -332,69 +332,81 @@ microailabs@outlook.com
       // Continue anyway
     }
 
-    // Create or find client in database
-    let client = await prisma.client.findUnique({
-      where: { email: body.email }
+    // Generate unique request number
+    const lastRequest = await prisma.projectRequest.findFirst({
+      orderBy: { requestNumber: 'desc' },
+      select: { requestNumber: true }
+    })
+    
+    let requestNumber = 'PR-0001'
+    if (lastRequest?.requestNumber) {
+      const lastNumber = parseInt(lastRequest.requestNumber.split('-')[1])
+      requestNumber = `PR-${String(lastNumber + 1).padStart(4, '0')}`
+    }
+
+    // Create ProjectRequest (pending approval)
+    const projectRequest = await prisma.projectRequest.create({
+      data: {
+        requestNumber,
+        projectName: `${body.company || body.name} - Website Inquiry`,
+        clientName: body.name,
+        clientEmail: body.email,
+        clientPhone: body.phone || null,
+        clientCompany: body.company || null,
+        projectType: 'web-app',
+        description: body.message,
+        requirements: `Source: Website Contact Form${body.company ? `\nCompany: ${body.company}` : ''}`,
+        status: 'pending',
+        priority: 'medium',
+        source: 'contact-form'
+      }
     })
 
-    if (!client) {
-      client = await prisma.client.create({
+    // Get all admins for notifications
+    const admins = await prisma.user.findMany({
+      where: {
+        OR: [
+          { role: 'admin' },
+          { role: 'super-admin' }
+        ]
+      }
+    })
+
+    // Create notifications for all admins
+    for (const admin of admins) {
+      await prisma.notification.create({
         data: {
-          name: body.name,
-          email: body.email,
-          phone: body.phone || null,
-          company: body.company || null,
-          status: 'active',
-          notes: `Initial contact through website form: ${body.message}`
+          type: 'project_request',
+          title: '� New Contact Form Submission',
+          message: `${body.name}${body.company ? ` from ${body.company}` : ''} submitted an inquiry. Request: ${requestNumber}`,
+          link: `/admin/project-requests?requestId=${projectRequest.id}`,
+          priority: 'high',
+          entityType: 'admin',
+          entityId: admin.id
         }
       })
     }
-
-    // Create a project request
-    const project = await prisma.project.create({
-      data: {
-        name: `${body.company || body.name} - Website Inquiry`,
-        description: body.message,
-        type: 'web-app', // Default type
-        status: 'planning',
-        priority: 'medium',
-        clientId: client.id,
-        notes: `Source: Website Contact Form\nPhone: ${body.phone || 'Not provided'}\nCompany: ${body.company || 'Not provided'}`
-      }
-    })
-
-    // Create notification for admin
-    await prisma.notification.create({
-      data: {
-        type: 'new-project',
-        title: '🚀 New Project Request',
-        message: `${body.name}${body.company ? ` from ${body.company}` : ''} submitted a project inquiry`,
-        link: `/admin?tab=projects`,
-        priority: 'high',
-        entityType: 'Project',
-        entityId: project.id
-      }
-    })
 
     // Log activity
     await prisma.activityLog.create({
       data: {
         action: 'Created',
-        entity: 'Project',
-        entityId: project.id,
-        description: `New project request from website contact form: ${body.name}`,
+        entity: 'ProjectRequest',
+        entityId: projectRequest.id,
+        description: `New project request from website contact form: ${body.name} (${requestNumber})`,
         metadata: JSON.stringify({
           source: 'website-contact-form',
           email: body.email,
-          company: body.company
+          company: body.company,
+          requestNumber
         })
       }
     })
 
     // Log submission
     console.log('✅ Contact form submission processed:', {
-      clientId: client.id,
-      projectId: project.id,
+      projectRequestId: projectRequest.id,
+      requestNumber: requestNumber,
       name: body.name
     })
 
@@ -402,8 +414,8 @@ microailabs@outlook.com
       success: true,
       message: 'Thank you for your message. We will get back to you soon!',
       data: {
-        clientId: client.id,
-        projectId: project.id,
+        projectRequestId: projectRequest.id,
+        requestNumber: requestNumber,
         submittedAt: new Date().toISOString()
       }
     }, { status: 201 })

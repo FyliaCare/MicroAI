@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -11,6 +11,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
@@ -161,8 +162,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                               }`}
                               onClick={() => {
                                 if (!notif.isRead) markAsRead(notif.id)
+                                setShowNotifications(false)
                                 if (notif.link) {
-                                  setShowNotifications(false)
+                                  router.push(notif.link)
                                 }
                               }}
                             >

@@ -401,76 +401,89 @@ microailabs@outlook.com
       // Continue anyway
     }
 
-    // Create database records (Client, Project, Notification)
-    let clientId, projectId
+    // Create database records (Client, ProjectRequest, Notification)
+    let clientId, projectRequestId
     try {
       const { prisma } = await import('@/lib/prisma')
       
-      // Create or find client in database
-      let client = await prisma.client.findUnique({
-        where: { email: body.email }
+      // Generate unique request number
+      const lastRequest = await prisma.projectRequest.findFirst({
+        orderBy: { requestNumber: 'desc' },
+        select: { requestNumber: true }
+      })
+      
+      let requestNumber = 'PR-0001'
+      if (lastRequest?.requestNumber) {
+        const lastNumber = parseInt(lastRequest.requestNumber.split('-')[1])
+        requestNumber = `PR-${String(lastNumber + 1).padStart(4, '0')}`
+      }
+
+      // Create ProjectRequest (pending approval)
+      const projectRequest = await prisma.projectRequest.create({
+        data: {
+          requestNumber,
+          projectName: `${body.name} - AI Bot ${formattedProjectType}`,
+          clientName: body.name,
+          clientEmail: body.email,
+          clientPhone: body.phone || null,
+          projectType: formattedProjectType.toLowerCase().replace(/\s+/g, '-'),
+          description: body.projectIdea,
+          requirements: `Project Type: ${formattedProjectType}\nTimeline: ${formattedTimeline}\nBudget: ${formattedBudget}`,
+          budgetRange: formattedBudget,
+          timeline: formattedTimeline,
+          status: 'pending',
+          priority: 'high',
+          source: 'ai-bot'
+        }
+      })
+      projectRequestId = projectRequest.id
+
+      // Get all admins for notifications
+      const admins = await prisma.user.findMany({
+        where: {
+          OR: [
+            { role: 'admin' },
+            { role: 'super-admin' }
+          ]
+        }
       })
 
-      if (!client) {
-        client = await prisma.client.create({
+      // Create notifications for all admins
+      for (const admin of admins) {
+        await prisma.notification.create({
           data: {
-            name: body.name,
-            email: body.email,
-            phone: body.phone || null,
-            status: 'active',
-            notes: `AI Bot inquiry: ${body.projectIdea}`
+            type: 'project_request',
+            title: `🤖 New AI Bot Project Request from ${body.name}`,
+            message: `${formattedProjectType} - ${formattedBudget}, ${formattedTimeline}. Request: ${requestNumber}`,
+            link: `/admin/project-requests?requestId=${projectRequest.id}`,
+            priority: 'high',
+            entityType: 'admin',
+            entityId: admin.id
           }
         })
       }
-      clientId = client.id
-
-      // Create a project request
-      const project = await prisma.project.create({
-        data: {
-          name: `${body.name} - AI Bot ${formattedProjectType}`,
-          description: body.projectIdea,
-          type: 'web-app',
-          status: 'planning',
-          priority: 'high',
-          clientId: client.id,
-          notes: `Source: AI Bot Assistant\nProject Type: ${formattedProjectType}\nTimeline: ${formattedTimeline}\nBudget: ${formattedBudget}\nPhone: ${body.phone || 'Not provided'}`
-        }
-      })
-      projectId = project.id
-
-      // Create notification for admin
-      await prisma.notification.create({
-        data: {
-          type: 'new-project',
-          title: `🤖 New AI Bot Inquiry from ${body.name}`,
-          message: `${formattedProjectType} project - ${formattedBudget} budget, ${formattedTimeline} timeline`,
-          link: `/admin?tab=projects`,
-          priority: 'high',
-          entityType: 'Project',
-          entityId: project.id
-        }
-      })
 
       // Log activity
       await prisma.activityLog.create({
         data: {
           action: 'Created',
-          entity: 'Project',
-          entityId: project.id,
-          description: `New project inquiry from AI Bot: ${body.name}`,
+          entity: 'ProjectRequest',
+          entityId: projectRequest.id,
+          description: `New project request from AI Bot: ${body.name} (${requestNumber})`,
           metadata: JSON.stringify({
             source: 'ai-bot',
             projectType: formattedProjectType,
             timeline: formattedTimeline,
             budget: formattedBudget,
-            email: body.email
+            email: body.email,
+            requestNumber
           })
         }
       })
 
       console.log('✅ Database records created:', {
-        clientId: client.id,
-        projectId: project.id
+        projectRequestId: projectRequest.id,
+        requestNumber: requestNumber
       })
     } catch (dbError) {
       console.error('❌ Failed to create database records:', dbError)
@@ -484,10 +497,9 @@ microailabs@outlook.com
       success: true,
       message: 'Project inquiry received! Check your email for confirmation.',
       data: {
-        clientId,
-        projectId,
+        projectRequestId,
         submittedAt: new Date().toISOString(),
-        status: 'new',
+        status: 'pending',
         source: 'ai-bot'
       }
     }, { status: 201 })
