@@ -54,11 +54,14 @@ export default function ClientProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem('clientToken')
-      if (!token) {
+      const sessionStr = localStorage.getItem('clientSession')
+      if (!sessionStr) {
         router.push('/client/login')
         return
       }
+
+      const sessionData = JSON.parse(sessionStr)
+      const token = sessionData.token
 
       const response = await fetch('/api/client/profile', {
         headers: {
@@ -106,11 +109,14 @@ export default function ClientProfilePage() {
     setMessage(null)
 
     try {
-      const token = localStorage.getItem('clientToken')
-      if (!token) {
+      const sessionStr = localStorage.getItem('clientSession')
+      if (!sessionStr) {
         router.push('/client/login')
         return
       }
+
+      const sessionData = JSON.parse(sessionStr)
+      const token = sessionData.token
 
       const response = await fetch('/api/client/profile', {
         method: 'PATCH',

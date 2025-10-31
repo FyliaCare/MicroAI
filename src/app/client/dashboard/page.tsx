@@ -193,44 +193,51 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Advanced Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-lg font-bold shadow-lg">
-                    {clientInfo?.name?.charAt(0) || 'C'}
-                  </div>
-                  <div>
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      Client Portal
-                    </h1>
-                    {clientInfo && (
-                      <p className="text-gray-600 text-sm">
-                        Welcome back, <span className="font-medium text-gray-900">{clientInfo.name}</span>
-                        {clientInfo.company && <span className="text-gray-400"> • {clientInfo.company}</span>}
-                      </p>
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-gray-200/80 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-5">
+            {/* Left Section - Branding & User Info */}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-xl ring-4 ring-blue-100 transition-transform hover:scale-105">
+                  {clientInfo?.name?.charAt(0) || 'C'}
+                </div>
+                <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white"></div>
+              </div>
+              
+              <div className="flex flex-col">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
+                  Client Portal
+                </h1>
+                {clientInfo && (
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-sm font-semibold text-gray-900">{clientInfo.name}</span>
+                    {clientInfo.company && (
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <span className="text-sm text-gray-600 font-medium">{clientInfo.company}</span>
+                      </>
                     )}
                   </div>
-                </div>
+                )}
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            {/* Right Section - Actions */}
+            <div className="flex items-center gap-2">
               {/* Notifications */}
               <div className="relative">
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                  className="relative p-2.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 group"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                   {stats && stats.totalUnreadUpdates > 0 && (
-                    <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
-                      {stats.totalUnreadUpdates}
+                    <span className="absolute -top-1 -right-1 h-6 w-6 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg ring-2 ring-white animate-pulse">
+                      {stats.totalUnreadUpdates > 9 ? '9+' : stats.totalUnreadUpdates}
                     </span>
                   )}
                 </button>
@@ -265,27 +272,41 @@ export default function ClientDashboard() {
                 )}
               </div>
               
-              {/* Quick Actions Dropdown */}
-              <Button onClick={() => router.push('/client/profile')} variant="outline" size="sm">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Divider */}
+              <div className="h-8 w-px bg-gray-200"></div>
+
+              {/* Profile Button */}
+              <button
+                onClick={() => router.push('/client/profile')}
+                className="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium group"
+              >
+                <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Profile
-              </Button>
+                <span className="hidden sm:inline">Profile</span>
+              </button>
 
-              <Button onClick={() => router.push('/client/change-password')} variant="outline" size="sm">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Security Button */}
+              <button
+                onClick={() => router.push('/client/change-password')}
+                className="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-all duration-200 font-medium group"
+              >
+                <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                Security
-              </Button>
-              
-              <Button onClick={handleLogout} variant="outline" size="sm">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="hidden sm:inline">Security</span>
+              </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 group"
+              >
+                <svg className="w-5 h-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                Logout
-              </Button>
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </div>
         </div>
