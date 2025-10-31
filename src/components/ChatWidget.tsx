@@ -84,6 +84,24 @@ export default function ChatWidget() {
       if (data.success) {
         setSession(data.session)
         setMessages(data.session.messages)
+        
+        // Trigger bot welcome message for new sessions
+        if (data.session.messages.length === 0) {
+          setTimeout(async () => {
+            try {
+              const welcomeResponse = await fetch(
+                `/api/chat/bot/welcome?sessionId=${data.session.id}`
+              )
+              const welcomeData = await welcomeResponse.json()
+              if (welcomeData.success && welcomeData.message) {
+                setMessages((prev) => [...prev, welcomeData.message])
+                scrollToBottom()
+              }
+            } catch (error) {
+              console.error('Error getting welcome message:', error)
+            }
+          }, 1500) // 1.5 second delay for natural feel
+        }
       }
     } catch (error) {
       console.error('Error initializing chat:', error)
@@ -127,6 +145,28 @@ export default function ChatWidget() {
         setMessages((prev) =>
           prev.map((msg) => (msg.id === tempId ? data.message : msg))
         )
+        
+        // Trigger bot response
+        setTimeout(async () => {
+          try {
+            const botResponse = await fetch('/api/chat/bot', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                sessionId: session.id,
+                message: inputMessage,
+              }),
+            })
+            
+            const botData = await botResponse.json()
+            if (botData.success && botData.message) {
+              setMessages((prev) => [...prev, botData.message])
+              scrollToBottom()
+            }
+          } catch (error) {
+            console.error('Error getting bot response:', error)
+          }
+        }, 1000) // 1 second delay for typing effect
       }
     } catch (error) {
       console.error('Error sending message:', error)

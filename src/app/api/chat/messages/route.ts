@@ -60,6 +60,38 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Create admin notification for visitor messages
+    if (senderType === 'visitor') {
+      try {
+        const session = await prisma.chatSession.findUnique({
+          where: { id: sessionId },
+          select: { visitorName: true, visitorEmail: true },
+        })
+
+        const admins = await prisma.user.findMany({
+          where: { role: 'ADMIN' },
+          select: { id: true },
+        })
+
+        const notificationPromises = admins.map((admin) =>
+          prisma.notification.create({
+            data: {
+              userId: admin.id,
+              type: 'CHAT_MESSAGE',
+              title: 'New Chat Message',
+              message: `${session?.visitorName || 'Visitor'} sent a message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
+              link: '/admin/chat',
+              isRead: false,
+            },
+          })
+        )
+
+        await Promise.all(notificationPromises)
+      } catch (notifError) {
+        console.error('Error creating notification:', notifError)
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: chatMessage,

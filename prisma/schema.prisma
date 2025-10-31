@@ -1271,3 +1271,32 @@ model ChatTypingIndicator {
   @@index([sessionId])
   @@index([isTyping])
 }
+
+model VisitorAnalytics {
+  id            String   @id @default(uuid())
+  visitorId     String?
+  sessionId     String?
+  ipAddress     String?
+  country       String?
+  city          String?
+  region        String?
+  latitude      Float?
+  longitude     Float?
+  device        String?
+  browser       String?
+  os            String?
+  referrer      String?
+  landingPage   String?
+  pagesVisited  String?  // JSON array of pages
+  sessionStart  DateTime @default(now())
+  sessionEnd    DateTime?
+  duration      Int?     // in seconds
+  interactions  Int      @default(0)
+  converted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  
+  @@index([ipAddress])
+  @@index([country])
+  @@index([sessionStart])
+  @@index([converted])
+}

@@ -335,7 +335,7 @@ export default function AdminChatPage() {
   }
 
   return (
-    <div className="h-screen flex bg-gray-50">
+    <div className="flex bg-gray-50" style={{ height: 'calc(100vh - 80px)' }}>
       {/* Sessions List */}
       <div className="w-80 bg-white border-r flex flex-col">
         <div className="p-4 border-b">
