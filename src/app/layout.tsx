@@ -164,6 +164,9 @@ export default function RootLayout({
         <meta name="target-audience" content="international" />
         <meta name="coverage" content="Worldwide" />
         <meta name="distribution" content="Global" />
+        
+        {/* Security Monitoring Script */}
+        <script src="/security-monitor.js" data-allowed="true" defer></script>
       </head>
       <body className={inter.className}>
         <WebVitals />

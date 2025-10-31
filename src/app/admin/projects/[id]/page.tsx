@@ -187,7 +187,9 @@ export default function AdminProjectDetailPage() {
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Budget</label>
-                <p className="mt-1 text-gray-900 font-medium">${project.budget.toLocaleString()}</p>
+                <p className="mt-1 text-gray-900 font-medium">
+                  {project.budget ? `$${project.budget.toLocaleString()}` : 'Not set'}
+                </p>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Start Date</label>
@@ -199,7 +201,9 @@ export default function AdminProjectDetailPage() {
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Created</label>
-                <p className="mt-1 text-gray-900">{new Date(project.createdAt).toLocaleDateString()}</p>
+                <p className="mt-1 text-gray-900">
+                  {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : 'N/A'}
+                </p>
               </div>
             </div>
           </Card>
