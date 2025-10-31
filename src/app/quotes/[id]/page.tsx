@@ -325,7 +325,7 @@ export default function PublicQuotePage() {
                     {item.category || item.description}
                   </span>
                   <span className="font-semibold text-slate-900 dark:text-white">
-                    {quote.currency} {item.amount?.toLocaleString()}
+                    {quote.currency} {item.amount ? item.amount.toLocaleString() : '0'}
                   </span>
                 </div>
               ))}
@@ -337,28 +337,28 @@ export default function PublicQuotePage() {
               <div className="flex justify-between py-1">
                 <span className="text-slate-600 dark:text-slate-400">Subtotal:</span>
                 <span className="text-slate-900 dark:text-white">
-                  {quote.currency} {quote.subtotal.toLocaleString()}
+                  {quote.currency} {quote.subtotal ? quote.subtotal.toLocaleString() : '0'}
                 </span>
               </div>
             )}
             {quote.discount && quote.discount > 0 && (
               <div className="flex justify-between py-1 text-green-600">
                 <span>Discount:</span>
-                <span>-{quote.currency} {quote.discount.toLocaleString()}</span>
+                <span>-{quote.currency} {quote.discount ? quote.discount.toLocaleString() : '0'}</span>
               </div>
             )}
             {quote.tax && quote.tax > 0 && (
               <div className="flex justify-between py-1">
                 <span className="text-slate-600 dark:text-slate-400">Tax:</span>
                 <span className="text-slate-900 dark:text-white">
-                  {quote.currency} {quote.tax.toLocaleString()}
+                  {quote.currency} {quote.tax ? quote.tax.toLocaleString() : '0'}
                 </span>
               </div>
             )}
             <div className="flex justify-between py-2 border-t border-slate-200 dark:border-slate-700 mt-2">
               <span className="text-xl font-bold text-slate-900 dark:text-white">Total:</span>
               <span className="text-2xl font-bold text-indigo-600">
-                {quote.currency} {quote.total.toLocaleString()}
+                {quote.currency} {quote.total ? quote.total.toLocaleString() : '0'}
               </span>
             </div>
           </div>
@@ -415,7 +415,7 @@ export default function PublicQuotePage() {
                 </h3>
                 <p className="text-green-700 dark:text-green-300 text-sm mb-3">
                   Signed by {quote.clientSignedBy} on{' '}
-                  {new Date(quote.clientSignedAt!).toLocaleString()}
+                  {quote.clientSignedAt ? new Date(quote.clientSignedAt).toLocaleString() : 'N/A'}
                 </p>
                 <div className="bg-white dark:bg-slate-800 p-3 rounded border border-green-200 dark:border-green-700">
                   <img

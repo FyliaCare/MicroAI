@@ -242,7 +242,7 @@ export default function QuotesListPage() {
             <Card className="p-4">
               <p className="text-sm text-slate-600 dark:text-slate-400">Total Value</p>
               <p className="text-2xl font-bold text-indigo-600">
-                ${stats.totalValue.toLocaleString()}
+                ${stats.totalValue ? stats.totalValue.toLocaleString() : '0'}
               </p>
             </Card>
           </div>
@@ -387,7 +387,7 @@ export default function QuotesListPage() {
                 <div className="mb-4">
                   <p className="text-sm text-slate-600 dark:text-slate-400">Total Amount</p>
                   <p className="text-2xl font-bold text-indigo-600">
-                    {quote.currency} {quote.total.toLocaleString()}
+                    {quote.currency} {quote.total ? quote.total.toLocaleString() : '0'}
                   </p>
                 </div>
 
@@ -486,7 +486,7 @@ export default function QuotesListPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="font-semibold text-indigo-600">
-                        {quote.currency} {quote.total.toLocaleString()}
+                        {quote.currency} {quote.total ? quote.total.toLocaleString() : '0'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
