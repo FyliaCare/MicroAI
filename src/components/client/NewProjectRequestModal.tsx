@@ -106,31 +106,23 @@ export default function NewProjectRequestModal({
           )}
 
           {/* Project Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Project Name <span className="text-red-500">*</span>
-            </label>
-            <Input
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Enter project name"
-              required
-            />
-          </div>
+          <Input
+            label="Project Name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="Enter project name"
+            required
+          />
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description <span className="text-red-500">*</span>
-            </label>
-            <Textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe your project..."
-              rows={4}
-              required
-            />
-          </div>
+          <Textarea
+            label="Description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Describe your project..."
+            rows={4}
+            required
+          />
 
           <div className="grid grid-cols-2 gap-4">
             {/* Project Type */}
@@ -173,67 +165,47 @@ export default function NewProjectRequestModal({
 
           <div className="grid grid-cols-2 gap-4">
             {/* Budget */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Budget (Optional)
-              </label>
-              <Input
-                value={formData.budget}
-                onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                placeholder="e.g., $5000-$10000"
-              />
-            </div>
+            <Input
+              label="Budget (Optional)"
+              value={formData.budget}
+              onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+              placeholder="e.g., $5000-$10000"
+            />
 
             {/* Deadline */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Deadline (Optional)
-              </label>
-              <Input
-                type="date"
-                value={formData.deadline}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-              />
-            </div>
+            <Input
+              label="Deadline (Optional)"
+              type="date"
+              value={formData.deadline}
+              onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+            />
           </div>
 
           {/* Requirements */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Requirements (Optional)
-            </label>
-            <Textarea
-              value={formData.requirements}
-              onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-              placeholder="List your specific requirements..."
-              rows={3}
-            />
-          </div>
+          <Textarea
+            label="Requirements (Optional)"
+            value={formData.requirements}
+            onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+            placeholder="List your specific requirements..."
+            rows={3}
+          />
 
           {/* Features */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Key Features (Optional)
-            </label>
-            <Textarea
-              value={formData.features}
-              onChange={(e) => setFormData({ ...formData, features: e.target.value })}
-              placeholder="What features do you need?"
-              rows={3}
-            />
-          </div>
+          <Textarea
+            label="Key Features (Optional)"
+            value={formData.features}
+            onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+            placeholder="What features do you need?"
+            rows={3}
+          />
 
           {/* Tech Preferences */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Technology Preferences (Optional)
-            </label>
-            <Input
-              value={formData.techPreferences}
-              onChange={(e) => setFormData({ ...formData, techPreferences: e.target.value })}
-              placeholder="e.g., React, Node.js, PostgreSQL"
-            />
-          </div>
+          <Input
+            label="Technology Preferences (Optional)"
+            value={formData.techPreferences}
+            onChange={(e) => setFormData({ ...formData, techPreferences: e.target.value })}
+            placeholder="e.g., React, Node.js, PostgreSQL"
+          />
 
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
