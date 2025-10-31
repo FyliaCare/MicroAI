@@ -796,25 +796,26 @@ model User {
   resetTokenExpiry   DateTime?
   avatar             String?
   phone              String?
-  company            String?
-  website            String?
-  address            String?
-  city               String?
-  state              String?
-  country            String?             @default("Ghana")
-  zipCode            String?
-  bio                String?
-  jobTitle           String?
   timezone           String?             @default("Africa/Accra")
   emailNotifications Boolean             @default(true)
   smsNotifications   Boolean             @default(false)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
+  address            String?
+  bio                String?
+  city               String?
+  company            String?
+  country            String?             @default("Ghana")
+  jobTitle           String?
+  state              String?
+  website            String?
+  zipCode            String?
   client             Client?
   sessions           ClientSession[]
   codeAccessRequests CodeAccessRequest[]
   emailQueue         EmailQueue[]
   projectUpdatesRead ProjectUpdateRead[]
+  assignedChats      ChatSession[]
 
   @@index([email])
   @@index([role])
@@ -1131,4 +1132,142 @@ model ActivityFeed {
   @@index([isPublic])
   @@index([createdAt])
   @@index([actorType])
+}
+
+model PushSubscription {
+  id        String   @id
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@index([endpoint])
+  @@index([userId])
+}
+
+model VisitorMessage {
+  id              String          @id
+  sessionId       String
+  content         String
+  sender          String          @default("visitor")
+  senderName      String?
+  isRead          Boolean         @default(false)
+  readAt          DateTime?
+  attachments     String?
+  metadata        String?
+  createdAt       DateTime        @default(now())
+  VisitorTracking VisitorTracking @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([isRead])
+  @@index([sender])
+  @@index([sessionId])
+}
+
+model VisitorTracking {
+  id              String           @id
+  sessionId       String           @unique
+  ipAddress       String?
+  location        String?
+  country         String?
+  city            String?
+  region          String?
+  device          String?
+  browser         String?
+  os              String?
+  currentPage     String?
+  entryPage       String?
+  referrer        String?
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  pageViews       Int              @default(1)
+  duration        Int              @default(0)
+  isActive        Boolean          @default(true)
+  lastActivity    DateTime         @default(now())
+  hasInteracted   Boolean          @default(false)
+  interactionType String?
+  metadata        String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime
+  VisitorMessage  VisitorMessage[]
+
+  @@index([createdAt])
+  @@index([ipAddress])
+  @@index([isActive])
+  @@index([lastActivity])
+  @@index([sessionId])
+}
+
+model ChatSession {
+  id              String          @id @default(uuid())
+  visitorId       String?
+  visitorName     String?
+  visitorEmail    String?
+  visitorPhone    String?
+  visitorIp       String?
+  visitorDevice   String?
+  visitorBrowser  String?
+  visitorLocation String?
+  currentPage     String?
+  referrer        String?
+  status          String          @default("active") // active, closed, archived
+  assignedToId    String?
+  assignedTo      User?           @relation(fields: [assignedToId], references: [id])
+  rating          Int?
+  feedback        String?
+  tags            String?
+  metadata        String?
+  startedAt       DateTime        @default(now())
+  closedAt        DateTime?
+  lastMessageAt   DateTime        @default(now())
+  messages        ChatMessage[]
+  
+  @@index([visitorId])
+  @@index([visitorEmail])
+  @@index([status])
+  @@index([assignedToId])
+  @@index([startedAt])
+  @@index([lastMessageAt])
+}
+
+model ChatMessage {
+  id              String      @id @default(uuid())
+  sessionId       String
+  session         ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  senderId        String?
+  senderType      String      // visitor, admin
+  senderName      String?
+  message         String
+  messageType     String      @default("text") // text, file, image, system
+  fileUrl         String?
+  fileName        String?
+  fileSize        Int?
+  fileType        String?
+  isRead          Boolean     @default(false)
+  readAt          DateTime?
+  metadata        String?
+  createdAt       DateTime    @default(now())
+  
+  @@index([sessionId])
+  @@index([senderId])
+  @@index([senderType])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model ChatTypingIndicator {
+  id        String   @id @default(uuid())
+  sessionId String
+  userId    String?
+  userType  String   // visitor, admin
+  userName  String?
+  isTyping  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+  
+  @@unique([sessionId, userType])
+  @@index([sessionId])
+  @@index([isTyping])
 }

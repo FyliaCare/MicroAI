@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ClientProviders } from '@/components/ClientProviders'
 import { WebVitals } from '@/components/WebVitals'
+import ChatWidget from '@/components/ChatWidget'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -172,6 +173,7 @@ export default function RootLayout({
         <WebVitals />
         <ClientProviders>
           {children}
+          <ChatWidget />
         </ClientProviders>
       </body>
     </html>
