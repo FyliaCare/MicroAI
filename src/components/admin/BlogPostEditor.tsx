@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Editor } from '@tinymce/tinymce-react'
 import Image from 'next/image'
 
 interface BlogPostEditorProps {
@@ -165,11 +164,12 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
       return
     }
 
+    // Get content from contentEditable div
     if (editorRef.current) {
-      formData.content = editorRef.current.getContent()
+      formData.content = editorRef.current.innerHTML
     }
 
-    if (!formData.content.trim()) {
+    if (!formData.content.trim() || formData.content === '<br>') {
       alert('Content is required')
       return
     }
@@ -379,44 +379,122 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Content * <span className="text-gray-400 font-normal">(Write your amazing content here)</span>
           </label>
-          <Editor
-            apiKey="no-api-key"
-            onInit={(_evt: any, editor: any) => editorRef.current = editor}
-            initialValue={formData.content}
-            onEditorChange={(content: string) => {
-              setFormData(prev => ({ ...prev, content }))
-            }}
-            init={{
-              height: 600,
-              menubar: true,
-              branding: false,
-              promotion: false,
-              plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-              ],
-              toolbar: 'undo redo | blocks | ' +
-                'bold italic forecolor backcolor | alignleft aligncenter ' +
-                'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | link image media | code preview | help',
-              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px; line-height:1.6; color:#1f2937; }',
-              skin: 'oxide',
-              content_css: 'default',
-              images_upload_handler: async (blobInfo: any) => {
-                const formData = new FormData()
-                formData.append('file', blobInfo.blob(), blobInfo.filename())
-                
-                const response = await fetch('/api/upload', {
-                  method: 'POST',
-                  body: formData
-                })
-                
-                const data = await response.json()
-                return data.url
-              }
-            }}
-          />
+          
+          {/* Simple HTML Content Editor */}
+          <div className="border border-gray-300 rounded-lg overflow-hidden">
+            {/* Toolbar */}
+            <div className="bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1">
+              <button
+                type="button"
+                onClick={() => document.execCommand('bold', false)}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 font-bold"
+                title="Bold"
+              >
+                B
+              </button>
+              <button
+                type="button"
+                onClick={() => document.execCommand('italic', false)}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 italic"
+                title="Italic"
+              >
+                I
+              </button>
+              <button
+                type="button"
+                onClick={() => document.execCommand('underline', false)}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 underline"
+                title="Underline"
+              >
+                U
+              </button>
+              <div className="w-px bg-gray-300 mx-1"></div>
+              <button
+                type="button"
+                onClick={() => document.execCommand('formatBlock', false, '<h1>')}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-sm"
+                title="Heading 1"
+              >
+                H1
+              </button>
+              <button
+                type="button"
+                onClick={() => document.execCommand('formatBlock', false, '<h2>')}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-sm"
+                title="Heading 2"
+              >
+                H2
+              </button>
+              <button
+                type="button"
+                onClick={() => document.execCommand('formatBlock', false, '<h3>')}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-sm"
+                title="Heading 3"
+              >
+                H3
+              </button>
+              <div className="w-px bg-gray-300 mx-1"></div>
+              <button
+                type="button"
+                onClick={() => document.execCommand('insertUnorderedList', false)}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100"
+                title="Bullet List"
+              >
+                • List
+              </button>
+              <button
+                type="button"
+                onClick={() => document.execCommand('insertOrderedList', false)}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100"
+                title="Numbered List"
+              >
+                1. List
+              </button>
+              <div className="w-px bg-gray-300 mx-1"></div>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = prompt('Enter link URL:')
+                  if (url) document.execCommand('createLink', false, url)
+                }}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100"
+                title="Insert Link"
+              >
+                🔗 Link
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = prompt('Enter image URL:')
+                  if (url) document.execCommand('insertImage', false, url)
+                }}
+                className="px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100"
+                title="Insert Image"
+              >
+                🖼️ Image
+              </button>
+            </div>
+            
+            {/* Content Editable Area */}
+            <div
+              ref={editorRef}
+              contentEditable
+              className="min-h-[600px] p-4 focus:outline-none prose prose-lg max-w-none"
+              dangerouslySetInnerHTML={{ __html: formData.content }}
+              onInput={(e) => {
+                const content = e.currentTarget.innerHTML
+                setFormData(prev => ({ ...prev, content }))
+              }}
+              onBlur={generateSEO}
+              style={{
+                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontSize: '16px',
+                lineHeight: '1.6',
+                color: '#1f2937'
+              }}
+            />
+          </div>
+          
           <p className="text-xs text-gray-500 mt-2">
             💡 SEO data auto-generates as you type. Just focus on writing great content!
           </p>
