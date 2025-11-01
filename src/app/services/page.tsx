@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/microAi logo main.png',
+        url: '/MICROAI SYSTEMS OFFICIAL LOGO.png',
         width: 1200,
         height: 630,
         alt: 'MicroAI Systems Services',

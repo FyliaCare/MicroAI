@@ -80,7 +80,7 @@ export const metadata: Metadata = {
     siteName: 'MicroAI Systems',
     images: [
       {
-        url: '/microAi logo main.png',
+        url: '/MICROAI SYSTEMS OFFICIAL LOGO.png',
         width: 1200,
         height: 630,
         alt: 'MicroAI Systems - 10x Faster Web Development',
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'MicroAI Systems - 10x Faster Web Development',
     description: 'Revolutionary development delivering web applications 10x faster. Custom solutions in weeks, not months.',
-    images: ['/microAi logo main.png'],
+    images: ['/MICROAI SYSTEMS OFFICIAL LOGO.png'],
     creator: '@microaisystems',
     site: '@microaisystems',
   },
@@ -147,8 +147,8 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         
         {/* Favicon and App Icons */}
-        <link rel="icon" href="/microAi logo main.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/microAi logo main.png" />
+        <link rel="icon" href="/MICROAI SYSTEMS OFFICIAL LOGO.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/MICROAI SYSTEMS OFFICIAL LOGO.png" />
         
         {/* Additional SEO meta tags */}
         <meta name="application-name" content="MicroAI Systems" />
