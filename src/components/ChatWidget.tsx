@@ -43,6 +43,61 @@ export default function ChatWidget() {
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout>()
+
+  // Poll for updates - MUST be before early return
+  useEffect(() => {
+    if (!session || !isOpen) return
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const lastMessageId = messages[messages.length - 1]?.id
+        const response = await fetch(
+          `/api/chat/poll?sessionId=${session.id}&lastMessageId=${lastMessageId || ''}&isAdmin=false`
+        )
+
+        const data = await response.json()
+        if (data.success) {
+          // Add new messages
+          if (data.newMessages.length > 0) {
+            setMessages((prev) => [...prev, ...data.newMessages])
+            
+            // Play notification sound if minimized
+            if (isMinimized) {
+              setUnreadCount((prev) => prev + data.newMessages.length)
+            }
+          }
+
+          // Update typing indicator
+          setShowTypingIndicator(data.typingIndicators.length > 0)
+
+          // Update session status
+          if (data.sessionStatus === 'closed') {
+            clearInterval(pollInterval)
+          }
+        }
+      } catch (error) {
+        console.error('Error polling:', error)
+      }
+    }, 2000)
+
+    return () => clearInterval(pollInterval)
+  }, [session, messages, isOpen, isMinimized])
+
+  // Mark messages as read when opened - MUST be before early return
+  useEffect(() => {
+    if (isOpen && !isMinimized && session) {
+      setUnreadCount(0)
+      
+      fetch(`/api/chat/messages/mark-read`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: session.id,
+          senderType: 'admin',
+        }),
+      }).catch(err => console.error('Error marking messages as read:', err))
+    }
+  }, [isOpen, isMinimized, session])
   
   // Hide chat widget on admin and client portal pages - MUST be after all hooks
   if (pathname?.startsWith('/admin') || pathname?.startsWith('/client')) {
@@ -259,46 +314,6 @@ export default function ChatWidget() {
     }
   }
 
-  // Poll for updates
-  useEffect(() => {
-    if (!session || !isOpen) return
-
-    const pollInterval = setInterval(async () => {
-      try {
-        const lastMessageId = messages[messages.length - 1]?.id
-        const response = await fetch(
-          `/api/chat/poll?sessionId=${session.id}&lastMessageId=${lastMessageId || ''}&isAdmin=false`
-        )
-
-        const data = await response.json()
-        if (data.success) {
-          // Add new messages
-          if (data.newMessages.length > 0) {
-            setMessages((prev) => [...prev, ...data.newMessages])
-            scrollToBottom()
-            
-            // Play notification sound if minimized
-            if (isMinimized) {
-              setUnreadCount((prev) => prev + data.newMessages.length)
-            }
-          }
-
-          // Update typing indicator
-          setShowTypingIndicator(data.typingIndicators.length > 0)
-
-          // Update session status
-          if (data.sessionStatus === 'closed') {
-            clearInterval(pollInterval)
-          }
-        }
-      } catch (error) {
-        console.error('Error polling:', error)
-      }
-    }, 2000) // Poll every 2 seconds
-
-    return () => clearInterval(pollInterval)
-  }, [session, messages, isOpen, isMinimized])
-
   // Scroll handling
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -311,22 +326,6 @@ export default function ChatWidget() {
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
     setShowScrollButton(!isNearBottom)
   }
-
-  // Mark messages as read when opened
-  useEffect(() => {
-    if (isOpen && !isMinimized && session) {
-      setUnreadCount(0)
-      
-      fetch(`/api/chat/messages/mark-read`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: session.id,
-          senderType: 'admin',
-        }),
-      }).catch(err => console.error('Error marking messages as read:', err))
-    }
-  }, [isOpen, isMinimized, session])
 
   // Open chat
   const openChat = () => {
