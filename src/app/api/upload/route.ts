@@ -36,11 +36,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024 // 5MB
+    // Validate file size (max 10MB - increased for better quality)
+    const maxSize = 10 * 1024 * 1024 // 10MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'File too large. Maximum size is 5MB.' },
+        { error: 'File too large. Maximum size is 10MB.' },
         { status: 400 }
       )
     }
@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'blog')
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
+      console.log('Created upload directory:', uploadDir)
     }
 
     // Convert file to buffer and save
@@ -65,11 +66,15 @@ export async function POST(request: NextRequest) {
 
     // Return the public URL
     const publicUrl = `/uploads/blog/${filename}`
+    
+    console.log('Upload successful:', publicUrl, `(${(file.size / 1024).toFixed(2)} KB)`)
 
     return NextResponse.json({
       success: true,
       url: publicUrl,
-      filename: filename
+      filename: filename,
+      size: file.size,
+      message: 'Image uploaded successfully'
     })
 
   } catch (error) {

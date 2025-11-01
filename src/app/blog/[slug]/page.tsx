@@ -313,16 +313,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
         </div>
 
-        {/* Cover Image */}
+        {/* Cover Image - Full Support for Local and CDN */}
         {post.coverImage && (
-          <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 border border-white/10 shadow-2xl">
+          <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 border border-white/10 shadow-2xl bg-gray-900">
             <Image
               src={post.coverImage}
               alt={post.coverImageAlt || post.title}
               fill
               className="object-cover"
               priority
-              unoptimized={post.coverImage.startsWith('/uploads/')}
+              unoptimized
+              onError={(e) => {
+                console.error('Image failed to load:', post.coverImage)
+                e.currentTarget.style.display = 'none'
+              }}
             />
           </div>
         )}

@@ -51,55 +51,77 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if Cloudinary is configured
-    if (!process.env.CLOUDINARY_CLOUD_NAME || 
-        !process.env.CLOUDINARY_API_KEY || 
-        !process.env.CLOUDINARY_API_SECRET) {
-      // Fallback to local upload
+    const cloudinaryConfigured = process.env.CLOUDINARY_CLOUD_NAME && 
+                                  process.env.CLOUDINARY_API_KEY && 
+                                  process.env.CLOUDINARY_API_SECRET
+    
+    if (!cloudinaryConfigured) {
+      console.log('Cloudinary not configured, using local upload')
       return localUploadFallback(file)
     }
 
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    // Try Cloudinary upload first
+    try {
+      // Convert file to buffer
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
 
-    // Upload to Cloudinary
-    const uploadResult = await new Promise<any>((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'microai-blog',
-          resource_type: 'image',
-          transformation: [
-            { width: 1200, height: 630, crop: 'limit', quality: 'auto' },
-            { fetch_format: 'auto' }
-          ]
-        },
-        (error, result) => {
-          if (error) reject(error)
-          else resolve(result)
-        }
-      )
-      uploadStream.end(buffer)
-    })
+      // Upload to Cloudinary
+      const uploadResult = await new Promise<any>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'microai-blog',
+            resource_type: 'image',
+            transformation: [
+              { width: 1200, height: 630, crop: 'limit', quality: 'auto' },
+              { fetch_format: 'auto' }
+            ]
+          },
+          (error, result) => {
+            if (error) reject(error)
+            else resolve(result)
+          }
+        )
+        uploadStream.end(buffer)
+      })
 
-    return NextResponse.json({
-      success: true,
-      url: uploadResult.secure_url,
-      filename: uploadResult.public_id,
-      width: uploadResult.width,
-      height: uploadResult.height,
-      format: uploadResult.format,
-    })
+      console.log('Cloudinary upload successful:', uploadResult.secure_url)
+      
+      return NextResponse.json({
+        success: true,
+        url: uploadResult.secure_url,
+        filename: uploadResult.public_id,
+        width: uploadResult.width,
+        height: uploadResult.height,
+        format: uploadResult.format,
+        provider: 'cloudinary'
+      })
+    } catch (cloudinaryError) {
+      console.error('Cloudinary upload failed, falling back to local:', cloudinaryError)
+      return localUploadFallback(file)
+    }
 
   } catch (error) {
-    console.error('Cloudinary upload error:', error)
+    console.error('Upload error:', error)
+    // Last resort: try local upload
+    try {
+      const formData = await request.formData()
+      const file = formData.get('file') as File
+      if (file) {
+        return localUploadFallback(file)
+      }
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError)
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: 'Failed to upload file', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
 }
 
-// Fallback to local upload if Cloudinary is not configured
+// Fallback to local upload if Cloudinary is not configured or fails
 async function localUploadFallback(file: File) {
   try {
     const { writeFile, mkdir } = await import('fs/promises')
@@ -116,6 +138,7 @@ async function localUploadFallback(file: File) {
     const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'blog')
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
+      console.log('Created upload directory:', uploadDir)
     }
 
     // Convert file to buffer and save
@@ -124,17 +147,21 @@ async function localUploadFallback(file: File) {
     const filepath = path.join(uploadDir, filename)
     await writeFile(filepath, buffer)
 
-    // Return the public URL
+    // Return the public URL (absolute path for reliability)
     const publicUrl = `/uploads/blog/${filename}`
+    
+    console.log('Local upload successful:', publicUrl)
 
     return NextResponse.json({
       success: true,
       url: publicUrl,
       filename: filename,
-      fallback: true
+      provider: 'local',
+      fallback: true,
+      message: 'Image uploaded locally. Configure Cloudinary for CDN benefits.'
     })
   } catch (error) {
     console.error('Local upload fallback error:', error)
-    throw error
+    throw new Error(`Local upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
