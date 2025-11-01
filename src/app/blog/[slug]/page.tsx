@@ -193,22 +193,30 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         )}
 
-        {/* Content */}
+        {/* Content - Enhanced Visibility */}
         <div 
-          className="prose prose-invert prose-lg max-w-none
-            prose-headings:font-bold prose-headings:text-white
-            prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
-            prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
-            prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-6
-            prose-a:text-blue-400 prose-a:no-underline hover:prose-a:text-blue-300
-            prose-strong:text-white prose-strong:font-semibold
-            prose-code:text-pink-400 prose-code:bg-gray-900 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:font-mono prose-code:text-sm
-            prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800 prose-pre:rounded-lg
-            prose-ul:text-gray-300 prose-ul:my-6
-            prose-ol:text-gray-300 prose-ol:my-6
-            prose-li:my-2
-            prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-gray-400
-            prose-img:rounded-lg prose-img:border prose-img:border-gray-800"
+          className="prose prose-invert prose-xl max-w-none
+            prose-headings:font-bold prose-headings:text-white prose-headings:tracking-tight
+            prose-h1:text-5xl prose-h1:mt-16 prose-h1:mb-8 prose-h1:leading-tight
+            prose-h2:text-4xl prose-h2:mt-14 prose-h2:mb-7 prose-h2:leading-snug
+            prose-h3:text-3xl prose-h3:mt-10 prose-h3:mb-5 prose-h3:leading-snug
+            prose-h4:text-2xl prose-h4:mt-8 prose-h4:mb-4
+            prose-p:text-gray-200 prose-p:text-lg prose-p:leading-relaxed prose-p:mb-6 prose-p:tracking-wide
+            prose-a:text-blue-400 prose-a:font-semibold prose-a:no-underline prose-a:border-b-2 prose-a:border-blue-500/50 hover:prose-a:text-blue-300 hover:prose-a:border-blue-300
+            prose-strong:text-white prose-strong:font-bold prose-strong:text-lg
+            prose-em:text-gray-200 prose-em:italic
+            prose-code:text-pink-300 prose-code:bg-gray-900/80 prose-code:px-3 prose-code:py-1.5 prose-code:rounded-md prose-code:font-mono prose-code:text-base prose-code:font-semibold prose-code:border prose-code:border-pink-500/30
+            prose-pre:bg-gray-900/90 prose-pre:border-2 prose-pre:border-gray-700 prose-pre:rounded-xl prose-pre:p-6 prose-pre:my-8 prose-pre:shadow-2xl
+            prose-ul:text-gray-200 prose-ul:text-lg prose-ul:my-6 prose-ul:leading-relaxed
+            prose-ol:text-gray-200 prose-ol:text-lg prose-ol:my-6 prose-ol:leading-relaxed
+            prose-li:my-3 prose-li:leading-relaxed
+            prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-500/5 prose-blockquote:pl-8 prose-blockquote:py-4 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-gray-300 prose-blockquote:text-lg prose-blockquote:my-8
+            prose-img:rounded-xl prose-img:border-2 prose-img:border-gray-700 prose-img:shadow-2xl prose-img:my-10
+            prose-hr:border-gray-700 prose-hr:my-12
+            prose-table:text-gray-200 prose-table:border-2 prose-table:border-gray-700 prose-table:rounded-lg
+            prose-thead:bg-gray-800 prose-thead:text-white prose-thead:font-bold
+            prose-th:p-4 prose-th:text-left prose-th:border-b-2 prose-th:border-gray-600
+            prose-td:p-4 prose-td:border-b prose-td:border-gray-700"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 

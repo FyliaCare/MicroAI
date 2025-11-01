@@ -18,23 +18,27 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [generatingSEO, setGeneratingSEO] = useState(false)
 
   const [formData, setFormData] = useState({
     title: '',
-    slug: '',
-    excerpt: '',
     content: '',
     coverImage: '',
-    coverImageAlt: '',
-    category: '',
-    tags: '',
-    metaTitle: '',
-    metaDescription: '',
-    seoKeywords: '',
     featured: false,
     allowComments: true,
     status: 'draft',
     published: false
+  })
+
+  // Auto-generated preview data (read-only)
+  const [seoPreview, setSeoPreview] = useState({
+    slug: '',
+    keywords: [] as string[],
+    tags: [] as string[],
+    metaTitle: '',
+    metaDescription: '',
+    summary: '',
+    readingTime: 0
   })
 
   useEffect(() => {
@@ -59,20 +63,23 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
         const post = data.post
         setFormData({
           title: post.title || '',
-          slug: post.slug || '',
-          excerpt: post.excerpt || '',
           content: post.content || '',
           coverImage: post.coverImage || '',
-          coverImageAlt: post.coverImageAlt || '',
-          category: post.category || '',
-          tags: Array.isArray(post.tags) ? post.tags.join(', ') : (post.tags || ''),
-          metaTitle: post.metaTitle || '',
-          metaDescription: post.metaDescription || '',
-          seoKeywords: post.seoKeywords || '',
           featured: post.featured || false,
           allowComments: post.allowComments ?? true,
           status: post.status || 'draft',
           published: post.published || false
+        })
+        
+        // Set SEO preview from existing data
+        setSeoPreview({
+          slug: post.slug || '',
+          keywords: post.seoKeywords ? post.seoKeywords.split(',').map((k: string) => k.trim()) : [],
+          tags: Array.isArray(post.tags) ? post.tags : (post.tags ? JSON.parse(post.tags) : []),
+          metaTitle: post.metaTitle || '',
+          metaDescription: post.metaDescription || '',
+          summary: post.excerpt || '',
+          readingTime: post.readingTime || 0
         })
       }
     } catch (error) {
@@ -83,20 +90,45 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
     }
   }
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
+  // Auto-generate SEO data when content or title changes
+  const generateSEO = async () => {
+    if (!formData.title.trim() || generatingSEO) return
+    
+    const content = editorRef.current?.getContent() || formData.content
+    if (!content.trim()) return
+
+    try {
+      setGeneratingSEO(true)
+      const response = await fetch('/api/blog/generate-seo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: formData.title,
+          content: content
+        })
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setSeoPreview(data.seo)
+      }
+    } catch (error) {
+      console.error('SEO generation error:', error)
+    } finally {
+      setGeneratingSEO(false)
+    }
   }
 
-  const handleTitleChange = (title: string) => {
-    setFormData(prev => ({
-      ...prev,
-      title,
-      slug: prev.slug || generateSlug(title)
-    }))
-  }
+  // Auto-generate SEO on title blur or content change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (formData.title && formData.content) {
+        generateSEO()
+      }
+    }, 2000) // Debounce 2 seconds
+
+    return () => clearTimeout(timer)
+  }, [formData.title, formData.content])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -145,11 +177,17 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
     try {
       setSaving(true)
 
+      // System will auto-generate all SEO data on the backend
       const payload = {
-        ...formData,
-        tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+        title: formData.title,
+        content: formData.content,
+        coverImage: formData.coverImage,
+        featured: formData.featured,
+        allowComments: formData.allowComments,
         published: publishNow,
-        status: publishNow ? 'published' : 'draft'
+        status: publishNow ? 'published' : 'draft',
+        // Include auto-generated data if available
+        autoGenerateSEO: true
       }
 
       const url = isEdit ? `/api/blog/${postId}` : '/api/blog'
@@ -164,7 +202,7 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
       const data = await response.json()
 
       if (response.ok) {
-        alert(isEdit ? 'Post updated successfully!' : 'Post created successfully!')
+        alert(isEdit ? 'Post updated successfully! ✨ SEO auto-generated' : 'Post created successfully! ✨ SEO auto-generated')
         router.push('/admin/blog')
       } else {
         alert(data.error || 'Failed to save post')
@@ -212,60 +250,95 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
       </div>
 
       <div className="space-y-6">
+        {/* AI-Powered Notice */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-6">
+          <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">⚡ AI-Powered SEO Generation</h3>
+              <p className="text-gray-700 mb-2">
+                Just add your <strong>title</strong>, <strong>content</strong>, and <strong>cover image</strong>. 
+                Our system automatically generates:
+              </p>
+              <ul className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                <li className="flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  SEO Keywords
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Tags & Categories
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Meta Title
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Meta Description
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  URL Slug
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Content Summary
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Title */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Title *
+            Title * <span className="text-gray-400 font-normal">(Only field you need to fill)</span>
           </label>
           <input
             type="text"
             value={formData.title}
-            onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Enter post title..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            onBlur={generateSEO}
+            placeholder="Enter your blog post title..."
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg font-semibold"
             required
           />
-        </div>
-
-        {/* Slug */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            URL Slug
-          </label>
-          <input
-            type="text"
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-            placeholder="url-friendly-slug"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            Preview: /blog/{formData.slug || 'your-post-slug'}
-          </p>
-        </div>
-
-        {/* Excerpt */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Excerpt
-          </label>
-          <textarea
-            value={formData.excerpt}
-            onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-            placeholder="Brief summary of your post..."
-            rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          {generatingSEO && (
+            <p className="text-sm text-blue-600 mt-2 flex items-center">
+              <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generating SEO data...
+            </p>
+          )}
         </div>
 
         {/* Cover Image */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Cover Image
+            Cover Image * <span className="text-gray-400 font-normal">(Required for great presentation)</span>
           </label>
           
           {formData.coverImage && (
-            <div className="mb-4 relative w-full h-64 rounded-lg overflow-hidden">
+            <div className="mb-4 relative w-full h-80 rounded-xl overflow-hidden border-2 border-gray-300">
               <Image
                 src={formData.coverImage}
                 alt="Cover preview"
@@ -274,7 +347,7 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
               />
               <button
                 onClick={() => setFormData({ ...formData, coverImage: '' })}
-                className="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-full hover:bg-red-700"
+                className="absolute top-3 right-3 p-2 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-lg transition-all hover:scale-110"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -287,30 +360,33 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
             type="file"
             accept="image/*"
             onChange={handleImageUpload}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="block w-full text-sm text-gray-700 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-600 file:to-purple-600 file:text-white hover:file:from-blue-700 hover:file:to-purple-700 file:cursor-pointer cursor-pointer"
             disabled={uploadingImage}
           />
-          {uploadingImage && <p className="text-sm text-blue-600 mt-2">Uploading...</p>}
-
-          <input
-            type="text"
-            value={formData.coverImageAlt}
-            onChange={(e) => setFormData({ ...formData, coverImageAlt: e.target.value })}
-            placeholder="Alt text for cover image"
-            className="w-full mt-3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          {uploadingImage && (
+            <p className="text-sm text-blue-600 mt-2 flex items-center">
+              <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Uploading image...
+            </p>
+          )}
         </div>
 
         {/* Content Editor */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Content *
+            Content * <span className="text-gray-400 font-normal">(Write your amazing content here)</span>
           </label>
           <Editor
             onInit={(_evt: any, editor: any) => editorRef.current = editor}
             initialValue={formData.content}
+            onEditorChange={(content) => {
+              setFormData(prev => ({ ...prev, content }))
+            }}
             init={{
-              height: 500,
+              height: 600,
               menubar: true,
               plugins: [
                 'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
@@ -318,10 +394,10 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
                 'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
               ],
               toolbar: 'undo redo | blocks | ' +
-                'bold italic forecolor | alignleft aligncenter ' +
+                'bold italic forecolor backcolor | alignleft aligncenter ' +
                 'alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat | link image | code | help',
-              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                'removeformat | link image media | code preview | help',
+              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px; line-height:1.6; color:#1f2937; }',
               images_upload_handler: async (blobInfo: any) => {
                 const formData = new FormData()
                 formData.append('file', blobInfo.blob(), blobInfo.filename())
@@ -336,82 +412,132 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
               }
             }}
           />
+          <p className="text-xs text-gray-500 mt-2">
+            💡 SEO data auto-generates as you type. Just focus on writing great content!
+          </p>
         </div>
 
-        {/* Category & Tags */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
-            <input
-              type="text"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              placeholder="e.g., Technology, Design, Business"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tags
-            </label>
-            <input
-              type="text"
-              value={formData.tags}
-              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              placeholder="Comma separated: react, nextjs, tutorial"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* SEO Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Settings</h3>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Meta Title
-              </label>
-              <input
-                type="text"
-                value={formData.metaTitle}
-                onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
-                placeholder="Leave empty to use post title"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+        {/* Auto-Generated SEO Preview */}
+        {(seoPreview.slug || seoPreview.tags.length > 0) && (
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                <svg className="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Auto-Generated SEO Data
+              </h3>
+              <button
+                onClick={generateSEO}
+                disabled={generatingSEO}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium disabled:opacity-50"
+              >
+                {generatingSEO ? 'Generating...' : '🔄 Regenerate'}
+              </button>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Meta Description
-              </label>
-              <textarea
-                value={formData.metaDescription}
-                onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
-                placeholder="Brief description for search engines..."
-                rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="space-y-4">
+              {/* URL Slug */}
+              {seoPreview.slug && (
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    URL Slug
+                  </label>
+                  <p className="text-blue-600 font-mono text-sm">/blog/{seoPreview.slug}</p>
+                </div>
+              )}
+
+              {/* Meta Title */}
+              {seoPreview.metaTitle && (
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Meta Title ({seoPreview.metaTitle.length}/60 chars)
+                  </label>
+                  <p className="text-gray-800 font-semibold text-lg">{seoPreview.metaTitle}</p>
+                </div>
+              )}
+
+              {/* Meta Description */}
+              {seoPreview.metaDescription && (
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Meta Description ({seoPreview.metaDescription.length}/155 chars)
+                  </label>
+                  <p className="text-gray-700">{seoPreview.metaDescription}</p>
+                </div>
+              )}
+
+              {/* Summary */}
+              {seoPreview.summary && (
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Auto-Generated Summary
+                  </label>
+                  <p className="text-gray-700">{seoPreview.summary}</p>
+                </div>
+              )}
+
+              {/* Keywords */}
+              {seoPreview.keywords.length > 0 && (
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    SEO Keywords ({seoPreview.keywords.length})
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {seoPreview.keywords.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tags */}
+              {seoPreview.tags.length > 0 && (
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    Auto-Generated Tags ({seoPreview.tags.length})
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {seoPreview.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full font-medium"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Reading Time */}
+              {seoPreview.readingTime > 0 && (
+                <div className="bg-white rounded-lg p-4 border border-green-200">
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Estimated Reading Time
+                  </label>
+                  <p className="text-gray-800 font-medium">
+                    <svg className="w-5 h-5 inline mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {seoPreview.readingTime} min read
+                  </p>
+                </div>
+              )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                SEO Keywords
-              </label>
-              <input
-                type="text"
-                value={formData.seoKeywords}
-                onChange={(e) => setFormData({ ...formData, seoKeywords: e.target.value })}
-                placeholder="Comma separated keywords"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="mt-4 p-3 bg-green-100 rounded-lg">
+              <p className="text-sm text-green-800">
+                ✨ <strong>Pro Tip:</strong> These values are automatically saved when you publish. No manual SEO work needed!
+              </p>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Options */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
