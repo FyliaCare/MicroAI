@@ -103,7 +103,9 @@ export default function PrivacyPolicyPage() {
               <li><strong>Legal Requirements:</strong> When required by law, court order, or government request</li>
               <li><strong>Protection:</strong> To protect our rights, property, safety, or that of our users or the public</li>
               <li><strong>With Consent:</strong> When you have given explicit consent for specific purposes</li>
-            </ul>rong className="text-white">We do not sell your personal information</strong> to third parties for their marketing purposes.
+            </ul>
+            <p className="text-gray-300 leading-relaxed mt-4">
+              <strong className="text-white">We do not sell your personal information</strong> to third parties for their marketing purposes.
             </p>
           </section>
 

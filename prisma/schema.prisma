@@ -1300,3 +1300,168 @@ model VisitorAnalytics {
   @@index([sessionStart])
   @@index([converted])
 }
+
+model NewsletterSubscriber {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  name             String?
+  source           String?  @default("website") // website, admin, api
+  status           String   @default("active") // active, unsubscribed, bounced
+  subscribed       Boolean  @default(true)
+  confirmedAt      DateTime?
+  unsubscribedAt   DateTime?
+  unsubscribeToken String   @unique @default(uuid())
+  preferences      String?  // JSON: topics, frequency
+  tags             String?  // JSON array
+  metadata         String?  // JSON: utm_source, etc
+  ipAddress        String?
+  country          String?
+  city             String?
+  referrer         String?
+  bounceCount      Int      @default(0)
+  lastBouncedAt    DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([email])
+  @@index([status])
+  @@index([subscribed])
+  @@index([createdAt])
+  @@index([unsubscribeToken])
+}
+
+model Newsletter {
+  id              String    @id @default(uuid())
+  subject         String
+  content         String    // HTML content
+  textContent     String?   // Plain text fallback
+  previewText     String?   // Email preview text
+  status          String    @default("draft") // draft, scheduled, sending, sent, failed
+  scheduledFor    DateTime?
+  sentAt          DateTime?
+  sentTo          Int       @default(0) // Count of recipients
+  openedCount     Int       @default(0)
+  clickedCount    Int       @default(0)
+  bouncedCount    Int       @default(0)
+  unsubscribedCount Int     @default(0)
+  failedCount     Int       @default(0)
+  createdBy       String?   // User ID
+  createdByName   String?
+  tags            String?   // JSON array
+  segment         String?   // Filter criteria
+  templateId      String?
+  campaign        String?
+  attachments     String?   // JSON array of file URLs
+  metadata        String?   // JSON: A/B test data, etc
+  error           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([status])
+  @@index([createdBy])
+  @@index([sentAt])
+  @@index([scheduledFor])
+  @@index([createdAt])
+}
+
+model NewsletterClick {
+  id             String   @id @default(uuid())
+  newsletterId   String
+  subscriberEmail String
+  url            String
+  clickedAt      DateTime @default(now())
+  ipAddress      String?
+  userAgent      String?
+  
+  @@index([newsletterId])
+  @@index([subscriberEmail])
+  @@index([clickedAt])
+}
+
+model NewsletterOpen {
+  id             String   @id @default(uuid())
+  newsletterId   String
+  subscriberEmail String
+  openedAt       DateTime @default(now())
+  ipAddress      String?
+  userAgent      String?
+  
+  @@index([newsletterId])
+  @@index([subscriberEmail])
+  @@index([openedAt])
+}
+
+model BlogPost {
+  id            String    @id @default(uuid())
+  title         String
+  slug          String    @unique
+  excerpt       String?
+  content       String    // Markdown or HTML
+  coverImage    String?
+  coverImageAlt String?
+  author        String?   // User ID
+  authorName    String?
+  authorAvatar  String?
+  status        String    @default("draft") // draft, published, archived
+  published     Boolean   @default(false)
+  publishedAt   DateTime?
+  featured      Boolean   @default(false)
+  category      String?
+  tags          String?   // JSON array
+  metaTitle     String?
+  metaDescription String?
+  views         Int       @default(0)
+  likes         Int       @default(0)
+  readingTime   Int?      // Minutes
+  seoKeywords   String?
+  allowComments Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([slug])
+  @@index([status])
+  @@index([published])
+  @@index([publishedAt])
+  @@index([category])
+  @@index([featured])
+  @@index([createdAt])
+}
+
+model BlogCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  color       String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  postCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model BlogComment {
+  id         String        @id @default(uuid())
+  postId     String
+  parentId   String?
+  authorName String
+  authorEmail String
+  content    String
+  status     String        @default("pending") // pending, approved, spam
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  parent     BlogComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies    BlogComment[] @relation("CommentReplies")
+  
+  @@index([postId])
+  @@index([parentId])
+  @@index([status])
+  @@index([createdAt])
+}

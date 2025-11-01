@@ -376,7 +376,7 @@ sales@microaisystems.com
       await prisma.notification.create({
         data: {
           type: 'project_request',
-          title: '� New Contact Form Submission',
+          title: '📧 New Contact Form Submission',
           message: `${body.name}${body.company ? ` from ${body.company}` : ''} submitted an inquiry. Request: ${requestNumber}`,
           link: `/admin/project-requests?requestId=${projectRequest.id}`,
           priority: 'high',

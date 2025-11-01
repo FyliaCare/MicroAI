@@ -100,7 +100,7 @@ function PDFQuoteContent() {
 
           <div className="cover-footer">
             <p>{quote.companyAddress || '123 Tech Street, City, Country'}</p>
-            <p>{quote.companyPhone || '+233 XX XXX XXXX'} • {quote.companyEmail || 'hello@company.com'}</p>
+            <p>{quote.companyPhone || '+233 XX XXX XXXX'} | {quote.companyEmail || 'hello@company.com'}</p>
             {quote.companyWebsite && <p>{quote.companyWebsite}</p>}
           </div>
         </div>

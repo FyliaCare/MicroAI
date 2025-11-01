@@ -1,44 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { PrismaClient } from '@prisma/client'
 import { Resend } from 'resend'
+import dotenv from 'dotenv'
+import path from 'path'
 
-export const dynamic = 'force-dynamic'
+// Load environment variables from .env.local and .env
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
+dotenv.config({ path: path.resolve(process.cwd(), '.env') })
 
-// GET /api/cron/process-email-queue - Process queued emails
-export async function GET(request: NextRequest) {
+const prisma = new PrismaClient()
+
+async function processEmailQueue() {
   try {
-    console.log('📧 Starting email queue processing...')
+    console.log('📧 Starting email queue processing...\n')
 
-    // Verify cron secret (optional but recommended)
-    const authHeader = request.headers.get('authorization')
-    const cronSecret = process.env.CRON_SECRET
-    
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      console.log('❌ Unauthorized: Invalid cron secret')
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    // Initialize Resend
-    const resendApiKey = process.env.RESEND_API_KEY
-    if (!resendApiKey) {
-      console.log('❌ RESEND_API_KEY not configured')
-      return NextResponse.json(
-        { success: false, error: 'Email service not configured' },
-        { status: 500 }
-      )
-    }
-
-    const resend = new Resend(resendApiKey)
+    // Check environment
+    const apiKey = process.env.RESEND_API_KEY
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'MicroAI Systems <sales@microaisystems.com>'
 
-    // Get pending emails (limit to 50 per batch)
+    if (!apiKey) {
+      console.error('❌ RESEND_API_KEY not configured')
+      process.exit(1)
+    }
+
+    console.log(`From Email: ${fromEmail}`)
+    console.log(`API Key: ${apiKey.substring(0, 10)}...`)
+
+    const resend = new Resend(apiKey)
+
+    // Get pending emails
     const pendingEmails = await prisma.emailQueue.findMany({
-      where: {
-        status: 'pending',
-      },
+      where: { status: 'pending' },
       orderBy: [
         { priority: 'desc' },
         { createdAt: 'asc' },
@@ -46,7 +37,7 @@ export async function GET(request: NextRequest) {
       take: 50,
     })
 
-    console.log(`📬 Found ${pendingEmails.length} pending emails`)
+    console.log(`\n📬 Found ${pendingEmails.length} pending emails\n`)
 
     const results = {
       processed: 0,
@@ -58,7 +49,8 @@ export async function GET(request: NextRequest) {
     // Process each email
     for (const email of pendingEmails) {
       try {
-        console.log(`📤 Sending email to ${email.to}...`)
+        console.log(`📤 Sending to ${email.to}...`)
+        console.log(`   Subject: ${email.subject}`)
 
         // Mark as processing
         await prisma.emailQueue.update({
@@ -66,7 +58,7 @@ export async function GET(request: NextRequest) {
           data: { status: 'processing' },
         })
 
-        // Send email via Resend
+        // Send email
         const { data, error } = await resend.emails.send({
           from: fromEmail,
           to: email.to,
@@ -95,17 +87,15 @@ export async function GET(request: NextRequest) {
         })
 
         results.sent++
-        console.log(`✅ Email sent successfully (ID: ${data?.id})`)
+        console.log(`✅ Sent successfully (ID: ${data?.id})\n`)
 
       } catch (error: any) {
-        console.error(`❌ Failed to send email ${email.id}:`, error.message)
+        console.error(`❌ Failed: ${error.message}\n`)
 
-        // Increment attempt count
         const attempts = email.attempts + 1
         const maxAttempts = email.maxAttempts
 
         if (attempts >= maxAttempts) {
-          // Mark as failed after max attempts
           await prisma.emailQueue.update({
             where: { id: email.id },
             data: {
@@ -118,11 +108,9 @@ export async function GET(request: NextRequest) {
           })
           results.failed++
         } else {
-          // Calculate next retry time (exponential backoff)
           const nextRetryAt = new Date()
           nextRetryAt.setMinutes(nextRetryAt.getMinutes() + Math.pow(2, attempts) * 5)
           
-          // Mark as pending for retry
           await prisma.emailQueue.update({
             where: { id: email.id },
             data: {
@@ -142,28 +130,21 @@ export async function GET(request: NextRequest) {
       results.processed++
     }
 
-    console.log(`✨ Email queue processing complete:`, results)
+    console.log(`\n✨ Email queue processing complete:`)
+    console.log(`   Processed: ${results.processed}`)
+    console.log(`   Sent:      ${results.sent}`)
+    console.log(`   Failed:    ${results.failed}`)
 
-    return NextResponse.json({
-      success: true,
-      message: 'Email queue processed',
-      results,
-    })
+    if (results.errors.length > 0) {
+      console.log(`\n❌ Errors:`)
+      results.errors.forEach(err => console.log(`   - ${err}`))
+    }
 
-  } catch (error: any) {
-    console.error('❌ Email queue processing error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to process email queue',
-        details: error.message,
-      },
-      { status: 500 }
-    )
+  } catch (error) {
+    console.error('❌ Fatal error:', error)
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
-// POST endpoint for manual triggering
-export async function POST(request: NextRequest) {
-  return GET(request)
-}
+processEmailQueue()

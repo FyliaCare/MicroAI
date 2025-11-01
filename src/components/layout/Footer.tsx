@@ -1,6 +1,48 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 
 export default function Footer() {
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email) {
+      setMessage({ type: 'error', text: 'Please enter your email' })
+      return
+    }
+
+    setIsSubmitting(true)
+    setMessage(null)
+
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name: name || undefined })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: data.message })
+        setEmail('')
+        setName('')
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to subscribe' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Network error. Please try again.' })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <footer className="relative border-t border-gray-800/50 bg-black">
       {/* Decorative gradient background */}
@@ -167,6 +209,99 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Newsletter Subscription */}
+        <div className="border-t border-gray-800/50 py-12">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full border border-blue-500/20 mb-4">
+              <span className="text-blue-400 text-sm font-medium">📧 Stay Updated</span>
+            </div>
+            
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+              Subscribe to Our Newsletter
+            </h3>
+            <p className="text-gray-400 mb-6 max-w-lg mx-auto">
+              Get the latest updates on web development trends, exclusive insights, and special offers delivered to your inbox.
+            </p>
+
+            <form onSubmit={handleSubscribe} className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input
+                  type="text"
+                  placeholder="Your name (optional)"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Subscribing...
+                    </span>
+                  ) : (
+                    'Subscribe'
+                  )}
+                </button>
+              </div>
+
+              {message && (
+                <div className={`max-w-md mx-auto p-3 rounded-lg text-sm ${
+                  message.type === 'success' 
+                    ? 'bg-green-900/30 border border-green-500/50 text-green-400' 
+                    : 'bg-red-900/30 border border-red-500/50 text-red-400'
+                }`}>
+                  {message.text}
+                </div>
+              )}
+
+              <p className="text-xs text-gray-500 max-w-md mx-auto">
+                By subscribing, you agree to receive emails from MicroAI Systems. 
+                Unsubscribe anytime. Read our{' '}
+                <Link href="/privacy" className="text-blue-400 hover:text-blue-300 underline">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+            </form>
+
+            <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
+              <div className="flex items-center">
+                <svg className="w-4 h-4 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                No spam, ever
+              </div>
+              <div className="flex items-center">
+                <svg className="w-4 h-4 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Exclusive content
+              </div>
+              <div className="flex items-center">
+                <svg className="w-4 h-4 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Unsubscribe anytime
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Bar */}
         <div className="border-t border-gray-800/50 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
@@ -180,6 +315,9 @@ export default function Footer() {
               </Link>
               <Link href="/terms" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
                 Terms of Service
+              </Link>
+              <Link href="/cookies" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+                Cookie Policy
               </Link>
             </div>
           </div>
