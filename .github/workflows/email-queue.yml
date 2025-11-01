@@ -1,0 +1,21 @@
+name: Process Email Queue
+
+on:
+  schedule:
+    # Runs every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  process-emails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger email processing
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://www.microaisystems.com/api/cron/process-email-queue
+        continue-on-error: true
+      
+      - name: Log result
+        run: echo "Email queue processing triggered"

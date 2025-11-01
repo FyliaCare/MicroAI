@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { queueAdminNotificationEmail, queueClientConfirmationEmail } from '@/lib/email-queue'
 import { prisma } from '@/lib/prisma'
 
 interface ContactFormData {
@@ -30,9 +30,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // Initialize Resend with API key (only when actually sending)
-    const resend = new Resend(process.env.RESEND_API_KEY || '')
 
     // Email content
     const emailHtml = `
@@ -123,33 +120,19 @@ ${body.message}
 Submitted: ${new Date().toLocaleString()}
     `
 
-    // Send email to admin using Resend
-    console.log('📧 Attempting to send email via Resend API...')
-    
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.RESEND_TO_EMAIL || 'sales@microaisystems.com'
-    
-    console.log('Resend Config:', {
-      hasApiKey: !!process.env.RESEND_API_KEY,
-      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-      to: adminEmail
-    })
+    // Queue admin notification email
+    console.log('📧 Queueing admin notification email...')
     
     try {
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
-        to: [adminEmail],
-        subject: `🚀 New Client Request from ${body.name}${body.company ? ` - ${body.company}` : ''}`,
-        replyTo: body.email,
-        html: emailHtml,
-      })
-
-      if (error) {
-        console.error('❌ Resend API error:', error)
-      } else {
-        console.log('✅ Email sent successfully via Resend! ID:', data?.id)
-      }
+      await queueAdminNotificationEmail(
+        `🚀 New Client Request from ${body.name}${body.company ? ` - ${body.company}` : ''}`,
+        emailHtml,
+        emailText,
+        'high'
+      )
+      console.log('✅ Admin notification email queued successfully')
     } catch (emailError: any) {
-      console.error('❌ Email sending error:', emailError.message || emailError)
+      console.error('❌ Failed to queue admin email:', emailError.message || emailError)
       // Continue anyway - don't fail the request if email fails
     }
 
@@ -312,22 +295,18 @@ Takoradi, Ghana
 sales@microaisystems.com
     `
 
-    // Send auto-reply to client
+    // Queue client confirmation email
     try {
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
-        to: [body.email],
-        subject: `✓ We've Received Your Message - MicroAI`,
-        html: clientEmailHtml,
-      })
-
-      if (error) {
-        console.error('❌ Auto-reply error:', error)
-      } else {
-        console.log('✅ Auto-reply sent via Resend! ID:', data?.id)
-      }
+      await queueClientConfirmationEmail(
+        body.email,
+        `✓ We've Received Your Message - MicroAI`,
+        clientEmailHtml,
+        clientEmailText,
+        'high'
+      )
+      console.log('✅ Client confirmation email queued successfully')
     } catch (replyError: any) {
-      console.error('❌ Auto-reply error:', replyError.message || replyError)
+      console.error('❌ Failed to queue client email:', replyError.message || replyError)
       // Continue anyway
     }
 

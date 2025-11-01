@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import { queueAdminNotificationEmail, queueClientConfirmationEmail } from '@/lib/email-queue'
 
 interface ProjectInquiryData {
   projectIdea: string
@@ -75,9 +75,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // Initialize Resend with API key (only when actually sending)
-    const resend = new Resend(process.env.RESEND_API_KEY || '')
 
     // Format the values for display
     const formattedProjectType = formatFieldValue('projectType', body.projectType)
@@ -200,25 +197,17 @@ Submitted: ${new Date().toLocaleString()}
 Next Step: Send Teams meeting invite to ${body.email}
     `
 
-    // Send email to admin
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.RESEND_TO_EMAIL || 'sales@microaisystems.com'
-    
+    // Queue admin notification email
     try {
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'MicroAI Systems AI Bot <onboarding@resend.dev>',
-        to: [adminEmail],
-        subject: `🤖 New AI Bot Inquiry from ${body.name} - ${formattedProjectType}`,
-        replyTo: body.email,
-        html: adminEmailHtml,
-      })
-
-      if (error) {
-        console.error('❌ AI Bot email error:', error)
-      } else {
-        console.log('✅ AI Bot inquiry email sent via Resend! ID:', data?.id)
-      }
+      await queueAdminNotificationEmail(
+        `🤖 New AI Bot Inquiry from ${body.name} - ${formattedProjectType}`,
+        adminEmailHtml,
+        adminEmailText,
+        'high'
+      )
+      console.log('✅ Admin notification email queued successfully')
     } catch (emailError: any) {
-      console.error('❌ Email sending error:', emailError.message || emailError)
+      console.error('❌ Failed to queue admin email:', emailError.message || emailError)
       // Continue anyway - don't fail the request if email fails
     }
 
@@ -381,22 +370,18 @@ Takoradi, Ghana
 sales@microaisystems.com
     `
 
-    // Send auto-reply to client
+    // Queue client confirmation email
     try {
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'MicroAI Systems AI Assistant <onboarding@resend.dev>',
-        to: [body.email],
-        subject: `🚀 Your Project Details Received - MicroAI Systems`,
-        html: clientEmailHtml,
-      })
-
-      if (error) {
-        console.error('❌ AI Bot auto-reply error:', error)
-      } else {
-        console.log('✅ AI Bot auto-reply sent via Resend! ID:', data?.id)
-      }
+      await queueClientConfirmationEmail(
+        body.email,
+        `🚀 Your Project Details Received - MicroAI Systems`,
+        clientEmailHtml,
+        clientEmailText,
+        'high'
+      )
+      console.log('✅ Client confirmation email queued successfully')
     } catch (replyError: any) {
-      console.error('❌ Auto-reply error:', replyError.message || replyError)
+      console.error('❌ Failed to queue client email:', replyError.message || replyError)
       // Continue anyway
     }
 
