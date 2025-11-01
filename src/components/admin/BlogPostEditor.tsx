@@ -380,6 +380,7 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
             Content * <span className="text-gray-400 font-normal">(Write your amazing content here)</span>
           </label>
           <Editor
+            apiKey="no-api-key"
             onInit={(_evt: any, editor: any) => editorRef.current = editor}
             initialValue={formData.content}
             onEditorChange={(content: string) => {
@@ -388,6 +389,8 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
             init={{
               height: 600,
               menubar: true,
+              branding: false,
+              promotion: false,
               plugins: [
                 'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
                 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
@@ -398,6 +401,8 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
                 'alignright alignjustify | bullist numlist outdent indent | ' +
                 'removeformat | link image media | code preview | help',
               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px; line-height:1.6; color:#1f2937; }',
+              skin: 'oxide',
+              content_css: 'default',
               images_upload_handler: async (blobInfo: any) => {
                 const formData = new FormData()
                 formData.append('file', blobInfo.blob(), blobInfo.filename())
