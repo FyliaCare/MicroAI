@@ -108,7 +108,8 @@ export default function AdminBlogPage() {
     )
   }
 
-  if (session?.user?.role !== 'ADMIN') {
+  const userRole = (session?.user as any)?.role
+  if (!userRole || (userRole !== 'admin' && userRole !== 'super-admin')) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-red-600">Access denied. Admin only.</p>

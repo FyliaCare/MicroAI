@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    const userRole = (session?.user as any)?.role
+    if (!session?.user || (userRole !== 'admin' && userRole !== 'super-admin')) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -84,7 +85,8 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    const userRole = (session?.user as any)?.role
+    if (!session?.user || (userRole !== 'admin' && userRole !== 'super-admin')) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
