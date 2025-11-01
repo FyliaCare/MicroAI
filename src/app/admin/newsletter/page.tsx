@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import AdminLayout from '@/components/admin/AdminLayout'
 
 interface Subscriber {
   id: string
@@ -133,7 +132,7 @@ export default function NewsletterPage() {
   }
 
   return (
-    <AdminLayout>
+    <div className="p-6">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -511,6 +510,6 @@ export default function NewsletterPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </div>
   )
 }

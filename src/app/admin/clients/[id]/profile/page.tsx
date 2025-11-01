@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import AdminLayout from '@/components/admin/AdminLayout'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 
@@ -85,31 +84,27 @@ export default function AdminClientProfilePage() {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-        </div>
-      </AdminLayout>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
     )
   }
 
   if (!profile) {
     return (
-      <AdminLayout>
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-            Client Not Found
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
-            The client profile you're looking for doesn't exist.
-          </p>
-          <Button onClick={() => router.push('/admin/projects')}>
-            <span className="mr-2">←</span>
-            Back to Projects
-          </Button>
-        </div>
-      </AdminLayout>
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">⚠️</div>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+          Client Not Found
+        </h2>
+        <p className="text-slate-600 dark:text-slate-400 mb-6">
+          The client profile you're looking for doesn't exist.
+        </p>
+        <Button onClick={() => router.push('/admin/projects')}>
+          <span className="mr-2">←</span>
+          Back to Projects
+        </Button>
+      </div>
     )
   }
 
@@ -125,7 +120,7 @@ export default function AdminClientProfilePage() {
   }
 
   return (
-    <AdminLayout>
+    <div className="p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
@@ -493,6 +488,6 @@ export default function AdminClientProfilePage() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </div>
   )
 }
