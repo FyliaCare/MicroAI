@@ -126,23 +126,23 @@ export default function ServicesPage() {
       <AdvancedNavbar />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
+      <section className="pt-24 md:pt-32 pb-12 md:pb-16 px-4 relative overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0">
-          <div className="absolute w-96 h-96 bg-blue-500/10 rounded-full blur-3xl top-20 left-20 animate-pulse"></div>
-          <div className="absolute w-96 h-96 bg-purple-500/10 rounded-full blur-3xl bottom-20 right-20 animate-pulse delay-500"></div>
+          <div className="absolute w-64 md:w-96 h-64 md:h-96 bg-blue-500/10 rounded-full blur-3xl top-10 md:top-20 left-10 md:left-20 animate-pulse"></div>
+          <div className="absolute w-64 md:w-96 h-64 md:h-96 bg-purple-500/10 rounded-full blur-3xl bottom-10 md:bottom-20 right-10 md:right-20 animate-pulse delay-500"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="inline-block mb-6 animate-fadeIn">
-            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/50 rounded-full px-6 py-2 animate-pulse-glow">
-              <span className="text-blue-400 text-sm font-semibold">⚡ 10x Faster Delivery</span>
+        <div className="max-w-6xl mx-auto text-center relative z-10">
+          <div className="inline-block mb-4 md:mb-6 animate-fadeIn mobile-card-enter">
+            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/50 rounded-full px-4 md:px-6 py-1.5 md:py-2 animate-pulse-glow">
+              <span className="text-blue-400 text-xs md:text-sm font-semibold">⚡ 10x Faster Delivery</span>
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fadeIn delay-200">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 animate-fadeIn delay-200">
             Our <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">Services</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto animate-fadeIn delay-500">
+          <p className="text-sm md:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto animate-fadeIn delay-500 leading-relaxed">
             Revolutionary development services powered by cutting-edge technology. 
             We deliver in <span className="text-blue-500 font-bold">1/10th the time</span> without compromising quality.
           </p>
@@ -150,51 +150,51 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
+      <section className="py-12 md:py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6">
             {services.map((service, idx) => (
               <div 
                 key={service.id}
-                className={`bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-8 hover:border-blue-500 transition-all hover-lift animate-scaleIn ${
+                className={`bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-xl p-6 hover:border-blue-500 transition-all hover-lift animate-scaleIn mobile-card ${
                   idx === 0 ? '' : idx === 1 ? 'delay-200' : idx === 2 ? 'delay-500' : 'delay-700'
                 }`}
               >
-                <div className="text-6xl mb-4 animate-float">{service.icon}</div>
-                <h3 className="text-3xl font-semibold mb-3">{service.title}</h3>
-                <p className="text-gray-400 mb-6">{service.description}</p>
+                <div className="text-4xl mb-3 animate-float">{service.icon}</div>
+                <h3 className="text-xl font-semibold mb-2 leading-tight">{service.title}</h3>
+                <p className="text-gray-400 mb-4 text-sm leading-relaxed">{service.description}</p>
                 
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-blue-400 mb-3 uppercase tracking-wide">What&apos;s Included:</h4>
-                  <ul className="space-y-2">
+                <div className="mb-4">
+                  <h4 className="text-xs font-semibold text-blue-400 mb-2 uppercase tracking-wide">What&apos;s Included:</h4>
+                  <ul className="space-y-1.5">
                     {service.features.map((feature, index) => (
-                      <li key={index} className="flex items-start text-sm text-gray-300">
-                        <span className="text-blue-500 mr-2 mt-1">✓</span>
-                        {feature}
+                      <li key={index} className="flex items-start text-xs text-gray-300 leading-snug">
+                        <span className="text-blue-500 mr-2 mt-0.5 flex-shrink-0">✓</span>
+                        <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 
-                <div className="border-t border-gray-700 pt-6 mt-6">
+                <div className="border-t border-gray-700 pt-4 mt-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs text-gray-400">Investment:</span>
+                    <span className="font-semibold text-white text-sm">{service.pricing}</span>
+                  </div>
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-sm text-gray-400">Investment:</span>
-                    <span className="font-semibold text-white">{service.pricing}</span>
+                    <span className="text-xs text-gray-400">Timeline:</span>
+                    <span className="font-semibold text-green-400 text-sm">{service.timeline}</span>
                   </div>
-                  <div className="flex justify-between items-center mb-6">
-                    <span className="text-sm text-gray-400">Timeline:</span>
-                    <span className="font-semibold text-green-400">{service.timeline}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2">
                     <Link 
                       href={service.link}
-                      className="block text-center bg-gray-800 border border-gray-700 text-white px-6 py-3 rounded-lg hover:border-blue-500 hover:bg-gray-700 transition-all font-medium"
+                      className="block text-center bg-gray-800 border border-gray-700 text-white px-4 py-2.5 rounded-lg hover:border-blue-500 hover:bg-gray-700 transition-all font-medium text-sm mobile-active-state touch-manipulation"
                     >
                       Learn More
                     </Link>
                     <Link 
                       href="/contact"
-                      className="block text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale"
+                      className="block text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale text-sm mobile-active-state touch-manipulation"
                     >
                       Get Started →
                     </Link>
