@@ -82,27 +82,68 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <AdvancedNavbar />
       <style dangerouslySetInnerHTML={{__html: `
         .blog-content * {
-          color: #f3f4f6 !important;
+          color: #ffffff !important;
         }
         .blog-content h1, .blog-content h2, .blog-content h3, .blog-content h4, .blog-content h5, .blog-content h6 {
           color: #ffffff !important;
-          font-weight: bold !important;
-        }
-        .blog-content p {
-          font-size: 18px !important;
-          line-height: 1.8 !important;
+          font-weight: 800 !important;
+          margin-top: 2rem !important;
           margin-bottom: 1.5rem !important;
-          color: #f3f4f6 !important;
+        }
+        .blog-content h1 { font-size: 2.5rem !important; }
+        .blog-content h2 { font-size: 2rem !important; }
+        .blog-content h3 { font-size: 1.75rem !important; }
+        .blog-content p {
+          font-size: 20px !important;
+          line-height: 1.9 !important;
+          margin-bottom: 1.5rem !important;
+          color: #ffffff !important;
         }
         .blog-content a {
           color: #60a5fa !important;
+          text-decoration: underline !important;
         }
-        .blog-content strong {
+        .blog-content strong, .blog-content b {
           color: #ffffff !important;
-          font-weight: 700 !important;
+          font-weight: 800 !important;
         }
         .blog-content ul, .blog-content ol {
-          color: #f3f4f6 !important;
+          color: #ffffff !important;
+          font-size: 20px !important;
+          margin: 1.5rem 0 !important;
+          padding-left: 2rem !important;
+        }
+        .blog-content li {
+          color: #ffffff !important;
+          margin-bottom: 0.75rem !important;
+        }
+        .blog-content code {
+          background: rgba(255, 255, 255, 0.1) !important;
+          color: #fbbf24 !important;
+          padding: 0.25rem 0.5rem !important;
+          border-radius: 0.25rem !important;
+          font-size: 0.9em !important;
+        }
+        .blog-content pre {
+          background: rgba(0, 0, 0, 0.5) !important;
+          border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          border-radius: 0.5rem !important;
+          padding: 1.5rem !important;
+          overflow-x: auto !important;
+          margin: 1.5rem 0 !important;
+        }
+        .blog-content blockquote {
+          border-left: 4px solid #60a5fa !important;
+          padding-left: 1.5rem !important;
+          margin: 1.5rem 0 !important;
+          color: #e5e7eb !important;
+          font-style: italic !important;
+        }
+        .blog-content img {
+          max-width: 100% !important;
+          height: auto !important;
+          border-radius: 0.75rem !important;
+          margin: 2rem 0 !important;
         }
       `}} />
       
@@ -207,45 +248,25 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {/* Cover Image */}
         {post.coverImage && (
-          <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 border border-gray-800">
+          <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 border border-white/10 shadow-2xl">
             <Image
               src={post.coverImage}
               alt={post.coverImageAlt || post.title}
               fill
               className="object-cover"
               priority
+              unoptimized={post.coverImage.startsWith('/uploads/')}
             />
           </div>
         )}
 
-        {/* Content - Enhanced Visibility with Background */}
+        {/* Content - Maximum Visibility */}
         <div 
-          className="blog-content prose prose-invert prose-xl max-w-none bg-black/30 rounded-2xl p-8 backdrop-blur-sm
-            prose-headings:font-bold prose-headings:text-white prose-headings:tracking-tight
-            prose-h1:text-5xl prose-h1:mt-16 prose-h1:mb-8 prose-h1:leading-tight
-            prose-h2:text-4xl prose-h2:mt-14 prose-h2:mb-7 prose-h2:leading-snug
-            prose-h3:text-3xl prose-h3:mt-10 prose-h3:mb-5 prose-h3:leading-snug
-            prose-h4:text-2xl prose-h4:mt-8 prose-h4:mb-4
-            prose-p:text-gray-100 prose-p:text-xl prose-p:leading-relaxed prose-p:mb-6 prose-p:tracking-wide
-            prose-a:text-blue-400 prose-a:font-semibold prose-a:no-underline prose-a:border-b-2 prose-a:border-blue-500/50 hover:prose-a:text-blue-300 hover:prose-a:border-blue-300
-            prose-strong:text-white prose-strong:font-bold prose-strong:text-xl
-            prose-em:text-gray-100 prose-em:italic
-            prose-code:text-pink-300 prose-code:bg-gray-900/80 prose-code:px-3 prose-code:py-1.5 prose-code:rounded-md prose-code:font-mono prose-code:text-base prose-code:font-semibold prose-code:border prose-code:border-pink-500/30
-            prose-pre:bg-gray-900/90 prose-pre:border-2 prose-pre:border-gray-700 prose-pre:rounded-xl prose-pre:p-6 prose-pre:my-8 prose-pre:shadow-2xl
-            prose-ul:text-gray-100 prose-ul:text-xl prose-ul:my-6 prose-ul:leading-relaxed
-            prose-ol:text-gray-100 prose-ol:text-xl prose-ol:my-6 prose-ol:leading-relaxed
-            prose-li:my-3 prose-li:leading-relaxed prose-li:text-gray-100
-            prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-500/10 prose-blockquote:pl-8 prose-blockquote:py-4 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-gray-200 prose-blockquote:text-xl prose-blockquote:my-8
-            prose-img:rounded-xl prose-img:border-2 prose-img:border-gray-700 prose-img:shadow-2xl prose-img:my-10
-            prose-hr:border-gray-700 prose-hr:my-12
-            prose-table:text-gray-100 prose-table:border-2 prose-table:border-gray-700 prose-table:rounded-lg
-            prose-thead:bg-gray-800 prose-thead:text-white prose-thead:font-bold
-            prose-th:p-4 prose-th:text-left prose-th:border-b-2 prose-th:border-gray-600
-            prose-td:p-4 prose-td:border-b prose-td:border-gray-700"
+          className="blog-content max-w-none bg-black/50 rounded-2xl p-12 backdrop-blur-md border border-white/10"
           style={{ 
-            fontSize: '18px',
-            lineHeight: '1.8',
-            color: '#f3f4f6'
+            fontSize: '20px',
+            lineHeight: '1.9',
+            color: '#ffffff'
           }}
           dangerouslySetInnerHTML={{ __html: post.content }}
         />

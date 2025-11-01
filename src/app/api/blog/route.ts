@@ -117,8 +117,15 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session || (session.user as any).role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session?.user) {
+      console.log('No session found')
+      return NextResponse.json({ error: 'Unauthorized - Please sign in' }, { status: 401 })
+    }
+    
+    const userRole = (session.user as any)?.role
+    if (userRole !== 'admin' && userRole !== 'super-admin') {
+      console.log('Invalid role:', userRole)
+      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 })
     }
 
     const body = await request.json()
