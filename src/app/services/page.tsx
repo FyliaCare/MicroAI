@@ -2,6 +2,7 @@ import type { Metadata} from 'next'
 import Link from 'next/link'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
+import CTAButton from '@/components/CTAButton'
 
 export const metadata: Metadata = {
   title: 'Web Development Services - Custom Apps, SaaS, Websites | MicroAI Systems',
@@ -192,18 +193,9 @@ export default function ServicesPage() {
                     >
                       Learn More
                     </Link>
-                    <button 
-                      onClick={() => {
-                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-                        setTimeout(() => {
-                          const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
-                          if (chatButton) chatButton.click()
-                        }, 500)
-                      }}
-                      className="block w-full text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale text-sm mobile-active-state touch-manipulation"
-                    >
+                    <CTAButton className="block w-full text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale text-sm mobile-active-state touch-manipulation">
                       Get Started →
-                    </button>
+                    </CTAButton>
                   </div>
                 </div>
               </div>

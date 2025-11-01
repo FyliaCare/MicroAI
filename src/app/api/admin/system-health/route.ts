@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { Resend } from 'resend'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     // Check authentication

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
+import CTAButton from '@/components/CTAButton'
 
 const CountingStats = dynamic(() => import('@/components/CountingStats'), {
   loading: () => <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto h-32" />,
@@ -185,18 +186,9 @@ export default function AboutPage() {
                 Let&apos;s discuss how we can help transform your business with our revolutionary 
                 technology and lightning-fast delivery.
               </p>
-              <button 
-                onClick={() => {
-                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-                  setTimeout(() => {
-                    const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
-                    if (chatButton) chatButton.click()
-                  }, 500)
-                }}
-                className="inline-block bg-white text-blue-600 px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl hover-lift"
-              >
+              <CTAButton className="inline-block bg-white text-blue-600 px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl hover-lift">
                 Start Your Project →
-              </button>
+              </CTAButton>
             </div>
           </div>
         </div>
