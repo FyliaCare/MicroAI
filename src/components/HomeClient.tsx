@@ -49,28 +49,24 @@ export default function HomeClient() {
 }
 
 export function StartProjectButton({ className }: { className?: string }) {
-  const handleClick = () => {
-    // Scroll to bottom of page where chat widget is
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-    
-    // Wait for scroll, then click the chat button
-    setTimeout(() => {
-      const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
-      if (chatButton) {
-        chatButton.click()
-      }
-    }, 500)
-  }
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
-    <button
-      onClick={handleClick}
-      className={className}
-    >
-      <span className="inline-flex items-center">
-        Start Your Project
-        <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">→</span>
-      </span>
-    </button>
+    <>
+      {isModalOpen && (
+        <Suspense fallback={null}>
+          <AIProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        </Suspense>
+      )}
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className={className}
+      >
+        <span className="inline-flex items-center">
+          Start Your Project
+          <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">→</span>
+        </span>
+      </button>
+    </>
   )
 }

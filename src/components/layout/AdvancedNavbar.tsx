@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import Logo from '@/components/Logo'
+
+const AIProjectModal = lazy(() => import('@/components/AIProjectModal'))
 
 interface NavLink {
   href: string
@@ -26,6 +28,7 @@ const mobileNavLinks: NavLink[] = [
 export default function AdvancedNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const pathname = usePathname()
 
   // Handle scroll effect for enhanced navbar
@@ -59,6 +62,13 @@ export default function AdvancedNavbar() {
 
   return (
     <>
+      {/* AI Project Modal */}
+      {isModalOpen && (
+        <Suspense fallback={null}>
+          <AIProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        </Suspense>
+      )}
+      
       {/* Navigation Bar */}
       <nav 
         className={`fixed top-0 w-full z-40 transition-all duration-300 ${
@@ -101,13 +111,7 @@ export default function AdvancedNavbar() {
             
             {/* CTA Button */}
             <button
-              onClick={() => {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-                setTimeout(() => {
-                  const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
-                  if (chatButton) chatButton.click()
-                }, 500)
-              }}
+              onClick={() => setIsModalOpen(true)}
               className="ml-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
             >
               Start Project
@@ -211,11 +215,8 @@ export default function AdvancedNavbar() {
               
               <button
                 onClick={() => {
-                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-                  setTimeout(() => {
-                    const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
-                    if (chatButton) chatButton.click()
-                  }, 500)
+                  setIsModalOpen(true)
+                  setMobileMenuOpen(false)
                 }}
                 className="block w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center text-lg font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg shadow-blue-500/25 active:scale-95"
               >
