@@ -85,13 +85,17 @@ export default function NewsletterPage() {
   }, [activeTab])
 
   // Send newsletter
-  const handleSend = async () => {
+  const handleSend = async (sendImmediately: boolean = false) => {
     if (!subject || !content) {
       alert('Please fill in subject and content')
       return
     }
 
-    if (!confirm(`Send newsletter to all active subscribers?`)) {
+    const confirmMessage = sendImmediately
+      ? `Send newsletter IMMEDIATELY to all active subscribers?\n\nEmails will be sent right now (may take 1-2 minutes for large lists).`
+      : `Queue newsletter for all active subscribers?\n\nEmails will be sent automatically within 10 minutes.`
+
+    if (!confirm(confirmMessage)) {
       return
     }
 
@@ -104,17 +108,19 @@ export default function NewsletterPage() {
           subject,
           content,
           previewText,
+          sendImmediately,
         })
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        alert(`Newsletter sent successfully to ${data.sentCount} subscribers!`)
+        alert(data.message || `Newsletter sent successfully to ${data.sentCount} subscribers!`)
         setSubject('')
         setContent('')
         setPreviewText('')
         setActiveTab('sent')
+        fetchNewsletters() // Refresh the list
       } else {
         alert(`Error: ${data.error}`)
       }
@@ -232,7 +238,7 @@ export default function NewsletterPage() {
                   </p>
                 </div>
 
-                {/* Send Button */}
+                {/* Send Buttons */}
                 <div className="flex justify-end space-x-3">
                   <button
                     onClick={() => {
@@ -245,9 +251,9 @@ export default function NewsletterPage() {
                     Clear
                   </button>
                   <button
-                    onClick={handleSend}
+                    onClick={() => handleSend(false)}
                     disabled={isSending || !subject || !content}
-                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                   >
                     {isSending ? (
                       <>
@@ -256,12 +262,33 @@ export default function NewsletterPage() {
                       </>
                     ) : (
                       <>
-                        <span>📤</span>
-                        <span>Send to All Subscribers</span>
+                        <span>📋</span>
+                        <span>Queue (10 min)</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleSend(true)}
+                    disabled={isSending || !subject || !content}
+                    className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  >
+                    {isSending ? (
+                      <>
+                        <span className="animate-spin">⏳</span>
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>⚡</span>
+                        <span>Send Now</span>
                       </>
                     )}
                   </button>
                 </div>
+                <p className="text-xs text-gray-500 mt-2 text-right">
+                  💡 "Queue" = Reliable delivery via automated system (10 min delay) | 
+                  "Send Now" = Instant sending (use for urgent newsletters)
+                </p>
               </div>
             </div>
 

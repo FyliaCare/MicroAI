@@ -13,6 +13,7 @@ interface SendNewsletterData {
   scheduledFor?: string
   campaign?: string
   tags?: string[]
+  sendImmediately?: boolean // If true, sends via Resend directly instead of queue
 }
 
 export async function POST(request: NextRequest) {
@@ -85,13 +86,96 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Queue emails for reliable delivery
-    let queuedCount = 0
+    // Send emails - either immediately or via queue
+    let sentCount = 0
     let failedCount = 0
     const errors: string[] = []
 
-    // Queue all emails
-    for (const subscriber of subscribers) {
+    // If sendImmediately is true, send directly via Resend for instant delivery
+    if (body.sendImmediately) {
+      const { Resend } = await import('resend')
+      const resend = new Resend(process.env.RESEND_API_KEY || '')
+      
+      // Send in batches to avoid rate limits
+      const batchSize = 50
+      for (let i = 0; i < subscribers.length; i += batchSize) {
+        const batch = subscribers.slice(i, i + batchSize)
+        
+        const sendPromises = batch.map(async (subscriber: any) => {
+          try {
+            const personalizedContent = body.content
+              .replace(/\{name\}/g, subscriber.name || 'there')
+              .replace(/\{email\}/g, subscriber.email)
+            
+            const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.microaisystems.com'}/newsletter/unsubscribe?token=${subscriber.unsubscribeToken}`
+            
+            const emailHtml = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+      .container { max-width: 600px; margin: 0 auto; }
+      .header { background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%); color: white; padding: 30px; text-align: center; }
+      .content { padding: 30px; background: #ffffff; }
+      .footer { background: #1F2937; color: #9CA3AF; padding: 20px; text-align: center; font-size: 12px; }
+      .footer a { color: #60A5FA; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 style="margin: 0;">MicroAI Systems</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">10x Faster Development</p>
+      </div>
+      <div class="content">
+        ${personalizedContent}
+      </div>
+      <div class="footer">
+        <p style="margin: 0;"><strong>MicroAI Systems</strong></p>
+        <p style="margin: 5px 0;">BR253 Pasture St. Takoradi, Ghana</p>
+        <p style="margin: 5px 0;">
+          📧 <a href="mailto:sales@microaisystems.com">sales@microaisystems.com</a> | 
+          📱 +233 244486837
+        </p>
+        <p style="margin: 15px 0 5px 0;">
+          <a href="${unsubscribeUrl}">Unsubscribe</a> | 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://www.microaisystems.com'}">Visit Website</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+            `
+
+            await resend.emails.send({
+              from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
+              to: [subscriber.email],
+              subject: body.subject,
+              html: emailHtml,
+              headers: {
+                'List-Unsubscribe': `<${unsubscribeUrl}>`,
+              },
+            })
+
+            sentCount++
+          } catch (error: any) {
+            failedCount++
+            errors.push(`${subscriber.email}: ${error.message}`)
+            console.error(`Failed to send to ${subscriber.email}:`, error)
+          }
+        })
+
+        await Promise.allSettled(sendPromises)
+        
+        // Small delay between batches
+        if (i + batchSize < subscribers.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+      }
+    } else {
+      // Queue emails for reliable delivery (processed by cron every 10 minutes)
+      for (const subscriber of subscribers) {
       try {
         // Add unsubscribe link and personalization
         const personalizedContent = body.content
@@ -156,11 +240,12 @@ export async function POST(request: NextRequest) {
           },
         })
 
-        queuedCount++
-      } catch (error: any) {
-        failedCount++
-        errors.push(`${subscriber.email}: ${error.message}`)
-        console.error(`Failed to queue email for ${subscriber.email}:`, error)
+          sentCount++
+        } catch (error: any) {
+          failedCount++
+          errors.push(`${subscriber.email}: ${error.message}`)
+          console.error(`Failed to queue email for ${subscriber.email}:`, error)
+        }
       }
     }
 
@@ -168,9 +253,9 @@ export async function POST(request: NextRequest) {
     await prisma.newsletter.update({
       where: { id: newsletter.id },
       data: {
-        status: failedCount === subscribers.length ? 'failed' : 'queued',
+        status: failedCount === subscribers.length ? 'failed' : (body.sendImmediately ? 'sent' : 'queued'),
         sentAt: new Date(),
-        sentTo: queuedCount,
+        sentTo: sentCount,
         failedCount: failedCount,
         error: errors.length > 0 ? errors.slice(0, 10).join('\n') : undefined,
       }
@@ -182,24 +267,32 @@ export async function POST(request: NextRequest) {
         action: 'Sent',
         entity: 'Newsletter',
         entityId: newsletter.id,
-        description: `Newsletter queued: "${body.subject}" to ${queuedCount} subscribers`,
+        description: body.sendImmediately 
+          ? `Newsletter sent immediately: "${body.subject}" to ${sentCount} subscribers`
+          : `Newsletter queued: "${body.subject}" to ${sentCount} subscribers`,
         userId: session.user?.id,
         metadata: JSON.stringify({
           subject: body.subject,
-          queuedCount,
+          sentCount,
           failedCount,
           subscriberCount: subscribers.length,
+          sendImmediately: body.sendImmediately || false,
         })
       }
     })
 
+    const message = body.sendImmediately 
+      ? `Newsletter sent immediately to ${sentCount} subscribers!`
+      : `Newsletter queued successfully for ${sentCount} subscribers. Emails will be sent automatically within 10 minutes.`
+
     return NextResponse.json({
       success: true,
-      message: `Newsletter queued successfully for ${queuedCount} subscribers. Emails will be sent automatically within 10 minutes.`,
+      message,
       newsletterId: newsletter.id,
-      queuedCount,
+      sentCount,
       failedCount,
       totalSubscribers: subscribers.length,
+      sendImmediately: body.sendImmediately || false,
       errors: errors.length > 0 ? errors.slice(0, 5) : undefined,
     })
 
