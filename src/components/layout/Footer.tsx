@@ -3,7 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-export default function Footer() {
+interface FooterProps {
+  hideNewsletter?: boolean
+}
+
+export default function Footer({ hideNewsletter = false }: FooterProps) {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -50,6 +54,7 @@ export default function Footer() {
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter Subscription */}
+        {!hideNewsletter && (
         <div className="py-12 border-b border-gray-800/50">
           <div className="max-w-2xl mx-auto text-center">
             <div className="inline-block px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full border border-blue-500/20 mb-4">
@@ -141,6 +146,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Main Footer Content */}
         <div className="py-12 lg:py-16">

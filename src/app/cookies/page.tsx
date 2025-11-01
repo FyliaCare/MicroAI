@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
@@ -15,6 +16,8 @@ export const metadata: Metadata = {
 export default function CookiePolicyPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
+      <AdvancedNavbar />
+      
       <div className="max-w-4xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
         <div className="prose prose-invert prose-purple max-w-none">
           {/* Header */}

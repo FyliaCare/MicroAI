@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
+import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
@@ -36,6 +37,8 @@ export default async function BlogPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
+      <AdvancedNavbar />
+      
       {/* Header */}
       <div className="border-b border-gray-800/50 bg-black/30 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">

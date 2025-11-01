@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
 
 interface BlogPostPageProps {
@@ -78,7 +79,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
-      {/* Header */}
+      <AdvancedNavbar />
+      
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         {/* Back Button */}
         <Link

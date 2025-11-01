@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
 
 function UnsubscribeContent() {
@@ -53,6 +54,8 @@ function UnsubscribeContent() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
+      <AdvancedNavbar />
+      
       <div className="max-w-2xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
         <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800 p-8 md:p-12 text-center">
           {isUnsubscribing ? (
@@ -180,7 +183,7 @@ function UnsubscribeContent() {
         </div>
       </div>
 
-      <Footer />
+      <Footer hideNewsletter />
     </main>
   )
 }
