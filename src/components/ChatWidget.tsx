@@ -39,16 +39,15 @@ export default function ChatWidget() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [uploading, setUploading] = useState(false)
   const [showScrollButton, setShowScrollButton] = useState(false)
-  
-  // Hide chat widget on admin and client portal pages
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/client')) {
-    return null
-  }
-  
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout>()
+  
+  // Hide chat widget on admin and client portal pages - MUST be after all hooks
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/client')) {
+    return null
+  }
 
   // Generate or get visitor ID
   const getVisitorId = () => {
@@ -193,7 +192,7 @@ export default function ChatWidget() {
         userType: 'visitor',
         isTyping: true,
       }),
-    })
+    }).catch(err => console.error('Error sending typing indicator:', err))
 
     // Stop typing after 3 seconds
     typingTimeoutRef.current = setTimeout(() => {
@@ -206,7 +205,7 @@ export default function ChatWidget() {
           userType: 'visitor',
           isTyping: false,
         }),
-      })
+      }).catch(err => console.error('Error stopping typing indicator:', err))
     }, 3000)
   }
 
@@ -325,7 +324,7 @@ export default function ChatWidget() {
           sessionId: session.id,
           senderType: 'admin',
         }),
-      })
+      }).catch(err => console.error('Error marking messages as read:', err))
     }
   }, [isOpen, isMinimized, session])
 

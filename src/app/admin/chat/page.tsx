@@ -163,7 +163,7 @@ export default function AdminChatPage() {
         userType: 'admin',
         isTyping: true,
       }),
-    })
+    }).catch(err => console.error('Error sending typing indicator:', err))
 
     typingTimeoutRef.current = setTimeout(() => {
       fetch('/api/chat/typing', {
@@ -174,7 +174,7 @@ export default function AdminChatPage() {
           userType: 'admin',
           isTyping: false,
         }),
-      })
+      }).catch(err => console.error('Error stopping typing indicator:', err))
     }, 3000)
   }
 
@@ -287,7 +287,7 @@ export default function AdminChatPage() {
         sessionId: session.id,
         senderType: 'visitor',
       }),
-    })
+    }).catch(err => console.error('Error marking messages as read:', err))
   }
 
   // Scroll to bottom

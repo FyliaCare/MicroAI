@@ -49,12 +49,12 @@ export default function MobileBottomNav() {
   const pathname = usePathname()
   const [touchStart, setTouchStart] = useState<number | null>(null)
 
-  // Hide bottom nav on admin, client, and auth pages
+  const isActive = (pattern: RegExp) => pattern.test(pathname || '')
+  
+  // Hide bottom nav on admin, client, and auth pages - MUST be after all hooks
   if (pathname?.startsWith('/admin') || pathname?.startsWith('/client') || pathname?.startsWith('/auth')) {
     return null
   }
-
-  const isActive = (pattern: RegExp) => pattern.test(pathname || '')
 
   // Add haptic-like feedback simulation
   const handleTouchStart = (e: React.TouchEvent) => {
