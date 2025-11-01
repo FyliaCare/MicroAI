@@ -104,6 +104,19 @@ export default function ChatWidget() {
     return null
   }
 
+  // Scroll handling - MUST be defined before use
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const handleScroll = () => {
+    if (!messagesContainerRef.current) return
+    
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
+    setShowScrollButton(!isNearBottom)
+  }
+
   // Generate or get visitor ID
   const getVisitorId = () => {
     let visitorId = localStorage.getItem('chat_visitor_id')
@@ -312,19 +325,6 @@ export default function ChatWidget() {
     } finally {
       setUploading(false)
     }
-  }
-
-  // Scroll handling
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  const handleScroll = () => {
-    if (!messagesContainerRef.current) return
-    
-    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current
-    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
-    setShowScrollButton(!isNearBottom)
   }
 
   // Open chat
