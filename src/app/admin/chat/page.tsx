@@ -297,8 +297,10 @@ export default function AdminChatPage() {
 
   // Poll for updates
   useEffect(() => {
-    fetchSessions()
-    const interval = setInterval(fetchSessions, 5000)
+    fetchSessions().catch(err => console.error('Session fetch error:', err))
+    const interval = setInterval(() => {
+      fetchSessions().catch(err => console.error('Session fetch error:', err))
+    }, 5000)
     return () => clearInterval(interval)
   }, [filterStatus])
 

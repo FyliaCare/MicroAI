@@ -43,7 +43,9 @@ export default function VisitorAnalyticsPage() {
 
   useEffect(() => {
     fetchAnalytics()
-    const interval = setInterval(fetchAnalytics, 30000) // Refresh every 30 seconds
+    const interval = setInterval(() => {
+      fetchAnalytics().catch(err => console.error('Analytics fetch error:', err))
+    }, 30000) // Refresh every 30 seconds
     return () => clearInterval(interval)
   }, [period])
 

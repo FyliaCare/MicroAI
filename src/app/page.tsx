@@ -81,40 +81,40 @@ export default function Home() {
 
       {/* Technology Section */}
       <section className="py-12 md:py-20 px-4 relative">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10 md:mb-16 px-2 md:px-4">
-            <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8 md:mb-12 px-2 md:px-4">
+            <h2 className="text-xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
               Our <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Secret Weapon</span>
             </h2>
-            <p className="text-sm md:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto">
+            <p className="text-xs md:text-base lg:text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
               We&apos;ve invested heavily in cutting-edge development systems that revolutionize 
               how we build digital products.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4 md:gap-8 mb-8 md:mb-12">
-            <div className="mobile-card bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/50 rounded-2xl p-6 md:p-8 backdrop-blur-sm hover:border-blue-500 transition-all hover-lift animate-slideInLeft touch-manipulation mobile-active-state">
-              <div className="text-4xl md:text-5xl mb-3 md:mb-4 animate-float">⚡</div>
-              <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Lightning Fast</h3>
-              <p className="text-sm md:text-base text-gray-400">
+          <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+            <div className="mobile-card bg-gradient-to-br from-blue-900/50 to-blue-800/30 border border-blue-700/50 rounded-xl p-5 md:p-6 backdrop-blur-sm hover:border-blue-500 transition-all hover-lift animate-slideInLeft touch-manipulation mobile-active-state">
+              <div className="text-3xl md:text-4xl mb-2 md:mb-3 animate-float">⚡</div>
+              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3">Lightning Fast</h3>
+              <p className="text-xs md:text-sm text-gray-400 leading-snug">
                 Our proprietary development system delivers projects in 1/10th the time. 
                 What takes others months, we deliver in weeks.
               </p>
             </div>
             
-            <div className="mobile-card bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/50 rounded-2xl p-6 md:p-8 backdrop-blur-sm hover:border-purple-500 transition-all hover-lift animate-scaleIn delay-200 touch-manipulation mobile-active-state">
-              <div className="text-4xl md:text-5xl mb-3 md:mb-4 animate-float delay-200">🚀</div>
-              <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Latest Technology</h3>
-              <p className="text-sm md:text-base text-gray-400">
+            <div className="mobile-card bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/50 rounded-xl p-5 md:p-6 backdrop-blur-sm hover:border-purple-500 transition-all hover-lift animate-scaleIn delay-200 touch-manipulation mobile-active-state">
+              <div className="text-3xl md:text-4xl mb-2 md:mb-3 animate-float delay-200">🚀</div>
+              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3">Latest Technology</h3>
+              <p className="text-xs md:text-sm text-gray-400 leading-snug">
                 Built on the most advanced frameworks and tools. Next.js, TypeScript, AI-assisted 
                 development - we use it all.
               </p>
             </div>
             
-            <div className="mobile-card bg-gradient-to-br from-pink-900/50 to-pink-800/30 border border-pink-700/50 rounded-2xl p-6 md:p-8 backdrop-blur-sm hover:border-pink-500 transition-all hover-lift animate-slideInRight touch-manipulation mobile-active-state">
-              <div className="text-4xl md:text-5xl mb-3 md:mb-4 animate-float delay-500">💎</div>
-              <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">Enterprise Quality</h3>
-              <p className="text-sm md:text-base text-gray-400">
+            <div className="mobile-card bg-gradient-to-br from-pink-900/50 to-pink-800/30 border border-pink-700/50 rounded-xl p-5 md:p-6 backdrop-blur-sm hover:border-pink-500 transition-all hover-lift animate-slideInRight touch-manipulation mobile-active-state">
+              <div className="text-3xl md:text-4xl mb-2 md:mb-3 animate-float delay-500">💎</div>
+              <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3">Enterprise Quality</h3>
+              <p className="text-xs md:text-sm text-gray-400 leading-snug">
                 Speed doesn&apos;t mean compromise. Every project is production-ready, scalable, 
                 and built to last.
               </p>
@@ -172,18 +172,18 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 md:py-20 px-4">
+      <section className="py-12 md:py-16 px-4">
         <div className="max-w-4xl mx-auto text-center animate-fadeIn">
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
+          <h2 className="text-xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
             Ready to Build <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">10x Faster</span>?
           </h2>
-          <p className="text-sm md:text-lg lg:text-xl text-gray-400 mb-8 md:mb-10 px-2">
+          <p className="text-xs md:text-base lg:text-lg text-gray-400 mb-6 md:mb-8 px-2 leading-relaxed">
             Stop waiting months for traditional development cycles. Share your concept with us today 
             and get immediate insights with <span className="text-blue-400 font-semibold">lightning-fast timelines</span> that 
             turn your ideas into reality in weeks, not months.
           </p>
           <StartProjectButton 
-            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 md:px-12 py-3 md:py-4 rounded-full text-base md:text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-2xl hover-lift animate-pulse-glow cursor-pointer min-h-[48px] touch-manipulation mobile-active-state"
+            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 md:px-10 py-3 md:py-4 rounded-full text-sm md:text-base font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-2xl hover-lift animate-pulse-glow cursor-pointer min-h-[48px] touch-manipulation mobile-active-state"
           />
         </div>
       </section>

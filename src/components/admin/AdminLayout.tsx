@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import AdminMobileBottomNav from './AdminMobileBottomNav'
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -70,8 +71,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   // Fetch notifications on mount and every 30 seconds
   useEffect(() => {
-    fetchNotifications()
-    const interval = setInterval(fetchNotifications, 30000)
+    fetchNotifications().catch(err => console.error('Notification fetch error:', err))
+    const interval = setInterval(() => {
+      fetchNotifications().catch(err => console.error('Notification fetch error:', err))
+    }, 30000)
     return () => clearInterval(interval)
   }, [])
 
@@ -572,5 +575,3 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     </div>
   )
 }
-
-import AdminMobileBottomNav from './AdminMobileBottomNav'
