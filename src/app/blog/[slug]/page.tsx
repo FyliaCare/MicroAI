@@ -4,6 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
+import BlogContent from '@/components/blog/BlogContent'
+import SocialShare from '@/components/blog/SocialShare'
 
 interface BlogPostPageProps {
   params: {
@@ -39,23 +41,51 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     }
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://microaisystems.com'
+  const postUrl = `${baseUrl}/blog/${post.slug}`
+
   return {
-    title: post.metaTitle || `${post.title} | MicroAI Blog`,
+    title: post.metaTitle || `${post.title} | MicroAI Systems Blog`,
     description: post.metaDescription || post.excerpt || post.title,
     keywords: post.seoKeywords,
+    authors: [{ name: post.authorName || 'MicroAI Systems' }],
+    creator: post.authorName || 'MicroAI Systems',
+    publisher: 'MicroAI Systems',
+    category: post.category,
     openGraph: {
-      title: post.title,
-      description: post.excerpt || post.title,
-      images: post.coverImage ? [{ url: post.coverImage }] : [],
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || post.excerpt || post.title,
+      url: postUrl,
+      siteName: 'MicroAI Systems',
+      images: post.coverImage ? [{
+        url: post.coverImage,
+        width: 1200,
+        height: 630,
+        alt: post.title,
+      }] : [],
+      locale: 'en_US',
       type: 'article',
       publishedTime: post.publishedAt,
       authors: post.authorName ? [post.authorName] : [],
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: post.excerpt || post.title,
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || post.excerpt || post.title,
       images: post.coverImage ? [post.coverImage] : [],
+      creator: '@microaisystems',
+      site: '@microaisystems',
+    },
+    alternates: {
+      canonical: postUrl,
+    },
+    robots: {
+      index: post.published,
+      follow: post.published,
+      googleBot: {
+        index: post.published,
+        follow: post.published,
+      },
     },
   }
 }
@@ -77,10 +107,47 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     }
   }
 
+  // Schema.org structured data for SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.metaDescription || post.excerpt,
+    image: post.coverImage,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
+    author: {
+      '@type': 'Person',
+      name: post.authorName || 'MicroAI Systems',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'MicroAI Systems',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://microaisystems.com'}/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${process.env.NEXT_PUBLIC_APP_URL || 'https://microaisystems.com'}/blog/${post.slug}`,
+    },
+    keywords: post.seoKeywords,
+    articleSection: post.category,
+    wordCount: post.content ? post.content.split(/\s+/).length : 0,
+    timeRequired: `PT${post.readingTime || 5}M`,
+  }
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
-      <AdvancedNavbar />
-      <style dangerouslySetInnerHTML={{__html: `
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      
+      <main className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
+        <AdvancedNavbar />
+        <style dangerouslySetInnerHTML={{__html: `
         .blog-content * {
           color: #ffffff !important;
         }
@@ -260,16 +327,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         )}
 
-        {/* Content - Maximum Visibility */}
-        <div 
-          className="blog-content max-w-none bg-black/50 rounded-2xl p-12 backdrop-blur-md border border-white/10"
-          style={{ 
-            fontSize: '20px',
-            lineHeight: '1.9',
-            color: '#ffffff'
-          }}
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        {/* Content with Advanced Features */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Social Share Sidebar - Desktop */}
+          <div className="hidden lg:block lg:col-span-1">
+            <SocialShare
+              title={post.title}
+              url={`/blog/${post.slug}`}
+              description={post.metaDescription || post.excerpt}
+            />
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-11">
+            <div className="bg-black/50 rounded-2xl p-8 lg:p-12 backdrop-blur-md border border-white/10">
+              <BlogContent content={post.content} title={post.title} />
+            </div>
+          </div>
+        </div>
 
         {/* Tags */}
         {tags.length > 0 && (
