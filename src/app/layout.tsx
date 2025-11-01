@@ -4,6 +4,7 @@ import './globals.css'
 import { ClientProviders } from '@/components/ClientProviders'
 import { WebVitals } from '@/components/WebVitals'
 import ChatWidget from '@/components/ChatWidget'
+import MobileBottomNav from '@/components/layout/MobileBottomNav'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -174,6 +175,7 @@ export default function RootLayout({
         <ClientProviders>
           {children}
           <ChatWidget />
+          <MobileBottomNav />
         </ClientProviders>
       </body>
     </html>

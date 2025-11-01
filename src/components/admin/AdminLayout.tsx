@@ -562,10 +562,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1 w-full lg:w-auto">
+        <main className="flex-1 w-full lg:w-auto mb-20 lg:mb-0">
           {children}
         </main>
       </div>
+      
+      {/* Mobile Bottom Navigation */}
+      <AdminMobileBottomNav />
     </div>
   )
 }
+
+import AdminMobileBottomNav from './AdminMobileBottomNav'
