@@ -382,7 +382,7 @@ export default function BlogPostEditor({ postId, isEdit = false }: BlogPostEdito
           <Editor
             onInit={(_evt: any, editor: any) => editorRef.current = editor}
             initialValue={formData.content}
-            onEditorChange={(content) => {
+            onEditorChange={(content: string) => {
               setFormData(prev => ({ ...prev, content }))
             }}
             init={{
