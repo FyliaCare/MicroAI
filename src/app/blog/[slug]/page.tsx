@@ -80,7 +80,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <main className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
       <AdvancedNavbar />
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{__html: `
         .blog-content * {
           color: #f3f4f6 !important;
         }
@@ -104,7 +104,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         .blog-content ul, .blog-content ol {
           color: #f3f4f6 !important;
         }
-      `}</style>
+      `}} />
       
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         {/* Back Button */}
