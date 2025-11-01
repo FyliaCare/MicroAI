@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { Resend } from 'resend'
+import { queueEmail } from '@/lib/email-queue'
 
 interface SubscribeData {
   email: string
@@ -79,10 +79,8 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Send welcome email
+    // Queue welcome email
     try {
-      const resend = new Resend(process.env.RESEND_API_KEY || '')
-      
       const welcomeEmailHtml = `
 <!DOCTYPE html>
 <html>
@@ -152,15 +150,48 @@ export async function POST(request: NextRequest) {
 </html>
       `
 
-      await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
-        to: [body.email],
+      // Queue the welcome email
+      await queueEmail({
+        to: body.email,
         subject: '🎉 Welcome to MicroAI Newsletter!',
-        html: welcomeEmailHtml,
+        htmlContent: welcomeEmailHtml,
+        priority: 'normal',
+        metadata: {
+          type: 'newsletter_welcome',
+          subscriberId: subscriber.id,
+        },
       })
     } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError)
+      console.error('Failed to queue welcome email:', emailError)
       // Don't fail the subscription if email fails
+    }
+
+    // Create admin notifications
+    try {
+      const admins = await prisma.user.findMany({
+        where: {
+          OR: [
+            { role: 'admin' },
+            { role: 'super-admin' }
+          ]
+        }
+      })
+
+      for (const admin of admins) {
+        await prisma.notification.create({
+          data: {
+            type: 'newsletter_subscription',
+            title: `📧 New Newsletter Subscriber`,
+            message: `${body.name || body.email} subscribed to the newsletter from ${body.source || 'website'}`,
+            link: `/admin/newsletter`,
+            priority: 'low',
+            entityType: 'admin',
+            entityId: admin.id
+          }
+        })
+      }
+    } catch (notifError) {
+      console.error('Failed to create admin notifications:', notifError)
     }
 
     // Log activity

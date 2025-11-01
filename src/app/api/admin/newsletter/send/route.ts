@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { Resend } from 'resend'
+import { queueEmail } from '@/lib/email-queue'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
@@ -19,8 +19,9 @@ export async function POST(request: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions)
+    const userRole = (session?.user as any)?.role
     
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || (userRole !== 'admin' && userRole !== 'super-admin')) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -84,27 +85,22 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Send emails using Resend
-    const resend = new Resend(process.env.RESEND_API_KEY || '')
-    let sentCount = 0
+    // Queue emails for reliable delivery
+    let queuedCount = 0
     let failedCount = 0
     const errors: string[] = []
 
-    // Send in batches to avoid rate limits
-    const batchSize = 50
-    for (let i = 0; i < subscribers.length; i += batchSize) {
-      const batch = subscribers.slice(i, i + batchSize)
-      
-      const sendPromises = batch.map(async (subscriber: any) => {
-        try {
-          // Add unsubscribe link and personalization
-          const personalizedContent = body.content
-            .replace(/\{name\}/g, subscriber.name || 'there')
-            .replace(/\{email\}/g, subscriber.email)
-          
-          const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.microaisystems.com'}/newsletter/unsubscribe?token=${subscriber.unsubscribeToken}`
-          
-          const emailHtml = `
+    // Queue all emails
+    for (const subscriber of subscribers) {
+      try {
+        // Add unsubscribe link and personalization
+        const personalizedContent = body.content
+          .replace(/\{name\}/g, subscriber.name || 'there')
+          .replace(/\{email\}/g, subscriber.email)
+        
+        const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.microaisystems.com'}/newsletter/unsubscribe?token=${subscriber.unsubscribeToken}`
+        
+        const emailHtml = `
 <!DOCTYPE html>
 <html>
   <head>
@@ -144,31 +140,27 @@ export async function POST(request: NextRequest) {
     </div>
   </body>
 </html>
-          `
+        `
 
-          await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || 'MicroAI <onboarding@resend.dev>',
-            to: [subscriber.email],
-            subject: body.subject,
-            html: emailHtml,
-            headers: {
-              'List-Unsubscribe': `<${unsubscribeUrl}>`,
-            },
-          })
+        // Queue the email for reliable delivery
+        await queueEmail({
+          to: subscriber.email,
+          subject: body.subject,
+          htmlContent: emailHtml,
+          priority: 'normal',
+          metadata: {
+            type: 'newsletter_bulk',
+            newsletterId: newsletter.id,
+            subscriberEmail: subscriber.email,
+            unsubscribeUrl,
+          },
+        })
 
-          sentCount++
-        } catch (error: any) {
-          failedCount++
-          errors.push(`${subscriber.email}: ${error.message}`)
-          console.error(`Failed to send to ${subscriber.email}:`, error)
-        }
-      })
-
-      await Promise.allSettled(sendPromises)
-      
-      // Small delay between batches
-      if (i + batchSize < subscribers.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        queuedCount++
+      } catch (error: any) {
+        failedCount++
+        errors.push(`${subscriber.email}: ${error.message}`)
+        console.error(`Failed to queue email for ${subscriber.email}:`, error)
       }
     }
 
@@ -176,9 +168,9 @@ export async function POST(request: NextRequest) {
     await prisma.newsletter.update({
       where: { id: newsletter.id },
       data: {
-        status: failedCount === subscribers.length ? 'failed' : 'sent',
+        status: failedCount === subscribers.length ? 'failed' : 'queued',
         sentAt: new Date(),
-        sentTo: sentCount,
+        sentTo: queuedCount,
         failedCount: failedCount,
         error: errors.length > 0 ? errors.slice(0, 10).join('\n') : undefined,
       }
@@ -190,11 +182,11 @@ export async function POST(request: NextRequest) {
         action: 'Sent',
         entity: 'Newsletter',
         entityId: newsletter.id,
-        description: `Newsletter sent: "${body.subject}" to ${sentCount} subscribers`,
+        description: `Newsletter queued: "${body.subject}" to ${queuedCount} subscribers`,
         userId: session.user?.id,
         metadata: JSON.stringify({
           subject: body.subject,
-          sentCount,
+          queuedCount,
           failedCount,
           subscriberCount: subscribers.length,
         })
@@ -203,9 +195,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Newsletter sent successfully to ${sentCount} subscribers`,
+      message: `Newsletter queued successfully for ${queuedCount} subscribers. Emails will be sent automatically within 10 minutes.`,
       newsletterId: newsletter.id,
-      sentCount,
+      queuedCount,
       failedCount,
       totalSubscribers: subscribers.length,
       errors: errors.length > 0 ? errors.slice(0, 5) : undefined,

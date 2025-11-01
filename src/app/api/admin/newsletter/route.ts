@@ -7,8 +7,9 @@ import { authOptions } from '@/lib/auth'
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
+    const userRole = (session?.user as any)?.role
     
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || (userRole !== 'admin' && userRole !== 'super-admin')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -69,8 +70,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
+    const userRole = (session?.user as any)?.role
     
-    if (!session || (session.user as any).role !== 'admin') {
+    if (!session || (userRole !== 'admin' && userRole !== 'super-admin')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
