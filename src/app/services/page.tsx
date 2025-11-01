@@ -192,12 +192,18 @@ export default function ServicesPage() {
                     >
                       Learn More
                     </Link>
-                    <Link 
-                      href="/contact"
-                      className="block text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale text-sm mobile-active-state touch-manipulation"
+                    <button 
+                      onClick={() => {
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                        setTimeout(() => {
+                          const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
+                          if (chatButton) chatButton.click()
+                        }, 500)
+                      }}
+                      className="block w-full text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale text-sm mobile-active-state touch-manipulation"
                     >
                       Get Started →
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>

@@ -296,12 +296,18 @@ export default function PortfolioPage() {
                 Let&apos;s build your next groundbreaking project together. Get the same quality, 
                 speed, and results as our live projects.
               </p>
-              <Link 
-                href="/contact" 
+              <button 
+                onClick={() => {
+                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                  setTimeout(() => {
+                    const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
+                    if (chatButton) chatButton.click()
+                  }, 500)
+                }}
                 className="inline-block bg-white text-blue-600 px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl hover-lift"
               >
                 Start Your Project →
-              </Link>
+              </button>
             </div>
           </div>
         </div>

@@ -100,12 +100,18 @@ export default function AdvancedNavbar() {
             </Link>
             
             {/* CTA Button */}
-            <Link
-              href="/contact"
+            <button
+              onClick={() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                setTimeout(() => {
+                  const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
+                  if (chatButton) chatButton.click()
+                }, 500)
+              }}
               className="ml-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
             >
               Start Project
-            </Link>
+            </button>
           </div>
 
           {/* Mobile/Tablet Navigation - Hamburger Menu */}
@@ -203,12 +209,18 @@ export default function AdvancedNavbar() {
                 🔐 Client Portal
               </Link>
               
-              <Link
-                href="/contact"
+              <button
+                onClick={() => {
+                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+                  setTimeout(() => {
+                    const chatButton = document.querySelector('button[aria-label="Open chat"]') as HTMLButtonElement
+                    if (chatButton) chatButton.click()
+                  }, 500)
+                }}
                 className="block w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center text-lg font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg shadow-blue-500/25 active:scale-95"
               >
                 🚀 Start Your Project
-              </Link>
+              </button>
               <p className="text-center text-gray-400 text-sm mt-4">
                 Get 10x faster development
               </p>

@@ -65,26 +65,26 @@ export default function ContactPage() {
       <AdvancedNavbar />
 
       {/* Hero Section */}
-      <section className="relative pt-24 md:pt-32 pb-12 md:pb-16 px-4">
+      <section className="relative pt-32 pb-20 px-4">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute w-64 md:w-96 h-64 md:h-96 bg-blue-500/20 rounded-full blur-3xl top-10 md:top-20 left-10 md:left-20 animate-pulse" style={{ transform: 'translate3d(0,0,0)' }}></div>
-          <div className="absolute w-64 md:w-96 h-64 md:h-96 bg-purple-500/20 rounded-full blur-3xl top-20 md:top-40 right-10 md:right-20 animate-pulse delay-700" style={{ transform: 'translate3d(0,0,0)' }}></div>
-          <div className="absolute w-64 md:w-96 h-64 md:h-96 bg-pink-500/20 rounded-full blur-3xl bottom-10 md:bottom-20 left-1/2 animate-pulse delay-1000" style={{ transform: 'translate3d(0,0,0)' }}></div>
+          <div className="absolute w-96 h-96 bg-blue-500/20 rounded-full blur-3xl top-20 left-20 animate-pulse" style={{ transform: 'translate3d(0,0,0)' }}></div>
+          <div className="absolute w-96 h-96 bg-purple-500/20 rounded-full blur-3xl top-40 right-20 animate-pulse delay-700" style={{ transform: 'translate3d(0,0,0)' }}></div>
+          <div className="absolute w-96 h-96 bg-pink-500/20 rounded-full blur-3xl bottom-20 left-1/2 animate-pulse delay-1000" style={{ transform: 'translate3d(0,0,0)' }}></div>
         </div>
 
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="inline-block mb-4 md:mb-6 animate-fadeIn mobile-card-enter">
-            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/50 rounded-full px-4 md:px-6 py-1.5 md:py-2 backdrop-blur-sm animate-pulse-glow">
-              <span className="text-blue-400 text-xs md:text-sm font-semibold">💬 Let&apos;s Build Something Amazing</span>
+        <div className="max-w-7xl mx-auto text-center relative z-10">
+          <div className="inline-block mb-6 animate-fadeIn">
+            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/50 rounded-full px-6 py-2 backdrop-blur-sm animate-pulse-glow">
+              <span className="text-blue-400 text-sm font-semibold">💬 Let&apos;s Build Something Amazing</span>
             </div>
           </div>
           
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 leading-tight animate-fadeIn delay-200">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight animate-fadeIn delay-200">
             Get in <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">Touch</span>
           </h1>
           
-          <p className="text-sm md:text-lg lg:text-xl text-gray-400 mb-8 md:mb-12 max-w-4xl mx-auto leading-relaxed animate-fadeIn delay-500 px-4">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-400 mb-12 max-w-4xl mx-auto leading-relaxed animate-fadeIn delay-500 px-4">
             Ready to transform your idea into reality? Let&apos;s discuss your project and show you 
             how we can deliver <span className="text-blue-500 font-bold">10x faster</span> than traditional development.
           </p>
@@ -194,59 +194,59 @@ export default function ContactPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Quick Contact */}
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl md:rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-xl md:rounded-2xl p-5 md:p-6 border border-gray-800 mobile-card">
-                  <h3 className="text-base md:text-lg font-bold mb-4 md:mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-2xl p-6 border border-gray-800">
+                  <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                     Quick Contact
                   </h3>
-                  <div className="space-y-3 md:space-y-4">
-                    <div className="flex items-start space-x-2 md:space-x-3 group/item mobile-active-state touch-manipulation">
-                      <div className="bg-blue-600/20 p-2 md:p-3 rounded-lg group-hover/item:bg-blue-600/30 transition-colors">
-                        <span className="text-xl md:text-2xl">📧</span>
+                  <div className="space-y-4">
+                    <div className="flex items-start space-x-3 group/item">
+                      <div className="bg-blue-600/20 p-3 rounded-lg group-hover/item:bg-blue-600/30 transition-colors">
+                        <span className="text-2xl">📧</span>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs md:text-sm">Email Us</p>
-                        <a href="mailto:sales@microaisystems.com" className="text-blue-400 hover:text-blue-300 transition-colors text-xs md:text-sm">
+                        <p className="text-gray-400 text-sm">Email Us</p>
+                        <a href="mailto:sales@microaisystems.com" className="text-blue-400 hover:text-blue-300 transition-colors">
                           sales@microaisystems.com
                         </a>
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-2 md:space-x-3 group/item mobile-active-state touch-manipulation">
-                      <div className="bg-green-600/20 p-2 md:p-3 rounded-lg group-hover/item:bg-green-600/30 transition-colors">
-                        <span className="text-xl md:text-2xl">📞</span>
+                    <div className="flex items-start space-x-3 group/item">
+                      <div className="bg-green-600/20 p-3 rounded-lg group-hover/item:bg-green-600/30 transition-colors">
+                        <span className="text-2xl">📞</span>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs md:text-sm">Phone / WhatsApp</p>
-                        <a href="tel:+233244486837" className="text-green-400 hover:text-green-300 transition-colors block text-xs">
+                        <p className="text-gray-400 text-sm">Phone / WhatsApp</p>
+                        <a href="tel:+233244486837" className="text-green-400 hover:text-green-300 transition-colors block text-sm">
                           +233 244 486 837
                         </a>
-                        <a href="tel:+233544230568" className="text-green-400 hover:text-green-300 transition-colors block text-xs">
+                        <a href="tel:+233544230568" className="text-green-400 hover:text-green-300 transition-colors block text-sm">
                           +233 544 230 568
                         </a>
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-2 md:space-x-3 group/item mobile-active-state touch-manipulation">
-                      <div className="bg-pink-600/20 p-2 md:p-3 rounded-lg group-hover/item:bg-pink-600/30 transition-colors">
-                        <span className="text-xl md:text-2xl">📍</span>
+                    <div className="flex items-start space-x-3 group/item">
+                      <div className="bg-pink-600/20 p-3 rounded-lg group-hover/item:bg-pink-600/30 transition-colors">
+                        <span className="text-2xl">📍</span>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs md:text-sm">Headquarters</p>
-                        <p className="text-pink-400 font-semibold text-xs md:text-sm">BR253 Pasture St.</p>
-                        <p className="text-pink-400 text-xs md:text-sm">Takoradi, Ghana</p>
-                        <p className="text-[10px] md:text-xs text-pink-400/70 mt-1">🌍 Serving Worldwide</p>
+                        <p className="text-gray-400 text-sm">Headquarters</p>
+                        <p className="text-pink-400 font-semibold">BR253 Pasture St.</p>
+                        <p className="text-pink-400">Takoradi, Ghana</p>
+                        <p className="text-xs text-pink-400/70 mt-1">🌍 Serving Worldwide</p>
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-2 md:space-x-3 group/item mobile-active-state touch-manipulation">
-                      <div className="bg-orange-600/20 p-2 md:p-3 rounded-lg group-hover/item:bg-orange-600/30 transition-colors">
-                        <span className="text-xl md:text-2xl">🕐</span>
+                    <div className="flex items-start space-x-3 group/item">
+                      <div className="bg-orange-600/20 p-3 rounded-lg group-hover/item:bg-orange-600/30 transition-colors">
+                        <span className="text-2xl">🕐</span>
                       </div>
                       <div>
-                        <p className="text-gray-400 text-xs md:text-sm">Business Hours</p>
-                        <p className="text-orange-400 text-xs">Mon-Fri: 9:00 AM - 6:00 PM GMT</p>
-                        <p className="text-orange-400 text-xs">Weekend: On-call support</p>
+                        <p className="text-gray-400 text-sm">Business Hours</p>
+                        <p className="text-orange-400 text-sm">Mon-Fri: 9:00 AM - 6:00 PM GMT</p>
+                        <p className="text-orange-400 text-sm">Weekend: On-call support</p>
                       </div>
                     </div>
                   </div>
@@ -255,12 +255,12 @@ export default function ContactPage() {
 
               {/* Response Time */}
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl md:rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-xl md:rounded-2xl p-5 md:p-6 border border-gray-800 mobile-card">
-                  <h3 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-2xl p-6 border border-gray-800">
+                  <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                     ⚡ Fast Response
                   </h3>
-                  <p className="text-xs md:text-sm text-gray-300 mb-3 md:mb-4">
+                  <p className="text-gray-300 mb-4">
                     We typically respond within <span className="text-blue-400 font-bold">24 hours</span> on business days.
                   </p>
                   <div className="bg-blue-600/10 border border-blue-600/30 rounded-lg p-4">
@@ -275,27 +275,27 @@ export default function ContactPage() {
 
               {/* What Happens Next */}
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-orange-600 rounded-xl md:rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-xl md:rounded-2xl p-5 md:p-6 border border-gray-800 mobile-card">
-                  <h3 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-orange-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-2xl p-6 border border-gray-800">
+                  <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
                     What Happens Next?
                   </h3>
-                  <div className="space-y-2 md:space-y-3">
-                    <div className="flex items-start space-x-2 md:space-x-3">
-                      <span className="text-blue-500 font-bold text-xs md:text-sm">1.</span>
-                      <p className="text-gray-300 text-xs">We review your project details</p>
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-3">
+                      <span className="text-blue-500 font-bold">1.</span>
+                      <p className="text-gray-300 text-sm">We review your project details</p>
                     </div>
-                    <div className="flex items-start space-x-2 md:space-x-3">
-                      <span className="text-purple-500 font-bold text-xs md:text-sm">2.</span>
-                      <p className="text-gray-300 text-xs">Schedule a discovery call within 48h</p>
+                    <div className="flex items-start space-x-3">
+                      <span className="text-purple-500 font-bold">2.</span>
+                      <p className="text-gray-300 text-sm">Schedule a discovery call within 48h</p>
                     </div>
-                    <div className="flex items-start space-x-2 md:space-x-3">
-                      <span className="text-pink-500 font-bold text-xs md:text-sm">3.</span>
-                      <p className="text-gray-300 text-xs">Provide timeline & cost estimate</p>
+                    <div className="flex items-start space-x-3">
+                      <span className="text-pink-500 font-bold">3.</span>
+                      <p className="text-gray-300 text-sm">Provide timeline & cost estimate</p>
                     </div>
-                    <div className="flex items-start space-x-2 md:space-x-3">
-                      <span className="text-orange-500 font-bold text-xs md:text-sm">4.</span>
-                      <p className="text-gray-300 text-xs">Start building your solution!</p>
+                    <div className="flex items-start space-x-3">
+                      <span className="text-orange-500 font-bold">4.</span>
+                      <p className="text-gray-300 text-sm">Start building your solution!</p>
                     </div>
                   </div>
                 </div>
@@ -303,14 +303,14 @@ export default function ContactPage() {
 
               {/* Social Links */}
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl md:rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-xl md:rounded-2xl p-5 md:p-6 border border-gray-800 mobile-card">
-                  <h3 className="text-base md:text-lg font-bold mb-3 md:mb-4 bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-green-600 to-teal-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-2xl p-6 border border-gray-800">
+                  <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent">
                     Follow Us
                   </h3>
-                  <div className="flex space-x-3 md:space-x-4">
-                    <a href="#" className="bg-blue-600/20 p-2 md:p-3 rounded-lg hover:bg-blue-600/40 transition-all hover:scale-110 mobile-active-state touch-manipulation">
-                      <svg className="w-5 h-5 md:w-6 md:h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="flex space-x-4">
+                    <a href="#" className="bg-blue-600/20 p-3 rounded-lg hover:bg-blue-600/40 transition-all hover:scale-110">
+                      <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                       </svg>
                     </a>

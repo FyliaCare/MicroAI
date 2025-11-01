@@ -131,29 +131,29 @@ export default function AdvancedDashboard() {
     : '0'
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+    <div className="space-y-4 md:space-y-6 pb-20 md:pb-6">
+      {/* Header Section - Mobile Optimized */}
+      <div className="flex flex-col gap-3 md:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            <svg className="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center">
+            <svg className="w-6 h-6 md:w-8 md:h-8 mr-2 md:mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            Analytics Dashboard
+            Dashboard
           </h1>
-          <p className="text-gray-600 mt-1">Real-time business insights and performance metrics</p>
+          <p className="text-sm md:text-base text-gray-600 mt-1">Real-time insights</p>
         </div>
         
-        {/* Period Selector */}
-        <div className="flex gap-2 bg-gray-100 rounded-lg p-1">
+        {/* Period Selector - Mobile Optimized with Touch Targets */}
+        <div className="flex gap-1 md:gap-2 bg-gray-100 rounded-lg p-1 overflow-x-auto">
           {['Today', 'Week', 'Month', 'Year'].map((period) => (
             <button
               key={period}
               onClick={() => setSelectedPeriod(period.toLowerCase())}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium transition-all whitespace-nowrap min-h-[44px] touch-manipulation ${
                 selectedPeriod === period.toLowerCase()
                   ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-gray-600 hover:text-gray-900 active:bg-gray-200'
               }`}
             >
               {period}
@@ -162,21 +162,21 @@ export default function AdvancedDashboard() {
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* KPI Cards - Mobile Optimized */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {/* Total Revenue Card */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-lg p-6 text-white">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 text-white">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 md:w-24 md:h-24 bg-white/10 rounded-full"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-blue-100 text-sm font-medium">Total Revenue</p>
-              <svg className="w-8 h-8 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <p className="text-blue-100 text-xs md:text-sm font-medium">Total Revenue</p>
+              <svg className="w-6 h-6 md:w-8 md:h-8 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-3xl font-bold mb-1">${data.financial.totalRevenue.toLocaleString()}</h3>
-            <div className="flex items-center text-sm">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h3 className="text-2xl md:text-3xl font-bold mb-1">${data.financial.totalRevenue.toLocaleString()}</h3>
+            <div className="flex items-center text-xs md:text-sm">
+              <svg className="w-3 h-3 md:w-4 md:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
               <span className="text-blue-100">+12.5% from last month</span>
@@ -185,67 +185,67 @@ export default function AdvancedDashboard() {
         </div>
 
         {/* Active Projects Card */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl shadow-lg p-6 text-white">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 text-white">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 md:w-24 md:h-24 bg-white/10 rounded-full"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-purple-100 text-sm font-medium">Active Projects</p>
-              <svg className="w-8 h-8 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <p className="text-purple-100 text-xs md:text-sm font-medium">Active Projects</p>
+              <svg className="w-6 h-6 md:w-8 md:h-8 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-3xl font-bold mb-1">{data.overview.projects.active}</h3>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-purple-100">{data.overview.projects.total} total projects</span>
+            <h3 className="text-2xl md:text-3xl font-bold mb-1">{data.overview.projects.active}</h3>
+            <div className="flex items-center justify-between text-xs md:text-sm">
+              <span className="text-purple-100">{data.overview.projects.total} total</span>
               <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                {data.overview.projects.completionRate}% complete
+                {data.overview.projects.completionRate}%
               </span>
             </div>
           </div>
         </div>
 
         {/* Total Clients Card */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 text-white">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 md:w-24 md:h-24 bg-white/10 rounded-full"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-green-100 text-sm font-medium">Total Clients</p>
-              <svg className="w-8 h-8 text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <p className="text-green-100 text-xs md:text-sm font-medium">Total Clients</p>
+              <svg className="w-6 h-6 md:w-8 md:h-8 text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <h3 className="text-3xl font-bold mb-1">{data.overview.clients.total}</h3>
-            <div className="flex items-center text-sm">
-              <span className="text-green-100">{data.overview.clients.active} active clients</span>
+            <h3 className="text-2xl md:text-3xl font-bold mb-1">{data.overview.clients.total}</h3>
+            <div className="flex items-center text-xs md:text-sm">
+              <span className="text-green-100">{data.overview.clients.active} active</span>
             </div>
           </div>
         </div>
 
         {/* Profit Margin Card */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg p-6 text-white">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+        <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-red-600 rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 text-white">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 md:w-24 md:h-24 bg-white/10 rounded-full"></div>
           <div className="relative">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-orange-100 text-sm font-medium">Profit Margin</p>
-              <svg className="w-8 h-8 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <p className="text-orange-100 text-xs md:text-sm font-medium">Profit Margin</p>
+              <svg className="w-6 h-6 md:w-8 md:h-8 text-orange-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h3 className="text-3xl font-bold mb-1">{profitMargin}%</h3>
-            <div className="flex items-center text-sm">
+            <h3 className="text-2xl md:text-3xl font-bold mb-1">{profitMargin}%</h3>
+            <div className="flex items-center text-xs md:text-sm">
               <span className="text-orange-100">${data.financial.totalProfit.toLocaleString()} profit</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Charts and Stats Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts and Stats Row - Mobile Optimized */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
         {/* Project Status Distribution */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Project Status</h3>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</button>
+        <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-4 md:p-6">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h3 className="text-base md:text-lg font-bold text-gray-900">Project Status</h3>
+            <button className="text-xs md:text-sm text-blue-600 hover:text-blue-700 font-medium min-h-[44px] flex items-center touch-manipulation">View All</button>
           </div>
           
           <div className="space-y-4">
