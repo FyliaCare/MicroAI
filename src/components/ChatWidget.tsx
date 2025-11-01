@@ -340,7 +340,7 @@ export default function ChatWidget() {
     return (
       <button
         onClick={openChat}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-50 group"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-50 group"
         aria-label="Open chat"
       >
         <svg
@@ -365,8 +365,8 @@ export default function ChatWidget() {
 
   return (
     <div
-      className={`fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all duration-300 ${
-        isMinimized ? 'w-80 h-16' : 'w-96 h-[600px]'
+      className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all duration-300 ${
+        isMinimized ? 'w-80 h-16' : 'w-[calc(100vw-2rem)] sm:w-96 h-[calc(100vh-2rem)] sm:h-[600px] max-h-[600px]'
       }`}
     >
       {/* Header */}

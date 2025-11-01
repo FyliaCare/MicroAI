@@ -49,13 +49,13 @@ export default function WebApplicationsPage() {
           <Link href="/services" className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-8 text-sm">
             ← Back to Services
           </Link>
-          <div className="flex items-center mb-6">
-            <span className="text-7xl mr-4 animate-float">💻</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center mb-6 gap-4">
+            <span className="text-5xl sm:text-6xl md:text-7xl animate-float">💻</span>
             <div>
-              <h1 className="text-5xl md:text-6xl font-bold">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Web <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Application</span> Development
               </h1>
-              <p className="text-xl text-gray-400 mt-4">
+              <p className="text-base sm:text-lg md:text-xl text-gray-400 mt-3 sm:mt-4">
                 Enterprise-grade custom web applications delivered in <span className="text-blue-500 font-bold">1-2 weeks</span> instead of months
               </p>
             </div>
