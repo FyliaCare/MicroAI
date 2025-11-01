@@ -266,7 +266,7 @@ Submitted: ${new Date().toLocaleString()}
               <p style="margin: 0; font-size: 14px; color: #D1D5DB;"><strong>MicroAI</strong></p>
               <p style="margin: 5px 0;">10x Faster Development | Takoradi, Ghana</p>
               <p style="margin: 5px 0;">
-                📧 <a href="mailto:microailabs@outlook.com" style="color: #60A5FA;">microailabs@outlook.com</a>
+                📧 <a href="mailto:sales@microaisystems.com" style="color: #60A5FA;">sales@microaisystems.com</a>
               </p>
               <p style="margin: 15px 0 5px 0; font-size: 11px; color: #9CA3AF;">
                 This is an automated confirmation email. Please do not reply to this email.
@@ -309,7 +309,7 @@ The MicroAI Team
 
 MicroAI - 10x Faster Development
 Takoradi, Ghana
-microailabs@outlook.com
+sales@microaisystems.com
     `
 
     // Send auto-reply to client

@@ -98,7 +98,7 @@ Created reusable components for rich snippets:
   "name": "MicroAI Systems",
   "description": "Revolutionary development technology...",
   "address": "Takoradi, Ghana",
-  "email": "microailabs@outlook.com",
+  "email": "sales@microaisystems.com",
   "knowsAbout": ["Web Development", "SaaS", "AI Development"...]
 }
 ```

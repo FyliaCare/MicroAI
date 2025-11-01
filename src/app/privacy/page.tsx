@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
             <p className="text-gray-300 leading-relaxed">
               Welcome to MicroAI Systems ("we," "our," or "us"). We are committed to protecting your personal information 
               and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your 
-              information when you visit our website <span className="text-blue-400">microai.com</span> and use our services.
+              information when you visit our website <span className="text-blue-400">www.microaisystems.com</span> and use our services.
             </p>
             <p className="text-gray-300 leading-relaxed mt-4">
               Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, 
@@ -45,22 +45,20 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
               <li>Fill out contact forms or inquiry forms</li>
               <li>Request quotes or proposals</li>
-              <li>Register for an account</li>
+              <li>Register for a client account</li>
               <li>Subscribe to our newsletter</li>
-              <li>Communicate with us via email or phone</li>
-              <li>Interact with our AI project assistant</li>
+              <li>Communicate with us via email, phone, or live chat</li>
             </ul>
             <p className="text-gray-300 leading-relaxed mt-4">
               The personal information we collect may include:
             </p>
             <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
               <li><strong>Contact Information:</strong> Name, email address, phone number, company name</li>
+              <li><strong>Contact Information:</strong> Name, email address, phone number, company name</li>
               <li><strong>Project Information:</strong> Project requirements, budget, timeline preferences</li>
               <li><strong>Account Information:</strong> Username, password (encrypted), preferences</li>
-              <li><strong>Payment Information:</strong> Billing address, payment method details (processed securely through third-party payment processors)</li>
               <li><strong>Communication Data:</strong> Any information you provide in messages, feedback, or support requests</li>
             </ul>
-
             <h3 className="text-xl font-semibold text-blue-400 mb-3 mt-6">2.2 Information Automatically Collected</h3>
             <p className="text-gray-300 leading-relaxed mb-3">
               When you visit our website, we automatically collect certain information about your device, including:
@@ -69,7 +67,7 @@ export default function PrivacyPolicyPage() {
               <li><strong>Device Information:</strong> Browser type, operating system, device type</li>
               <li><strong>Usage Data:</strong> Pages visited, time spent, links clicked, referring website</li>
               <li><strong>Technical Data:</strong> IP address, browser version, time zone settings</li>
-              <li><strong>Cookies and Tracking:</strong> See our Cookie Policy section below</li>
+              <li><strong>Cookies and Tracking:</strong> See our <Link href="/cookies" className="text-blue-400 hover:text-blue-300 underline">Cookie Policy</Link></li>
             </ul>
           </section>
 
@@ -83,12 +81,10 @@ export default function PrivacyPolicyPage() {
               <li><strong>Service Delivery:</strong> To provide, operate, and maintain our web development services</li>
               <li><strong>Communication:</strong> To respond to your inquiries, send project updates, and provide customer support</li>
               <li><strong>Project Management:</strong> To understand your requirements and deliver custom solutions</li>
-              <li><strong>Payment Processing:</strong> To process transactions and send invoices</li>
               <li><strong>Marketing:</strong> To send newsletters, promotional materials, and service updates (with your consent)</li>
               <li><strong>Improvement:</strong> To analyze usage patterns and improve our website and services</li>
               <li><strong>Security:</strong> To protect against fraud, unauthorized access, and security threats</li>
               <li><strong>Legal Compliance:</strong> To comply with legal obligations and enforce our terms</li>
-              <li><strong>AI Assistance:</strong> To provide personalized project recommendations through our AI assistant</li>
             </ul>
           </section>
 
@@ -101,12 +97,13 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
               <li><strong>Service Providers:</strong> With third-party vendors who perform services on our behalf (hosting, analytics, payment processing, email delivery)</li>
               <li><strong>Business Transfers:</strong> In connection with a merger, sale, or acquisition of all or part of our business</li>
+              <li><strong>Service Providers:</strong> With third-party vendors who perform services on our behalf (cloud hosting platforms, analytics, email delivery)</li>
+              <li><strong>Hosting Partners:</strong> We use third-party hosting platforms (Render.com and similar services) to host our website and applications</li>
+              <li><strong>Business Transfers:</strong> In connection with a merger, sale, or acquisition of all or part of our business</li>
               <li><strong>Legal Requirements:</strong> When required by law, court order, or government request</li>
               <li><strong>Protection:</strong> To protect our rights, property, safety, or that of our users or the public</li>
               <li><strong>With Consent:</strong> When you have given explicit consent for specific purposes</li>
-            </ul>
-            <p className="text-gray-300 leading-relaxed mt-4">
-              <strong className="text-white">We do not sell your personal information</strong> to third parties for their marketing purposes.
+            </ul>rong className="text-white">We do not sell your personal information</strong> to third parties for their marketing purposes.
             </p>
           </section>
 
@@ -140,10 +137,11 @@ export default function PrivacyPolicyPage() {
               <li>Encrypted storage of sensitive information</li>
               <li>Regular security audits and updates</li>
               <li>Access controls and authentication</li>
-              <li>Secure backup systems</li>
+              <li>Secure backup systems on third-party hosting platforms</li>
               <li>Staff training on data protection</li>
             </ul>
             <p className="text-gray-300 leading-relaxed mt-4">
+              We utilize enterprise-grade third-party hosting platforms that comply with international security standards. 
               However, no method of transmission over the Internet or electronic storage is 100% secure. While we strive 
               to use commercially acceptable means to protect your personal information, we cannot guarantee absolute security.
             </p>
@@ -186,8 +184,8 @@ export default function PrivacyPolicyPage() {
             </ul>
             <p className="text-gray-300 leading-relaxed mt-4">
               To exercise these rights, please contact us at{' '}
-              <a href="mailto:microailabs@outlook.com" className="text-blue-400 hover:text-blue-300">
-                microailabs@outlook.com
+              <a href="mailto:sales@microaisystems.com" className="text-blue-400 hover:text-blue-300">
+                sales@microaisystems.com
               </a>. We will respond to your request within 30 days.
             </p>
           </section>
@@ -251,12 +249,21 @@ export default function PrivacyPolicyPage() {
               </p>
               <p className="text-gray-300">
                 <strong>Email:</strong>{' '}
-                <a href="mailto:microailabs@outlook.com" className="text-blue-400 hover:text-blue-300">
-                  microailabs@outlook.com
+                <a href="mailto:sales@microaisystems.com" className="text-blue-400 hover:text-blue-300">
+                  sales@microaisystems.com
                 </a>
               </p>
               <p className="text-gray-300">
-                <strong>Location:</strong> Takoradi, Ghana
+                <strong>Phone:</strong> +233 244486837 | +233 544230568
+              </p>
+              <p className="text-gray-300">
+                <strong>Website:</strong>{' '}
+                <a href="https://www.microaisystems.com" className="text-blue-400 hover:text-blue-300">
+                  www.microaisystems.com
+                </a>
+              </p>
+              <p className="text-gray-300">
+                <strong>Location:</strong> BR253 Pasture St. Takoradi, Ghana
               </p>
               <p className="text-gray-300">
                 <strong>Response Time:</strong> Within 24 hours
@@ -273,7 +280,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc list-inside text-gray-300 space-y-2 ml-4">
               <li><strong>Legal Basis:</strong> We process your data based on consent, contract performance, legal obligations, or legitimate interests</li>
-              <li><strong>Data Protection Officer:</strong> You may contact our DPO at microailabs@outlook.com</li>
+              <li><strong>Data Protection Officer:</strong> You may contact our DPO at sales@microaisystems.com</li>
               <li><strong>Supervisory Authority:</strong> You have the right to lodge a complaint with your local data protection authority</li>
               <li><strong>Automated Decision-Making:</strong> We do not use automated decision-making or profiling that produces legal effects</li>
             </ul>
@@ -292,7 +299,7 @@ export default function PrivacyPolicyPage() {
               <li>Right to non-discrimination for exercising your privacy rights</li>
             </ul>
             <p className="text-gray-300 leading-relaxed mt-4">
-              To exercise these rights, please contact us at microailabs@outlook.com with "California Privacy Rights" in the subject line.
+              To exercise these rights, please contact us at sales@microaisystems.com with "California Privacy Rights" in the subject line.
             </p>
           </section>
         </div>

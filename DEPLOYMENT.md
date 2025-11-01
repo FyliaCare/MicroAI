@@ -65,9 +65,9 @@ NEXTAUTH_SECRET=generate_random_32_char_secret_here
 # Email (SMTP)
 SMTP_HOST=smtp-mail.outlook.com
 SMTP_PORT=587
-SMTP_USER=microailabs@outlook.com
+SMTP_USER=sales@microaisystems.com
 SMTP_PASSWORD=your_outlook_password
-EMAIL_FROM=microailabs@outlook.com
+EMAIL_FROM=sales@microaisystems.com
 
 # API
 NEXT_PUBLIC_API_URL=https://your-app.onrender.com

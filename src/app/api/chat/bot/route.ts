@@ -38,7 +38,7 @@ const botResponses = {
   // Platform help responses
   platformHelp: {
     howToQuote: "To request a quote: Visit our homepage, click 'Get Started' or 'Request Quote', fill in your project details, and submit. You'll receive a response within 24 hours! Want me to start collecting your project info now?",
-    howToContact: "You can reach us via:\n• This live chat\n• Email: microailabs@outlook.com\n• Contact form on our website\nHow else can I help?",
+    howToContact: "You can reach us via:\n• This live chat\n• Email: sales@microaisystems.com\n• Contact form on our website\nHow else can I help?",
     pricing: "Our pricing varies by project complexity:\n• Simple websites: $2k-$5k\n• Web applications: $5k-$15k\n• Complex platforms: $15k+\nWant a custom quote for your specific project?",
     timeline: "Our typical timelines:\n• Landing pages: 3-5 days\n• Business websites: 1-2 weeks\n• Web apps: 2-4 weeks\n• Custom platforms: 4-8 weeks\nWhat kind of project are you planning?",
     technologies: "We specialize in:\n• Next.js & React\n• TypeScript\n• Node.js\n• PostgreSQL\n• Tailwind CSS\n• AWS/Vercel deployment\nBuilding something with these? Tell me more!",

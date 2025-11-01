@@ -502,7 +502,7 @@ export function generateModernMinimalist(doc: jsPDF, quoteData: any) {
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(150, 150, 150);
-  doc.text('MicroAI Systems | www.microaisystems.com | microailabs@outlook.com | +233 244486837', pageWidth / 2, pageHeight - 10, { align: 'center' });
+  doc.text('MicroAI Systems | www.microaisystems.com | sales@microaisystems.com | +233 244486837', pageWidth / 2, pageHeight - 10, { align: 'center' });
 }
 
 // ====================================================================================
@@ -589,7 +589,7 @@ export function generateCorporateExecutive(doc: jsPDF, quoteData: any) {
   doc.text('Professional Web Development', rightCol, y);
   y += 5;
   doc.text(quoteData.clientEmail || 'client@email.com', leftCol, y);
-  doc.text('microailabs@outlook.com', rightCol, y);
+  doc.text('sales@microaisystems.com', rightCol, y);
   y += 5;
   doc.text(quoteData.clientPhone || '+233 244486837', leftCol, y);
   doc.text('+233 244486837 | +233 544230568', rightCol, y);

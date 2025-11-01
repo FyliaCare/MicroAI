@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
             <div class="content">
               <div class="highlight">
                 <p style="margin: 0; font-weight: bold; color: #1F2937;">
-                  🤖 This lead was captured by your AI Project Assistant!
+                  💼 This lead was captured from the website project inquiry form!
                 </p>
               </div>
 
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
             </div>
             <div class="footer">
               <p style="margin: 0;">MicroAI Systems - 10x Faster Development</p>
-              <p style="margin: 5px 0 0 0;">This is an automated notification from your AI Project Assistant.</p>
+              <p style="margin: 5px 0 0 0;">This is an automated notification from your website project inquiry form.</p>
             </div>
           </div>
         </body>
@@ -180,9 +180,9 @@ export async function POST(request: NextRequest) {
     `
 
     const adminEmailText = `
-New Project Inquiry via AI Bot 🤖
+New Project Inquiry from Website 💼
 
-This lead was captured by your AI Project Assistant!
+This lead was captured from the website project inquiry form!
 
 Name: ${body.name}
 Email: ${body.email}
@@ -335,7 +335,7 @@ Next Step: Send Teams meeting invite to ${body.email}
               <p style="margin: 0; font-size: 14px; color: #D1D5DB;"><strong>MicroAI Systems</strong></p>
               <p style="margin: 5px 0;">10x Faster Development | Takoradi, Ghana</p>
               <p style="margin: 5px 0;">
-                📧 <a href="mailto:microailabs@outlook.com" style="color: #60A5FA;">microailabs@outlook.com</a>
+                📧 <a href="mailto:sales@microaisystems.com" style="color: #60A5FA;">sales@microaisystems.com</a>
               </p>
               <p style="margin: 15px 0 5px 0; font-size: 11px; color: #9CA3AF;">
                 This is an automated confirmation from our AI assistant.
@@ -378,7 +378,7 @@ The MicroAI Systems Team
 
 MicroAI Systems - 10x Faster Development
 Takoradi, Ghana
-microailabs@outlook.com
+sales@microaisystems.com
     `
 
     // Send auto-reply to client

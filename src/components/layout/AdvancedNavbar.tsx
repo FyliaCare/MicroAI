@@ -231,10 +231,10 @@ export default function AdvancedNavbar() {
             <div className="mt-12 pt-8 border-t border-gray-800 text-center">
               <p className="text-gray-400 text-sm mb-2">Need immediate help?</p>
               <a
-                href="mailto:microailabs@outlook.com"
+                href="mailto:sales@microaisystems.com"
                 className="text-blue-400 hover:text-blue-300 text-sm font-medium underline"
               >
-                microailabs@outlook.com
+                sales@microaisystems.com
               </a>
             </div>
           </div>

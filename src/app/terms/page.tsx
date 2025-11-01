@@ -457,8 +457,8 @@ export default function TermsOfServicePage() {
               </p>
               <p className="text-gray-300">
                 <strong>Email:</strong>{' '}
-                <a href="mailto:microailabs@outlook.com" className="text-blue-400 hover:text-blue-300">
-                  microailabs@outlook.com
+                <a href="mailto:sales@microaisystems.com" className="text-blue-400 hover:text-blue-300">
+                  sales@microaisystems.com
                 </a>
               </p>
               <p className="text-gray-300">

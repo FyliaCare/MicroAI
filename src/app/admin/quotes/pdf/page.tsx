@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -100,7 +100,7 @@ function PDFQuoteContent() {
 
           <div className="cover-footer">
             <p>{quote.companyAddress || '123 Tech Street, City, Country'}</p>
-            <p>{quote.companyPhone || '+233 XX XXX XXXX'} • {quote.companyEmail || 'hello@company.com'}</p>
+            <p>{quote.companyPhone || '+233 XX XXX XXXX'} � {quote.companyEmail || 'hello@company.com'}</p>
             {quote.companyWebsite && <p>{quote.companyWebsite}</p>}
           </div>
         </div>
@@ -184,19 +184,19 @@ function PDFQuoteContent() {
               <div className="exec-summary">
                 {executiveSummary.problem && (
                   <div className="summary-block">
-                    <h4>📊 Client Challenge</h4>
+                    <h4>?? Client Challenge</h4>
                     <p>{executiveSummary.problem}</p>
                   </div>
                 )}
                 {executiveSummary.solution && (
                   <div className="summary-block">
-                    <h4>💡 Our Solution</h4>
+                    <h4>?? Our Solution</h4>
                     <p>{executiveSummary.solution}</p>
                   </div>
                 )}
                 {executiveSummary.businessImpact && (
                   <div className="summary-block">
-                    <h4>🚀 Expected Business Impact</h4>
+                    <h4>?? Expected Business Impact</h4>
                     <p>{executiveSummary.businessImpact}</p>
                   </div>
                 )}

@@ -15,7 +15,7 @@ export function OrganizationSchema({ url }: OrganizationSchemaProps) {
     url: baseUrl,
     logo: `${baseUrl}/microAi logo main.png`,
     description: 'Revolutionary development technology delivering web applications, SaaS platforms, and digital solutions in 1/10th the time. Serving clients worldwide across Africa, North America, Europe, UK, and Australia.',
-    email: 'microailabs@outlook.com',
+    email: 'sales@microaisystems.com',
     telephone: '+233-244-486-837',
     address: {
       '@type': 'PostalAddress',
@@ -26,7 +26,7 @@ export function OrganizationSchema({ url }: OrganizationSchemaProps) {
     ],
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'microailabs@outlook.com',
+      email: 'sales@microaisystems.com',
       telephone: '+233-244-486-837',
       contactType: 'Customer Service',
       availableLanguage: ['English'],
@@ -269,7 +269,7 @@ export function GlobalBusinessSchema() {
     '@id': baseUrl,
     url: baseUrl,
     telephone: '+233-244-486-837',
-    email: 'microailabs@outlook.com',
+    email: 'sales@microaisystems.com',
     priceRange: '$$-$$$',
     address: {
       '@type': 'PostalAddress',

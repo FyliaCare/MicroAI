@@ -21,8 +21,8 @@ export default function DevBanner() {
               <span className="hidden sm:inline"> — </span>
               <span className="block sm:inline text-xs sm:text-sm font-normal mt-1 sm:mt-0">
                 Contact forms and project request features are currently being configured. Please check back soon or email us directly at{' '}
-                <a href="mailto:microailabs@outlook.com" className="underline font-semibold hover:text-yellow-200">
-                  microailabs@outlook.com
+                <a href="mailto:sales@microaisystems.com" className="underline font-semibold hover:text-yellow-200">
+                  sales@microaisystems.com
                 </a>
               </span>
             </p>
