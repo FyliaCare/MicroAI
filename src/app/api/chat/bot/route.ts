@@ -324,32 +324,39 @@ export async function POST(request: NextRequest) {
     // Create project request when admin handoff happens
     if (result.nextState === 'CONNECTING_ADMIN' && updatedData.email) {
       try {
-        const projectRequest = await prisma.projectRequest.create({
-          data: {
-            requestNumber: `REQ-${Date.now()}`,
-            clientName: updatedData.name || 'Chat Visitor',
-            clientEmail: updatedData.email,
-            projectName: `${updatedData.name}'s Project`,
-            projectType: 'web',
-            description: updatedData.projectBrief || message,
-            requirements: updatedData.projectBrief || message,
-            budgetRange: 'To be discussed',
-            timeline: 'To be discussed',
-            status: 'pending',
-            source: 'chat',
-          },
+        // Use the project-request API to create request and send emails
+        const projectRequestPayload = {
+          clientName: updatedData.name || 'Chat Visitor',
+          clientEmail: updatedData.email,
+          clientPhone: updatedData.phone || null,
+          clientCompany: updatedData.company || null,
+          projectName: `Project from ${updatedData.name || 'Chat Visitor'}`,
+          projectType: 'web',
+          description: updatedData.projectBrief || message,
+          requirements: { chatBrief: updatedData.projectBrief || message },
+          features: [],
+          budgetRange: 'To be discussed',
+          timeline: 'To be discussed',
+          priority: 'normal',
+          source: 'chat',
+          chatTranscript: JSON.stringify(metadata),
+        }
+
+        // Make internal API call to create project request with email notifications
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        const projectResponse = await fetch(`${baseUrl}/api/project-request`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(projectRequestPayload),
         })
 
-        // Create another notification for the project request
-        await prisma.notification.create({
-          data: {
-            type: 'project_new',
-            title: '📋 New Project Request from Chat',
-            message: `${updatedData.name} submitted project: "${updatedData.projectBrief?.substring(0, 50)}..."`,
-            link: `/admin/project-requests`,
-            isRead: false,
-          },
-        })
+        const projectResult = await projectResponse.json()
+        
+        if (projectResult.success) {
+          console.log(`✅ Project request created: ${projectResult.data.requestNumber}`)
+        } else {
+          console.error('❌ Failed to create project request:', projectResult.error)
+        }
       } catch (error) {
         console.error('Error creating project request:', error)
       }
