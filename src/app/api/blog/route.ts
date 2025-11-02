@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
 
     // Check if user is admin (for draft posts)
     const session = await getServerSession(authOptions)
-    const isAdmin = session && (session.user as any).role === 'admin'
+    const userRole = (session?.user as any)?.role
+    const isAdmin = session && (userRole === 'admin' || userRole === 'super-admin')
 
     const where: any = {}
     
