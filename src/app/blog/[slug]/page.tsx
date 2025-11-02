@@ -316,32 +316,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         {/* Cover Image - Supports CDN, Local, and Base64 */}
         {post.coverImage && (
           <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 border border-white/10 shadow-2xl bg-gray-900">
-            {post.coverImage.startsWith('data:') ? (
-              // Base64 embedded image
-              <img
-                src={post.coverImage}
-                alt={post.coverImageAlt || post.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  console.error('Base64 image failed to display')
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
-            ) : (
-              // CDN or local file
-              <Image
-                src={post.coverImage}
-                alt={post.coverImageAlt || post.title}
-                fill
-                className="object-cover"
-                priority
-                unoptimized
-                onError={(e) => {
-                  console.error('Image failed to load:', post.coverImage)
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
-            )}
+            <Image
+              src={post.coverImage}
+              alt={post.coverImageAlt || post.title}
+              fill
+              className="object-cover"
+              priority
+              unoptimized
+            />
           </div>
         )}
 
@@ -359,7 +341,17 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Main Content */}
           <div className="lg:col-span-11">
             <div className="bg-black/50 rounded-2xl p-8 lg:p-12 backdrop-blur-md border border-white/10">
-              <BlogContent content={post.content} title={post.title} />
+              {/* Check if content is markdown or HTML */}
+              {post.content && post.content.includes('```') || post.content.includes('##') ? (
+                // Markdown content - use advanced component
+                <BlogContent content={post.content} title={post.title} />
+              ) : (
+                // HTML content - render directly with styling
+                <div 
+                  className="blog-content prose prose-invert prose-xl max-w-none"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
+              )}
             </div>
           </div>
         </div>

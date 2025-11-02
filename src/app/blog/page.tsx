@@ -96,6 +96,7 @@ export default async function BlogPage() {
                       alt={post.coverImageAlt || post.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      unoptimized
                     />
                     {post.featured && (
                       <div className="absolute top-3 right-3 px-3 py-1 bg-yellow-500 text-black text-xs font-bold rounded-full">
