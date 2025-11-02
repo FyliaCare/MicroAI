@@ -313,21 +313,35 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
         </div>
 
-        {/* Cover Image - Full Support for Local and CDN */}
+        {/* Cover Image - Supports CDN, Local, and Base64 */}
         {post.coverImage && (
           <div className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden mb-12 border border-white/10 shadow-2xl bg-gray-900">
-            <Image
-              src={post.coverImage}
-              alt={post.coverImageAlt || post.title}
-              fill
-              className="object-cover"
-              priority
-              unoptimized
-              onError={(e) => {
-                console.error('Image failed to load:', post.coverImage)
-                e.currentTarget.style.display = 'none'
-              }}
-            />
+            {post.coverImage.startsWith('data:') ? (
+              // Base64 embedded image
+              <img
+                src={post.coverImage}
+                alt={post.coverImageAlt || post.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  console.error('Base64 image failed to display')
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+            ) : (
+              // CDN or local file
+              <Image
+                src={post.coverImage}
+                alt={post.coverImageAlt || post.title}
+                fill
+                className="object-cover"
+                priority
+                unoptimized
+                onError={(e) => {
+                  console.error('Image failed to load:', post.coverImage)
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+            )}
           </div>
         )}
 

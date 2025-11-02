@@ -182,28 +182,64 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
 
     try {
       setUploadingImage(true)
-      const formDataUpload = new FormData()
-      formDataUpload.append('file', file)
-
-      // Try Cloudinary first, fallback to local
-      const response = await fetch('/api/upload/cloudinary', {
-        method: 'POST',
-        body: formDataUpload
-      })
-
-      const data = await response.json()
       
-      if (data.success) {
-        setFormData(prev => ({ ...prev, coverImage: data.url }))
-        if (data.fallback) {
-          console.warn('Using local upload fallback. Configure Cloudinary for better performance.')
+      // Method 1: Try base64 encoding (works everywhere, no server storage needed)
+      try {
+        const formDataUpload = new FormData()
+        formDataUpload.append('file', file)
+
+        const response = await fetch('/api/upload/base64', {
+          method: 'POST',
+          body: formDataUpload
+        })
+
+        const data = await response.json()
+        
+        if (data.success) {
+          setFormData(prev => ({ ...prev, coverImage: data.url }))
+          console.log('✓ Base64 upload successful (embedded in database)')
+          return
         }
-      } else {
-        alert(data.error || 'Failed to upload image')
+      } catch (base64Error) {
+        console.warn('Base64 upload failed, trying file upload:', base64Error)
       }
+
+      // Method 2: Try Cloudinary/local as fallback
+      try {
+        const formDataUpload = new FormData()
+        formDataUpload.append('file', file)
+
+        const response = await fetch('/api/upload/cloudinary', {
+          method: 'POST',
+          body: formDataUpload
+        })
+
+        const data = await response.json()
+        
+        if (data.success) {
+          setFormData(prev => ({ ...prev, coverImage: data.url }))
+          console.log('✓ File upload successful:', data.provider || 'unknown')
+          return
+        }
+      } catch (fileError) {
+        console.warn('File upload failed:', fileError)
+      }
+
+      // Method 3: Client-side base64 as last resort
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string
+        setFormData(prev => ({ ...prev, coverImage: dataUrl }))
+        console.log('✓ Client-side base64 encoding successful')
+      }
+      reader.onerror = () => {
+        alert('Failed to read image file')
+      }
+      reader.readAsDataURL(file)
+
     } catch (error) {
-      console.error('Upload error:', error)
-      alert('Failed to upload image')
+      console.error('All upload methods failed:', error)
+      alert('Failed to upload image. Try a smaller file or different format.')
     } finally {
       setUploadingImage(false)
     }
@@ -342,12 +378,23 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
               {formData.coverImage ? (
                 <div className="relative group">
                   <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-gray-700">
-                    <Image
-                      src={formData.coverImage}
-                      alt="Cover"
-                      fill
-                      className="object-cover"
-                    />
+                    {formData.coverImage.startsWith('data:') ? (
+                      // Base64 image
+                      <img
+                        src={formData.coverImage}
+                        alt="Cover"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      // Regular URL
+                      <Image
+                        src={formData.coverImage}
+                        alt="Cover"
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    )}
                   </div>
                   <button
                     onClick={() => setFormData(prev => ({ ...prev, coverImage: '' }))}
@@ -364,7 +411,7 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
                     {uploadingImage ? (
                       <>
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-                        <p className="text-sm text-gray-400">Uploading to CDN...</p>
+                        <p className="text-sm text-gray-400">Processing image...</p>
                       </>
                     ) : (
                       <>
