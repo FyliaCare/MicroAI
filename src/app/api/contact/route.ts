@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { queueAdminNotificationEmail, queueClientConfirmationEmail } from '@/lib/email-queue'
+import { sendAdminNotificationNow, sendClientConfirmationNow } from '@/lib/send-email'
 import { prisma } from '@/lib/prisma'
 
 interface ContactFormData {
@@ -120,19 +120,23 @@ ${body.message}
 Submitted: ${new Date().toLocaleString()}
     `
 
-    // Queue admin notification email
-    console.log('📧 Queueing admin notification email...')
+    // Send admin notification email IMMEDIATELY
+    console.log('📧 Sending admin notification email...')
     
     try {
-      await queueAdminNotificationEmail(
+      const adminEmailResult = await sendAdminNotificationNow(
         `🚀 New Client Request from ${body.name}${body.company ? ` - ${body.company}` : ''}`,
         emailHtml,
-        emailText,
-        'high'
+        emailText
       )
-      console.log('✅ Admin notification email queued successfully')
+      
+      if (adminEmailResult.success) {
+        console.log('✅ Admin notification email sent successfully')
+      } else {
+        console.error('❌ Failed to send admin email:', adminEmailResult.error)
+      }
     } catch (emailError: any) {
-      console.error('❌ Failed to queue admin email:', emailError.message || emailError)
+      console.error('❌ Failed to send admin email:', emailError.message || emailError)
       // Continue anyway - don't fail the request if email fails
     }
 
@@ -295,18 +299,22 @@ Takoradi, Ghana
 sales@microaisystems.com
     `
 
-    // Queue client confirmation email
+    // Send client confirmation email IMMEDIATELY
     try {
-      await queueClientConfirmationEmail(
+      const clientEmailResult = await sendClientConfirmationNow(
         body.email,
         `✓ We've Received Your Message - MicroAI`,
         clientEmailHtml,
-        clientEmailText,
-        'high'
+        clientEmailText
       )
-      console.log('✅ Client confirmation email queued successfully')
+      
+      if (clientEmailResult.success) {
+        console.log('✅ Client confirmation email sent successfully')
+      } else {
+        console.error('❌ Failed to send client email:', clientEmailResult.error)
+      }
     } catch (replyError: any) {
-      console.error('❌ Failed to queue client email:', replyError.message || replyError)
+      console.error('❌ Failed to send client email:', replyError.message || replyError)
       // Continue anyway
     }
 

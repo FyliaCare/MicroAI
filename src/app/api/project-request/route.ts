@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { sendAdminNotificationNow, sendClientConfirmationNow } from '@/lib/send-email'
 
 // POST /api/project-request - Submit new project request from chatbot/form
 export async function POST(request: NextRequest) {
@@ -130,38 +131,86 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Send confirmation email to client (queued)
-    await prisma.emailQueue.create({
-      data: {
-        to: clientEmail,
-        subject: `Project Request Received - ${requestNumber}`,
-        htmlContent: `
-          <h1>Thank you for your project request!</h1>
-          <p>Hi ${clientName},</p>
-          <p>We've received your request for <strong>${projectName}</strong> (${requestNumber}).</p>
-          <p>Our team will review your requirements and get back to you within 24-48 hours.</p>
-          <h3>Request Details:</h3>
-          <ul>
-            <li><strong>Project:</strong> ${projectName}</li>
-            <li><strong>Type:</strong> ${projectType}</li>
-            <li><strong>Budget Range:</strong> ${budgetRange || 'To be discussed'}</li>
-            <li><strong>Timeline:</strong> ${timeline || 'Flexible'}</li>
-          </ul>
-          <p>If you have any questions, feel free to reply to this email.</p>
-          <p>Best regards,<br>MicroAI Systems Team</p>
-        `,
-        templateType: 'project-request-confirmation',
-        templateVars: JSON.stringify({
-          clientName,
-          projectName,
-          requestNumber,
-          projectType,
-          budgetRange,
-          timeline,
-        }),
-        priority: 'normal',
-      },
-    })
+    // Send confirmation email to client IMMEDIATELY
+    const clientEmailHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; }
+            .badge { display: inline-block; background: #10B981; color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 10px; }
+            .footer { background: #1F2937; color: #9CA3AF; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1 style="margin: 0;">Thank You! 🎉</h1>
+              <div class="badge">✓ REQUEST RECEIVED</div>
+            </div>
+            <div class="content">
+              <p><strong>Hi ${clientName},</strong></p>
+              <p>We've received your project request for <strong>${projectName}</strong> (${requestNumber}).</p>
+              <p>Our team will review your requirements and get back to you within 24-48 hours.</p>
+              <h3>Request Details:</h3>
+              <ul>
+                <li><strong>Project:</strong> ${projectName}</li>
+                <li><strong>Type:</strong> ${projectType}</li>
+                <li><strong>Budget Range:</strong> ${budgetRange || 'To be discussed'}</li>
+                <li><strong>Timeline:</strong> ${timeline || 'Flexible'}</li>
+              </ul>
+              <p>If you have any questions, feel free to reply to this email.</p>
+              <p>Best regards,<br>MicroAI Systems Team</p>
+            </div>
+            <div class="footer">
+              <p>MicroAI - 10x Faster Development</p>
+              <p>sales@microaisystems.com</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    try {
+      await sendClientConfirmationNow(
+        clientEmail,
+        `Project Request Received - ${requestNumber}`,
+        clientEmailHtml
+      )
+    } catch (error) {
+      console.error('Failed to send client confirmation email:', error)
+    }
+
+    // Send admin notification email IMMEDIATELY
+    const adminEmailHtml = `
+      <!DOCTYPE html>
+      <html>
+        <body style="font-family: Arial, sans-serif;">
+          <h2>🚀 New Project Request</h2>
+          <p><strong>Request Number:</strong> ${requestNumber}</p>
+          <p><strong>Client:</strong> ${clientName}</p>
+          <p><strong>Email:</strong> ${clientEmail}</p>
+          <p><strong>Project:</strong> ${projectName}</p>
+          <p><strong>Type:</strong> ${projectType}</p>
+          <p><strong>Description:</strong> ${description}</p>
+          <p><strong>Budget Range:</strong> ${budgetRange || 'To be discussed'}</p>
+          <p><strong>Timeline:</strong> ${timeline || 'Flexible'}</p>
+          <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://www.microaisystems.com'}/admin/project-requests">View in Admin Panel</a></p>
+        </body>
+      </html>
+    `
+
+    try {
+      await sendAdminNotificationNow(
+        `🚀 New Project Request: ${projectName}`,
+        adminEmailHtml
+      )
+    } catch (error) {
+      console.error('Failed to send admin notification email:', error)
+    }
 
     return NextResponse.json({
       success: true,
