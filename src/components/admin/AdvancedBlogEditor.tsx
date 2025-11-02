@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
 
-const AdvancedMarkdownEditor = dynamic(
-  () => import('@/components/admin/AdvancedMarkdownEditor'),
-  { ssr: false, loading: () => <div className="h-[600px] bg-gray-900 animate-pulse rounded-xl"></div> }
+const RichTextEditor = dynamic(
+  () => import('@/components/admin/RichTextEditor'),
+  { ssr: false, loading: () => <div className="h-[600px] bg-gray-100 animate-pulse rounded-xl"></div> }
 )
 
 interface AdvancedBlogEditorProps {
@@ -446,31 +446,18 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
               )}
             </div>
 
-            {/* Markdown Editor */}
+            {/* Rich Text Editor */}
             <div>
               <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Content <span className="text-red-400">*</span>
                 <span className="text-gray-500 font-normal ml-2">
-                  (Supports Markdown, drag-drop images, code blocks, tables)
+                  {autoSaving && <span className="text-green-400 animate-pulse">💾 Auto-saving...</span>}
                 </span>
               </label>
-              <AdvancedMarkdownEditor
-                value={formData.content}
-                onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
-                placeholder="# Start writing your amazing blog post...
-
-## Use Markdown formatting
-
-- **Bold text** for emphasis
-- *Italic text* for subtle emphasis
-- `Code snippets` for technical content
-- Links, images, tables, and more!
-
-The editor supports:
-✅ Live preview
-✅ Drag & drop images
-✅ Syntax highlighting
-✅ Auto-save every 30 seconds"
+              <RichTextEditor
+                content={formData.content}
+                onChange={(html) => setFormData(prev => ({ ...prev, content: html }))}
+                placeholder="Start writing your amazing blog post... Use the toolbar above to format your content!"
               />
             </div>
 
