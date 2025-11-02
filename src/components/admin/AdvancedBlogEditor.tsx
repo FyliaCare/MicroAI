@@ -23,6 +23,8 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
   const [saving, setSaving] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [autoSaving, setAutoSaving] = useState(false)
+  const [savedPostId, setSavedPostId] = useState<string | undefined>(postId)
+  const [isEditMode, setIsEditMode] = useState(isEdit)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -143,7 +145,8 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
   }
 
   const autoSaveDraft = async () => {
-    if (saving || autoSaving) return
+    // Only auto-save if we already have a saved post (prevents duplicate creation)
+    if (saving || autoSaving || !savedPostId) return
     
     try {
       setAutoSaving(true)
@@ -159,8 +162,9 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
         autoGenerateSEO: true
       }
 
-      const url = isEdit ? `/api/blog/${postId}` : '/api/blog'
-      const method = isEdit ? 'PUT' : 'POST'
+      // Always use PUT with savedPostId for auto-save
+      const url = `/api/blog/${savedPostId}`
+      const method = 'PUT'
 
       await fetch(url, {
         method,
@@ -270,8 +274,8 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
         autoGenerateSEO: true
       }
 
-      const url = isEdit ? `/api/blog/${postId}` : '/api/blog'
-      const method = isEdit ? 'PUT' : 'POST'
+      const url = isEditMode ? `/api/blog/${savedPostId}` : '/api/blog'
+      const method = isEditMode ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
@@ -282,6 +286,12 @@ export default function AdvancedBlogEditor({ postId, isEdit = false }: AdvancedB
       const data = await response.json()
 
       if (response.ok) {
+        // If this was a new post, save the ID for future auto-saves
+        if (!isEditMode && data.post?.id) {
+          setSavedPostId(data.post.id)
+          setIsEditMode(true)
+        }
+        
         alert(publishNow ? '🎉 Post published successfully!' : '✅ Draft saved successfully!')
         router.push('/admin/blog')
       } else {
