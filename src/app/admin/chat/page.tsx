@@ -337,38 +337,39 @@ export default function AdminChatPage() {
   }
 
   return (
-    <div className="flex bg-gray-50" style={{ height: 'calc(100vh - 80px)' }}>
-      {/* Sessions List */}
-      <div className="w-80 bg-white border-r flex flex-col">
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-bold mb-3">Live Chat</h2>
-          <div className="flex space-x-2">
+    <div className="flex bg-[#f0f2f5] md:bg-gray-50" style={{ height: 'calc(100vh - 80px)' }}>
+      {/* Sessions List - WhatsApp Style */}
+      <div className={`${activeSession ? 'hidden md:flex' : 'flex'} w-full md:w-96 bg-white md:border-r flex-col`}>
+        {/* WhatsApp Header */}
+        <div className="bg-[#00a884] p-4 md:p-3">
+          <h2 className="text-xl md:text-lg font-semibold text-white mb-3 md:mb-2">Chats</h2>
+          <div className="flex space-x-1">
             <button
               onClick={() => setFilterStatus('active')}
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-1 px-3 py-2 rounded-full text-xs font-medium transition-colors ${
                 filterStatus === 'active'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-white text-[#00a884]'
+                  : 'bg-white/20 text-white hover:bg-white/30'
               }`}
             >
               Active
             </button>
             <button
               onClick={() => setFilterStatus('all')}
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-1 px-3 py-2 rounded-full text-xs font-medium transition-colors ${
                 filterStatus === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-white text-[#00a884]'
+                  : 'bg-white/20 text-white hover:bg-white/30'
               }`}
             >
               All
             </button>
             <button
               onClick={() => setFilterStatus('closed')}
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-1 px-3 py-2 rounded-full text-xs font-medium transition-colors ${
                 filterStatus === 'closed'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-white text-[#00a884]'
+                  : 'bg-white/20 text-white hover:bg-white/30'
               }`}
             >
               Closed
@@ -376,52 +377,60 @@ export default function AdminChatPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        {/* Chat List - WhatsApp Style */}
+        <div className="flex-1 overflow-y-auto bg-white">
           {sessions.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
-              No chat sessions
+            <div className="p-8 text-center text-gray-400">
+              <svg className="w-20 h-20 mx-auto mb-3 opacity-30" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" />
+              </svg>
+              <p className="text-sm">No conversations yet</p>
             </div>
           ) : (
             sessions.map((session) => (
               <button
                 key={session.id}
                 onClick={() => selectSession(session)}
-                className={`w-full p-4 border-b text-left hover:bg-gray-50 transition-colors ${
-                  activeSession?.id === session.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
+                className={`w-full px-4 py-3 border-b border-gray-100 text-left hover:bg-[#f5f6f6] transition-colors ${
+                  activeSession?.id === session.id ? 'bg-[#f0f2f5]' : ''
                 }`}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                      {session.visitorName?.[0] || 'V'}
+                <div className="flex items-start space-x-3">
+                  {/* Avatar */}
+                  <div className="relative flex-shrink-0">
+                    <div className="w-12 h-12 md:w-11 md:h-11 rounded-full bg-[#00a884] flex items-center justify-center text-white font-medium text-lg">
+                      {session.visitorName?.[0]?.toUpperCase() || '?'}
                     </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {session.visitorName || 'Anonymous Visitor'}
+                    {session.status === 'active' && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#00a884] border-2 border-white rounded-full"></div>
+                    )}
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline justify-between mb-1">
+                      <h3 className="font-medium text-gray-900 text-sm md:text-base truncate">
+                        {session.visitorName || 'Visitor'}
+                      </h3>
+                      <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                        {new Date(session.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-600 truncate flex-1">
+                        {session.messages && session.messages.length > 0 && session.messages[session.messages.length - 1]?.senderType === 'admin' && (
+                          <CheckCheck className="w-3 h-3 inline mr-1 text-blue-500" />
+                        )}
+                        {session.messages && session.messages.length > 0 ? session.messages[session.messages.length - 1]?.message : 'No messages'}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        {session._count.messages} messages
-                      </p>
+                      {session.unreadCount > 0 && (
+                        <span className="ml-2 bg-[#00a884] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium flex-shrink-0">
+                          {session.unreadCount > 9 ? '9+' : session.unreadCount}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  {session.unreadCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {session.unreadCount}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-gray-600 truncate">
-                  {session.messages[0]?.message || 'No messages yet'}
-                </p>
-                <div className="flex items-center justify-between mt-2">
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    session.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                  }`}>
-                    {session.status}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {new Date(session.lastMessageAt).toLocaleTimeString()}
-                  </span>
                 </div>
               </button>
             ))
@@ -429,54 +438,76 @@ export default function AdminChatPage() {
         </div>
       </div>
 
-      {/* Chat Area */}
+      {/* Chat Area - WhatsApp Style */}
       {activeSession ? (
-        <div className="flex-1 flex flex-col">
-          {/* Chat Header */}
-          <div className="bg-white border-b p-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                {activeSession.visitorName?.[0] || 'V'}
+        <div className="flex-1 flex flex-col w-full">
+          {/* WhatsApp Header */}
+          <div className="bg-[#f0f2f5] border-b border-gray-200 px-4 py-2 md:py-3 flex items-center justify-between shadow-sm">
+            <div className="flex items-center space-x-3 flex-1 min-w-0">
+              {/* Back Button (Mobile) */}
+              <button
+                onClick={() => setActiveSession(null)}
+                className="md:hidden p-2 hover:bg-white/50 rounded-full transition-colors"
+              >
+                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              {/* Avatar & Info */}
+              <div className="w-10 h-10 md:w-9 md:h-9 rounded-full bg-[#00a884] flex items-center justify-center text-white font-medium flex-shrink-0">
+                {activeSession.visitorName?.[0]?.toUpperCase() || '?'}
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">
-                  {activeSession.visitorName || 'Anonymous Visitor'}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-gray-900 text-sm md:text-base truncate">
+                  {activeSession.visitorName || 'Visitor'}
                 </h3>
-                <p className="text-sm text-gray-500">
-                  {activeSession.visitorEmail || 'No email provided'}
+                <p className="text-xs text-gray-500 truncate">
+                  {activeSession.status === 'active' ? 'Online' : 'Offline'}
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-1 md:space-x-2">
               {!activeSession.assignedToId && (
                 <button
                   onClick={assignToSelf}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  className="hidden md:flex px-3 py-1.5 bg-[#00a884] text-white rounded-full hover:bg-[#008f6f] transition-colors text-xs font-medium"
                 >
-                  Assign to Me
+                  Assign
                 </button>
               )}
               {activeSession.status === 'active' && (
                 <button
                   onClick={closeSession}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                  className="hidden md:flex px-3 py-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors text-xs font-medium"
                 >
-                  Close Chat
+                  Close
                 </button>
               )}
               <button
                 onClick={() => setShowVisitorInfo(!showVisitorInfo)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-white/50 rounded-full transition-colors"
               >
-                <User className="w-5 h-5 text-gray-600" />
+                <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
               </button>
             </div>
           </div>
 
           <div className="flex-1 flex">
-            {/* Messages */}
+            {/* Messages - WhatsApp Style */}
             <div className="flex-1 flex flex-col">
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {/* WhatsApp Pattern Background */}
+              <div 
+                className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2"
+                style={{
+                  backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23e5ddd5\'/%3E%3Cpath d=\'M20 10h60M20 30h60M20 50h60M20 70h60M20 90h60\' stroke=\'%23d1c4b8\' stroke-width=\'0.5\' opacity=\'0.1\'/%3E%3C/svg%3E")',
+                  backgroundColor: '#e5ddd5'
+                }}
+              >
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
@@ -484,20 +515,27 @@ export default function AdminChatPage() {
                       msg.senderType === 'admin' ? 'justify-end' : 'justify-start'
                     }`}
                   >
+                    {/* WhatsApp Message Bubble */}
                     <div
-                      className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                      className={`relative max-w-[85%] md:max-w-[70%] rounded-lg px-3 py-2 ${
                         msg.senderType === 'admin'
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                          ? 'bg-[#d9fdd3] text-gray-900'
                           : msg.messageType === 'system'
-                          ? 'bg-gray-200 text-gray-600 text-sm italic'
-                          : 'bg-white shadow-sm'
+                          ? 'bg-[#fff4ce] text-gray-700 text-xs text-center'
+                          : 'bg-white text-gray-900 shadow-sm'
                       }`}
+                      style={{
+                        borderRadius: msg.senderType === 'admin' 
+                          ? '7.5px 7.5px 0px 7.5px' 
+                          : '7.5px 7.5px 7.5px 0px'
+                      }}
                     >
+                      {/* Message Content */}
                       {msg.messageType === 'image' && msg.fileUrl && (
                         <img
                           src={msg.fileUrl}
                           alt={msg.fileName}
-                          className="rounded-lg mb-2 max-w-full"
+                          className="rounded-md mb-1 max-w-full"
                         />
                       )}
                       {msg.messageType === 'file' && msg.fileUrl && (
@@ -505,22 +543,26 @@ export default function AdminChatPage() {
                           href={msg.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 mb-1"
+                          className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 mb-1 p-2 bg-gray-50 rounded"
                         >
                           <Paperclip className="w-4 h-4" />
                           <span className="text-sm">{msg.fileName}</span>
                         </a>
                       )}
-                      <p className="break-words">{msg.message}</p>
-                      <div className={`flex items-center space-x-2 mt-1 ${
-                        msg.senderType === 'admin' ? 'text-white/70' : 'text-gray-400'
+                      <p className="text-sm break-words mb-1">{msg.message}</p>
+                      
+                      {/* Time & Status */}
+                      <div className={`flex items-center justify-end space-x-1 ${
+                        msg.senderType === 'admin' ? 'text-gray-500' : 'text-gray-400'
                       } text-xs`}>
-                        <span>{new Date(msg.createdAt).toLocaleTimeString()}</span>
+                        <span>
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                         {msg.senderType === 'admin' && (
                           msg.isRead ? (
-                            <CheckCheck className="w-3 h-3" />
+                            <CheckCheck className="w-4 h-4 text-blue-500" />
                           ) : (
-                            <Check className="w-3 h-3" />
+                            <Check className="w-4 h-4 text-gray-400" />
                           )
                         )}
                       </div>
@@ -530,9 +572,9 @@ export default function AdminChatPage() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input */}
-              <div className="p-4 bg-white border-t">
-                <div className="flex items-center space-x-2">
+              {/* WhatsApp Input Bar */}
+              <div className="p-2 md:p-3 bg-[#f0f2f5] border-t border-gray-200">
+                <div className="flex items-end space-x-2">
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -540,39 +582,47 @@ export default function AdminChatPage() {
                     className="hidden"
                     accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
                   />
+                  
+                  {/* Attachment Button */}
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="text-gray-400 hover:text-blue-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+                    className="text-gray-500 hover:text-[#00a884] transition-colors p-2 hover:bg-white rounded-full flex-shrink-0"
                   >
-                    <Paperclip className="w-5 h-5" />
+                    <Paperclip className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
-                  <input
-                    type="text"
-                    value={inputMessage}
-                    onChange={(e) => {
-                      setInputMessage(e.target.value)
-                      handleTyping()
-                    }}
-                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                    placeholder="Type your message..."
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white text-gray-900 placeholder-gray-400"
-                    disabled={uploading || activeSession.status === 'closed'}
-                  />
+                  
+                  {/* Input Field */}
+                  <div className="flex-1 bg-white rounded-full px-4 py-2.5 md:py-3 flex items-center">
+                    <input
+                      type="text"
+                      value={inputMessage}
+                      onChange={(e) => {
+                        setInputMessage(e.target.value)
+                        handleTyping()
+                      }}
+                      onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                      placeholder="Type a message"
+                      className="flex-1 bg-transparent focus:outline-none text-gray-900 placeholder-gray-500 text-sm md:text-base"
+                      disabled={uploading || activeSession.status === 'closed'}
+                    />
+                  </div>
+                  
+                  {/* Send Button */}
                   <button
                     onClick={sendMessage}
                     disabled={!inputMessage.trim() || uploading || activeSession.status === 'closed'}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-[#00a884] text-white p-3 rounded-full hover:bg-[#008f6f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0 shadow-md"
                   >
-                    <Send className="w-5 h-5" />
+                    <Send className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Visitor Info Panel */}
+            {/* Visitor Info Panel - WhatsApp Style */}
             {showVisitorInfo && (
-              <div className="w-80 bg-white border-l p-4 overflow-y-auto">
+              <div className="hidden md:block w-80 bg-white border-l p-4 overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-gray-900">Visitor Info</h3>
                   <button

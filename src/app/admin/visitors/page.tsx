@@ -1,7 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import VisitorsMap from '@/components/admin/VisitorsMap'
+import dynamic from 'next/dynamic'
+
+// Dynamically import Leaflet map (prevents SSR issues)
+const VisitorsMapLeaflet = dynamic(
+  () => import('@/components/admin/VisitorsMapLeaflet'),
+  { ssr: false, loading: () => <div className="w-full h-[600px] bg-slate-100 rounded-xl animate-pulse" /> }
+)
 
 interface AnalyticsData {
   overview: {
@@ -130,10 +136,10 @@ export default function VisitorAnalyticsPage() {
           />
         </div>
 
-        {/* World Map */}
+        {/* World Map - Leaflet */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-slate-900 mb-4">🗺️ Global Visitor Map</h2>
-          <VisitorsMap countries={data.countries} />
+          <VisitorsMapLeaflet countries={data.countries} />
         </div>
 
         {/* Top Countries & Device Stats */}
