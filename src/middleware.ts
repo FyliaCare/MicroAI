@@ -5,6 +5,14 @@ import { getToken } from 'next-auth/jwt'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Redirect secondary domain to primary domain
+  const host = request.headers.get('host') || ''
+  if (host === 'microaisystem.com' || host === 'www.microaisystem.com') {
+    const primaryUrl = new URL(request.url)
+    primaryUrl.host = 'microaisystems.com'
+    return NextResponse.redirect(primaryUrl, { status: 301 })
+  }
+
   // Check if accessing protected admin routes
   const isAdminRoute = pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')
   const isAdminApiRoute = pathname.startsWith('/api/admin')
