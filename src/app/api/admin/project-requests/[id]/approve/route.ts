@@ -178,18 +178,51 @@ export async function POST(
         },
       })
 
-      // 6. Create admin notification
-      await tx.notification.create({
-        data: {
-          type: 'project-created',
-          title: '✅ Project Approved & Created',
-          message: `${projectRequest.projectName} has been approved. Client account created for ${projectRequest.clientName}.`,
-          link: `/admin/projects/${project.id}`,
-          priority: 'normal',
-          entityType: 'Project',
-          entityId: project.id,
-        },
+      // 6. Create admin notifications for both User and Admin table users
+      const userAdmins = await tx.user.findMany({
+        where: {
+          OR: [
+            { role: 'admin' },
+            { role: 'super-admin' }
+          ]
+        }
       })
+      
+      const adminUsers = await tx.admin.findMany({
+        where: {
+          isActive: true
+        }
+      })
+
+      // Create notifications for User table admins
+      for (const admin of userAdmins) {
+        await tx.notification.create({
+          data: {
+            type: 'project-created',
+            title: '✅ Project Approved & Created',
+            message: `${projectRequest.clientName} - ${projectRequest.projectName} has been approved. Client account created for ${projectRequest.clientName}.`,
+            link: `/admin/projects/${project.id}`,
+            priority: 'normal',
+            entityType: 'admin',
+            entityId: admin.id,
+          },
+        })
+      }
+      
+      // Create notifications for Admin table users
+      for (const admin of adminUsers) {
+        await tx.notification.create({
+          data: {
+            type: 'project-created',
+            title: '✅ Project Approved & Created',
+            message: `${projectRequest.clientName} - ${projectRequest.projectName} has been approved. Client account created for ${projectRequest.clientName}.`,
+            link: `/admin/projects/${project.id}`,
+            priority: 'normal',
+            entityType: 'admin',
+            entityId: admin.id,
+          },
+        })
+      }
 
       // 7. Create activity feed entry
       await tx.activityFeed.create({
@@ -229,44 +262,9 @@ export async function POST(
       }
     })
 
-    // Send welcome email immediately via Resend
-    try {
-      const resend = new Resend(process.env.RESEND_API_KEY)
-      const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@microaisystems.com'
-
-      const { data, error } = await resend.emails.send({
-        from: fromEmail,
-        to: projectRequest.clientEmail,
-        subject: '🎉 Welcome to MicroAI Systems - Your Project Has Been Approved!',
-        html: result.welcomeEmailHtml,
-        replyTo: process.env.ADMIN_EMAIL || 'sales@microaisystems.com',
-      })
-
-      if (error) {
-        console.error('❌ Failed to send welcome email:', error)
-        // Don't fail the request - email is already queued
-      } else {
-        console.log('✅ Welcome email sent successfully! Email ID:', data?.id)
-        
-        // Update email queue record to mark as sent
-        await prisma.emailQueue.updateMany({
-          where: {
-            to: projectRequest.clientEmail,
-            status: 'pending',
-            templateType: 'welcome',
-          },
-          data: {
-            status: 'sent',
-            sentAt: new Date(),
-            provider: 'resend',
-            lastAttemptAt: new Date(),
-          },
-        })
-      }
-    } catch (emailError: any) {
-      console.error('❌ Error sending welcome email:', emailError.message)
-      // Continue - email is queued and will be retried by cron job
-    }
+    // Email is already queued in the transaction above
+    // The cron job will process it within 5 minutes
+    console.log('✅ Welcome email queued for:', projectRequest.clientEmail)
 
     return NextResponse.json({
       success: true,
@@ -280,13 +278,20 @@ export async function POST(
         welcomeEmailQueued: true,
       },
     })
-  } catch (error) {
-    console.error('Error approving project request:', error)
+  } catch (error: any) {
+    console.error('❌ Error approving project request:', {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+      stack: error.stack
+    })
+    
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to approve project request',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: error.message || 'Unknown error',
+        code: error.code,
       },
       { status: 500 }
     )
