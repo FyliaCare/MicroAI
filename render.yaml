@@ -3,10 +3,11 @@ services:
     name: microai-platform
     env: node
     region: oregon
-    plan: free
+    plan: starter
     branch: main
     buildCommand: npm install --legacy-peer-deps && npx prisma generate && npm run build
     startCommand: npm start
+    maxShutdownDelaySeconds: 30
     envVars:
       - key: NODE_ENV
         value: production
@@ -28,7 +29,6 @@ services:
     name: process-email-queue
     env: node
     schedule: "*/5 * * * *"
-    buildCommand: npm install --legacy-peer-deps
     startCommand: 'curl -X POST "$NEXTAUTH_URL/api/cron/process-email-queue" -H "Authorization: Bearer $CRON_SECRET"'
     envVars:
       - key: NEXTAUTH_URL
