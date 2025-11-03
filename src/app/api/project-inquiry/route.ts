@@ -390,17 +390,10 @@ sales@microaisystems.com
     try {
       const { prisma } = await import('@/lib/prisma')
       
-      // Generate unique request number
-      const lastRequest = await prisma.projectRequest.findFirst({
-        orderBy: { requestNumber: 'desc' },
-        select: { requestNumber: true }
-      })
-      
-      let requestNumber = 'PR-0001'
-      if (lastRequest?.requestNumber) {
-        const lastNumber = parseInt(lastRequest.requestNumber.split('-')[1])
-        requestNumber = `PR-${String(lastNumber + 1).padStart(4, '0')}`
-      }
+      // Generate unique request number with timestamp to prevent collisions
+      const timestamp = Date.now()
+      const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+      const requestNumber = `PR-${timestamp}${randomSuffix}`
 
       // Create ProjectRequest (pending approval)
       const projectRequest = await prisma.projectRequest.create({
@@ -422,8 +415,8 @@ sales@microaisystems.com
       })
       projectRequestId = projectRequest.id
 
-      // Get all admins for notifications
-      const admins = await prisma.user.findMany({
+      // Get all admins for notifications from both tables
+      const userAdmins = await prisma.user.findMany({
         where: {
           OR: [
             { role: 'admin' },
@@ -431,14 +424,35 @@ sales@microaisystems.com
           ]
         }
       })
+      
+      const adminUsers = await prisma.admin.findMany({
+        where: {
+          isActive: true
+        }
+      })
 
-      // Create notifications for all admins
-      for (const admin of admins) {
+      // Create notifications for User table admins
+      for (const admin of userAdmins) {
         await prisma.notification.create({
           data: {
             type: 'project_request',
-            title: `🤖 New AI Bot Project Request from ${body.name}`,
-            message: `${formattedProjectType} - ${formattedBudget}, ${formattedTimeline}. Request: ${requestNumber}`,
+            title: `🤖 New AI Bot Inquiry from ${body.name}`,
+            message: `${body.name} - ${formattedProjectType} project - ${formattedBudget}, ${formattedTimeline}. Request: ${requestNumber}`,
+            link: `/admin/project-requests?requestId=${projectRequest.id}`,
+            priority: 'high',
+            entityType: 'admin',
+            entityId: admin.id
+          }
+        })
+      }
+      
+      // Create notifications for Admin table users
+      for (const admin of adminUsers) {
+        await prisma.notification.create({
+          data: {
+            type: 'project_request',
+            title: `🤖 New AI Bot Inquiry from ${body.name}`,
+            message: `${body.name} - ${formattedProjectType} project - ${formattedBudget}, ${formattedTimeline}. Request: ${requestNumber}`,
             link: `/admin/project-requests?requestId=${projectRequest.id}`,
             priority: 'high',
             entityType: 'admin',
