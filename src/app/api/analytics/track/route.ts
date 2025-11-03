@@ -68,27 +68,55 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create visitor analytics record
-    await prisma.visitorAnalytics.create({
-      data: {
+    // Check if session already exists
+    const existingSession = await prisma.visitorAnalytics.findFirst({
+      where: {
         sessionId,
-        ipAddress: ip,
-        country: geoData.country || null,
-        city: geoData.city || null,
-        region: geoData.region || null,
-        latitude: geoData.lat || null,
-        longitude: geoData.lon || null,
-        landingPage: pageUrl,
-        referrer: referrer || null,
-        device: deviceType,
-        browser,
-        os,
-        duration: timeOnPage || null,
-        converted: isProjectRequest || false,
-        interactions: isProjectRequest ? 1 : 0,
-        sessionStart: new Date()
+        ipAddress: ip
       }
     })
+
+    if (existingSession) {
+      // Update existing session with new duration
+      await prisma.visitorAnalytics.update({
+        where: { id: existingSession.id },
+        data: {
+          duration: timeOnPage || existingSession.duration,
+          sessionEnd: new Date(),
+          converted: isProjectRequest || existingSession.converted,
+          interactions: isProjectRequest 
+            ? existingSession.interactions + 1 
+            : existingSession.interactions,
+          // Update pages visited (append to JSON array)
+          pagesVisited: existingSession.pagesVisited 
+            ? JSON.stringify([...JSON.parse(existingSession.pagesVisited), pageUrl])
+            : JSON.stringify([pageUrl])
+        }
+      })
+    } else {
+      // Create new visitor analytics record
+      await prisma.visitorAnalytics.create({
+        data: {
+          sessionId,
+          ipAddress: ip,
+          country: geoData.country || null,
+          city: geoData.city || null,
+          region: geoData.region || null,
+          latitude: geoData.lat || null,
+          longitude: geoData.lon || null,
+          landingPage: pageUrl,
+          referrer: referrer || null,
+          device: deviceType,
+          browser,
+          os,
+          duration: timeOnPage || null,
+          converted: isProjectRequest || false,
+          interactions: isProjectRequest ? 1 : 0,
+          pagesVisited: JSON.stringify([pageUrl]),
+          sessionStart: new Date()
+        }
+      })
+    }
 
     return NextResponse.json({ 
       success: true,
