@@ -415,38 +415,16 @@ sales@microaisystems.com
       })
       projectRequestId = projectRequest.id
 
-      // Get all admins for notifications from both tables
-      const userAdmins = await prisma.user.findMany({
-        where: {
-          OR: [
-            { role: 'admin' },
-            { role: 'super-admin' }
-          ]
-        }
-      })
-      
+      // Get all admins for notifications - use Admin table only (primary)
       const adminUsers = await prisma.admin.findMany({
         where: {
           isActive: true
         }
       })
 
-      // Create notifications for User table admins
-      for (const admin of userAdmins) {
-        await prisma.notification.create({
-          data: {
-            type: 'project_request',
-            title: `🤖 New AI Bot Inquiry from ${body.name}`,
-            message: `${body.name} - ${formattedProjectType} project - ${formattedBudget}, ${formattedTimeline}. Request: ${requestNumber}`,
-            link: `/admin/project-requests?requestId=${projectRequest.id}`,
-            priority: 'high',
-            entityType: 'admin',
-            entityId: admin.id
-          }
-        })
-      }
-      
-      // Create notifications for Admin table users
+      console.log(`📢 Creating ${adminUsers.length} notifications for project request ${requestNumber}`)
+
+      // Create ONE notification per admin (deduplicated)
       for (const admin of adminUsers) {
         await prisma.notification.create({
           data: {
@@ -460,6 +438,8 @@ sales@microaisystems.com
           }
         })
       }
+      
+      console.log(`✅ Created ${adminUsers.length} notifications successfully`)
 
       // Log activity
       await prisma.activityLog.create({

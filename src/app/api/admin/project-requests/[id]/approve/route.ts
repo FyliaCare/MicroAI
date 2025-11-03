@@ -203,38 +203,16 @@ export async function POST(
         },
       })
 
-      // 6. Create admin notifications for both User and Admin table users
-      const userAdmins = await tx.user.findMany({
-        where: {
-          OR: [
-            { role: 'admin' },
-            { role: 'super-admin' }
-          ]
-        }
-      })
-      
+      // 6. Create admin notifications - use Admin table only (primary source)
       const adminUsers = await tx.admin.findMany({
         where: {
           isActive: true
         }
       })
 
-      // Create notifications for User table admins
-      for (const admin of userAdmins) {
-        await tx.notification.create({
-          data: {
-            type: 'project-created',
-            title: '✅ Project Approved & Created',
-            message: `${projectRequest.clientName} - ${projectRequest.projectName} has been approved. Client account created for ${projectRequest.clientName}.`,
-            link: `/admin/projects/${project.id}`,
-            priority: 'normal',
-            entityType: 'admin',
-            entityId: admin.id,
-          },
-        })
-      }
-      
-      // Create notifications for Admin table users
+      console.log(`📢 Creating ${adminUsers.length} approval notifications`)
+
+      // Create ONE notification per admin
       for (const admin of adminUsers) {
         await tx.notification.create({
           data: {
@@ -248,6 +226,8 @@ export async function POST(
           },
         })
       }
+      
+      console.log(`✅ Created ${adminUsers.length} approval notifications`)
 
       // 7. Create activity feed entry
       await tx.activityFeed.create({

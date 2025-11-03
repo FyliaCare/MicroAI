@@ -376,47 +376,18 @@ sales@microaisystems.com
       }, { status: 201 })
     }
 
-    // Get all admins for notifications with error handling
+    // Get all admins for notifications - use Admin table only (primary source)
     console.log('👥 Finding admins...')
     try {
-      // Check BOTH User and Admin tables
-      const userAdmins = await prisma.user.findMany({
-        where: {
-          OR: [
-            { role: 'admin' },
-            { role: 'super-admin' }
-          ]
-        }
-      })
-      
       const adminUsers = await prisma.admin.findMany({
         where: {
           isActive: true
         }
       })
       
-      console.log(`✅ Found ${userAdmins.length} user admins and ${adminUsers.length} admin users`)
+      console.log(`✅ Found ${adminUsers.length} admin users`)
 
-      // Create notifications for User table admins
-      for (const admin of userAdmins) {
-        try {
-          await prisma.notification.create({
-            data: {
-              type: 'project_request',
-              title: '📧 New Contact Form Submission',
-              message: `${body.name}${body.company ? ` from ${body.company}` : ''} submitted an inquiry. Request: ${requestNumber}`,
-              link: `/admin/project-requests?requestId=${projectRequest.id}`,
-              priority: 'high',
-              entityType: 'admin',
-              entityId: admin.id
-            }
-          })
-        } catch (notifError: any) {
-          console.error(`⚠️  Failed to create notification for user admin ${admin.id}:`, notifError.message)
-        }
-      }
-      
-      // Create notifications for Admin table users
+      // Create ONE notification per admin (deduplicated)
       for (const admin of adminUsers) {
         try {
           await prisma.notification.create({
@@ -435,7 +406,7 @@ sales@microaisystems.com
         }
       }
       
-      console.log('✅ Notifications created for all admins')
+      console.log(`✅ Created ${adminUsers.length} notifications successfully`)
     } catch (error: any) {
       console.error('⚠️  Failed to create notifications:', error.message)
       // Continue anyway
