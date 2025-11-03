@@ -20,19 +20,38 @@ export async function GET(request: NextRequest) {
     // Get all visitor data
     const visitors = await prisma.visitorAnalytics.findMany({
       where: {
-        visitedAt: {
+        sessionStart: {
           gte: startDate
         }
       },
       orderBy: {
-        visitedAt: 'desc'
+        sessionStart: 'desc'
       }
     })
+
+    // Get country codes from a mapping
+    const countryCodeMap: Record<string, string> = {
+      'Ghana': 'GH',
+      'United States': 'US',
+      'United Kingdom': 'GB',
+      'Canada': 'CA',
+      'Nigeria': 'NG',
+      'South Africa': 'ZA',
+      'Kenya': 'KE',
+      'Australia': 'AU',
+      'Germany': 'DE',
+      'France': 'FR',
+      'India': 'IN',
+      'China': 'CN',
+      'Japan': 'JP',
+      'Brazil': 'BR',
+      // Add more as needed
+    }
 
     // Aggregate by country
     const countryStats = visitors.reduce((acc: any, visitor) => {
       const country = visitor.country || 'Unknown'
-      const countryCode = visitor.countryCode || 'XX'
+      const countryCode = countryCodeMap[country] || 'XX'
       
       if (!acc[country]) {
         acc[country] = {
@@ -48,11 +67,11 @@ export async function GET(request: NextRequest) {
       }
       
       acc[country].visits += 1
-      if (visitor.isProjectRequest) {
+      if (visitor.converted) {
         acc[country].projectRequests += 1
       }
-      if (visitor.timeOnPage) {
-        acc[country].totalTime += visitor.timeOnPage
+      if (visitor.duration) {
+        acc[country].totalTime += visitor.duration
         acc[country].visitCount += 1
       }
       
@@ -72,15 +91,15 @@ export async function GET(request: NextRequest) {
 
     // Overall statistics
     const totalVisits = visitors.length
-    const totalProjectRequests = visitors.filter(v => v.isProjectRequest).length
-    const totalTimeSpent = visitors.reduce((sum, v) => sum + (v.timeOnPage || 0), 0)
-    const avgTimeOnSite = visitors.filter(v => v.timeOnPage).length > 0
-      ? Math.round(totalTimeSpent / visitors.filter(v => v.timeOnPage).length)
+    const totalProjectRequests = visitors.filter(v => v.converted).length
+    const totalTimeSpent = visitors.reduce((sum, v) => sum + (v.duration || 0), 0)
+    const avgTimeOnSite = visitors.filter(v => v.duration).length > 0
+      ? Math.round(totalTimeSpent / visitors.filter(v => v.duration).length)
       : 0
 
     // Device breakdown
     const deviceStats = visitors.reduce((acc: any, v) => {
-      const device = v.deviceType || 'unknown'
+      const device = v.device || 'unknown'
       acc[device] = (acc[device] || 0) + 1
       return acc
     }, {})
@@ -96,9 +115,9 @@ export async function GET(request: NextRequest) {
     const recentVisitors = visitors.slice(0, 10).map(v => ({
       country: v.country,
       city: v.city,
-      pageUrl: v.pageUrl,
-      device: v.deviceType,
-      visitedAt: v.visitedAt
+      pageUrl: v.landingPage,
+      device: v.device,
+      visitedAt: v.sessionStart
     }))
 
     return NextResponse.json({

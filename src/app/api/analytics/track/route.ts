@@ -74,21 +74,19 @@ export async function POST(request: NextRequest) {
         sessionId,
         ipAddress: ip,
         country: geoData.country || null,
-        countryCode: geoData.countryCode || null,
         city: geoData.city || null,
         region: geoData.region || null,
         latitude: geoData.lat || null,
         longitude: geoData.lon || null,
-        pageUrl,
+        landingPage: pageUrl,
         referrer: referrer || null,
-        userAgent,
-        deviceType,
+        device: deviceType,
         browser,
         os,
-        timeOnPage: timeOnPage || null,
-        isProjectRequest: isProjectRequest || false,
-        projectRequestId: projectRequestId || null,
-        visitedAt: new Date()
+        duration: timeOnPage || null,
+        converted: isProjectRequest || false,
+        interactions: isProjectRequest ? 1 : 0,
+        sessionStart: new Date()
       }
     })
 
