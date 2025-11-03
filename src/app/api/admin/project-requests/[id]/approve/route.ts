@@ -440,7 +440,7 @@ function generateWelcomeEmail(data: {
       <p style="margin-top: 30px;">
         Best regards,<br>
         <strong>MicroAI Systems Team</strong><br>
-        <a href="mailto:support@microai.systems">support@microai.systems</a>
+        <a href="mailto:sales@microaisystems.com">sales@microaisystems.com</a>
       </p>
     </div>
     

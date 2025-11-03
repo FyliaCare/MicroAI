@@ -192,7 +192,7 @@ function generateRejectionEmail(data: {
       </ul>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="mailto:support@microai.systems" class="button">
+        <a href="mailto:sales@microaisystems.com" class="button">
           Contact Support
         </a>
       </div>

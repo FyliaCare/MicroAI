@@ -188,7 +188,7 @@ function generatePasswordChangeEmail(data: { name: string; timestamp: string }):
       
       <div class="warning-box">
         <p><strong>⚠️ Didn't change your password?</strong></p>
-        <p>If you did not make this change, please contact us immediately at <a href="mailto:support@microai.systems">support@microai.systems</a></p>
+        <p>If you did not make this change, please contact us immediately at <a href="mailto:sales@microaisystems.com">sales@microaisystems.com</a></p>
       </div>
       
       <p>For security tips:</p>
