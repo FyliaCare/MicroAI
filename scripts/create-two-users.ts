@@ -26,23 +26,24 @@ async function createUsers() {
     const users = [admin1, admin2]
 
     for (const userData of users) {
-      // Check if user already exists
-      const existing = await prisma.user.findUnique({
+      // Check if admin already exists
+      const existing = await prisma.admin.findUnique({
         where: { email: userData.email }
       })
 
       if (existing) {
-        console.log(`⚠️  ${userData.email} already exists. Updating role to super-admin...`)
-        await prisma.user.update({
+        console.log(`⚠️  ${userData.email} already exists. Updating password...`)
+        const hashedPassword = await bcrypt.hash(userData.password, 10)
+        await prisma.admin.update({
           where: { email: userData.email },
           data: { 
+            password: hashedPassword,
             role: 'super-admin',
-            isVerified: true,
-            isActive: true,
-            mustChangePassword: false
+            isActive: true
           }
         })
         console.log(`✅ Updated: ${userData.email}`)
+        console.log(`   Password: ${userData.password}`)
         console.log('')
         continue
       }
@@ -50,36 +51,33 @@ async function createUsers() {
       // Hash password
       const hashedPassword = await bcrypt.hash(userData.password, 10)
 
-      // Create admin user
-      const user = await prisma.user.create({
+      // Create admin user in Admin table
+      const admin = await prisma.admin.create({
         data: {
           name: userData.name,
           email: userData.email,
           password: hashedPassword,
           role: userData.role,
-          isVerified: true,
-          isActive: true,
-          mustChangePassword: false,
-          company: 'MicroAI Systems'
+          isActive: true
         }
       })
 
-      console.log(`✅ Created: ${user.email}`)
-      console.log(`   Name: ${user.name}`)
-      console.log(`   Role: ${user.role}`)
+      console.log(`✅ Created: ${admin.email}`)
+      console.log(`   Name: ${admin.name}`)
+      console.log(`   Role: ${admin.role}`)
       console.log(`   Password: ${userData.password}`)
       console.log('')
     }
 
-    console.log('🎉 All users created successfully!')
+    console.log('🎉 All admin accounts created successfully!')
     console.log('')
-    console.log('Login at: https://www.microaisystems.com/auth/signin')
+    console.log('Login at: https://www.microaisystems.com/admin')
     console.log('')
-    console.log('User 1:')
+    console.log('Admin 1:')
     console.log('  Email: admin@microaisystems.com')
     console.log('  Password: 1Billion7991.')
     console.log('')
-    console.log('User 2:')
+    console.log('Admin 2:')
     console.log('  Email: sales@microaisystems.com')
     console.log('  Password: Cherbu@2000')
 

@@ -22,3 +22,16 @@ services:
         sync: false
     healthCheckPath: /api/health
     autoDeploy: true
+
+  # Cron job to process email queue every 5 minutes
+  - type: cron
+    name: process-email-queue
+    env: node
+    schedule: "*/5 * * * *"
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: 'curl -X POST "$NEXTAUTH_URL/api/cron/process-email-queue" -H "Authorization: Bearer $CRON_SECRET"'
+    envVars:
+      - key: NEXTAUTH_URL
+        sync: false
+      - key: CRON_SECRET
+        sync: false

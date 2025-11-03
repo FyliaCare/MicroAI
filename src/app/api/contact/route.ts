@@ -379,7 +379,8 @@ sales@microaisystems.com
     // Get all admins for notifications with error handling
     console.log('👥 Finding admins...')
     try {
-      const admins = await prisma.user.findMany({
+      // Check BOTH User and Admin tables
+      const userAdmins = await prisma.user.findMany({
         where: {
           OR: [
             { role: 'admin' },
@@ -387,10 +388,36 @@ sales@microaisystems.com
           ]
         }
       })
-      console.log(`✅ Found ${admins.length} admins`)
+      
+      const adminUsers = await prisma.admin.findMany({
+        where: {
+          isActive: true
+        }
+      })
+      
+      console.log(`✅ Found ${userAdmins.length} user admins and ${adminUsers.length} admin users`)
 
-      // Create notifications for all admins
-      for (const admin of admins) {
+      // Create notifications for User table admins
+      for (const admin of userAdmins) {
+        try {
+          await prisma.notification.create({
+            data: {
+              type: 'project_request',
+              title: '📧 New Contact Form Submission',
+              message: `${body.name}${body.company ? ` from ${body.company}` : ''} submitted an inquiry. Request: ${requestNumber}`,
+              link: `/admin/project-requests?requestId=${projectRequest.id}`,
+              priority: 'high',
+              entityType: 'admin',
+              entityId: admin.id
+            }
+          })
+        } catch (notifError: any) {
+          console.error(`⚠️  Failed to create notification for user admin ${admin.id}:`, notifError.message)
+        }
+      }
+      
+      // Create notifications for Admin table users
+      for (const admin of adminUsers) {
         try {
           await prisma.notification.create({
             data: {
@@ -405,10 +432,10 @@ sales@microaisystems.com
           })
         } catch (notifError: any) {
           console.error(`⚠️  Failed to create notification for admin ${admin.id}:`, notifError.message)
-          // Continue to next admin
         }
       }
-      console.log('✅ Notifications created')
+      
+      console.log('✅ Notifications created for all admins')
     } catch (error: any) {
       console.error('⚠️  Failed to create notifications:', error.message)
       // Continue anyway
