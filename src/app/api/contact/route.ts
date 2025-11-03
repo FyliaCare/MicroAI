@@ -406,10 +406,18 @@ sales@microaisystems.com
       }
     }, { status: 201 })
 
-  } catch (error) {
-    console.error('Contact form error:', error)
+  } catch (error: any) {
+    console.error('❌ Contact form error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    })
     return NextResponse.json(
-      { error: 'Failed to process your request. Please try again.' },
+      { 
+        error: 'Failed to process your request. Please try again.',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     )
   }
