@@ -196,98 +196,114 @@ export default function ProjectRequestsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <Card className="p-5 md:p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending Review</p>
-              <p className="text-3xl font-bold text-yellow-600 mt-2">{pendingCount}</p>
+              <p className="text-xs md:text-sm text-yellow-700 font-medium">Pending Review</p>
+              <p className="text-2xl md:text-3xl font-bold text-yellow-600 mt-2">{pendingCount}</p>
+              <p className="text-xs text-yellow-600 mt-1">Awaiting action</p>
             </div>
-            <div className="bg-yellow-100 p-3 rounded-full">
-              <span className="text-2xl">⏳</span>
+            <div className="bg-yellow-500 bg-opacity-20 p-3 md:p-4 rounded-2xl backdrop-blur-sm">
+              <span className="text-2xl md:text-3xl">⏳</span>
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-5 md:p-6 bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Approved</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">{approvedCount}</p>
+              <p className="text-xs md:text-sm text-green-700 font-medium">Approved</p>
+              <p className="text-2xl md:text-3xl font-bold text-green-600 mt-2">{approvedCount}</p>
+              <p className="text-xs text-green-600 mt-1">Successfully processed</p>
             </div>
-            <div className="bg-green-100 p-3 rounded-full">
-              <span className="text-2xl">✅</span>
+            <div className="bg-green-500 bg-opacity-20 p-3 md:p-4 rounded-2xl backdrop-blur-sm">
+              <span className="text-2xl md:text-3xl">✅</span>
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-5 md:p-6 bg-gradient-to-br from-red-50 to-red-100 border-red-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Rejected</p>
-              <p className="text-3xl font-bold text-red-600 mt-2">{rejectedCount}</p>
+              <p className="text-xs md:text-sm text-red-700 font-medium">Rejected</p>
+              <p className="text-2xl md:text-3xl font-bold text-red-600 mt-2">{rejectedCount}</p>
+              <p className="text-xs text-red-600 mt-1">Not suitable</p>
             </div>
-            <div className="bg-red-100 p-3 rounded-full">
-              <span className="text-2xl">❌</span>
+            <div className="bg-red-500 bg-opacity-20 p-3 md:p-4 rounded-2xl backdrop-blur-sm">
+              <span className="text-2xl md:text-3xl">❌</span>
             </div>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-5 md:p-6 bg-gradient-to-br from-blue-50 to-purple-100 border-blue-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Requests</p>
-              <p className="text-3xl font-bold text-blue-600 mt-2">{requests.length}</p>
+              <p className="text-xs md:text-sm text-blue-700 font-medium">Total Requests</p>
+              <p className="text-2xl md:text-3xl font-bold text-blue-600 mt-2">{requests.length}</p>
+              <p className="text-xs text-blue-600 mt-1">All submissions</p>
             </div>
-            <div className="bg-blue-100 p-3 rounded-full">
-              <span className="text-2xl">📋</span>
+            <div className="bg-blue-500 bg-opacity-20 p-3 md:p-4 rounded-2xl backdrop-blur-sm">
+              <span className="text-2xl md:text-3xl">📋</span>
             </div>
           </div>
         </Card>
       </div>
 
       {/* Filters */}
-      <Card className="p-4">
-        <div className="flex gap-4">
+      <Card className="p-4 md:p-5 shadow-lg">
+        <div className="flex flex-wrap gap-3 md:gap-4">
           <button
             onClick={() => setFilterStatus('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 text-sm md:text-base ${
               filterStatus === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
             }`}
           >
-            All ({requests.length})
+            <span className="flex items-center space-x-2">
+              <span>📊</span>
+              <span>All ({requests.length})</span>
+            </span>
           </button>
           <button
             onClick={() => setFilterStatus('pending')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 text-sm md:text-base ${
               filterStatus === 'pending'
-                ? 'bg-yellow-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
             }`}
           >
-            Pending ({pendingCount})
+            <span className="flex items-center space-x-2">
+              <span>⏳</span>
+              <span>Pending ({pendingCount})</span>
+            </span>
           </button>
           <button
             onClick={() => setFilterStatus('approved')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 text-sm md:text-base ${
               filterStatus === 'approved'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
             }`}
           >
-            Approved ({approvedCount})
+            <span className="flex items-center space-x-2">
+              <span>✅</span>
+              <span>Approved ({approvedCount})</span>
+            </span>
           </button>
           <button
             onClick={() => setFilterStatus('rejected')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 text-sm md:text-base ${
               filterStatus === 'rejected'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
             }`}
           >
-            Rejected ({rejectedCount})
+            <span className="flex items-center space-x-2">
+              <span>❌</span>
+              <span>Rejected ({rejectedCount})</span>
+            </span>
           </button>
         </div>
       </Card>
@@ -300,72 +316,77 @@ export default function ProjectRequestsPage() {
       )}
 
       {/* Requests List */}
-      <div className="space-y-4">
+      <div className="space-y-4 md:space-y-6">
         {filteredRequests.length === 0 ? (
-          <Card className="p-12 text-center">
-            <p className="text-gray-600">No {filterStatus !== 'all' && filterStatus} requests found.</p>
+          <Card className="p-12 text-center bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200">
+            <div className="text-6xl mb-4">📭</div>
+            <p className="text-gray-600 text-lg">No {filterStatus !== 'all' && filterStatus} requests found.</p>
           </Card>
         ) : (
           filteredRequests.map((request) => (
-            <Card key={request.id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
+            <Card key={request.id} className="p-5 md:p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-l-4 border-transparent hover:border-l-blue-500 bg-gradient-to-br from-white to-gray-50">
+              <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
+                <div className="flex-1 w-full">
                   {/* Header Row */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-xl font-bold text-gray-900">{request.projectName}</h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(request.status)}`}>
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4">
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900 break-words">{request.projectName}</h3>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${getStatusColor(request.status)}`}>
                       {request.status.toUpperCase()}
                     </span>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPriorityColor(request.priority)}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${getPriorityColor(request.priority)}`}>
                       {request.priority.toUpperCase()}
                     </span>
-                    <span className="text-sm text-gray-500">#{request.requestNumber}</span>
+                    <span className="text-xs md:text-sm text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">#{request.requestNumber}</span>
                   </div>
 
                   {/* Client Info */}
-                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Client:</span>
-                      <span className="font-semibold ml-2">{request.clientName}</span>
-                      {request.clientCompany && (
-                        <span className="text-gray-500"> ({request.clientCompany})</span>
-                      )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4 text-sm">
+                    <div className="flex items-start">
+                      <span className="text-gray-600 font-medium min-w-[60px]">👤 Client:</span>
+                      <div className="flex-1">
+                        <span className="font-semibold">{request.clientName}</span>
+                        {request.clientCompany && (
+                          <span className="text-gray-500 block md:inline"> ({request.clientCompany})</span>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-gray-600">Contact:</span>
-                      <span className="ml-2">{request.clientEmail}</span>
-                      {request.clientPhone && <span className="text-gray-500"> • {request.clientPhone}</span>}
+                    <div className="flex items-start">
+                      <span className="text-gray-600 font-medium min-w-[70px]">📧 Contact:</span>
+                      <div className="flex-1 break-all">
+                        <span>{request.clientEmail}</span>
+                        {request.clientPhone && <span className="text-gray-500"> • {request.clientPhone}</span>}
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-gray-600">Type:</span>
-                      <span className="ml-2 font-medium">{request.projectType}</span>
+                    <div className="flex items-start">
+                      <span className="text-gray-600 font-medium min-w-[60px]">📋 Type:</span>
+                      <span className="font-medium bg-blue-50 px-2 py-1 rounded text-blue-700">{request.projectType}</span>
                     </div>
-                    <div>
-                      <span className="text-gray-600">Submitted:</span>
-                      <span className="ml-2">{new Date(request.createdAt).toLocaleDateString()}</span>
+                    <div className="flex items-start">
+                      <span className="text-gray-600 font-medium min-w-[80px]">📅 Submitted:</span>
+                      <span>{new Date(request.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
 
                   {/* Description */}
-                  <div className="mb-4">
-                    <p className="text-gray-700">{request.description}</p>
+                  <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-700 text-sm md:text-base leading-relaxed">{request.description}</p>
                   </div>
 
                   {/* Additional Details */}
                   {(request.budget || request.deadline) && (
-                    <div className="flex gap-6 text-sm mb-4">
+                    <div className="flex flex-wrap gap-4 md:gap-6 text-sm mb-4">
                       {request.budget && (
-                        <div>
-                          <span className="text-gray-600">Budget:</span>
-                          <span className="ml-2 font-semibold text-green-600">
+                        <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                          <span className="text-gray-600 font-medium">💰 Budget:</span>
+                          <span className="font-bold text-green-600">
                             ${request.budget.toLocaleString()}
                           </span>
                         </div>
                       )}
                       {request.deadline && (
-                        <div>
-                          <span className="text-gray-600">Deadline:</span>
-                          <span className="ml-2">{new Date(request.deadline).toLocaleDateString()}</span>
+                        <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-lg border border-yellow-200">
+                          <span className="text-gray-600 font-medium">⏰ Deadline:</span>
+                          <span className="font-semibold text-yellow-700">{new Date(request.deadline).toLocaleDateString()}</span>
                         </div>
                       )}
                     </div>
@@ -373,32 +394,41 @@ export default function ProjectRequestsPage() {
 
                   {/* Rejection Reason */}
                   {request.status === 'rejected' && request.rejectionReason && (
-                    <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-r mt-4">
-                      <p className="text-sm font-semibold text-red-800">Rejection Reason:</p>
-                      <p className="text-sm text-red-700 mt-1">{request.rejectionReason}</p>
+                    <div className="bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 p-4 rounded-r-lg mt-4 shadow-sm">
+                      <p className="text-sm font-bold text-red-800 flex items-center gap-2">
+                        <span>❌</span>
+                        <span>Rejection Reason:</span>
+                      </p>
+                      <p className="text-sm text-red-700 mt-2 leading-relaxed">{request.rejectionReason}</p>
                     </div>
                   )}
 
                   {/* Review Notes */}
                   {request.reviewNotes && (
-                    <div className="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r mt-4">
-                      <p className="text-sm font-semibold text-blue-800">Admin Notes:</p>
-                      <p className="text-sm text-blue-700 mt-1">{request.reviewNotes}</p>
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 p-4 rounded-r-lg mt-4 shadow-sm">
+                      <p className="text-sm font-bold text-blue-800 flex items-center gap-2">
+                        <span>📝</span>
+                        <span>Admin Notes:</span>
+                      </p>
+                      <p className="text-sm text-blue-700 mt-2 leading-relaxed">{request.reviewNotes}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Actions */}
                 {request.status === 'pending' && (
-                  <div className="flex gap-2 ml-4">
+                  <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-auto">
                     <Button
                       onClick={() => {
                         setSelectedRequest(request)
                         setShowApproveModal(true)
                       }}
-                      className="bg-green-600 hover:bg-green-700"
+                      className="flex-1 lg:flex-none bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                     >
-                      ✅ Approve
+                      <span className="flex items-center justify-center gap-2">
+                        <span>✅</span>
+                        <span>Approve</span>
+                      </span>
                     </Button>
                     <Button
                       onClick={() => {
@@ -406,9 +436,12 @@ export default function ProjectRequestsPage() {
                         setShowRejectModal(true)
                       }}
                       variant="outline"
-                      className="border-red-500 text-red-600 hover:bg-red-50"
+                      className="flex-1 lg:flex-none border-2 border-red-500 text-red-600 hover:bg-red-50 hover:border-red-600 font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
                     >
-                      ❌ Decline
+                      <span className="flex items-center justify-center gap-2">
+                        <span>❌</span>
+                        <span>Decline</span>
+                      </span>
                     </Button>
                   </div>
                 )}
@@ -420,58 +453,99 @@ export default function ProjectRequestsPage() {
 
       {/* Approve Modal */}
       {showApproveModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Approve Project Request
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-green-200">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-600 via-green-500 to-emerald-600 p-6 text-white relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent animate-pulse"></div>
+              <h2 className="text-2xl md:text-3xl font-bold relative z-10 flex items-center gap-3">
+                <span className="text-3xl">✅</span>
+                <span>Approve Project Request</span>
               </h2>
+              <p className="text-green-100 text-sm mt-2 relative z-10">Activate client portal access</p>
+            </div>
 
-              <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r mb-6">
-                <p className="text-sm font-semibold text-green-800">What happens next:</p>
-                <ul className="text-sm text-green-700 mt-2 space-y-1">
-                  <li>✅ Client account will be created with portal access</li>
-                  <li>✅ Project will be set up in the system</li>
-                  <li>✅ Welcome email with login credentials will be sent to: <strong>{selectedRequest.clientEmail}</strong></li>
-                  <li>✅ Client will have 30 days to verify their account</li>
+            <div className="p-6">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 p-5 rounded-xl mb-6 shadow-sm">
+                <p className="text-sm font-bold text-green-800 flex items-center gap-2 mb-3">
+                  <span>🎯</span>
+                  <span>What happens next:</span>
+                </p>
+                <ul className="text-sm text-green-700 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5">✅</span>
+                    <span>Client account will be created with portal access</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5">✅</span>
+                    <span>Project will be set up in the system</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5">✅</span>
+                    <span>Welcome email with login credentials will be sent to: <strong className="bg-white px-2 py-0.5 rounded">{selectedRequest.clientEmail}</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-0.5">✅</span>
+                    <span>Client will have 30 days to verify their account</span>
+                  </li>
                 </ul>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Project: <strong>{selectedRequest.projectName}</strong>
-                </label>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Client: <strong>{selectedRequest.clientName}</strong>
-                </label>
+              <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    📋 PROJECT
+                  </label>
+                  <p className="font-bold text-gray-900">{selectedRequest.projectName}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    👤 CLIENT
+                  </label>
+                  <p className="font-bold text-gray-900">{selectedRequest.clientName}</p>
+                </div>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Admin Notes (Optional)
+                <label className="flex text-sm font-bold text-gray-700 mb-3 items-center gap-2">
+                  <span>📝</span>
+                  <span>Admin Notes (Optional)</span>
                 </label>
                 <textarea
                   value={approveNotes}
                   onChange={(e) => setApproveNotes(e.target.value)}
                   placeholder="Add any notes about this approval..."
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 resize-none"
                 />
               </div>
 
               {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r mb-4">
-                  <p className="text-red-800">{error}</p>
+                <div className="bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-300 p-4 rounded-xl mb-4 shadow-sm animate-fade-in">
+                  <p className="text-red-800 font-semibold flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{error}</span>
+                  </p>
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   onClick={handleApprove}
                   disabled={processing}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {processing ? 'Processing...' : '✅ Approve & Send Welcome Email'}
+                  {processing ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="animate-spin">⏳</span>
+                      <span>Processing...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <span>✅</span>
+                      <span>Approve & Send Welcome Email</span>
+                    </span>
+                  )}
                 </Button>
                 <Button
                   onClick={() => {
@@ -481,6 +555,7 @@ export default function ProjectRequestsPage() {
                   }}
                   variant="outline"
                   disabled={processing}
+                  className="border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold py-3 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </Button>
@@ -492,36 +567,46 @@ export default function ProjectRequestsPage() {
 
       {/* Reject Modal */}
       {showRejectModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Decline Project Request
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-red-200">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-600 via-red-500 to-rose-600 p-6 text-white relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent animate-pulse"></div>
+              <h2 className="text-2xl md:text-3xl font-bold relative z-10 flex items-center gap-3">
+                <span className="text-3xl">❌</span>
+                <span>Decline Project Request</span>
               </h2>
+              <p className="text-red-100 text-sm mt-2 relative z-10">Send polite rejection with reason</p>
+            </div>
 
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r mb-6">
-                <p className="text-sm text-red-700">
-                  A polite rejection email will be sent to <strong>{selectedRequest.clientEmail}</strong> with the reason you provide.
+            <div className="p-6">
+              <div className="bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-200 p-5 rounded-xl mb-6 shadow-sm">
+                <p className="text-sm text-red-700 flex items-start gap-2">
+                  <span className="mt-0.5">📧</span>
+                  <span>
+                    A polite rejection email will be sent to <strong className="bg-white px-2 py-0.5 rounded">{selectedRequest.clientEmail}</strong> with the reason you provide.
+                  </span>
                 </p>
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Rejection Reason * (will be sent to client)
+                <label className="flex text-sm font-bold text-gray-700 mb-3 items-center gap-2">
+                  <span>💬</span>
+                  <span>Rejection Reason * (will be sent to client)</span>
                 </label>
                 <select
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent mb-4"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-300 mb-4 font-medium"
                   required
                 >
                   <option value="">Select a reason...</option>
-                  <option value="The project scope is outside our current service offerings.">Outside our service offerings</option>
-                  <option value="We are currently at full capacity and cannot take on new projects at this time.">At full capacity</option>
-                  <option value="The project timeline doesn't align with our current availability.">Timeline doesn't align</option>
-                  <option value="The budget range is not sufficient for the project requirements.">Budget constraints</option>
-                  <option value="We don't have expertise in the specific technology or industry required.">Lack of expertise in required area</option>
-                  <option value="The project requirements need more clarification before we can proceed.">Requirements need clarification</option>
+                  <option value="The project scope is outside our current service offerings.">🚫 Outside our service offerings</option>
+                  <option value="We are currently at full capacity and cannot take on new projects at this time.">📊 At full capacity</option>
+                  <option value="The project timeline doesn't align with our current availability.">⏰ Timeline doesn't align</option>
+                  <option value="The budget range is not sufficient for the project requirements.">💰 Budget constraints</option>
+                  <option value="We don't have expertise in the specific technology or industry required.">🔧 Lack of expertise in required area</option>
+                  <option value="The project requirements need more clarification before we can proceed.">❓ Requirements need clarification</option>
                 </select>
 
                 <textarea
@@ -529,37 +614,51 @@ export default function ProjectRequestsPage() {
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="Or enter a custom reason..."
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-300 resize-none"
                   required
                 />
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Internal Notes (Optional - not sent to client)
+                <label className="flex text-sm font-bold text-gray-700 mb-3 items-center gap-2">
+                  <span>📝</span>
+                  <span>Internal Notes (Optional - not sent to client)</span>
                 </label>
                 <textarea
                   value={rejectNotes}
                   onChange={(e) => setRejectNotes(e.target.value)}
                   placeholder="Add internal notes about this rejection..."
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-all duration-300 resize-none bg-gray-50"
                 />
               </div>
 
               {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r mb-4">
-                  <p className="text-red-800">{error}</p>
+                <div className="bg-gradient-to-r from-red-50 to-red-100 border-2 border-red-300 p-4 rounded-xl mb-4 shadow-sm animate-fade-in">
+                  <p className="text-red-800 font-semibold flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{error}</span>
+                  </p>
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   onClick={handleReject}
                   disabled={processing || !rejectReason}
-                  className="flex-1 bg-red-600 hover:bg-red-700"
+                  className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {processing ? 'Processing...' : 'Send Rejection Email'}
+                  {processing ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="animate-spin">⏳</span>
+                      <span>Processing...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <span>📧</span>
+                      <span>Send Rejection Email</span>
+                    </span>
+                  )}
                 </Button>
                 <Button
                   onClick={() => {
@@ -570,6 +669,7 @@ export default function ProjectRequestsPage() {
                   }}
                   variant="outline"
                   disabled={processing}
+                  className="border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold py-3 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </Button>

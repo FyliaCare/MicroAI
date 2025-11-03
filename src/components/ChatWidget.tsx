@@ -340,77 +340,110 @@ export default function ChatWidget() {
     return (
       <button
         onClick={openChat}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform z-50 group"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 group"
         aria-label="Open chat"
       >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          />
-        </svg>
-        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          💬
-        </span>
+        <div className="relative">
+          {/* Animated ring */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full animate-pulse" />
+          
+          {/* Main button */}
+          <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white p-4 rounded-full shadow-2xl hover:scale-110 transform transition-all duration-300 hover:rotate-12">
+            <svg
+              className="w-7 h-7"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+              />
+            </svg>
+            
+            {/* Notification badge */}
+            {unreadCount > 0 && (
+              <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center animate-bounce shadow-lg">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </div>
+            )}
+            
+            {/* Tooltip */}
+            <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Chat with us! 💬
+              <div className="absolute top-full right-4 w-2 h-2 bg-gray-900 transform rotate-45 -mt-1" />
+            </div>
+          </div>
+        </div>
       </button>
     )
   }
 
   return (
     <div
-      className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-white rounded-2xl shadow-2xl z-50 flex flex-col transition-all duration-300 ${
-        isMinimized ? 'w-80 h-16' : 'w-[calc(100vw-2rem)] sm:w-96 h-[calc(100vh-2rem)] sm:h-[600px] max-h-[600px]'
+      className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-white rounded-3xl shadow-2xl z-50 flex flex-col transition-all duration-300 border border-gray-200 ${
+        isMinimized ? 'w-80 h-16' : 'w-[calc(100vw-2rem)] sm:w-[420px] h-[calc(100vh-2rem)] sm:h-[650px] max-h-[700px]'
       }`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-            {session?.assignedTo?.avatar ? (
-              <img
-                src={session.assignedTo.avatar}
-                alt={session.assignedTo.name}
-                className="w-full h-full rounded-full"
-              />
-            ) : (
-              <span className="text-lg">💬</span>
-            )}
+      <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white p-5 rounded-t-3xl flex items-center justify-between relative overflow-hidden">
+        {/* Animated background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full -translate-x-20 -translate-y-20" />
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-white rounded-full translate-x-16 translate-y-16" />
+        </div>
+        
+        <div className="flex items-center space-x-3 relative z-10">
+          <div className="relative">
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center ring-2 ring-white/30">
+              {session?.assignedTo?.avatar ? (
+                <img
+                  src={session.assignedTo.avatar}
+                  alt={session.assignedTo.name}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <span className="text-2xl">🤖</span>
+              )}
+            </div>
+            {/* Online indicator */}
+            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white animate-pulse" />
           </div>
           <div>
-            <h3 className="font-semibold">
-              {session?.assignedTo?.name || 'MicroAI Support'}
+            <h3 className="font-bold text-lg">
+              {session?.assignedTo?.name || 'MicroAI Assistant'}
             </h3>
-            <p className="text-xs opacity-75">
-              {showTypingIndicator ? 'Typing...' : 'Online'}
-            </p>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <p className="text-xs font-medium opacity-90">
+                {showTypingIndicator ? 'Typing...' : 'Online • Reply in minutes'}
+              </p>
+            </div>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
+        
+        <div className="flex items-center space-x-1 relative z-10">
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="hover:bg-white/20 p-2 rounded-lg transition-colors"
+            className="hover:bg-white/20 p-2.5 rounded-xl transition-all hover:scale-110"
             aria-label="Minimize chat"
           >
             <Minimize2 className="w-4 h-4" />
           </button>
           <button
             onClick={() => setIsOpen(false)}
-            className="hover:bg-white/20 p-2 rounded-lg transition-colors"
+            className="hover:bg-white/20 p-2.5 rounded-xl transition-all hover:scale-110 hover:rotate-90"
             aria-label="Close chat"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
+        
         {unreadCount > 0 && isMinimized && (
-          <div className="absolute -top-2 -left-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-            {unreadCount}
+          <div className="absolute -top-2 -left-2 bg-red-500 text-white text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center shadow-lg animate-bounce">
+            {unreadCount > 9 ? '9+' : unreadCount}
           </div>
         )}
       </div>
@@ -421,63 +454,104 @@ export default function ChatWidget() {
           <div
             ref={messagesContainerRef}
             onScroll={handleScroll}
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
+            className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-gray-50 to-white"
           >
-            {messages.map((msg) => (
+            {messages.length === 0 && (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">👋</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Welcome to MicroAI Support!</h3>
+                <p className="text-sm text-gray-600">We typically reply within minutes</p>
+              </div>
+            )}
+            
+            {messages.map((msg, index) => (
               <div
                 key={msg.id}
                 className={`flex ${
                   msg.senderType === 'visitor' ? 'justify-end' : 'justify-start'
-                }`}
+                } animate-fade-in`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                  className={`max-w-[85%] sm:max-w-[75%] ${
                     msg.senderType === 'visitor'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                      : msg.messageType === 'system'
-                      ? 'bg-gray-200 text-gray-600 text-sm italic'
-                      : 'bg-white text-gray-800 shadow-sm'
+                      ? 'order-2'
+                      : 'order-1'
                   }`}
                 >
-                  {msg.messageType === 'image' && msg.fileUrl && (
-                    <img
-                      src={msg.fileUrl}
-                      alt={msg.fileName}
-                      className="rounded-lg mb-2 max-w-full"
-                    />
+                  {/* Show avatar for bot messages */}
+                  {msg.senderType !== 'visitor' && msg.messageType !== 'system' && (
+                    <div className="flex items-center space-x-2 mb-1 ml-1">
+                      <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs">
+                        🤖
+                      </div>
+                      <span className="text-xs font-medium text-gray-700">
+                        {msg.senderName}
+                      </span>
+                    </div>
                   )}
-                  {msg.messageType === 'file' && msg.fileUrl && (
-                    <a
-                      href={msg.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 mb-1"
-                    >
-                      <Paperclip className="w-4 h-4" />
-                      <span className="text-sm">{msg.fileName}</span>
-                    </a>
-                  )}
-                  <p className="break-words">{msg.message}</p>
-                  <p
-                    className={`text-xs mt-1 ${
+                  
+                  <div
+                    className={`rounded-2xl px-5 py-3 ${
                       msg.senderType === 'visitor'
-                        ? 'text-white/70'
-                        : 'text-gray-400'
+                        ? 'bg-gradient-to-br from-blue-600 via-blue-600 to-purple-600 text-white shadow-lg shadow-blue-200'
+                        : msg.messageType === 'system'
+                        ? 'bg-gray-100 text-gray-600 text-sm italic border border-gray-200'
+                        : 'bg-white text-gray-800 shadow-md border border-gray-100'
                     }`}
                   >
-                    {new Date(msg.createdAt).toLocaleTimeString()}
-                  </p>
+                    {msg.messageType === 'image' && msg.fileUrl && (
+                      <img
+                        src={msg.fileUrl}
+                        alt={msg.fileName}
+                        className="rounded-xl mb-2 max-w-full hover:scale-105 transition-transform cursor-pointer"
+                      />
+                    )}
+                    {msg.messageType === 'file' && msg.fileUrl && (
+                      <a
+                        href={msg.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 mb-1 hover:underline"
+                      >
+                        <Paperclip className="w-4 h-4" />
+                        <span className="text-sm font-medium">{msg.fileName}</span>
+                      </a>
+                    )}
+                    <p className="break-words leading-relaxed">{msg.message}</p>
+                    <p
+                      className={`text-xs mt-2 flex items-center space-x-1 ${
+                        msg.senderType === 'visitor'
+                          ? 'text-white/80'
+                          : 'text-gray-500'
+                      }`}
+                    >
+                      <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      {msg.senderType === 'visitor' && (
+                        <span className="ml-1">✓✓</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
 
             {showTypingIndicator && (
-              <div className="flex justify-start">
-                <div className="bg-white rounded-2xl px-4 py-3 shadow-sm">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100" />
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200" />
+              <div className="flex justify-start animate-fade-in">
+                <div>
+                  <div className="flex items-center space-x-2 mb-1 ml-1">
+                    <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs">
+                      🤖
+                    </div>
+                    <span className="text-xs font-medium text-gray-700">Assistant</span>
+                  </div>
+                  <div className="bg-white rounded-2xl px-5 py-4 shadow-md border border-gray-100">
+                    <div className="flex space-x-1.5">
+                      <div className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2.5 h-2.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -490,7 +564,7 @@ export default function ChatWidget() {
           {showScrollButton && (
             <button
               onClick={scrollToBottom}
-              className="absolute bottom-24 right-8 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+              className="absolute bottom-28 right-6 bg-gradient-to-br from-blue-600 to-purple-600 text-white p-3 rounded-full shadow-xl hover:scale-110 transition-all duration-300 animate-bounce"
               aria-label="Scroll to bottom"
             >
               <ArrowDown className="w-4 h-4" />
@@ -498,7 +572,40 @@ export default function ChatWidget() {
           )}
 
           {/* Input */}
-          <div className="p-4 bg-white border-t">
+          <div className="p-4 bg-white border-t border-gray-100 rounded-b-3xl">
+            {/* Quick replies - optional */}
+            {messages.length === 0 && (
+              <div className="flex gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
+                <button
+                  onClick={() => {
+                    setInputMessage('I need a quote for my project')
+                    setTimeout(() => sendMessage(), 100)
+                  }}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700 whitespace-nowrap transition-colors"
+                >
+                  💰 Get a quote
+                </button>
+                <button
+                  onClick={() => {
+                    setInputMessage('Tell me about your services')
+                    setTimeout(() => sendMessage(), 100)
+                  }}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700 whitespace-nowrap transition-colors"
+                >
+                  🚀 Our services
+                </button>
+                <button
+                  onClick={() => {
+                    setInputMessage('How long does a project take?')
+                    setTimeout(() => sendMessage(), 100)
+                  }}
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium text-gray-700 whitespace-nowrap transition-colors"
+                >
+                  ⏱️ Timeline
+                </button>
+              </div>
+            )}
+            
             <div className="flex items-center space-x-2">
               <input
                 type="file"
@@ -510,31 +617,45 @@ export default function ChatWidget() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="text-gray-400 hover:text-blue-600 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+                className="text-gray-400 hover:text-blue-600 transition-all p-2.5 hover:bg-blue-50 rounded-xl disabled:opacity-50"
                 aria-label="Attach file"
               >
                 <Paperclip className="w-5 h-5" />
               </button>
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => {
-                  setInputMessage(e.target.value)
-                  handleTyping()
-                }}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                placeholder="Type your message..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white text-gray-900"
-                disabled={uploading}
-              />
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => {
+                    setInputMessage(e.target.value)
+                    handleTyping()
+                  }}
+                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                  placeholder="Type your message..."
+                  className="w-full px-5 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 text-gray-900 transition-all placeholder:text-gray-400"
+                  disabled={uploading}
+                />
+                {uploading && (
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
               <button
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || uploading}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gradient-to-br from-blue-600 via-blue-600 to-purple-600 text-white p-3 rounded-2xl hover:scale-105 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 relative group"
                 aria-label="Send message"
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-5 h-5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </button>
+            </div>
+            
+            {/* Powered by */}
+            <div className="text-center mt-3">
+              <p className="text-xs text-gray-400">
+                Powered by <span className="font-semibold text-gray-600">MicroAI</span>
+              </p>
             </div>
           </div>
         </>
