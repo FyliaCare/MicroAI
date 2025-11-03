@@ -5,6 +5,7 @@ import { ClientProviders } from '@/components/ClientProviders'
 import { WebVitals } from '@/components/WebVitals'
 import ChatWidget from '@/components/ChatWidget'
 import MobileBottomNav from '@/components/layout/MobileBottomNav'
+import VisitorTracker from '@/components/VisitorTracker'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -172,6 +173,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <WebVitals />
+        <VisitorTracker />
         <ClientProviders>
           {children}
           <ChatWidget />
