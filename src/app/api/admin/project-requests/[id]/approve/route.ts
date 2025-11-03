@@ -64,21 +64,46 @@ export async function POST(
 
     // Start transaction to create everything atomically
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Create User account
-      const user = await tx.user.create({
-        data: {
-          email: projectRequest.clientEmail,
-          password: hashedPassword,
-          name: projectRequest.clientName,
-          role: 'client',
-          isActive: true,
-          isVerified: false,
-          mustChangePassword: true,
-          accessExpiresAt,
-          verificationToken,
-          verificationExpiry,
-        },
+      // 1. Create or update User account
+      let user = await tx.user.findUnique({
+        where: { email: projectRequest.clientEmail }
       })
+      
+      if (user) {
+        // Update existing user with new credentials
+        user = await tx.user.update({
+          where: { email: projectRequest.clientEmail },
+          data: {
+            password: hashedPassword,
+            name: projectRequest.clientName,
+            role: 'client',
+            isActive: true,
+            isVerified: false,
+            mustChangePassword: true,
+            accessExpiresAt,
+            verificationToken,
+            verificationExpiry,
+          },
+        })
+        console.log('✅ Updated existing user:', user.email)
+      } else {
+        // Create new user
+        user = await tx.user.create({
+          data: {
+            email: projectRequest.clientEmail,
+            password: hashedPassword,
+            name: projectRequest.clientName,
+            role: 'client',
+            isActive: true,
+            isVerified: false,
+            mustChangePassword: true,
+            accessExpiresAt,
+            verificationToken,
+            verificationExpiry,
+          },
+        })
+        console.log('✅ Created new user:', user.email)
+      }
 
       // 2. Create or update Client record
       let client = await tx.client.findUnique({
