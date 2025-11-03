@@ -523,10 +523,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </li>
               <li>
                 <Link
-                  href="/admin/visitor-analytics"
+                  href="/admin/visitors"
                   onClick={() => setSidebarOpen(false)}
                   className={`w-full text-left px-4 py-3 rounded-md min-h-[44px] touch-manipulation flex items-center gap-2 ${
-                    isActive('/admin/visitor-analytics') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50'
+                    isActive('/admin/visitors') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50'
                   }`}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
