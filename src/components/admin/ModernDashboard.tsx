@@ -192,7 +192,7 @@ export default function ModernDashboard() {
             <h3 className="text-lg font-semibold mb-2">🚀 Quick Create</h3>
             <p className="text-sm text-blue-100 mb-4">Start a new project or quote</p>
             <div className="flex gap-2">
-              <Link href="/admin/projects/new" className="flex-1 bg-white/20 backdrop-blur-sm rounded-xl py-2 px-3 text-sm font-medium text-center hover:bg-white/30 transition-colors">
+              <Link href="/admin/projects?action=new" className="flex-1 bg-white/20 backdrop-blur-sm rounded-xl py-2 px-3 text-sm font-medium text-center hover:bg-white/30 transition-colors">
                 New Project
               </Link>
               <Link href="/admin/quotes/new" className="flex-1 bg-white/20 backdrop-blur-sm rounded-xl py-2 px-3 text-sm font-medium text-center hover:bg-white/30 transition-colors">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Modal from '@/components/ui/Modal'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -42,6 +43,7 @@ interface Client {
 }
 
 export default function AdvancedProjectsManager() {
+  const searchParams = useSearchParams()
   const [projects, setProjects] = useState<Project[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
@@ -81,6 +83,13 @@ export default function AdvancedProjectsManager() {
     fetchProjects()
     fetchClients()
   }, [filterStatus, filterType, filterPriority])
+
+  // Auto-open modal if action=new query parameter is present
+  useEffect(() => {
+    if (searchParams.get('action') === 'new') {
+      setShowModal(true)
+    }
+  }, [searchParams])
 
   const fetchProjects = async () => {
     try {
