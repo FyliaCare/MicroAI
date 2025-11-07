@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { verify } from 'jsonwebtoken'
+import * as jwt from 'jsonwebtoken'
 
 export async function GET(
   request: NextRequest,
@@ -19,7 +19,7 @@ export async function GET(
       if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7)
         try {
-          const decoded = verify(token, process.env.JWT_SECRET || 'your-secret-key') as any
+          const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any
           if (decoded.clientId) {
             clientId = decoded.clientId
           }
