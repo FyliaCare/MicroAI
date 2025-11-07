@@ -77,6 +77,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Allow login even if not verified, but flag it
+    const needsVerification = !user.isVerified
+
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password)
 
@@ -97,11 +100,17 @@ export async function POST(request: NextRequest) {
         data: updateData,
       })
 
+      // More helpful error message for first-time users
+      const errorMessage = user.isVerified 
+        ? 'Invalid email or password'
+        : 'Invalid email or password. If this is your first time logging in, please verify your email first using the link sent to your inbox.'
+
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Invalid email or password',
-          attemptsLeft: Math.max(0, 5 - loginAttempts)
+          error: errorMessage,
+          attemptsLeft: Math.max(0, 5 - loginAttempts),
+          needsVerification: !user.isVerified
         },
         { status: 401 }
       )
@@ -172,6 +181,7 @@ export async function POST(request: NextRequest) {
         token: sessionToken,
         expiresAt,
       },
+      warning: needsVerification ? 'Please verify your email to access all features' : undefined
     })
   } catch (error) {
     console.error('Login error:', error)

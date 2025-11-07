@@ -57,11 +57,24 @@ function LoginForm() {
           user: data.user,
         }))
 
-        // Redirect based on mustChangePassword
-        if (data.user.mustChangePassword) {
-          router.push('/client/change-password')
+        // Show verification warning if needed
+        if (data.warning) {
+          setSuccessMessage(data.warning)
+          setTimeout(() => {
+            // Redirect based on mustChangePassword
+            if (data.user.mustChangePassword) {
+              router.push('/client/change-password')
+            } else {
+              router.push('/client/dashboard')
+            }
+          }, 2000)
         } else {
-          router.push('/client/dashboard')
+          // Redirect immediately
+          if (data.user.mustChangePassword) {
+            router.push('/client/change-password')
+          } else {
+            router.push('/client/dashboard')
+          }
         }
       }
     } catch (err) {
