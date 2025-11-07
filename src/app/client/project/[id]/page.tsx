@@ -448,7 +448,7 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Sidebar - Sticky with independent scroll */}
-          <div className="space-y-6 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+          <div className="space-y-6 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto custom-scrollbar">
             {/* Project Details Card */}
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
               <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">

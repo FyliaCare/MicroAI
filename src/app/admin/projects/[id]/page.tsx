@@ -457,7 +457,7 @@ export default function AdminProjectDetailPage() {
           </div>
 
           {/* Sidebar - Sticky with independent scroll */}
-          <div className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto space-y-6">
+          <div className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto custom-scrollbar space-y-6">
             {/* Project Details */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg p-6 border border-blue-200">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Project Details</h3>
