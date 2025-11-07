@@ -4,6 +4,28 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
+import FileUploadSection from '@/components/admin/FileUploadSection'
+import CommentSection from '@/components/admin/CommentSection'
+
+interface ProjectFile {
+  id: string
+  filename: string
+  fileUrl: string
+  fileSize: number
+  fileType: string
+  description?: string
+  uploadedAt: Date
+  uploadedBy: string
+}
+
+interface Comment {
+  id: string
+  content: string
+  authorName: string
+  authorRole: 'ADMIN' | 'CLIENT'
+  createdAt: Date
+  replies?: Comment[]
+}
 
 interface Project {
   id: string
@@ -31,16 +53,23 @@ interface Project {
   updatedAt: string
 }
 
+type TabType = 'overview' | 'files' | 'comments'
+
 export default function AdminProjectDetailPage() {
   const params = useParams()
   const router = useRouter()
   const [project, setProject] = useState<Project | null>(null)
+  const [files, setFiles] = useState<ProjectFile[]>([])
+  const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [activeTab, setActiveTab] = useState<TabType>('overview')
 
   useEffect(() => {
     if (params.id) {
       fetchProject()
+      fetchFiles()
+      fetchComments()
     }
   }, [params.id])
 
@@ -67,6 +96,30 @@ export default function AdminProjectDetailPage() {
     }
   }
 
+  const fetchFiles = async () => {
+    try {
+      const response = await fetch(`/api/admin/projects/${params.id}/uploads`)
+      if (response.ok) {
+        const data = await response.json()
+        setFiles(data.files || [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch files:', err)
+    }
+  }
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`/api/admin/projects/${params.id}/comments`)
+      if (response.ok) {
+        const data = await response.json()
+        setComments(data.comments || [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch comments:', err)
+    }
+  }
+
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       planning: 'bg-blue-100 text-blue-800',
@@ -90,10 +143,10 @@ export default function AdminProjectDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8 flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading project...</p>
         </div>
       </div>
     )
@@ -101,7 +154,7 @@ export default function AdminProjectDetailPage() {
 
   if (error || !project) {
     return (
-      <div className="p-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8">
         <Card className="p-8 text-center">
           <div className="text-red-600 mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,205 +172,383 @@ export default function AdminProjectDetailPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <button
-            onClick={() => router.push('/admin/projects')}
-            className="text-gray-600 hover:text-gray-900 mb-2 flex items-center"
-          >
-            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Projects
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">{project.name}</h1>
-          <p className="text-gray-600 mt-1">{project.description}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={() => router.push(`/admin/projects/${project.id}/edit`)}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Edit Project
-          </Button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => router.push('/admin/projects')}
+          className="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="font-medium">Back to Projects</span>
+        </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Project Details */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Project Details</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Status</label>
-                <div className="mt-1">
-                  <span className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(project.status)}`}>
+        {/* Header Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 border border-slate-200">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+            <div className="flex items-start gap-4 flex-1">
+              {/* Project Icon */}
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+              </div>
+              
+              {/* Project Info */}
+              <div className="flex-1">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
+                <p className="text-gray-600 mb-4">{project.description}</p>
+                
+                {/* Status Badges */}
+                <div className="flex flex-wrap gap-2">
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(project.status)}`}>
                     {project.status}
                   </span>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Priority</label>
-                <div className="mt-1">
-                  <span className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold ${getPriorityColor(project.priority)}`}>
-                    {project.priority}
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getPriorityColor(project.priority)}`}>
+                    {project.priority} Priority
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-800">
+                    {project.type}
                   </span>
                 </div>
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Type</label>
-                <p className="mt-1 text-gray-900 font-medium">{project.type}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Progress</label>
-                <div className="mt-1">
-                  <div className="flex items-center">
-                    <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all"
-                        style={{ width: `${project.progress}%` }}
-                      />
+            </div>
+
+            {/* Edit Button */}
+            <Button
+              onClick={() => router.push(`/admin/projects/${project.id}/edit`)}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg transition-all"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Project
+            </Button>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold text-gray-700">Project Progress</span>
+              <span className="text-sm font-bold text-gray-900">{project.progress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div
+                className="h-3 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-500 animate-pulse"
+                style={{ width: `${project.progress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-2xl shadow-lg p-2 inline-flex mb-6 border border-slate-200">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 md:px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+              activeTab === 'overview'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Overview</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('files')}
+            className={`px-4 md:px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+              activeTab === 'files'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+            <span>Files</span>
+            {files.length > 0 && (
+              <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs font-bold">
+                {files.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('comments')}
+            className={`px-4 md:px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+              activeTab === 'comments'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span>Comments</span>
+            {comments.length > 0 && (
+              <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs font-bold">
+                {comments.length}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Overview Tab */}
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                {/* Project Description */}
+                <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                      </svg>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900">{project.progress}%</span>
+                    <h2 className="text-xl font-bold text-gray-900">Description</h2>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed">{project.description}</p>
+                </div>
+
+                {/* Requirements */}
+                {project.requirements && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h2 className="text-xl font-bold text-gray-900">Requirements</h2>
+                    </div>
+                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{project.requirements}</p>
+                  </div>
+                )}
+
+                {/* Tech Stack */}
+                {project.techStack && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                      </div>
+                      <h2 className="text-xl font-bold text-gray-900">Technology Stack</h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {project.techStack.split(',').map((tech, index) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-purple-700 rounded-lg text-sm font-semibold border border-purple-200"
+                        >
+                          {tech.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Project Timeline */}
+                <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900">Timeline</h2>
+                  </div>
+                  <div className="space-y-4">
+                    {/* Started */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">Project Started</h3>
+                        <p className="text-gray-600">
+                          {project.startDate ? new Date(project.startDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Not set'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* In Progress */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">Current Progress</h3>
+                        <p className="text-gray-600">{project.progress}% Complete</p>
+                      </div>
+                    </div>
+
+                    {/* Deadline */}
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">Target Deadline</h3>
+                        <p className="text-gray-600">
+                          {project.deadline ? new Date(project.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Not set'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Budget</label>
-                <p className="mt-1 text-gray-900 font-medium">
-                  {project.budget ? `$${project.budget.toLocaleString()}` : 'Not set'}
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Start Date</label>
-                <p className="mt-1 text-gray-900">{project.startDate ? new Date(project.startDate).toLocaleDateString() : 'Not set'}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Deadline</label>
-                <p className="mt-1 text-gray-900">{project.deadline ? new Date(project.deadline).toLocaleDateString() : 'Not set'}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Created</label>
-                <p className="mt-1 text-gray-900">
-                  {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : 'N/A'}
-                </p>
-              </div>
-            </div>
-          </Card>
+            )}
 
-          {/* Requirements */}
-          {project.requirements && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Requirements</h2>
-              <div className="prose max-w-none">
-                <p className="text-gray-700 whitespace-pre-wrap">{project.requirements}</p>
-              </div>
-            </Card>
-          )}
-
-          {/* Tech Stack */}
-          {project.techStack && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Technology Stack</h2>
-              <div className="flex flex-wrap gap-2">
-                {project.techStack.split(',').map((tech, index) => (
-                  <span 
-                    key={index}
-                    className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
-                  >
-                    {tech.trim()}
-                  </span>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          {/* Tags */}
-          {project.tags && (
-            <Card className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Tags</h2>
-              <div className="flex flex-wrap gap-2">
-                {project.tags.split(',').map((tag, index) => (
-                  <span 
-                    key={index}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
-                  >
-                    {tag.trim()}
-                  </span>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Client Information */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Client Information</h2>
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Name</label>
-                <p className="mt-1 text-gray-900 font-medium">{project.client.name}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Email</label>
-                <p className="mt-1 text-gray-900">{project.client.email}</p>
-              </div>
-              {project.client.phone && (
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Phone</label>
-                  <p className="mt-1 text-gray-900">{project.client.phone}</p>
+            {/* Files Tab */}
+            {activeTab === 'files' && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900">Project Files</h2>
                 </div>
-              )}
-              {project.client.company && (
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Company</label>
-                  <p className="mt-1 text-gray-900">{project.client.company}</p>
-                </div>
-              )}
-              <Button
-                onClick={() => {
-                  // Navigate to client profile using the userId from client
-                  if (project.client.userId) {
-                    router.push(`/admin/clients/${project.client.userId}/profile`)
-                  }
-                }}
-                className="w-full mt-4 bg-gray-600 hover:bg-gray-700"
-              >
-                View Client Profile
-              </Button>
-            </div>
-          </Card>
+                <FileUploadSection
+                  projectId={project.id}
+                  files={files}
+                  onUploadComplete={() => {
+                    fetchFiles()
+                  }}
+                />
+              </div>
+            )}
 
-          {/* Quick Actions */}
-          <Card className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-            <div className="space-y-2">
-              <Button
-                onClick={() => router.push(`/admin/projects/${project.id}/edit`)}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
-                Edit Project
-              </Button>
-              <Button
-                onClick={() => router.push(`/admin/projects/${project.id}/files`)}
-                className="w-full bg-purple-600 hover:bg-purple-700"
-              >
-                Manage Files
-              </Button>
-              <Button
-                onClick={() => router.push(`/admin/projects/${project.id}/milestones`)}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                View Milestones
-              </Button>
+            {/* Comments Tab */}
+            {activeTab === 'comments' && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900">Project Discussion</h2>
+                </div>
+                <CommentSection
+                  projectId={project.id}
+                  comments={comments}
+                  onCommentAdded={() => {
+                    fetchComments()
+                  }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Project Details */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg p-6 border border-blue-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Project Details</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Budget</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {project.budget ? `$${project.budget.toLocaleString()}` : 'Not set'}
+                  </p>
+                </div>
+                <div className="border-t border-blue-200 pt-4">
+                  <p className="text-sm font-medium text-gray-600 mb-1">Start Date</p>
+                  <p className="text-gray-900 font-semibold">
+                    {project.startDate ? new Date(project.startDate).toLocaleDateString() : 'Not set'}
+                  </p>
+                </div>
+                <div className="border-t border-blue-200 pt-4">
+                  <p className="text-sm font-medium text-gray-600 mb-1">Deadline</p>
+                  <p className="text-gray-900 font-semibold">
+                    {project.deadline ? new Date(project.deadline).toLocaleDateString() : 'Not set'}
+                  </p>
+                </div>
+              </div>
             </div>
-          </Card>
+
+            {/* Client Information */}
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-6 border border-purple-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Client</h3>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Name</p>
+                  <p className="text-gray-900 font-semibold">{project.client.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Email</p>
+                  <p className="text-gray-900">{project.client.email}</p>
+                </div>
+                {project.client.phone && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Phone</p>
+                    <p className="text-gray-900">{project.client.phone}</p>
+                  </div>
+                )}
+                {project.client.company && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Company</p>
+                    <p className="text-gray-900">{project.client.company}</p>
+                  </div>
+                )}
+                <Button
+                  onClick={() => {
+                    if (project.client.userId) {
+                      router.push(`/admin/clients/${project.client.userId}/profile`)
+                    }
+                  }}
+                  className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg"
+                >
+                  View Client Profile
+                </Button>
+              </div>
+            </div>
+
+            {/* Project Activity */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-lg p-6 border border-green-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Activity</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span className="font-medium text-gray-700">Files</span>
+                  </div>
+                  <span className="text-xl font-bold text-gray-900">{files.length}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </div>
+                    <span className="font-medium text-gray-700">Comments</span>
+                  </div>
+                  <span className="text-xl font-bold text-gray-900">{comments.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
