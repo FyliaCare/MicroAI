@@ -299,7 +299,7 @@ export default function AdminProjectDetailPage() {
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-h-0">
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
@@ -456,8 +456,8 @@ export default function AdminProjectDetailPage() {
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+          {/* Sidebar - Sticky with independent scroll */}
+          <div className="lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto space-y-6">
             {/* Project Details */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg p-6 border border-blue-200">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Project Details</h3>

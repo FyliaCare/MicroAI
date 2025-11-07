@@ -302,7 +302,7 @@ export default function ProjectDetailPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 min-h-0">
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <>
@@ -447,7 +447,8 @@ export default function ProjectDetailPage() {
             )}
           </div>
 
-          <div className="space-y-6">
+          {/* Sidebar - Sticky with independent scroll */}
+          <div className="space-y-6 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
             {/* Project Details Card */}
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
               <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
