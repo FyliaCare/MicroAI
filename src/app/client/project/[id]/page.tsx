@@ -140,6 +140,20 @@ export default function ProjectDetailPage() {
     })
   }
 
+  // Helper to normalize tech stack (handle both string and array)
+  const getTechStackArray = (techStack: any): string[] => {
+    if (!techStack) return []
+    if (Array.isArray(techStack)) return techStack.filter(t => t && t.trim())
+    if (typeof techStack === 'string') return techStack.split(',').map(t => t.trim()).filter(t => t)
+    return []
+  }
+
+  // Helper to format status safely
+  const formatStatus = (status: string | null | undefined): string => {
+    if (!status) return 'Unknown'
+    return status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')
+  }
+
   // Loading state
   if (loading) {
     return (
@@ -201,7 +215,7 @@ export default function ProjectDetailPage() {
                 
                 <div className="flex flex-wrap items-center gap-3">
                   <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${getStatusColor(currentProject.status)}`}>
-                    {currentProject.status ? currentProject.status.charAt(0).toUpperCase() + currentProject.status.slice(1).replace('-', ' ') : 'Unknown'}
+                    {formatStatus(currentProject.status)}
                   </span>
                   <span className="px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">
                     {currentProject.progress}% Complete
@@ -322,7 +336,7 @@ export default function ProjectDetailPage() {
                   </div>
                 </div>
 
-                {currentProject.techStack && currentProject.techStack.length > 0 && (
+                {currentProject.techStack && getTechStackArray(currentProject.techStack).length > 0 && (
                   <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
@@ -333,7 +347,7 @@ export default function ProjectDetailPage() {
                       <h2 className="text-xl font-bold text-slate-900">Technology Stack</h2>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {currentProject.techStack.map((tech, index) => (
+                      {getTechStackArray(currentProject.techStack).map((tech, index) => (
                         <span
                           key={index}
                           className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 text-blue-800 rounded-xl text-sm font-semibold shadow-sm hover:shadow-md transition-shadow"
