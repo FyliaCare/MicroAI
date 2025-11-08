@@ -149,11 +149,36 @@ export async function GET(request: NextRequest) {
       let features: any[] = []
 
       try {
-        techStack = project.techStack ? (typeof project.techStack === 'string' ? JSON.parse(project.techStack) : project.techStack) : []
-        requirements = project.requirements ? (typeof project.requirements === 'string' ? JSON.parse(project.requirements) : project.requirements) : {}
-        features = project.features ? (typeof project.features === 'string' ? JSON.parse(project.features) : project.features) : []
+        // Handle techStack - it's stored as comma-separated string, not JSON
+        if (project.techStack) {
+          if (typeof project.techStack === 'string') {
+            // If it starts with '[', it's JSON array, otherwise it's comma-separated
+            if (project.techStack.trim().startsWith('[')) {
+              techStack = JSON.parse(project.techStack)
+            } else {
+              // Split by comma and trim whitespace
+              techStack = project.techStack.split(',').map((t: string) => t.trim()).filter((t: string) => t)
+            }
+          } else if (Array.isArray(project.techStack)) {
+            techStack = project.techStack
+          }
+        }
+
+        // Handle requirements
+        if (project.requirements) {
+          requirements = typeof project.requirements === 'string' ? JSON.parse(project.requirements) : project.requirements
+        }
+
+        // Handle features
+        if (project.features) {
+          features = typeof project.features === 'string' ? JSON.parse(project.features) : project.features
+        }
       } catch (e) {
         console.error('Error parsing JSON fields:', e)
+        // Fallback to safe defaults
+        techStack = []
+        requirements = {}
+        features = []
       }
 
       // Calculate progress percentage
