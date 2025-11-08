@@ -49,19 +49,6 @@ export async function POST(
       )
     }
 
-    // Generate temporary password
-    const tempPassword = generateSecurePassword()
-    const hashedPassword = await bcrypt.hash(tempPassword, 10)
-
-    // Calculate account expiry (30 days from now)
-    const accessExpiresAt = new Date()
-    accessExpiresAt.setDate(accessExpiresAt.getDate() + 30)
-
-    // Generate verification token
-    const verificationToken = generateToken()
-    const verificationExpiry = new Date()
-    verificationExpiry.setHours(verificationExpiry.getHours() + 72) // 72 hour verification window
-
     // Start transaction to create everything atomically
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create or update User account
@@ -69,31 +56,40 @@ export async function POST(
         where: { email: projectRequest.clientEmail }
       })
       
+      let isNewUser = false
+      let tempPassword = ''
+      let verificationToken = ''
+      
       if (user) {
-        // Update existing user with new credentials
+        // EXISTING USER - Only update necessary fields, keep password and verification status
         user = await tx.user.update({
           where: { email: projectRequest.clientEmail },
           data: {
-            password: hashedPassword,
             name: projectRequest.clientName,
-            role: 'client',
-            isActive: true,
-            isVerified: false,
-            mustChangePassword: true,
-            accessExpiresAt,
-            verificationToken,
-            verificationExpiry,
+            role: 'CLIENT', // Ensure they have client role
+            isActive: true, // Make sure account is active
+            // DO NOT RESET: password, isVerified, mustChangePassword, verificationToken
           },
         })
-        console.log('✅ Updated existing user:', user.email)
+        console.log('✅ Updated existing user (kept credentials):', user.email)
       } else {
-        // Create new user
+        // NEW USER - Generate password and verification token
+        isNewUser = true
+        tempPassword = generateSecurePassword()
+        const hashedPassword = await bcrypt.hash(tempPassword, 10)
+        verificationToken = generateToken()
+        const verificationExpiry = new Date()
+        verificationExpiry.setHours(verificationExpiry.getHours() + 72)
+        
+        const accessExpiresAt = new Date()
+        accessExpiresAt.setDate(accessExpiresAt.getDate() + 30)
+        
         user = await tx.user.create({
           data: {
             email: projectRequest.clientEmail,
             password: hashedPassword,
             name: projectRequest.clientName,
-            role: 'client',
+            role: 'CLIENT',
             isActive: true,
             isVerified: false,
             mustChangePassword: true,
@@ -170,38 +166,65 @@ export async function POST(
         },
       })
 
-      // 5. Create welcome email in queue
+      // 5. Create email in queue - Different email for new vs existing users
       const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL}/client/login`
-      const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL}/client/verify?token=${verificationToken}`
-
-      await tx.emailQueue.create({
-        data: {
-          to: projectRequest.clientEmail,
-          subject: '🎉 Welcome to MicroAI Systems - Your Project Has Been Approved!',
-          htmlContent: generateWelcomeEmail({
-            clientName: projectRequest.clientName,
-            projectName: projectRequest.projectName,
-            email: projectRequest.clientEmail,
-            tempPassword,
-            loginUrl,
-            verifyUrl,
-            expiryDays: 30,
-          }),
-          templateType: 'welcome',
-          templateVars: JSON.stringify({
-            clientName: projectRequest.clientName,
-            projectName: projectRequest.projectName,
-            email: projectRequest.clientEmail,
-            tempPassword,
-            loginUrl,
-            verifyUrl,
-          }),
-          priority: 'high',
-          userId: user.id,
-          clientId: client.id,
-          projectId: project.id,
-        },
-      })
+      
+      if (isNewUser) {
+        // NEW USER - Send welcome email with credentials
+        const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL}/client/verify?token=${verificationToken}`
+        
+        await tx.emailQueue.create({
+          data: {
+            to: projectRequest.clientEmail,
+            subject: '🎉 Welcome to MicroAI Systems - Your Project Has Been Approved!',
+            htmlContent: generateWelcomeEmail({
+              clientName: projectRequest.clientName,
+              projectName: projectRequest.projectName,
+              email: projectRequest.clientEmail,
+              tempPassword,
+              loginUrl,
+              verifyUrl,
+              expiryDays: 30,
+            }),
+            templateType: 'welcome',
+            templateVars: JSON.stringify({
+              clientName: projectRequest.clientName,
+              projectName: projectRequest.projectName,
+              email: projectRequest.clientEmail,
+              tempPassword,
+              loginUrl,
+              verifyUrl,
+            }),
+            priority: 'high',
+            userId: user.id,
+            clientId: client.id,
+            projectId: project.id,
+          },
+        })
+      } else {
+        // EXISTING USER - Send project approval notification only (no password)
+        await tx.emailQueue.create({
+          data: {
+            to: projectRequest.clientEmail,
+            subject: '🎉 New Project Approved - ' + projectRequest.projectName,
+            htmlContent: generateExistingUserProjectEmail({
+              clientName: projectRequest.clientName,
+              projectName: projectRequest.projectName,
+              loginUrl,
+            }),
+            templateType: 'project-approved',
+            templateVars: JSON.stringify({
+              clientName: projectRequest.clientName,
+              projectName: projectRequest.projectName,
+              loginUrl,
+            }),
+            priority: 'high',
+            userId: user.id,
+            clientId: client.id,
+            projectId: project.id,
+          },
+        })
+      }
 
       // 6. Create admin notifications - use Admin table only (primary source)
       const adminUsers = await tx.admin.findMany({
@@ -434,6 +457,101 @@ function generateWelcomeEmail(data: {
       
       <p><strong>What Happens Next?</strong></p>
       <p>Our team will begin working on <strong>${data.projectName}</strong> and keep you updated every step of the way. You'll receive email notifications whenever there's a project update.</p>
+      
+      <p>If you have any questions or need assistance, feel free to reply to this email or contact us directly.</p>
+      
+      <p style="margin-top: 30px;">
+        Best regards,<br>
+        <strong>MicroAI Systems Team</strong><br>
+        <a href="mailto:sales@microaisystems.com">sales@microaisystems.com</a>
+      </p>
+    </div>
+    
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} MicroAI Systems. All rights reserved.</p>
+      <p style="font-size: 12px; color: #999;">
+        This is an automated message. Please do not reply directly to this email for support inquiries.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim()
+}
+
+// Helper: Generate existing user project approval email HTML (no password)
+function generateExistingUserProjectEmail(data: {
+  clientName: string
+  projectName: string
+  loginUrl: string
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Project Approved</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; padding: 40px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; }
+    .content { padding: 40px 30px; }
+    .highlight-box { background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 4px; }
+    .highlight-box h3 { margin-top: 0; color: #667eea; }
+    .button { display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0; }
+    .button:hover { opacity: 0.9; }
+    .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 14px; }
+    .features { background: #e8f4f8; padding: 20px; margin: 20px 0; border-radius: 4px; }
+    .features ul { margin: 10px 0; padding-left: 20px; }
+    .features li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎉 New Project Approved!</h1>
+      <p>Exciting News from MicroAI Systems</p>
+    </div>
+    
+    <div class="content">
+      <p>Hi <strong>${data.clientName}</strong>,</p>
+      
+      <p>Great news! We've reviewed your latest project request for <strong>${data.projectName}</strong>, and we're thrilled to get started!</p>
+      
+      <div class="highlight-box">
+        <h3>✨ Your New Project: ${data.projectName}</h3>
+        <p>This project has been added to your client portal and is now ready to track. Our development team is excited to bring your vision to life!</p>
+      </div>
+      
+      <div class="features">
+        <h3>📊 What You Can Do Now:</h3>
+        <ul>
+          <li>✅ View project details and milestones in your dashboard</li>
+          <li>📁 Upload project assets (logos, brand guidelines, images)</li>
+          <li>💬 Communicate with our team via the comment section</li>
+          <li>📈 Track real-time progress updates</li>
+          <li>🔐 Request code repository access when ready</li>
+        </ul>
+      </div>
+      
+      <center>
+        <a href="${data.loginUrl}" class="button">View Project Dashboard</a>
+      </center>
+      
+      <p style="margin-top: 30px;">Or copy this link to your browser:</p>
+      <p style="background: #f8f9fa; padding: 10px; border-radius: 4px; word-break: break-all; font-size: 12px;">
+        ${data.loginUrl}
+      </p>
+      
+      <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+      
+      <p><strong>What Happens Next?</strong></p>
+      <p>Our team will begin working on <strong>${data.projectName}</strong> immediately. You'll receive email notifications whenever there are important project updates, milestones completed, or when we need your input.</p>
+      
+      <p><strong>Need to Upload Assets?</strong></p>
+      <p>Log into your portal and navigate to the project page. You'll find an easy-to-use file upload section where you can share logos, brand colors, reference images, and any other materials that will help us deliver exactly what you envision.</p>
       
       <p>If you have any questions or need assistance, feel free to reply to this email or contact us directly.</p>
       
