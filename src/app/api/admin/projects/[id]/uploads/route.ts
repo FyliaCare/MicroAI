@@ -6,6 +6,9 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic'
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -97,12 +100,50 @@ export async function GET(
 
     const projectId = params.id
 
-    const files = await prisma.projectFile.findMany({
-      where: { projectId },
-      orderBy: { uploadedAt: 'desc' },
-    })
+    // Fetch from BOTH tables - admin uploads AND client uploads
+    const [projectFiles, clientUploads] = await Promise.all([
+      // Admin uploaded files
+      prisma.projectFile.findMany({
+        where: { projectId },
+        orderBy: { uploadedAt: 'desc' },
+      }),
+      // Client uploaded files
+      prisma.clientUpload.findMany({
+        where: { projectId },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ])
 
-    return NextResponse.json({ files })
+    // Merge both types into a single array
+    const allFiles = [
+      ...projectFiles.map((file) => ({
+        id: file.id,
+        filename: file.filename,
+        fileUrl: file.fileUrl,
+        fileSize: file.fileSize,
+        fileType: file.fileType,
+        description: file.description,
+        uploadedAt: file.uploadedAt,
+        uploadedBy: file.uploadedBy,
+        source: 'admin',
+      })),
+      ...clientUploads.map((upload) => ({
+        id: upload.id,
+        filename: upload.originalName,
+        fileUrl: upload.fileUrl,
+        fileSize: upload.fileSize,
+        fileType: upload.mimeType,
+        description: upload.description,
+        uploadedAt: upload.createdAt,
+        uploadedBy: 'Client',
+        source: 'client',
+      })),
+    ]
+
+    // Sort by upload date (newest first)
+    allFiles.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+
+    return NextResponse.json({ files: allFiles })
   } catch (error) {
     console.error('Fetch files error:', error)
     return NextResponse.json(

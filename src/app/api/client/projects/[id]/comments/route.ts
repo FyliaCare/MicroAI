@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import * as jwt from 'jsonwebtoken'
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+
+export const dynamic = 'force-dynamic'
 
 // POST /api/client/projects/[id]/comments - Add comment to project
 export async function POST(
@@ -15,22 +20,62 @@ export async function POST(
       )
     }
 
-    const sessionToken = authHeader.split('Bearer ')[1]
-
-    const session = await prisma.clientSession.findUnique({
-      where: { sessionToken },
-      include: {
-        user: {
-          include: {
-            client: true,
+    const token = authHeader.split('Bearer ')[1]
+    
+    // Try JWT first
+    let clientId: string | null = null
+    let clientName: string | null = null
+    let clientEmail: string | null = null
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any
+      clientId = decoded.clientId
+      clientEmail = decoded.email
+      
+      // Get client name from database
+      const client = await prisma.client.findUnique({
+        where: { id: clientId },
+        select: { name: true },
+      })
+      clientName = client?.name || 'Client'
+      
+      console.log('JWT auth successful:', { clientId, clientEmail, clientName })
+    } catch (err) {
+      console.log('JWT verification failed, trying database lookup:', err)
+      
+      // Fallback to database lookup for old session tokens
+      const session = await prisma.clientSession.findFirst({
+        where: { 
+          sessionToken: token,
+          isActive: true,
+          expiresAt: { gt: new Date() }
+        },
+        include: {
+          user: {
+            include: {
+              client: true,
+            },
           },
         },
-      },
-    })
+      })
 
-    if (!session || !session.user?.client) {
+      if (!session || !session.user?.client) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid or expired session' },
+          { status: 401 }
+        )
+      }
+      
+      clientId = session.user.client.id
+      clientName = session.user.client.name
+      clientEmail = session.user.client.email
+      
+      console.log('Database auth successful:', { clientId, clientEmail, clientName })
+    }
+
+    if (!clientId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid session' },
+        { success: false, error: 'Client ID not found' },
         { status: 401 }
       )
     }
@@ -39,7 +84,7 @@ export async function POST(
     const project = await prisma.project.findFirst({
       where: {
         id: params.id,
-        clientId: session.user.client.id,
+        clientId: clientId,
       },
     })
 
@@ -60,20 +105,14 @@ export async function POST(
       )
     }
 
-    // Create comment (without authorId since client comments don't have TeamMember)
-    // We'll store client info in the content metadata
-    const comment = await prisma.comment.create({
+    // Create comment using ProjectComment table (unified with admin)
+    const comment = await prisma.projectComment.create({
       data: {
-        content: JSON.stringify({
-          text: content,
-          authorType: 'client',
-          authorName: session.user.client.name,
-          authorEmail: session.user.client.email,
-          authorId: session.user.client.id,
-        }),
+        content: content.trim(),
         projectId: params.id,
+        authorName: clientName || 'Client',
+        authorRole: 'CLIENT',
         parentId: parentId || null,
-        isInternal: false, // Client comments are not internal
       },
     })
 
@@ -82,8 +121,8 @@ export async function POST(
       data: {
         type: 'new-comment',
         title: `New comment on ${project.name}`,
-        message: `${session.user.client.name} commented on the project`,
-        link: `/admin/projects?projectId=${params.id}`,
+        message: `${clientName} commented on the project`,
+        link: `/admin/projects/${params.id}`,
         priority: 'medium',
         entityType: 'Project',
         entityId: params.id,
@@ -96,10 +135,10 @@ export async function POST(
         action: 'Commented',
         entity: 'Project',
         entityId: params.id,
-        description: `Client ${session.user.client.name} added a comment`,
+        description: `Client ${clientName} added a comment`,
         metadata: JSON.stringify({
           commentId: comment.id,
-          clientId: session.user.client.id,
+          clientId: clientId,
         }),
       },
     })
@@ -108,7 +147,9 @@ export async function POST(
       success: true,
       comment: {
         id: comment.id,
-        content: JSON.parse(comment.content),
+        content: comment.content,
+        authorName: comment.authorName,
+        authorRole: comment.authorRole,
         createdAt: comment.createdAt,
       },
     })
@@ -135,22 +176,48 @@ export async function GET(
       )
     }
 
-    const sessionToken = authHeader.split('Bearer ')[1]
-
-    const session = await prisma.clientSession.findUnique({
-      where: { sessionToken },
-      include: {
-        user: {
-          include: {
-            client: true,
+    const token = authHeader.split('Bearer ')[1]
+    
+    // Try JWT first
+    let clientId: string | null = null
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any
+      clientId = decoded.clientId
+      console.log('JWT auth successful:', { clientId })
+    } catch (err) {
+      console.log('JWT verification failed, trying database lookup')
+      
+      // Fallback to database lookup
+      const session = await prisma.clientSession.findFirst({
+        where: { 
+          sessionToken: token,
+          isActive: true,
+          expiresAt: { gt: new Date() }
+        },
+        include: {
+          user: {
+            include: {
+              client: true,
+            },
           },
         },
-      },
-    })
+      })
 
-    if (!session || !session.user?.client) {
+      if (!session || !session.user?.client) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid or expired session' },
+          { status: 401 }
+        )
+      }
+      
+      clientId = session.user.client.id
+      console.log('Database auth successful:', { clientId })
+    }
+
+    if (!clientId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid session' },
+        { success: false, error: 'Client ID not found' },
         { status: 401 }
       )
     }
@@ -159,7 +226,7 @@ export async function GET(
     const project = await prisma.project.findFirst({
       where: {
         id: params.id,
-        clientId: session.user.client.id,
+        clientId: clientId,
       },
     })
 
@@ -170,71 +237,44 @@ export async function GET(
       )
     }
 
-    // Get all non-internal comments for this project
-    const comments = await prisma.comment.findMany({
+    // Get all comments from ProjectComment table (unified with admin)
+    const allComments = await prisma.projectComment.findMany({
       where: {
         projectId: params.id,
-        isInternal: false, // Only show non-internal comments to client
       },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            role: true,
-          },
-        },
-        replies: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                role: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
     })
 
-    // Parse content and format for client
-    const formattedComments = comments.map((comment) => {
-      let parsedContent
-      try {
-        parsedContent = JSON.parse(comment.content)
-      } catch {
-        parsedContent = { text: comment.content, authorType: 'admin' }
-      }
+    // Build comment tree (top-level comments with nested replies)
+    const commentMap = new Map()
+    const topLevelComments: any[] = []
 
-      return {
-        id: comment.id,
-        content: parsedContent,
-        createdAt: comment.createdAt,
-        updatedAt: comment.updatedAt,
-        author: comment.author || parsedContent,
-        replies: comment.replies.map((reply) => {
-          let replyContent
-          try {
-            replyContent = JSON.parse(reply.content)
-          } catch {
-            replyContent = { text: reply.content, authorType: 'admin' }
-          }
-          return {
-            id: reply.id,
-            content: replyContent,
-            createdAt: reply.createdAt,
-            author: reply.author || replyContent,
-          }
-        }),
+    // First pass: create map of all comments
+    allComments.forEach((comment: any) => {
+      commentMap.set(comment.id, { ...comment, replies: [] })
+    })
+
+    // Second pass: build tree structure
+    allComments.forEach((comment: any) => {
+      const commentWithReplies = commentMap.get(comment.id)
+      if (comment.parentId) {
+        const parent = commentMap.get(comment.parentId)
+        if (parent) {
+          parent.replies.push(commentWithReplies)
+        }
+      } else {
+        topLevelComments.push(commentWithReplies)
       }
     })
+
+    // Sort top-level comments by date (newest first)
+    topLevelComments.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
 
     return NextResponse.json({
       success: true,
-      comments: formattedComments,
+      comments: topLevelComments,
     })
   } catch (error) {
     console.error('Get comments error:', error)

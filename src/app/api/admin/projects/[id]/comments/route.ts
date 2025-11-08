@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -77,11 +79,56 @@ export async function GET(
 
     const projectId = params.id
 
-    // Fetch all comments (including replies)
-    const allComments = await prisma.projectComment.findMany({
-      where: { projectId },
-      orderBy: { createdAt: 'asc' },
+    // Fetch comments from both tables in parallel
+    const [projectComments, legacyComments] = await Promise.all([
+      // ProjectComment table (current system - admin and client comments)
+      prisma.projectComment.findMany({
+        where: { projectId },
+        orderBy: { createdAt: 'asc' },
+      }),
+      // Comment table (legacy internal team comments)
+      prisma.comment.findMany({
+        where: { projectId, isInternal: false },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              role: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'asc' },
+      }),
+    ])
+
+    // Convert legacy comments to ProjectComment format
+    const normalizedLegacyComments = legacyComments.map((comment) => {
+      let parsedContent
+      try {
+        parsedContent = JSON.parse(comment.content)
+      } catch {
+        parsedContent = { text: comment.content, authorType: 'admin' }
+      }
+
+      return {
+        id: comment.id,
+        projectId: comment.projectId || projectId,
+        content: typeof parsedContent === 'string' ? parsedContent : parsedContent.text || comment.content,
+        authorName: parsedContent.authorName || comment.author?.name || 'Client',
+        authorRole: parsedContent.authorType === 'client' ? 'CLIENT' : 'ADMIN',
+        parentId: comment.parentId,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        source: 'legacy' as const,
+      }
     })
+
+    // Merge both arrays
+    const allComments = [
+      ...projectComments.map(c => ({ ...c, source: 'current' as const })),
+      ...normalizedLegacyComments,
+    ]
 
     // Build comment tree (top-level comments with nested replies)
     const commentMap = new Map()
