@@ -4,7 +4,8 @@ import { prisma } from '@/lib/prisma'
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic'
 
-// GET /api/client/projects - Get projects for logged-in client  
+// GET /api/client/projects - Get projects for logged-in client
+// Updated: Fixed techStack parsing to handle comma-separated strings
 export async function GET(request: NextRequest) {
   try {
     // Get session token from header
@@ -164,14 +165,32 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        // Handle requirements
+        // Handle requirements - safely parse JSON
         if (project.requirements) {
-          requirements = typeof project.requirements === 'string' ? JSON.parse(project.requirements) : project.requirements
+          if (typeof project.requirements === 'string') {
+            try {
+              requirements = JSON.parse(project.requirements)
+            } catch {
+              // If not valid JSON, treat as empty object
+              requirements = {}
+            }
+          } else {
+            requirements = project.requirements
+          }
         }
 
-        // Handle features
+        // Handle features - safely parse JSON  
         if (project.features) {
-          features = typeof project.features === 'string' ? JSON.parse(project.features) : project.features
+          if (typeof project.features === 'string') {
+            try {
+              features = JSON.parse(project.features)
+            } catch {
+              // If not valid JSON, treat as empty array
+              features = []
+            }
+          } else if (Array.isArray(project.features)) {
+            features = project.features
+          }
         }
       } catch (e) {
         console.error('Error parsing JSON fields:', e)
