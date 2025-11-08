@@ -66,7 +66,7 @@ export async function POST(
           where: { email: projectRequest.clientEmail },
           data: {
             name: projectRequest.clientName,
-            role: 'CLIENT', // Ensure they have client role
+            role: 'client', // Ensure they have client role (lowercase to match schema)
             isActive: true, // Make sure account is active
             // DO NOT RESET: password, isVerified, mustChangePassword, verificationToken
           },
@@ -89,7 +89,7 @@ export async function POST(
             email: projectRequest.clientEmail,
             password: hashedPassword,
             name: projectRequest.clientName,
-            role: 'CLIENT',
+            role: 'client', // Lowercase to match schema default
             isActive: true,
             isVerified: false,
             mustChangePassword: true,

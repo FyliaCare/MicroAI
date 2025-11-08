@@ -30,7 +30,7 @@ export async function GET(
           )
         }
       }
-    } else if (session.user.role === 'CLIENT') {
+    } else if (session.user.role.toUpperCase() === 'CLIENT') {
       // Find client from NextAuth session
       const client = await prisma.client.findUnique({
         where: { userId: session.user.id },

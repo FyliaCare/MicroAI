@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user is a client
-    if (user.role !== 'client') {
+    // Check if user is a client (case-insensitive)
+    if (user.role.toUpperCase() !== 'CLIENT') {
       return NextResponse.json(
         { success: false, error: 'This login is for clients only. Admins should use /admin/login' },
         { status: 403 }
