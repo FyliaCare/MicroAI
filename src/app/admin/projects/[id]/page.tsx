@@ -343,7 +343,7 @@ export default function AdminProjectDetailPage() {
                       <h2 className="text-xl font-bold text-gray-900">Technology Stack</h2>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {project.techStack.split(',').map((tech, index) => (
+                      {project.techStack.split(',').filter(tech => tech.trim()).map((tech, index) => (
                         <span
                           key={index}
                           className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-purple-700 rounded-lg text-sm font-semibold border border-purple-200"

@@ -201,7 +201,7 @@ export default function ProjectDetailPage() {
                 
                 <div className="flex flex-wrap items-center gap-3">
                   <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${getStatusColor(currentProject.status)}`}>
-                    {currentProject.status.charAt(0).toUpperCase() + currentProject.status.slice(1).replace('-', ' ')}
+                    {currentProject.status ? currentProject.status.charAt(0).toUpperCase() + currentProject.status.slice(1).replace('-', ' ') : 'Unknown'}
                   </span>
                   <span className="px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 text-sm font-medium">
                     {currentProject.progress}% Complete
