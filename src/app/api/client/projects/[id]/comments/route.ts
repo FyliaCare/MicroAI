@@ -33,11 +33,13 @@ export async function POST(
       clientEmail = decoded.email
       
       // Get client name from database
-      const client = await prisma.client.findUnique({
-        where: { id: clientId },
-        select: { name: true },
-      })
-      clientName = client?.name || 'Client'
+      if (clientId) {
+        const client = await prisma.client.findUnique({
+          where: { id: clientId },
+          select: { name: true },
+        })
+        clientName = client?.name || 'Client'
+      }
       
       console.log('JWT auth successful:', { clientId, clientEmail, clientName })
     } catch (err) {
