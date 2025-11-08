@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import * as jwt from 'jsonwebtoken'
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic'
@@ -20,67 +21,87 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const sessionToken = authHeader.split('Bearer ')[1]
-    console.log('🔑 Token received (first 20 chars):', sessionToken.substring(0, 20) + '...')
+    const token = authHeader.split('Bearer ')[1]
+    console.log('🔑 Token received (first 20 chars):', token.substring(0, 20) + '...')
 
-    // Validate session - Try to find by sessionToken in database
-    const session = await prisma.clientSession.findFirst({
-      where: { 
-        sessionToken,
-        isActive: true,
-        expiresAt: {
-          gt: new Date()
-        }
-      },
-      include: {
-        user: {
-          include: {
-            client: {
-              include: {
-                projects: {
-                  include: {
-                    client: {
-                      select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                      },
-                    },
-                  },
-                  orderBy: { createdAt: 'desc' },
-                },
-              },
-            },
+    let clientId: string | null = null
+    let userId: string | null = null
+
+    // Try to decode as JWT first (new format)
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any
+      console.log('✅ JWT decoded successfully:', { userId: decoded.userId, clientId: decoded.clientId, email: decoded.email })
+      
+      clientId = decoded.clientId
+      userId = decoded.userId
+    } catch (err: any) {
+      console.log('⚠️  JWT decode failed, trying database lookup for old token format:', err.message)
+      
+      // Fallback: Try to find by sessionToken in database (old format)
+      const session = await prisma.clientSession.findFirst({
+        where: { 
+          sessionToken: token,
+          isActive: true,
+          expiresAt: {
+            gt: new Date()
+          }
+        },
+        include: {
+          user: {
+            include: {
+              client: true
+            }
           },
         },
-      },
-    })
+      })
 
-    console.log('📋 Session found:', session ? 'Yes' : 'No')
-    if (session) {
-      console.log('✅ User:', session.user.email, 'Client:', session.user.client?.name)
+      if (session?.user?.client) {
+        console.log('✅ Found session in database (old format):', session.user.email)
+        clientId = session.user.client.id
+        userId = session.user.id
+      } else {
+        console.error('❌ Token is neither valid JWT nor found in database')
+      }
     }
 
-    if (!session) {
-      console.error('❌ No session found in database')
+    if (!clientId || !userId) {
+      console.error('❌ No clientId found - unauthorized')
       return NextResponse.json(
         { success: false, error: 'Invalid or expired session. Please logout and login again.' },
         { status: 401 }
       )
     }
 
-    // Check if user has client
-    if (!session.user?.client) {
-      console.error('❌ User has no client account')
+    console.log('📦 Fetching projects for client:', clientId)
+
+    // Fetch client with projects
+    const client = await prisma.client.findUnique({
+      where: { id: clientId },
+      include: {
+        projects: {
+          include: {
+            client: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    })
+
+    if (!client) {
+      console.error('❌ Client not found')
       return NextResponse.json(
-        { success: false, error: 'No client account found' },
+        { success: false, error: 'Client not found' },
         { status: 404 }
       )
     }
 
-    const userId = session.user.id
-    const clientId = session.user.client.id
-    const projectIds = session.user.client.projects.map((p: any) => p.id)
+    const projectIds = client.projects.map((p: any) => p.id)
 
     // Fetch related data for all projects in parallel
     const [updates, uploads, codeAccessRequests] = await Promise.all([
