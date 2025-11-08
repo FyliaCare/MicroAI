@@ -18,7 +18,7 @@ async function checkProjectData() {
 
     for (const project of projects) {
       console.log(`\n📁 Project: ${project.name} (${project.id})`)
-      console.log(`   Client: ${project.client.name}`)
+      console.log(`   Client: ${project.client?.name || 'No Client'}`)
       console.log(`   Status: ${project.status}`)
 
       // Check admin uploads
