@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import * as jwt from 'jsonwebtoken'
 
 // POST /api/client/projects/[id]/uploads - Upload file for project
 export async function POST(
@@ -18,22 +19,50 @@ export async function POST(
       )
     }
 
-    const sessionToken = authHeader.split('Bearer ')[1]
+    const token = authHeader.split('Bearer ')[1]
+    
+    let clientId: string | null = null
+    let userId: string | null = null
+    let clientName: string | null = null
 
-    const session = await prisma.clientSession.findUnique({
-      where: { sessionToken },
-      include: {
-        user: {
-          include: {
-            client: true,
+    // Try JWT decode first (new format)
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any
+      clientId = decoded.clientId
+      userId = decoded.userId
+      
+      // Get client name
+      const client = await prisma.client.findUnique({
+        where: { id: clientId },
+      })
+      clientName = client?.name || 'Client'
+    } catch (err) {
+      // Fallback: database lookup (old format)
+      const session = await prisma.clientSession.findFirst({
+        where: { 
+          sessionToken: token,
+          isActive: true,
+          expiresAt: { gt: new Date() }
+        },
+        include: {
+          user: {
+            include: {
+              client: true,
+            },
           },
         },
-      },
-    })
+      })
 
-    if (!session || !session.user?.client) {
+      if (session?.user?.client) {
+        clientId = session.user.client.id
+        userId = session.user.id
+        clientName = session.user.client.name
+      }
+    }
+
+    if (!clientId || !userId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid session' },
+        { success: false, error: 'Invalid or expired session' },
         { status: 401 }
       )
     }
@@ -42,7 +71,7 @@ export async function POST(
     const project = await prisma.project.findFirst({
       where: {
         id: params.id,
-        clientId: session.user.client.id,
+        clientId: clientId,
       },
     })
 
@@ -74,7 +103,7 @@ export async function POST(
     }
 
     // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'clients', session.user.client.id, params.id)
+    const uploadDir = join(process.cwd(), 'public', 'uploads', 'clients', clientId, params.id)
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
@@ -97,13 +126,13 @@ export async function POST(
         originalName: file.name,
         description: description || null,
         category: 'project-file',
-        fileUrl: `/uploads/clients/${session.user.client.id}/${params.id}/${fileName}`,
+        fileUrl: `/uploads/clients/${clientId}/${params.id}/${fileName}`,
         fileSize: file.size,
         mimeType: file.type,
         format: file.name.split('.').pop() || '',
         projectId: params.id,
-        clientId: session.user.client.id,
-        uploadedBy: session.user.client.id,
+        clientId: clientId,
+        uploadedBy: clientId,
         uploadedByRole: 'client',
       },
     })
@@ -113,7 +142,7 @@ export async function POST(
       data: {
         type: 'new-upload',
         title: `New file uploaded to ${project.name}`,
-        message: `${session.user.client.name} uploaded ${file.name}`,
+        message: `${clientName} uploaded ${file.name}`,
         link: `/admin/projects?projectId=${params.id}`,
         priority: 'medium',
         entityType: 'Project',
@@ -127,7 +156,7 @@ export async function POST(
         action: 'Uploaded File',
         entity: 'Project',
         entityId: params.id,
-        description: `Client ${session.user.client.name} uploaded ${file.name}`,
+        description: `Client ${clientName} uploaded ${file.name}`,
         metadata: JSON.stringify({
           uploadId: upload.id,
           fileName: file.name,
@@ -172,22 +201,39 @@ export async function GET(
       )
     }
 
-    const sessionToken = authHeader.split('Bearer ')[1]
+    const token = authHeader.split('Bearer ')[1]
+    
+    let clientId: string | null = null
 
-    const session = await prisma.clientSession.findUnique({
-      where: { sessionToken },
-      include: {
-        user: {
-          include: {
-            client: true,
+    // Try JWT decode first (new format)
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any
+      clientId = decoded.clientId
+    } catch (err) {
+      // Fallback: database lookup (old format)
+      const session = await prisma.clientSession.findFirst({
+        where: { 
+          sessionToken: token,
+          isActive: true,
+          expiresAt: { gt: new Date() }
+        },
+        include: {
+          user: {
+            include: {
+              client: true,
+            },
           },
         },
-      },
-    })
+      })
 
-    if (!session || !session.user?.client) {
+      if (session?.user?.client) {
+        clientId = session.user.client.id
+      }
+    }
+
+    if (!clientId) {
       return NextResponse.json(
-        { success: false, error: 'Invalid session' },
+        { success: false, error: 'Invalid or expired session' },
         { status: 401 }
       )
     }
@@ -196,7 +242,7 @@ export async function GET(
     const project = await prisma.project.findFirst({
       where: {
         id: params.id,
-        clientId: session.user.client.id,
+        clientId: clientId,
       },
     })
 
@@ -211,7 +257,7 @@ export async function GET(
     const uploads = await prisma.clientUpload.findMany({
       where: {
         projectId: params.id,
-        clientId: session.user.client.id,
+        clientId: clientId,
       },
       orderBy: { createdAt: 'desc' },
     })
