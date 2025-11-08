@@ -205,7 +205,7 @@ export default function ProjectDetailPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                    {currentProject.name.charAt(0)}
+                    {currentProject.name ? currentProject.name.charAt(0).toUpperCase() : 'P'}
                   </div>
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{currentProject.name}</h1>

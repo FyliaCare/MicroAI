@@ -200,7 +200,7 @@ export default function CommentSection({
                       ? 'bg-gradient-to-br from-purple-500 to-indigo-600'
                       : 'bg-gradient-to-br from-blue-500 to-cyan-600'
                   }`}>
-                    {comment.content.authorName.charAt(0).toUpperCase()}
+                    {comment.content.authorName ? comment.content.authorName.charAt(0).toUpperCase() : 'U'}
                   </div>
                 </div>
                 <div className="flex-1">
@@ -273,7 +273,7 @@ export default function CommentSection({
                             ? 'bg-gradient-to-br from-purple-500 to-indigo-600'
                             : 'bg-gradient-to-br from-blue-500 to-cyan-600'
                         }`}>
-                          {reply.content.authorName.charAt(0).toUpperCase()}
+                          {reply.content.authorName ? reply.content.authorName.charAt(0).toUpperCase() : 'U'}
                         </div>
                       </div>
                       <div className="flex-1">
