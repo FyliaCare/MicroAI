@@ -31,9 +31,17 @@ export async function GET(
       )
     }
 
+    // Parse techStack from string to array
+    const projectData = {
+      ...project,
+      techStack: project.techStack && project.techStack.trim()
+        ? project.techStack.split(',').map(t => t.trim()).filter(t => t.length > 0)
+        : [],
+    }
+
     return NextResponse.json({
       success: true,
-      project,
+      project: projectData,
     })
   } catch (error: any) {
     console.error('Error fetching project:', error)

@@ -4,70 +4,158 @@ const prisma = new PrismaClient()
 
 async function checkProjectData() {
   try {
-    console.log('=== Checking Project Data ===\n')
+    console.log('=== COMPREHENSIVE PROJECT DATA CHECK ===\n')
 
-    // Get all projects
-    const projects = await prisma.project.findMany({
+    // Get all clients with their projects
+    const clients = await prisma.client.findMany({
       include: {
-        client: true,
+        projects: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+            techStack: true,
+            description: true,
+            progress: true,
+          },
+        },
       },
-      take: 5,
+      take: 10,
     })
 
-    console.log(`Found ${projects.length} projects\n`)
+    console.log(`Found ${clients.length} clients\n`)
 
-    for (const project of projects) {
-      console.log(`\n📁 Project: ${project.name} (${project.id})`)
-      console.log(`   Client: ${project.client?.name || 'No Client'}`)
-      console.log(`   Status: ${project.status}`)
+    for (const client of clients) {
+      console.log(`\n👤 CLIENT: ${client.name} (${client.email})`)
+      console.log(`   Client ID: ${client.id}`)
+      console.log(`   Projects: ${client.projects.length}`)
 
-      // Check admin uploads
-      const projectFiles = await prisma.projectFile.findMany({
-        where: { projectId: project.id },
-      })
-      console.log(`   📎 Admin uploads: ${projectFiles.length}`)
-      projectFiles.forEach(file => {
-        console.log(`      - ${file.filename} (${file.uploadedBy})`)
-      })
+      for (const project of client.projects) {
+        console.log(`\n   📁 PROJECT: ${project.name}`)
+        console.log(`      Project ID: ${project.id}`)
+        console.log(`      Status: ${project.status}`)
+        console.log(`      Progress: ${project.progress}%`)
+        console.log(`      TechStack type: ${typeof project.techStack}`)
+        console.log(`      TechStack value: ${JSON.stringify(project.techStack)}`)
+        console.log(`      Description: ${project.description?.substring(0, 50)}...`)
 
-      // Check client uploads
-      const clientUploads = await prisma.clientUpload.findMany({
-        where: { projectId: project.id },
-      })
-      console.log(`   📎 Client uploads: ${clientUploads.length}`)
-      clientUploads.forEach(upload => {
-        console.log(`      - ${upload.originalName} (Client)`)
-      })
+        // Check uploads for this specific project
+        const [projectFiles, clientUploads] = await Promise.all([
+          prisma.projectFile.findMany({
+            where: { projectId: project.id },
+            select: {
+              id: true,
+              filename: true,
+              uploadedBy: true,
+              uploadedAt: true,
+            },
+          }),
+          prisma.clientUpload.findMany({
+            where: { projectId: project.id },
+            select: {
+              id: true,
+              originalName: true,
+              createdAt: true,
+            },
+          }),
+        ])
 
-      // Check ProjectComment table
-      const projectComments = await prisma.projectComment.findMany({
-        where: { projectId: project.id },
-      })
-      console.log(`   💬 ProjectComments: ${projectComments.length}`)
-      projectComments.forEach(comment => {
-        console.log(`      - ${comment.authorName} (${comment.authorRole}): ${comment.content.substring(0, 50)}...`)
-      })
+        console.log(`      📎 Admin Files: ${projectFiles.length}`)
+        projectFiles.forEach(file => {
+          console.log(`         - ${file.filename} (by ${file.uploadedBy})`)
+        })
 
-      // Check Comment table (legacy)
-      const legacyComments = await prisma.comment.findMany({
-        where: { projectId: project.id },
-      })
-      console.log(`   💬 Legacy Comments: ${legacyComments.length}`)
-      legacyComments.forEach(comment => {
-        console.log(`      - ${comment.content.substring(0, 50)}...`)
-      })
+        console.log(`      📎 Client Files: ${clientUploads.length}`)
+        clientUploads.forEach(file => {
+          console.log(`         - ${file.originalName}`)
+        })
+
+        // Check comments for this specific project
+        const [projectComments, legacyComments] = await Promise.all([
+          prisma.projectComment.findMany({
+            where: { projectId: project.id },
+            select: {
+              id: true,
+              content: true,
+              authorName: true,
+              authorRole: true,
+              createdAt: true,
+            },
+          }),
+          prisma.comment.findMany({
+            where: { projectId: project.id },
+            select: {
+              id: true,
+              content: true,
+              createdAt: true,
+            },
+          }),
+        ])
+
+        console.log(`      💬 Project Comments: ${projectComments.length}`)
+        projectComments.forEach(comment => {
+          console.log(`         - ${comment.authorName} (${comment.authorRole}): ${comment.content.substring(0, 40)}...`)
+        })
+
+        console.log(`      💬 Legacy Comments: ${legacyComments.length}`)
+        legacyComments.forEach(comment => {
+          const preview = typeof comment.content === 'string' 
+            ? comment.content.substring(0, 40) 
+            : JSON.stringify(comment.content).substring(0, 40)
+          console.log(`         - ${preview}...`)
+        })
+      }
     }
 
-    console.log('\n\n=== Summary ===')
-    const totalProjectFiles = await prisma.projectFile.count()
-    const totalClientUploads = await prisma.clientUpload.count()
-    const totalProjectComments = await prisma.projectComment.count()
-    const totalLegacyComments = await prisma.comment.count()
+    console.log('\n\n=== DATABASE SUMMARY ===')
+    const [
+      totalProjects,
+      totalProjectFiles,
+      totalClientUploads,
+      totalProjectComments,
+      totalLegacyComments,
+    ] = await Promise.all([
+      prisma.project.count(),
+      prisma.projectFile.count(),
+      prisma.clientUpload.count(),
+      prisma.projectComment.count(),
+      prisma.comment.count(),
+    ])
 
-    console.log(`Total Admin Uploads: ${totalProjectFiles}`)
-    console.log(`Total Client Uploads: ${totalClientUploads}`)
-    console.log(`Total ProjectComments: ${totalProjectComments}`)
-    console.log(`Total Legacy Comments: ${totalLegacyComments}`)
+    console.log(`Total Projects: ${totalProjects}`)
+    console.log(`Total Admin Files (ProjectFile): ${totalProjectFiles}`)
+    console.log(`Total Client Files (ClientUpload): ${totalClientUploads}`)
+    console.log(`Total Comments (ProjectComment): ${totalProjectComments}`)
+    console.log(`Total Comments (Legacy Comment): ${totalLegacyComments}`)
+
+    // Check for data integrity issues
+    console.log('\n=== DATA INTEGRITY CHECKS ===')
+    
+    // Projects with null/invalid techStack
+    const projectsWithIssues = await prisma.project.findMany({
+      where: {
+        OR: [
+          { techStack: null },
+          { status: null },
+          { description: null },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        techStack: true,
+        status: true,
+        description: true,
+      },
+    })
+
+    console.log(`\nProjects with null fields: ${projectsWithIssues.length}`)
+    projectsWithIssues.forEach(p => {
+      console.log(`  - ${p.name}:`)
+      console.log(`    techStack: ${p.techStack === null ? 'NULL' : 'OK'}`)
+      console.log(`    status: ${p.status === null ? 'NULL' : 'OK'}`)
+      console.log(`    description: ${p.description === null ? 'NULL' : 'OK'}`)
+    })
 
   } catch (error) {
     console.error('Error:', error)

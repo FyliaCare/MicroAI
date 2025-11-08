@@ -39,7 +39,7 @@ interface Project {
   startDate: string | null
   deadline: string | null
   requirements: string
-  techStack: string
+  techStack: string[]
   tags: string
   client: {
     id: string
@@ -332,7 +332,7 @@ export default function AdminProjectDetailPage() {
                 )}
 
                 {/* Tech Stack */}
-                {project.techStack && (
+                {project.techStack && Array.isArray(project.techStack) && project.techStack.length > 0 && (
                   <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
@@ -343,12 +343,12 @@ export default function AdminProjectDetailPage() {
                       <h2 className="text-xl font-bold text-gray-900">Technology Stack</h2>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {project.techStack.split(',').filter(tech => tech.trim()).map((tech, index) => (
+                      {project.techStack.map((tech, index) => (
                         <span
                           key={index}
                           className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-purple-700 rounded-lg text-sm font-semibold border border-purple-200"
                         >
-                          {tech.trim()}
+                          {tech}
                         </span>
                       ))}
                     </div>
