@@ -131,12 +131,11 @@ async function checkProjectData() {
     // Check for data integrity issues
     console.log('\n=== DATA INTEGRITY CHECKS ===')
     
-    // Projects with null/invalid techStack
+    // Projects with null/invalid techStack or description
     const projectsWithIssues = await prisma.project.findMany({
       where: {
         OR: [
           { techStack: null },
-          { status: null },
           { description: null },
         ],
       },
@@ -153,7 +152,7 @@ async function checkProjectData() {
     projectsWithIssues.forEach(p => {
       console.log(`  - ${p.name}:`)
       console.log(`    techStack: ${p.techStack === null ? 'NULL' : 'OK'}`)
-      console.log(`    status: ${p.status === null ? 'NULL' : 'OK'}`)
+      console.log(`    status: ${p.status}`)
       console.log(`    description: ${p.description === null ? 'NULL' : 'OK'}`)
     })
 
