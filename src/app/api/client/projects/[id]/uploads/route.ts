@@ -31,11 +31,13 @@ export async function POST(
       clientId = decoded.clientId
       userId = decoded.userId
       
-      // Get client name
-      const client = await prisma.client.findUnique({
-        where: { id: clientId },
-      })
-      clientName = client?.name || 'Client'
+      // Get client name (only if clientId exists)
+      if (clientId) {
+        const client = await prisma.client.findUnique({
+          where: { id: clientId },
+        })
+        clientName = client?.name || 'Client'
+      }
     } catch (err) {
       // Fallback: database lookup (old format)
       const session = await prisma.clientSession.findFirst({
