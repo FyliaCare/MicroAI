@@ -29,12 +29,51 @@ export async function GET(
           if (decoded.clientId) {
             clientId = decoded.clientId
           }
-        } catch (err) {
-          console.error('❌ JWT verification failed:', err)
-          return NextResponse.json(
-            { error: 'Invalid token' },
-            { status: 401 }
-          )
+        } catch (err: any) {
+          console.error('❌ JWT verification failed:', err.message)
+          
+          // Check if it's a malformed JWT (old token format)
+          if (err.message === 'jwt malformed') {
+            console.log('⚠️  Old token format detected - trying database lookup')
+            
+            // Try to find session in database using old token format
+            try {
+              const clientSession = await prisma.clientSession.findFirst({
+                where: {
+                  sessionToken: token,
+                  isActive: true,
+                  expiresAt: {
+                    gt: new Date()
+                  }
+                },
+                include: {
+                  user: {
+                    include: {
+                      client: true
+                    }
+                  }
+                }
+              })
+              
+              if (clientSession?.user?.client?.id) {
+                clientId = clientSession.user.client.id
+                console.log('✅ Found client via old session token:', clientId)
+                console.log('⚠️  Client should logout and login again to get new JWT token')
+              }
+            } catch (dbErr) {
+              console.error('❌ Database lookup failed:', dbErr)
+            }
+          }
+          
+          if (!clientId) {
+            return NextResponse.json(
+              { 
+                error: 'Invalid or expired token. Please logout and login again.',
+                shouldRelogin: true
+              },
+              { status: 401 }
+            )
+          }
         }
       } else {
         console.error('❌ No auth header or invalid format')
