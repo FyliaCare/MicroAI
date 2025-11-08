@@ -378,7 +378,7 @@ export default function AdminChatPage() {
         </div>
 
         {/* Chat List - WhatsApp Style */}
-        <div className="flex-1 overflow-y-auto bg-white">
+        <div className="flex-1 overflow-y-auto custom-scrollbar bg-white">
           {sessions.length === 0 ? (
             <div className="p-8 text-center text-gray-400">
               <svg className="w-20 h-20 mx-auto mb-3 opacity-30" fill="currentColor" viewBox="0 0 20 20">
@@ -502,7 +502,7 @@ export default function AdminChatPage() {
             <div className="flex-1 flex flex-col">
               {/* WhatsApp Pattern Background */}
               <div 
-                className="flex-1 overflow-y-auto p-3 md:p-4 space-y-2"
+                className="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-4 space-y-2"
                 style={{
                   backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23e5ddd5\'/%3E%3Cpath d=\'M20 10h60M20 30h60M20 50h60M20 70h60M20 90h60\' stroke=\'%23d1c4b8\' stroke-width=\'0.5\' opacity=\'0.1\'/%3E%3C/svg%3E")',
                   backgroundColor: '#e5ddd5'
@@ -622,7 +622,7 @@ export default function AdminChatPage() {
 
             {/* Visitor Info Panel - WhatsApp Style */}
             {showVisitorInfo && (
-              <div className="hidden md:block w-80 bg-white border-l p-4 overflow-y-auto">
+              <div className="hidden md:block w-80 bg-white border-l p-4 overflow-y-auto custom-scrollbar">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-gray-900">Visitor Info</h3>
                   <button
