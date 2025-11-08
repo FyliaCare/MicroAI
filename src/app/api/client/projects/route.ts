@@ -297,10 +297,10 @@ export async function GET(request: NextRequest) {
       projects,
       stats,
       client: {
-        id: session.user.client.id,
-        name: session.user.client.name,
-        email: session.user.client.email,
-        company: session.user.client.company,
+        id: client.id,
+        name: client.name,
+        email: client.email,
+        company: client.company,
       },
     })
   } catch (error) {
