@@ -163,7 +163,7 @@ export async function POST(
           uploadId: upload.id,
           fileName: file.name,
           fileSize: file.size,
-          clientId: session.user.client.id,
+          clientId: clientId,
         }),
       },
     })
