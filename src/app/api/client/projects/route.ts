@@ -165,7 +165,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Get projects with computed fields
-    const projects = session.user.client.projects.map((project: any) => {
+    const projects = client.projects.map((project: any) => {
       // Parse JSON fields safely
       let techStack: string[] = []
       let requirements: any = {}
