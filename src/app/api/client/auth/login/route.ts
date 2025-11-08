@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import * as jwt from 'jsonwebtoken'
 
 // POST /api/client/auth/login - Client login
 export async function POST(request: NextRequest) {
@@ -126,7 +127,19 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Create session
+    // Create JWT token with clientId
+    const jwtToken = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        clientId: user.client?.id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    )
+
+    // Create session in database (for tracking)
     const sessionToken = generateSessionToken()
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + 7) // 7 day session
@@ -164,7 +177,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Return user data
+    // Return user data with JWT token
     return NextResponse.json({
       success: true,
       message: 'Login successful',
@@ -178,7 +191,7 @@ export async function POST(request: NextRequest) {
         client: user.client,
       },
       session: {
-        token: sessionToken,
+        token: jwtToken, // Return JWT token instead of random string
         expiresAt,
       },
       warning: needsVerification ? 'Please verify your email to access all features' : undefined

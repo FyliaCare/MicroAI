@@ -13,22 +13,31 @@ export async function GET(
     let session = await getServerSession(authOptions)
     let clientId: string | null = null
 
+    console.log('🔍 Project detail request:', { projectId: params.id, hasSession: !!session })
+
     // If no NextAuth session, try Bearer token
     if (!session) {
       const authHeader = request.headers.get('authorization')
+      console.log('🔑 Auth header:', authHeader ? 'Present' : 'Missing')
+      
       if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.substring(7)
         try {
           const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any
+          console.log('✅ JWT decoded:', { userId: decoded.userId, clientId: decoded.clientId, email: decoded.email })
+          
           if (decoded.clientId) {
             clientId = decoded.clientId
           }
         } catch (err) {
+          console.error('❌ JWT verification failed:', err)
           return NextResponse.json(
             { error: 'Invalid token' },
             { status: 401 }
           )
         }
+      } else {
+        console.error('❌ No auth header or invalid format')
       }
     } else if (session.user.role.toUpperCase() === 'CLIENT') {
       // Find client from NextAuth session
@@ -37,15 +46,19 @@ export async function GET(
       })
       if (client) {
         clientId = client.id
+        console.log('✅ Client from NextAuth session:', clientId)
       }
     }
 
     if (!clientId) {
+      console.error('❌ No clientId found - unauthorized')
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
+
+    console.log('📦 Fetching project for client:', clientId)
 
     // Fetch the project
     const project = await prisma.project.findFirst({
