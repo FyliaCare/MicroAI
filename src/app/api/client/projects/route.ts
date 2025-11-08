@@ -10,7 +10,10 @@ export async function GET(request: NextRequest) {
   try {
     // Get session token from header
     const authHeader = request.headers.get('authorization')
+    console.log('🔍 Projects list request - Auth header:', authHeader ? 'Present' : 'Missing')
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('❌ No auth header or invalid format')
       return NextResponse.json(
         { success: false, error: 'Unauthorized - No session token' },
         { status: 401 }
@@ -18,10 +21,17 @@ export async function GET(request: NextRequest) {
     }
 
     const sessionToken = authHeader.split('Bearer ')[1]
+    console.log('🔑 Token received (first 20 chars):', sessionToken.substring(0, 20) + '...')
 
-    // Validate session
-    const session = await prisma.clientSession.findUnique({
-      where: { sessionToken },
+    // Validate session - Try to find by sessionToken in database
+    const session = await prisma.clientSession.findFirst({
+      where: { 
+        sessionToken,
+        isActive: true,
+        expiresAt: {
+          gt: new Date()
+        }
+      },
       include: {
         user: {
           include: {
@@ -46,31 +56,22 @@ export async function GET(request: NextRequest) {
       },
     })
 
+    console.log('📋 Session found:', session ? 'Yes' : 'No')
+    if (session) {
+      console.log('✅ User:', session.user.email, 'Client:', session.user.client?.name)
+    }
+
     if (!session) {
+      console.error('❌ No session found in database')
       return NextResponse.json(
-        { success: false, error: 'Invalid or expired session' },
-        { status: 401 }
-      )
-    }
-
-    // Check session expiry
-    if (session.expiresAt < new Date()) {
-      return NextResponse.json(
-        { success: false, error: 'Session expired - Please log in again' },
-        { status: 401 }
-      )
-    }
-
-    // Check if session is active
-    if (!session.isActive) {
-      return NextResponse.json(
-        { success: false, error: 'Session deactivated - Please log in again' },
+        { success: false, error: 'Invalid or expired session. Please logout and login again.' },
         { status: 401 }
       )
     }
 
     // Check if user has client
     if (!session.user?.client) {
+      console.error('❌ User has no client account')
       return NextResponse.json(
         { success: false, error: 'No client account found' },
         { status: 404 }
