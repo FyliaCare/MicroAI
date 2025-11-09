@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { uploadToGoogleDrive, deleteFromGoogleDrive } from '@/lib/googleDrive'
+import { v2 as cloudinary } from 'cloudinary'
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 // Force dynamic rendering - no caching
 export const dynamic = 'force-dynamic'
@@ -42,32 +49,33 @@ export async function POST(
       return NextResponse.json({ error: 'File size exceeds 50MB limit' }, { status: 400 })
     }
 
-    // Convert file to buffer for Google Drive upload
+    // Convert file to buffer for Cloudinary upload
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+    const base64 = buffer.toString('base64')
+    const dataURI = `data:${file.type};base64,${base64}`
 
-    // Upload to Google Drive
-    console.log('📤 Uploading file to Google Drive...')
-    const driveFile = await uploadToGoogleDrive(
-      buffer,
-      file.name,
-      file.type || 'application/octet-stream',
-      project.name
-    )
+    // Upload to Cloudinary
+    console.log('📤 Uploading file to Cloudinary...')
+    const uploadResponse = await cloudinary.uploader.upload(dataURI, {
+      folder: `microai-projects/${project.name}`,
+      resource_type: 'auto',
+      public_id: `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
+    })
 
-    console.log('✅ File uploaded to Google Drive:', driveFile.id)
+    console.log('✅ File uploaded to Cloudinary:', uploadResponse.public_id)
 
-    // Create database record with Google Drive URLs
+    // Create database record with Cloudinary URLs
     const projectFile = await prisma.projectFile.create({
       data: {
         projectId,
         filename: file.name,
-        fileUrl: driveFile.webViewLink, // Google Drive view link
+        fileUrl: uploadResponse.secure_url, // Cloudinary secure URL
         fileSize: file.size,
         fileType: file.type || 'application/octet-stream',
         description: description || undefined,
         uploadedBy: session.user.name || 'Admin',
-        driveFileId: driveFile.id, // Store Google Drive file ID for deletion
+        driveFileId: uploadResponse.public_id, // Store Cloudinary public_id for deletion
       },
     })
 
