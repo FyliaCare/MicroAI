@@ -75,7 +75,7 @@ export async function POST(
         fileType: file.type || 'application/octet-stream',
         description: description || undefined,
         uploadedBy: session.user.name || 'Admin',
-        driveFileId: uploadResponse.public_id, // Store Cloudinary public_id for deletion
+        cloudinaryId: uploadResponse.public_id, // Store Cloudinary public_id for deletion
       },
     })
 

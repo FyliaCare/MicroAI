@@ -903,7 +903,7 @@ model ClientUpload {
   uploadedByRole    String?
   tags              String?
   notes             String?
-  driveFileId       String?   // Google Drive file ID for deletion
+  cloudinaryId      String?   // Cloudinary public_id for deletion
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   client            Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -1470,17 +1470,17 @@ model BlogComment {
 }
 
 model ProjectFile {
-  id          String   @id @default(uuid())
-  projectId   String
-  filename    String
-  fileUrl     String
-  fileSize    Int
-  fileType    String
-  description String?
-  uploadedBy  String
-  uploadedAt  DateTime @default(now())
-  driveFileId String?  // Google Drive file ID for deletion
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id           String   @id @default(uuid())
+  projectId    String
+  filename     String
+  fileUrl      String
+  fileSize     Int
+  fileType     String
+  description  String?
+  uploadedBy   String
+  uploadedAt   DateTime @default(now())
+  cloudinaryId String?  // Cloudinary public_id for deletion
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
   @@index([projectId])
   @@index([uploadedAt])

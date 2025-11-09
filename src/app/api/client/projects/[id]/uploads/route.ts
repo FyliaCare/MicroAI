@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
+import { v2 as cloudinary } from 'cloudinary'
 import * as jwt from 'jsonwebtoken'
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 // POST /api/client/projects/[id]/uploads - Upload file for project
 export async function POST(
@@ -104,31 +109,30 @@ export async function POST(
       )
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'clients', clientId, params.id)
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now()
-    const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const fileName = `${timestamp}-${safeFileName}`
-    const filePath = join(uploadDir, fileName)
-
-    // Save file
+    // Convert file to buffer for Cloudinary upload
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
+    const base64 = buffer.toString('base64')
+    const dataURI = `data:${file.type};base64,${base64}`
+
+    // Upload to Cloudinary
+    console.log('📤 Client uploading file to Cloudinary...')
+    const uploadResponse = await cloudinary.uploader.upload(dataURI, {
+      folder: `microai-projects/${project.name}/client-uploads`,
+      resource_type: 'auto',
+      public_id: `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
+    })
+
+    console.log('✅ File uploaded to Cloudinary:', uploadResponse.public_id)
 
     // Create database record
     const upload = await prisma.clientUpload.create({
       data: {
-        name: fileName,
+        name: file.name,
         originalName: file.name,
         description: description || null,
         category: 'project-file',
-        fileUrl: `/uploads/clients/${clientId}/${params.id}/${fileName}`,
+        fileUrl: uploadResponse.secure_url, // Cloudinary secure URL
         fileSize: file.size,
         mimeType: file.type,
         format: file.name.split('.').pop() || '',
@@ -136,6 +140,7 @@ export async function POST(
         clientId: clientId,
         uploadedBy: clientId,
         uploadedByRole: 'client',
+        cloudinaryId: uploadResponse.public_id, // Store for deletion
       },
     })
 
