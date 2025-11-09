@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
+import { uploadToGoogleDrive, deleteFromGoogleDrive } from '@/lib/googleDrive'
 
 // Force dynamic rendering - no caching
 export const dynamic = 'force-dynamic'
@@ -44,34 +42,32 @@ export async function POST(
       return NextResponse.json({ error: 'File size exceeds 50MB limit' }, { status: 400 })
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'projects', projectId)
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now()
-    const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const filename = `${timestamp}-${sanitizedFilename}`
-    const filepath = join(uploadDir, filename)
-
-    // Save file
+    // Convert file to buffer for Google Drive upload
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    await writeFile(filepath, buffer)
 
-    // Create database record
-    const fileUrl = `/uploads/projects/${projectId}/${filename}`
+    // Upload to Google Drive
+    console.log('📤 Uploading file to Google Drive...')
+    const driveFile = await uploadToGoogleDrive(
+      buffer,
+      file.name,
+      file.type || 'application/octet-stream',
+      project.name
+    )
+
+    console.log('✅ File uploaded to Google Drive:', driveFile.id)
+
+    // Create database record with Google Drive URLs
     const projectFile = await prisma.projectFile.create({
       data: {
         projectId,
         filename: file.name,
-        fileUrl,
+        fileUrl: driveFile.webViewLink, // Google Drive view link
         fileSize: file.size,
-        fileType: file.type,
+        fileType: file.type || 'application/octet-stream',
         description: description || undefined,
         uploadedBy: session.user.name || 'Admin',
+        driveFileId: driveFile.id, // Store Google Drive file ID for deletion
       },
     })
 

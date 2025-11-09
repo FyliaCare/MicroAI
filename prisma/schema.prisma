@@ -903,6 +903,7 @@ model ClientUpload {
   uploadedByRole    String?
   tags              String?
   notes             String?
+  driveFileId       String?   // Google Drive file ID for deletion
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   client            Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
@@ -1478,6 +1479,7 @@ model ProjectFile {
   description String?
   uploadedBy  String
   uploadedAt  DateTime @default(now())
+  driveFileId String?  // Google Drive file ID for deletion
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
   @@index([projectId])
