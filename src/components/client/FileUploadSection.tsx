@@ -72,9 +72,9 @@ export default function FileUploadSection({
         throw new Error('No session token found')
       }
 
-      // Check file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        throw new Error('File size exceeds 10MB limit')
+      // Check file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        throw new Error('File size exceeds 50MB limit')
       }
 
       const formData = new FormData()
@@ -127,6 +127,7 @@ export default function FileUploadSection({
           onChange={handleFileSelect}
           className="hidden"
           id="file-upload"
+          accept="*/*"
         />
 
         <div className="text-center">
@@ -149,7 +150,7 @@ export default function FileUploadSection({
               browse
             </label>
           </p>
-          <p className="mt-1 text-xs text-gray-500">Maximum file size: 10MB</p>
+          <p className="mt-1 text-xs text-gray-500">All file types accepted • Maximum file size: 50MB</p>
         </div>
 
         {/* Description Input */}
