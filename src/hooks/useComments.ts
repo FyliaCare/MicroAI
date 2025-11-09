@@ -11,7 +11,10 @@ export const fetcher = async (url: string, token?: string) => {
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  const res = await fetch(url, { headers })
+  const res = await fetch(url, {
+    headers,
+    credentials: 'include', // Include cookies for session-based auth (admin)
+  })
 
   if (!res.ok) {
     const errorData = await res.json()
