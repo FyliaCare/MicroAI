@@ -71,6 +71,7 @@
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "resend": "^6.2.2",
+    "swr": "^2.3.6",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "zod": "^4.1.12"
