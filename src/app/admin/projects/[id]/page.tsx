@@ -65,9 +65,11 @@ export default function AdminProjectDetailPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [debugMode, setDebugMode] = useState(true) // Debug mode to see what's happening
 
   useEffect(() => {
     if (params.id) {
+      console.log('🚀 Page mounted, fetching data for project:', params.id)
       fetchProject()
       fetchFiles()
       fetchComments()
@@ -189,6 +191,52 @@ export default function AdminProjectDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
+        {/* Debug Panel - Remove this after testing */}
+        {debugMode && (
+          <div className="mb-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-yellow-900">🔍 DEBUG MODE</h3>
+              <button 
+                onClick={() => setDebugMode(false)}
+                className="text-yellow-900 hover:text-yellow-700"
+              >
+                ✕ Close
+              </button>
+            </div>
+            <div className="text-sm space-y-1 text-yellow-900">
+              <p><strong>Project ID:</strong> {params.id}</p>
+              <p><strong>Active Tab:</strong> {activeTab}</p>
+              <p><strong>Files Count:</strong> {files.length}</p>
+              <p><strong>Comments Count:</strong> {comments.length}</p>
+              <p><strong>Loading:</strong> {loading ? 'Yes' : 'No'}</p>
+              <p><strong>Error:</strong> {error || 'None'}</p>
+              <div className="mt-2 pt-2 border-t border-yellow-300">
+                <p className="font-semibold mb-1">Quick Actions:</p>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => { fetchFiles(); fetchComments(); }}
+                    className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-xs"
+                  >
+                    🔄 Refresh Data
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('files')}
+                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs"
+                  >
+                    📁 Go to Files
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('comments')}
+                    className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 text-xs"
+                  >
+                    💬 Go to Comments
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Back Button */}
         <button
           onClick={() => router.push('/admin/projects')}
@@ -439,6 +487,10 @@ export default function AdminProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-gray-900">Project Files</h2>
                 </div>
+                {(() => {
+                  console.log('📤 About to render FileUploadSection with files:', files?.length || 0)
+                  return null
+                })()}
                 <FileUploadSection
                   projectId={project.id}
                   files={files}
@@ -463,6 +515,10 @@ export default function AdminProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-gray-900">Project Discussion</h2>
                 </div>
+                {(() => {
+                  console.log('💬 About to render CommentSection with comments:', comments?.length || 0)
+                  return null
+                })()}
                 <CommentSection
                   projectId={project.id}
                   comments={comments}

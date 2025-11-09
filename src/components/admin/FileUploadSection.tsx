@@ -45,6 +45,16 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
   console.log('  - Props files:', files?.length || 0)
   console.log('  - Local files:', localFiles.length)
   console.log('  - Display files:', displayFiles.length)
+  
+  // Log individual display files
+  if (displayFiles.length > 0) {
+    console.log('  Files to display:')
+    displayFiles.forEach((f, i) => {
+      console.log(`    ${i + 1}. ${f.filename} (${f.source || 'unknown'})`)
+    })
+  } else {
+    console.log('  ⚠️ No files to display!')
+  }
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()

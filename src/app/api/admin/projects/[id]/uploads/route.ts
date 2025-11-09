@@ -125,6 +125,16 @@ export async function GET(
     console.log('  - Admin files:', projectFiles.length)
     console.log('  - Client files:', clientUploads.length)
 
+    // Log individual files for debugging
+    if (projectFiles.length > 0) {
+      console.log('  Admin files details:')
+      projectFiles.forEach((f, i) => console.log(`    ${i + 1}. ${f.filename}`))
+    }
+    if (clientUploads.length > 0) {
+      console.log('  Client files details:')
+      clientUploads.forEach((f, i) => console.log(`    ${i + 1}. ${f.originalName}`))
+    }
+
     // Merge both types into a single array
     const allFiles = [
       ...projectFiles.map((file) => ({
