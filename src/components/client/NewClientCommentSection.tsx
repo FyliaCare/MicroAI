@@ -34,7 +34,17 @@ export default function NewClientCommentSection({ projectId }: Props) {
       setLoading(true)
       setError(null)
 
-      const response = await fetch(`/api/client/projects/${projectId}/comments`)
+      // Get token from localStorage for client authentication
+      const token = localStorage.getItem('clientToken')
+      if (!token) {
+        throw new Error('Not authenticated')
+      }
+
+      const response = await fetch(`/api/client/projects/${projectId}/comments`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
       
       if (!response.ok) {
         throw new Error(`Failed to load comments: ${response.statusText}`)
@@ -63,9 +73,18 @@ export default function NewClientCommentSection({ projectId }: Props) {
     try {
       console.log('📤 Posting comment...')
       
+      // Get token from localStorage for client authentication
+      const token = localStorage.getItem('clientToken')
+      if (!token) {
+        throw new Error('Not authenticated')
+      }
+
       const response = await fetch(`/api/client/projects/${projectId}/comments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({ content: newComment }),
       })
 
@@ -90,8 +109,17 @@ export default function NewClientCommentSection({ projectId }: Props) {
     if (!confirm('Delete this comment?')) return
 
     try {
+      // Get token from localStorage for client authentication
+      const token = localStorage.getItem('clientToken')
+      if (!token) {
+        throw new Error('Not authenticated')
+      }
+
       const response = await fetch(`/api/client/projects/${projectId}/comments?commentId=${commentId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       })
 
       if (!response.ok) {

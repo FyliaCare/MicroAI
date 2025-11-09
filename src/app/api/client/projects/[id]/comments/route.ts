@@ -286,3 +286,103 @@ export async function GET(
     )
   }
 }
+
+// DELETE /api/client/projects/[id]/comments - Delete a comment
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.split('Bearer ')[1]
+    const { searchParams } = new URL(request.url)
+    const commentId = searchParams.get('commentId')
+
+    if (!commentId) {
+      return NextResponse.json(
+        { success: false, error: 'Comment ID required' },
+        { status: 400 }
+      )
+    }
+    
+    // Try JWT first
+    let clientId: string | null = null
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as any
+      clientId = decoded.clientId
+    } catch (err) {
+      // Fallback to database lookup
+      const session = await prisma.clientSession.findFirst({
+        where: { 
+          sessionToken: token,
+          isActive: true,
+          expiresAt: { gt: new Date() }
+        },
+        include: {
+          user: {
+            include: {
+              client: true,
+            },
+          },
+        },
+      })
+
+      if (!session || !session.user?.client) {
+        return NextResponse.json(
+          { success: false, error: 'Invalid or expired session' },
+          { status: 401 }
+        )
+      }
+      
+      clientId = session.user.client.id
+    }
+
+    if (!clientId) {
+      return NextResponse.json(
+        { success: false, error: 'Client ID not found' },
+        { status: 401 }
+      )
+    }
+
+    // Verify the comment belongs to this client's project and is authored by them
+    const comment = await prisma.projectComment.findFirst({
+      where: {
+        id: commentId,
+        authorRole: 'CLIENT',
+        project: {
+          clientId: clientId
+        }
+      },
+    })
+
+    if (!comment) {
+      return NextResponse.json(
+        { success: false, error: 'Comment not found or unauthorized' },
+        { status: 404 }
+      )
+    }
+
+    // Delete the comment
+    await prisma.projectComment.delete({
+      where: { id: commentId },
+    })
+
+    console.log('✅ Client comment deleted:', commentId)
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('❌ Delete comment error:', error)
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete comment' },
+      { status: 500 }
+    )
+  }
+}

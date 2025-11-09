@@ -178,3 +178,46 @@ export async function GET(
     )
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const commentId = searchParams.get('commentId')
+
+    if (!commentId) {
+      return NextResponse.json({ error: 'Comment ID required' }, { status: 400 })
+    }
+
+    // Verify the comment exists
+    const comment = await prisma.projectComment.findUnique({
+      where: { id: commentId },
+    })
+
+    if (!comment) {
+      return NextResponse.json({ error: 'Comment not found' }, { status: 404 })
+    }
+
+    // Delete the comment
+    await prisma.projectComment.delete({
+      where: { id: commentId },
+    })
+
+    console.log('✅ Admin comment deleted:', commentId)
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Delete comment error:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete comment' },
+      { status: 500 }
+    )
+  }
+}
