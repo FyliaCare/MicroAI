@@ -26,6 +26,15 @@ export async function POST(
     // Check if project exists
     const project = await prisma.project.findUnique({
       where: { id: projectId },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            userId: true
+          }
+        }
+      }
     })
 
     if (!project) {
@@ -53,6 +62,9 @@ export async function POST(
         parentId: parentId || null,
       },
     })
+
+    // Note: Client notifications would require a separate notification system for clients
+    // Current notification system is admin-only
 
     return NextResponse.json({
       success: true,

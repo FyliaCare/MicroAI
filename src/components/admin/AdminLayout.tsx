@@ -168,10 +168,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                 !notif.isRead ? 'bg-blue-50' : ''
                               }`}
                               onClick={() => {
-                                if (!notif.isRead) markAsRead(notif.id)
+                                console.log('🔔 Notification clicked:', {
+                                  id: notif.id,
+                                  title: notif.title,
+                                  link: notif.link,
+                                  isRead: notif.isRead
+                                })
+                                
+                                // Mark as read first
+                                if (!notif.isRead) {
+                                  markAsRead(notif.id)
+                                }
+                                
+                                // Close notification panel
                                 setShowNotifications(false)
+                                
+                                // Navigate if link exists
                                 if (notif.link) {
+                                  console.log('🚀 Navigating to:', notif.link)
                                   router.push(notif.link)
+                                } else {
+                                  console.warn('⚠️ No link provided for notification')
                                 }
                               }}
                             >

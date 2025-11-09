@@ -153,7 +153,7 @@ export async function POST(
         type: 'new-upload',
         title: `New file uploaded to ${project.name}`,
         message: `${clientName} uploaded ${file.name}`,
-        link: `/admin/projects?projectId=${params.id}`,
+        link: `/admin/projects/${params.id}`,
         priority: 'medium',
         entityType: 'Project',
         entityId: params.id,
