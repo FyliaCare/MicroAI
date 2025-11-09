@@ -6,12 +6,10 @@ interface Comment {
   id: string
   content: string
   createdAt: string
-  author: {
-    name: string
-    email: string
-    role?: string
-  }
-  isAdmin: boolean
+  authorName: string
+  authorRole: 'ADMIN' | 'CLIENT'
+  parentId?: string | null
+  replies?: Comment[]
 }
 
 interface Props {
@@ -161,23 +159,23 @@ export default function NewCommentSection({ projectId }: Props) {
             <div
               key={comment.id}
               className={`bg-white border rounded-xl p-5 ${
-                comment.isAdmin ? 'border-blue-200 bg-blue-50/30' : 'border-purple-200 bg-purple-50/30'
+                comment.authorRole === 'ADMIN' ? 'border-blue-200 bg-blue-50/30' : 'border-purple-200 bg-purple-50/30'
               }`}
             >
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${
-                    comment.isAdmin ? 'bg-gradient-to-br from-blue-500 to-blue-600' : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                    comment.authorRole === 'ADMIN' ? 'bg-gradient-to-br from-blue-500 to-blue-600' : 'bg-gradient-to-br from-purple-500 to-purple-600'
                   }`}>
-                    {comment.author.name.charAt(0).toUpperCase()}
+                    {comment.authorName.charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-gray-900">{comment.author.name}</h4>
+                      <h4 className="font-semibold text-gray-900">{comment.authorName}</h4>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        comment.isAdmin ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                        comment.authorRole === 'ADMIN' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
                       }`}>
-                        {comment.isAdmin ? 'Admin' : 'Client'}
+                        {comment.authorRole === 'ADMIN' ? 'Admin' : 'Client'}
                       </span>
                     </div>
                     <p className="text-xs text-gray-500">
@@ -186,7 +184,7 @@ export default function NewCommentSection({ projectId }: Props) {
                   </div>
                 </div>
 
-                {comment.isAdmin && (
+                {comment.authorRole === 'ADMIN' && (
                   <button
                     onClick={() => handleDelete(comment.id)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"

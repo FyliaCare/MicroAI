@@ -5,16 +5,13 @@ import { useState, useEffect } from 'react'
 interface FileData {
   id: string
   filename: string
-  filepath: string
-  filesize: number
-  filetype: string | null
+  fileUrl: string
+  fileSize: number
+  fileType: string | null
   description: string | null
   uploadedAt: string
   source: 'admin' | 'client'
-  uploadedBy?: {
-    name: string
-    email: string
-  }
+  uploadedBy?: string
 }
 
 interface Props {
@@ -188,10 +185,10 @@ export default function NewFileUploadSection({ projectId }: Props) {
                   </div>
                   
                   <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span>{formatFileSize(file.filesize)}</span>
+                    <span>{formatFileSize(file.fileSize)}</span>
                     <span>{new Date(file.uploadedAt).toLocaleDateString()}</span>
                     {file.uploadedBy && (
-                      <span>by {file.uploadedBy.name}</span>
+                      <span>by {file.uploadedBy}</span>
                     )}
                   </div>
                   
@@ -202,7 +199,7 @@ export default function NewFileUploadSection({ projectId }: Props) {
 
                 <div className="flex items-center gap-2">
                   <a
-                    href={file.filepath}
+                    href={file.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
