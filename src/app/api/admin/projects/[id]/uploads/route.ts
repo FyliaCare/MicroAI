@@ -39,9 +39,9 @@ export async function POST(
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // Validate file size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 })
+    // Validate file size (50MB)
+    if (file.size > 50 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File size exceeds 50MB limit' }, { status: 400 })
     }
 
     // Create upload directory if it doesn't exist

@@ -12,6 +12,7 @@ interface ProjectFile {
   description?: string
   uploadedAt: Date
   uploadedBy: string
+  source?: string
 }
 
 interface FileUploadSectionProps {
@@ -304,11 +305,11 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
                         <span>{new Date(file.uploadedAt).toLocaleDateString()}</span>
                         <span>•</span>
                         <span className={`px-2 py-0.5 rounded-full ${
-                          file.uploadedBy === 'ADMIN' 
+                          file.source === 'admin' || file.uploadedBy !== 'Client'
                             ? 'bg-blue-100 text-blue-700' 
                             : 'bg-green-100 text-green-700'
                         }`}>
-                          {file.uploadedBy}
+                          {file.source === 'admin' ? 'Admin' : 'Client'}
                         </span>
                       </div>
                     </div>

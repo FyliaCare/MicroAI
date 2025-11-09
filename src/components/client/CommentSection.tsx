@@ -6,33 +6,17 @@ import Textarea from '@/components/ui/Textarea'
 
 interface Comment {
   id: string
-  content: {
-    text: string
-    authorType: 'client' | 'admin'
-    authorName: string
-    authorEmail?: string
-    authorId: string
-  }
+  content: string
+  authorName: string
+  authorRole: 'CLIENT' | 'ADMIN'
   createdAt: string
-  updatedAt: string
-  author?: {
-    id: string
-    name: string
-    role: string
-  }
+  updatedAt?: string
   replies: Array<{
     id: string
-    content: {
-      text: string
-      authorType: 'client' | 'admin'
-      authorName: string
-    }
+    content: string
+    authorName: string
+    authorRole: 'CLIENT' | 'ADMIN'
     createdAt: string
-    author?: {
-      id: string
-      name: string
-      role: string
-    }
   }>
 }
 
@@ -196,19 +180,19 @@ export default function CommentSection({
               <div className="flex gap-4">
                 <div className="flex-shrink-0">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${
-                    comment.content.authorType === 'admin'
+                    comment.authorRole === 'ADMIN'
                       ? 'bg-gradient-to-br from-purple-500 to-indigo-600'
                       : 'bg-gradient-to-br from-blue-500 to-cyan-600'
                   }`}>
-                    {comment.content.authorName ? comment.content.authorName.charAt(0).toUpperCase() : 'U'}
+                    {comment.authorName ? comment.authorName.charAt(0).toUpperCase() : 'U'}
                   </div>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-semibold text-gray-900">
-                      {comment.content.authorName}
+                      {comment.authorName}
                     </span>
-                    {comment.content.authorType === 'admin' && (
+                    {comment.authorRole === 'ADMIN' && (
                       <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded">
                         Admin
                       </span>
@@ -217,7 +201,7 @@ export default function CommentSection({
                       {formatDate(comment.createdAt)}
                     </span>
                   </div>
-                  <p className="text-gray-700 whitespace-pre-wrap">{comment.content.text}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
                   
                   {/* Reply Button */}
                   <button
@@ -269,19 +253,19 @@ export default function CommentSection({
                     <div key={reply.id} className="flex gap-3">
                       <div className="flex-shrink-0">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm ${
-                          reply.content.authorType === 'admin'
+                          reply.authorRole === 'ADMIN'
                             ? 'bg-gradient-to-br from-purple-500 to-indigo-600'
                             : 'bg-gradient-to-br from-blue-500 to-cyan-600'
                         }`}>
-                          {reply.content.authorName ? reply.content.authorName.charAt(0).toUpperCase() : 'U'}
+                          {reply.authorName ? reply.authorName.charAt(0).toUpperCase() : 'U'}
                         </div>
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-semibold text-gray-900 text-sm">
-                            {reply.content.authorName}
+                            {reply.authorName}
                           </span>
-                          {reply.content.authorType === 'admin' && (
+                          {reply.authorRole === 'ADMIN' && (
                             <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded">
                               Admin
                             </span>
@@ -290,7 +274,7 @@ export default function CommentSection({
                             {formatDate(reply.createdAt)}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{reply.content.text}</p>
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{reply.content}</p>
                       </div>
                     </div>
                   ))}
