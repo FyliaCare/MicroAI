@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import NewFileUploadSection from '@/components/admin/NewFileUploadSection'
-import NewCommentSection from '@/components/admin/NewCommentSection'
+import AdminCommentSection from '@/components/admin/AdminCommentSection'
 
 interface ProjectFile {
   id: string
@@ -502,7 +502,7 @@ export default function AdminProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-gray-900">Project Discussion</h2>
                 </div>
-                <NewCommentSection projectId={project.id} />
+                <AdminCommentSection projectId={project.id} />
               </div>
             )}
           </div>

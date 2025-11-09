@@ -4,6 +4,8 @@ import useSWR, { SWRConfiguration, KeyedMutator } from 'swr'
 // This function will be used by SWR to fetch data.
 // It handles authentication via Bearer token.
 export const fetcher = async (url: string, token?: string) => {
+  console.log(`🔄 Fetching comments from: ${url}`, { hasToken: !!token })
+  
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   }
@@ -16,14 +18,18 @@ export const fetcher = async (url: string, token?: string) => {
     credentials: 'include', // Include cookies for session-based auth (admin)
   })
 
+  console.log(`📡 Response status: ${res.status}`)
+
   if (!res.ok) {
-    const errorData = await res.json()
+    const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+    console.error('❌ Fetch error:', errorData)
     const error = new Error(errorData.error || 'An error occurred while fetching the data.')
     throw error
   }
 
   const data = await res.json()
-  return data.comments
+  console.log('✅ Comments fetched successfully:', data.comments?.length || 0)
+  return data.comments || []
 }
 
 
@@ -71,11 +77,23 @@ export function useComments(
   // For admin-side, fetch as long as we have a projectId
   const shouldFetch = projectId && (isAdmin || token)
 
+  console.log('🎯 useComments hook initialized:', { 
+    projectId, 
+    isAdmin, 
+    hasToken: !!token, 
+    shouldFetch,
+    apiUrl 
+  })
+
   const { data, error, isLoading, mutate } = useSWR<Comment[]>(
     shouldFetch ? [apiUrl, token] : null,
     ([url, token]) => fetcher(url, token as string | undefined),
     {
       revalidateOnFocus: true,
+      shouldRetryOnError: true,
+      errorRetryCount: 3,
+      errorRetryInterval: 2000,
+      dedupingInterval: 2000,
       ...options,
     }
   )

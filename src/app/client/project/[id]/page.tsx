@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import NewClientFileUploadSection from '@/components/client/NewClientFileUploadSection'
-import NewClientCommentSection from '@/components/client/NewClientCommentSection'
+import ClientCommentSection from '@/components/client/ClientCommentSection'
 
 interface Project {
   id: string
@@ -594,7 +594,7 @@ export default function ProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-slate-900">Discussion & Comments</h2>
                 </div>
-                <NewClientCommentSection projectId={params.id as string} />
+                <ClientCommentSection projectId={params.id as string} />
               </div>
             )}
           </div>
