@@ -42,8 +42,8 @@ const fetcher = async (url: string, token?: string) => {
 
 export const useProjectFiles = (projectId: string, token?: string, isAdmin: boolean = false) => {
   const apiUrl = isAdmin
-    ? `/api/admin/projects/${projectId}/files`
-    : `/api/client/projects/${projectId}/files`
+    ? `/api/admin/projects/${projectId}/uploads`
+    : `/api/client/projects/${projectId}/uploads`
 
   const { data, error, isLoading } = useSWR<FilesApiResponse>(
     projectId && (isAdmin || token) ? [apiUrl, token] : null,
