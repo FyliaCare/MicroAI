@@ -9,8 +9,8 @@ interface ProjectFile {
   fileUrl: string
   fileSize: number
   fileType: string
-  description?: string
-  uploadedAt: Date
+  description?: string | null
+  uploadedAt: string | Date
   uploadedBy: string
   source?: string
 }
