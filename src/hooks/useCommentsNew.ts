@@ -62,7 +62,7 @@ export function useComments(projectId: string, token?: string, isAdmin: boolean 
 
   const { data, error, isLoading, mutate } = useSWR<Comment[]>(
     shouldFetch ? [apiUrl, token] : null,
-    ([url, token]) => fetcher(url, token),
+    ([url, token]) => fetcher(url, token as string | undefined),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
