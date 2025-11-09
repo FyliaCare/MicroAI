@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import FileUploadSection from '@/components/admin/FileUploadSection'
-import CommentSection from '@/components/admin/CommentSection'
+import NewFileUploadSection from '@/components/admin/NewFileUploadSection'
+import NewCommentSection from '@/components/admin/NewCommentSection'
 
 interface ProjectFile {
   id: string
@@ -487,20 +487,7 @@ export default function AdminProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-gray-900">Project Files</h2>
                 </div>
-                {(() => {
-                  console.log('📤 About to render FileUploadSection with files:', files?.length || 0)
-                  return null
-                })()}
-                <FileUploadSection
-                  projectId={project.id}
-                  files={files}
-                  onUploadComplete={() => {
-                    console.log('🔄 Upload complete, refreshing...')
-                    fetchFiles()
-                    // Force re-render as backup
-                    setRefreshKey(prev => prev + 1)
-                  }}
-                />
+                <NewFileUploadSection projectId={project.id} />
               </div>
             )}
 
@@ -515,17 +502,7 @@ export default function AdminProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-gray-900">Project Discussion</h2>
                 </div>
-                {(() => {
-                  console.log('💬 About to render CommentSection with comments:', comments?.length || 0)
-                  return null
-                })()}
-                <CommentSection
-                  projectId={project.id}
-                  comments={comments}
-                  onCommentAdded={() => {
-                    fetchComments()
-                  }}
-                />
+                <NewCommentSection projectId={project.id} />
               </div>
             )}
           </div>

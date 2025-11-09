@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import FileUploadSection from '@/components/client/FileUploadSection'
-import CommentSection from '@/components/client/CommentSection'
+import NewClientFileUploadSection from '@/components/client/NewClientFileUploadSection'
+import NewClientCommentSection from '@/components/client/NewClientCommentSection'
 
 interface Project {
   id: string
@@ -579,16 +579,7 @@ export default function ProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-slate-900">Project Files & Assets</h2>
                 </div>
-                <FileUploadSection
-                  projectId={params.id as string}
-                  uploads={uploads}
-                  onUploadSuccess={() => {
-                    console.log('🔄 Client upload complete, refreshing...')
-                    fetchUploads()
-                    // Force re-render as backup
-                    setRefreshKey(prev => prev + 1)
-                  }}
-                />
+                <NewClientFileUploadSection projectId={params.id as string} />
               </div>
             )}
 
@@ -603,13 +594,7 @@ export default function ProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-slate-900">Discussion & Comments</h2>
                 </div>
-                <CommentSection
-                  projectId={params.id as string}
-                  comments={comments}
-                  onCommentSuccess={() => {
-                    fetchComments()
-                  }}
-                />
+                <NewClientCommentSection projectId={params.id as string} />
               </div>
             )}
           </div>
