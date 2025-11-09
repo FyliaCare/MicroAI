@@ -88,11 +88,22 @@ export async function PATCH(
     if (body.endDate !== undefined) updateData.endDate = body.endDate ? new Date(body.endDate) : null
     if (body.deadline !== undefined) updateData.deadline = body.deadline ? new Date(body.deadline) : null
     if (body.completedAt !== undefined) updateData.completedAt = body.completedAt ? new Date(body.completedAt) : null
-    if (body.techStack !== undefined) updateData.techStack = body.techStack ? JSON.stringify(body.techStack) : null
+    if (body.techStack !== undefined) {
+      // Handle techStack as array or string
+      if (Array.isArray(body.techStack)) {
+        updateData.techStack = body.techStack.length > 0 ? body.techStack.join(', ') : null
+      } else if (typeof body.techStack === 'string') {
+        updateData.techStack = body.techStack || null
+      } else {
+        updateData.techStack = null
+      }
+    }
     if (body.githubRepo !== undefined) updateData.githubRepo = body.githubRepo
     if (body.liveUrl !== undefined) updateData.liveUrl = body.liveUrl
     if (body.stagingUrl !== undefined) updateData.stagingUrl = body.stagingUrl
     if (body.progress !== undefined) updateData.progress = parseInt(body.progress)
+    if (body.requirements !== undefined) updateData.requirements = body.requirements
+    if (body.tags !== undefined) updateData.tags = body.tags
     if (body.notes !== undefined) updateData.notes = body.notes
     if (body.clientId !== undefined) updateData.clientId = body.clientId || null
 

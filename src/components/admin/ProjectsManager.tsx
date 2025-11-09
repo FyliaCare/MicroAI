@@ -48,12 +48,10 @@ export default function AdvancedProjectsManager() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showGitHubImportModal, setShowGitHubImportModal] = useState(false)
   const [githubRepoUrl, setGithubRepoUrl] = useState('')
   const [importingFromGitHub, setImportingFromGitHub] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [filterStatus, setFilterStatus] = useState('')
   const [filterType, setFilterType] = useState('')
   const [filterPriority, setFilterPriority] = useState('')
@@ -583,11 +581,7 @@ export default function AdvancedProjectsManager() {
           {sortedProjects.map((project) => (
             <div
               key={project.id}
-              className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow overflow-hidden cursor-pointer group"
-              onClick={() => {
-                setSelectedProject(project)
-                setShowDetailsModal(true)
-              }}
+              className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow overflow-hidden group"
             >
               {/* Project Header */}
               <div className="p-6 border-b border-gray-200">
@@ -683,9 +677,18 @@ export default function AdvancedProjectsManager() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
+                    window.location.href = `/admin/projects/${project.id}`
+                  }}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-md hover:from-blue-700 hover:to-purple-700 transition-colors text-sm font-medium"
+                >
+                  View Details
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
                     handleEdit(project)
                   }}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
                 >
                   Edit
                 </button>
@@ -753,6 +756,12 @@ export default function AdvancedProjectsManager() {
                     {project.deadline ? new Date(project.deadline).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => window.location.href = `/admin/projects/${project.id}`}
+                      className="text-purple-600 hover:text-purple-900 mr-3 font-semibold"
+                    >
+                      View Details
+                    </button>
                     <button
                       onClick={() => handleEdit(project)}
                       className="text-blue-600 hover:text-blue-900 mr-3"
@@ -959,170 +968,6 @@ export default function AdvancedProjectsManager() {
           </div>
         </form>
       </Modal>
-
-      {/* Project Details Modal */}
-      {selectedProject && (
-        <Modal
-          isOpen={showDetailsModal}
-          onClose={() => {
-            setShowDetailsModal(false)
-            setSelectedProject(null)
-          }}
-          title="Project Details"
-        >
-          <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedProject.name}</h2>
-              {selectedProject.description && (
-                <p className="text-gray-600">{selectedProject.description}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Status</p>
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(selectedProject.status)}`}>
-                  {selectedProject.status}
-                </span>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Priority</p>
-                <p className={`font-semibold capitalize ${getPriorityColor(selectedProject.priority)}`}>
-                  {selectedProject.priority}
-                </p>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Type</p>
-                <p className="font-semibold text-gray-900 capitalize">{selectedProject.type}</p>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Progress</p>
-                <p className="font-semibold text-gray-900">{selectedProject.progress}%</p>
-              </div>
-            </div>
-
-            {selectedProject.client && (
-              <div className="bg-blue-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Client</p>
-                <p className="font-semibold text-gray-900">{selectedProject.client.name}</p>
-                <p className="text-sm text-gray-600">{selectedProject.client.email}</p>
-              </div>
-            )}
-
-            <div className="grid grid-cols-3 gap-4">
-              {selectedProject.budget && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600 mb-1">Budget</p>
-                  <p className="font-bold text-gray-900">${selectedProject.budget.toLocaleString()}</p>
-                </div>
-              )}
-              
-              {selectedProject.actualCost && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600 mb-1">Actual Cost</p>
-                  <p className="font-bold text-gray-900">${selectedProject.actualCost.toLocaleString()}</p>
-                </div>
-              )}
-
-              {selectedProject.revenue && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm text-gray-600 mb-1">Revenue</p>
-                  <p className="font-bold text-green-600">${selectedProject.revenue.toLocaleString()}</p>
-                </div>
-              )}
-            </div>
-
-            {(selectedProject.startDate || selectedProject.deadline) && (
-              <div className="grid grid-cols-2 gap-4">
-                {selectedProject.startDate && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Start Date</p>
-                    <p className="font-semibold text-gray-900">
-                      {new Date(selectedProject.startDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                )}
-                
-                {selectedProject.deadline && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Deadline</p>
-                    <p className="font-semibold text-gray-900">
-                      {new Date(selectedProject.deadline).toLocaleDateString()}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {selectedProject.techStack && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Tech Stack</p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedProject.techStack.split(',').map((tech, index) => (
-                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                      {tech.trim()}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {selectedProject.githubRepo && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Repository</p>
-                <a
-                  href={selectedProject.githubRepo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline break-all"
-                >
-                  {selectedProject.githubRepo}
-                </a>
-              </div>
-            )}
-
-            {selectedProject.notes && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Notes</p>
-                <p className="text-gray-900">{selectedProject.notes}</p>
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Tasks</p>
-                <p className="font-bold text-gray-900">{selectedProject.tasks?.length || 0}</p>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-1">Milestones</p>
-                <p className="font-bold text-gray-900">{selectedProject.milestones?.length || 0}</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={() => {
-                  setShowDetailsModal(false)
-                  handleEdit(selectedProject)
-                }}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
-              >
-                Edit Project
-              </button>
-              <button
-                onClick={() => setShowDetailsModal(false)}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
 
       {/* GitHub Import Modal */}
       {showGitHubImportModal && (
