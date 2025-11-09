@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface FileUploadSectionProps {
   projectId: string
@@ -25,7 +25,22 @@ export default function FileUploadSection({
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState('')
   const [description, setDescription] = useState('')
+  const [localUploads, setLocalUploads] = useState(uploads || [])
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Sync props to local state
+  useEffect(() => {
+    console.log('🔄 Client uploads prop changed:', uploads.length)
+    setLocalUploads(uploads || [])
+  }, [uploads])
+
+  // Display uploads with fallback
+  const displayUploads = localUploads.length > 0 ? localUploads : uploads || []
+
+  console.log('🎨 Client FileUploadSection render')
+  console.log('  - Props uploads:', uploads?.length || 0)
+  console.log('  - Local uploads:', localUploads.length)
+  console.log('  - Display uploads:', displayUploads.length)
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B'
@@ -98,7 +113,23 @@ export default function FileUploadSection({
         throw new Error(data.error || 'Failed to upload file')
       }
 
-      console.log('✅ Client upload successful, refreshing file list')
+      console.log('✅ Client upload successful, adding to local state')
+      
+      // Immediately add to local state as backup
+      if (data.upload) {
+        const newUpload = {
+          id: data.upload.id,
+          fileName: data.upload.fileName,
+          filePath: data.upload.filePath,
+          fileSize: data.upload.fileSize,
+          fileType: data.upload.fileType || 'application/octet-stream',
+          description: data.upload.description || null,
+          createdAt: data.upload.createdAt || new Date().toISOString()
+        }
+        setLocalUploads(prev => [newUpload, ...prev])
+      }
+
+      console.log('✅ Calling onUploadSuccess')
       // Success
       setDescription('')
       if (fileInputRef.current) {
@@ -187,11 +218,18 @@ export default function FileUploadSection({
       )}
 
       {/* Uploaded Files List */}
-      {uploads.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-semibold text-gray-900">Uploaded Files ({uploads.length})</h4>
+      <div className="space-y-3">
+        <h4 className="font-semibold text-gray-900">Uploaded Files ({displayUploads.length})</h4>
+        {displayUploads.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center border border-slate-200">
+            <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <p className="text-gray-500">No files uploaded yet</p>
+          </div>
+        ) : (
           <div className="space-y-2">
-            {uploads.map((upload) => (
+            {displayUploads.map((upload) => (
               <div
                 key={upload.id}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -229,8 +267,8 @@ export default function FileUploadSection({
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

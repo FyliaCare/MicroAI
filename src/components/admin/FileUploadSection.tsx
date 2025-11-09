@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Button from '@/components/ui/Button'
 
 interface ProjectFile {
@@ -29,12 +29,22 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
   const [dragActive, setDragActive] = useState(false)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [pushingToGithub, setPushingToGithub] = useState<string | null>(null)
+  const [localFiles, setLocalFiles] = useState<ProjectFile[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  console.log('🎨 FileUploadSection render - Files prop:', files.length, 'files')
-  if (files.length > 0) {
-    console.log('📄 Files:', files)
-  }
+  // Sync props to local state with backup
+  useEffect(() => {
+    console.log('🔄 Files prop changed:', files.length)
+    setLocalFiles(files || [])
+  }, [files])
+
+  // Display files from local state with fallback to props
+  const displayFiles = localFiles.length > 0 ? localFiles : files || []
+  
+  console.log('🎨 FileUploadSection render')
+  console.log('  - Props files:', files?.length || 0)
+  console.log('  - Local files:', localFiles.length)
+  console.log('  - Display files:', displayFiles.length)
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -101,7 +111,25 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
         throw new Error(data.error || 'Failed to upload file')
       }
 
-      console.log('✅ Upload successful, refreshing file list')
+      console.log('✅ Upload successful, adding to local state')
+      
+      // Immediately add to local state as backup
+      if (data.file) {
+        const newFile: ProjectFile = {
+          id: data.file.id,
+          filename: data.file.filename,
+          fileUrl: data.file.fileUrl,
+          fileSize: data.file.fileSize,
+          fileType: data.file.fileType || 'application/octet-stream',
+          description: data.file.description || null,
+          uploadedAt: data.file.uploadedAt || new Date().toISOString(),
+          uploadedBy: data.file.uploadedBy || 'Admin',
+          source: 'admin'
+        }
+        setLocalFiles(prev => [newFile, ...prev])
+      }
+      
+      console.log('✅ Calling onUploadComplete')
       setSelectedFile(null)
       setDescription('')
       if (fileInputRef.current) {
@@ -283,8 +311,8 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
 
       {/* Files List */}
       <div className="space-y-3">
-        <h3 className="text-lg font-bold text-gray-900">Uploaded Files ({files.length})</h3>
-        {files.length === 0 ? (
+        <h3 className="text-lg font-bold text-gray-900">Uploaded Files ({displayFiles.length})</h3>
+        {displayFiles.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center border border-slate-200">
             <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -293,7 +321,7 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
           </div>
         ) : (
           <div className="space-y-2">
-            {files.map((file) => (
+            {displayFiles.map((file) => (
               <div
                 key={file.id}
                 className="bg-white rounded-xl shadow p-4 border border-slate-200 hover:shadow-md transition-shadow"

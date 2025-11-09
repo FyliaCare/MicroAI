@@ -38,6 +38,7 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'overview' | 'files' | 'comments'>('overview')
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     if (params.id) {
@@ -45,7 +46,7 @@ export default function ProjectDetailPage() {
       fetchUploads()
       fetchComments()
     }
-  }, [params.id])
+  }, [params.id, refreshKey])
 
   useEffect(() => {
     console.log('📋 Client uploads state updated:', uploads.length, 'uploads')
@@ -582,7 +583,10 @@ export default function ProjectDetailPage() {
                   projectId={params.id as string}
                   uploads={uploads}
                   onUploadSuccess={() => {
+                    console.log('🔄 Client upload complete, refreshing...')
                     fetchUploads()
+                    // Force re-render as backup
+                    setRefreshKey(prev => prev + 1)
                   }}
                 />
               </div>

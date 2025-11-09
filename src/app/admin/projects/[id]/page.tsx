@@ -64,6 +64,7 @@ export default function AdminProjectDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<TabType>('overview')
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     if (params.id) {
@@ -71,7 +72,7 @@ export default function AdminProjectDetailPage() {
       fetchFiles()
       fetchComments()
     }
-  }, [params.id])
+  }, [params.id, refreshKey])
 
   useEffect(() => {
     console.log('📋 Files state updated:', files.length, 'files')
@@ -442,7 +443,10 @@ export default function AdminProjectDetailPage() {
                   projectId={project.id}
                   files={files}
                   onUploadComplete={() => {
+                    console.log('🔄 Upload complete, refreshing...')
                     fetchFiles()
+                    // Force re-render as backup
+                    setRefreshKey(prev => prev + 1)
                   }}
                 />
               </div>
