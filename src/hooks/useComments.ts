@@ -66,7 +66,7 @@ export function useComments(
 
   const { data, error, isLoading, mutate } = useSWR<Comment[]>(
     projectId ? [apiUrl, token] : null,
-    ([url, token]) => fetcher(url, token),
+    ([url, token]) => fetcher(url, token as string | undefined),
     {
       revalidateOnFocus: true,
       ...options,
