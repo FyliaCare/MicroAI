@@ -139,6 +139,14 @@ export async function POST(
       },
     })
 
+    console.log('✅ Client file uploaded successfully:', {
+      id: upload.id,
+      filename: upload.originalName,
+      size: upload.fileSize,
+      project: params.id,
+      client: clientId
+    })
+
     // Create notification for admin
     await prisma.notification.create({
       data: {
@@ -262,6 +270,12 @@ export async function GET(
         clientId: clientId,
       },
       orderBy: { createdAt: 'desc' },
+    })
+
+    console.log('📁 Client uploads fetched:', {
+      project: params.id,
+      client: clientId,
+      count: uploads.length
     })
 
     return NextResponse.json({

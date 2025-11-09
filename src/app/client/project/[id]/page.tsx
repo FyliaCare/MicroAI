@@ -47,6 +47,13 @@ export default function ProjectDetailPage() {
     }
   }, [params.id])
 
+  useEffect(() => {
+    console.log('📋 Client uploads state updated:', uploads.length, 'uploads')
+    if (uploads.length > 0) {
+      console.log('📄 First upload:', uploads[0])
+    }
+  }, [uploads])
+
   const fetchProject = async () => {
     try {
       const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
@@ -89,18 +96,26 @@ export default function ProjectDetailPage() {
 
       if (!token) return
 
+      console.log('🔍 Client fetching uploads for project:', params.id)
+
       const res = await fetch(`/api/client/projects/${params.id}/uploads`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
 
+      console.log('📡 Client uploads fetch response status:', res.status)
+
       if (res.ok) {
         const data = await res.json()
+        console.log('📦 Client uploads data received:', data)
+        console.log('📊 Number of uploads:', data.uploads?.length || 0)
         setUploads(data.uploads || [])
+      } else {
+        console.error('❌ Failed to fetch client uploads, status:', res.status)
       }
     } catch (err) {
-      console.error('Failed to fetch uploads:', err)
+      console.error('❌ Failed to fetch uploads:', err)
     }
   }
 

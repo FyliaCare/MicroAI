@@ -31,6 +31,11 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
   const [pushingToGithub, setPushingToGithub] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  console.log('🎨 FileUploadSection render - Files prop:', files.length, 'files')
+  if (files.length > 0) {
+    console.log('📄 Files:', files)
+  }
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -76,6 +81,8 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
     setError('')
 
     try {
+      console.log('🚀 Starting file upload:', selectedFile.name)
+      
       const formData = new FormData()
       formData.append('file', selectedFile)
       if (description) {
@@ -87,11 +94,14 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
         body: formData,
       })
 
+      const data = await response.json()
+      console.log('📥 Upload response:', data)
+
       if (!response.ok) {
-        const data = await response.json()
         throw new Error(data.error || 'Failed to upload file')
       }
 
+      console.log('✅ Upload successful, refreshing file list')
       setSelectedFile(null)
       setDescription('')
       if (fileInputRef.current) {
@@ -99,6 +109,7 @@ export default function FileUploadSection({ projectId, files, onUploadComplete }
       }
       onUploadComplete()
     } catch (err) {
+      console.error('❌ Upload error:', err)
       setError(err instanceof Error ? err.message : 'Failed to upload file')
     } finally {
       setUploading(false)

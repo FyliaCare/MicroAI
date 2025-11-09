@@ -75,6 +75,13 @@ export async function POST(
       },
     })
 
+    console.log('✅ File uploaded successfully:', {
+      id: projectFile.id,
+      filename: projectFile.filename,
+      size: projectFile.fileSize,
+      project: projectId
+    })
+
     return NextResponse.json({
       success: true,
       file: projectFile,
@@ -114,6 +121,10 @@ export async function GET(
       }),
     ])
 
+    console.log('📁 Files fetched for project:', projectId)
+    console.log('  - Admin files:', projectFiles.length)
+    console.log('  - Client files:', clientUploads.length)
+
     // Merge both types into a single array
     const allFiles = [
       ...projectFiles.map((file) => ({
@@ -142,6 +153,9 @@ export async function GET(
 
     // Sort by upload date (newest first)
     allFiles.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+
+    console.log('📦 Total files merged:', allFiles.length)
+    console.log('📤 Returning files to frontend')
 
     return NextResponse.json({ files: allFiles })
   } catch (error) {

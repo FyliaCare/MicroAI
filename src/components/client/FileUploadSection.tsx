@@ -65,6 +65,8 @@ export default function FileUploadSection({
     setError('')
 
     try {
+      console.log('🚀 Client starting file upload:', file.name)
+      
       const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
       const token = session.token
 
@@ -90,11 +92,13 @@ export default function FileUploadSection({
       })
 
       const data = await response.json()
+      console.log('📥 Client upload response:', data)
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || 'Failed to upload file')
       }
 
+      console.log('✅ Client upload successful, refreshing file list')
       // Success
       setDescription('')
       if (fileInputRef.current) {
@@ -102,6 +106,7 @@ export default function FileUploadSection({
       }
       onUploadSuccess()
     } catch (err: any) {
+      console.error('❌ Client upload error:', err)
       setError(err.message || 'Failed to upload file')
     } finally {
       setIsUploading(false)

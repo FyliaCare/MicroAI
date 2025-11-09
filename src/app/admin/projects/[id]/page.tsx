@@ -73,6 +73,13 @@ export default function AdminProjectDetailPage() {
     }
   }, [params.id])
 
+  useEffect(() => {
+    console.log('📋 Files state updated:', files.length, 'files')
+    if (files.length > 0) {
+      console.log('📄 First file:', files[0])
+    }
+  }, [files])
+
   const fetchProject = async () => {
     try {
       const res = await fetch(`/api/admin/projects/${params.id}`)
@@ -98,13 +105,20 @@ export default function AdminProjectDetailPage() {
 
   const fetchFiles = async () => {
     try {
+      console.log('🔍 Fetching files for project:', params.id)
       const response = await fetch(`/api/admin/projects/${params.id}/uploads`)
+      console.log('📡 Files fetch response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('📦 Files data received:', data)
+        console.log('📊 Number of files:', data.files?.length || 0)
         setFiles(data.files || [])
+      } else {
+        console.error('❌ Failed to fetch files, status:', response.status)
       }
     } catch (err) {
-      console.error('Failed to fetch files:', err)
+      console.error('❌ Failed to fetch files:', err)
     }
   }
 
