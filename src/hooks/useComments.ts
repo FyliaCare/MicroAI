@@ -67,8 +67,12 @@ export function useComments(
     ? `/api/admin/projects/${projectId}/comments`
     : `/api/client/projects/${projectId}/comments`
 
+  // For client-side, don't fetch until we have a token
+  // For admin-side, fetch as long as we have a projectId
+  const shouldFetch = projectId && (isAdmin || token)
+
   const { data, error, isLoading, mutate } = useSWR<Comment[]>(
-    projectId ? [apiUrl, token] : null,
+    shouldFetch ? [apiUrl, token] : null,
     ([url, token]) => fetcher(url, token as string | undefined),
     {
       revalidateOnFocus: true,
