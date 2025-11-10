@@ -194,7 +194,12 @@ export async function POST(
       },
     })
   } catch (error) {
-    console.error('Upload file error:', error)
+    console.error('❌ Client upload file error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      projectId: params.id
+    })
     return NextResponse.json(
       { success: false, error: 'Failed to upload file' },
       { status: 500 }
@@ -340,7 +345,12 @@ export async function GET(
       files: validUploads, // Dual response for compatibility
     })
   } catch (error) {
-    console.error('Get uploads error:', error)
+    console.error('❌ Get client uploads error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      projectId: params.id
+    })
     return NextResponse.json(
       { success: false, error: 'Failed to fetch uploads' },
       { status: 500 }
