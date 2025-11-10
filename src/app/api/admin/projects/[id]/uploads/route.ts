@@ -27,7 +27,7 @@ export async function POST(
       userEmail: session?.user?.email
     })
     
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !['ADMIN', 'super-admin'].includes(session.user.role)) {
       console.log('❌ POST /uploads - Auth failed')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -122,7 +122,7 @@ export async function GET(
       userEmail: session?.user?.email
     })
     
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !['ADMIN', 'super-admin'].includes(session.user.role)) {
       console.log('❌ GET /uploads - Auth failed')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
