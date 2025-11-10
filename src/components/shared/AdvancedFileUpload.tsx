@@ -219,6 +219,39 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
     }
   }
 
+  // Download file
+  const downloadFile = async (file: UploadedFile) => {
+    try {
+      console.log('📥 Downloading file:', file.filename)
+      
+      // Fetch the file from Cloudinary
+      const response = await fetch(file.fileUrl)
+      if (!response.ok) throw new Error('Download failed')
+      
+      // Get the blob
+      const blob = await response.blob()
+      
+      // Create a temporary URL for the blob
+      const blobUrl = window.URL.createObjectURL(blob)
+      
+      // Create a temporary anchor element and trigger download
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = file.filename
+      document.body.appendChild(link)
+      link.click()
+      
+      // Cleanup
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(blobUrl)
+      
+      console.log('✅ Download completed')
+    } catch (err) {
+      console.error('❌ Download failed:', err)
+      setError('Failed to download file')
+    }
+  }
+
   // Get file icon based on type
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) return <ImageIcon className="w-5 h-5" />
@@ -433,15 +466,13 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 mt-3">
-                  <a
-                    href={file.fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => downloadFile(file)}
                     className="flex-1 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors flex items-center justify-center gap-2"
                   >
                     <Download className="w-4 h-4" />
                     Download
-                  </a>
+                  </button>
                   
                   {file.fileType.startsWith('image/') && (
                     <button
