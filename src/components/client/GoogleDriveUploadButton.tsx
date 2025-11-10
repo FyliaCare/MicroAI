@@ -122,7 +122,7 @@ Need help? Contact your project manager anytime!`)
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-bold text-gray-900 mb-2">Upload Instructions</h3>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            <p className="text-gray-900 leading-relaxed whitespace-pre-wrap font-medium">
               {instructions}
             </p>
           </div>
