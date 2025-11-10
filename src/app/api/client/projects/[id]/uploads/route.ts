@@ -3,13 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { v2 as cloudinary } from 'cloudinary'
 import * as jwt from 'jsonwebtoken'
 
-// Configure Cloudinary with trimmed credentials (remove any whitespace)
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
-  api_key: process.env.CLOUDINARY_API_KEY?.trim(),
-  api_secret: process.env.CLOUDINARY_API_SECRET?.trim(),
-  secure: true,
-})
+// Cloudinary automatically reads from environment variables:
+// CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+// No manual config needed if env vars are set correctly
 
 // POST /api/client/projects/[id]/uploads - Upload file for project
 export async function POST(
