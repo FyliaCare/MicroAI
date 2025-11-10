@@ -15,35 +15,55 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  console.log('\n🚀 ========== CLIENT UPLOAD REQUEST START ==========')
+  console.log('📍 Project ID:', params.id)
+  console.log('🕐 Timestamp:', new Date().toISOString())
+  
   try {
+    // Step 1: Check authorization header
+    console.log('🔐 Step 1: Checking authorization header...')
     const authHeader = request.headers.get('authorization')
+    console.log('   Auth header present:', !!authHeader)
+    console.log('   Auth header value:', authHeader ? authHeader.substring(0, 30) + '...' : 'null')
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('❌ Auth header missing or invalid format')
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized - No token provided' },
         { status: 401 }
       )
     }
 
     const token = authHeader.split('Bearer ')[1]
+    console.log('✅ Token extracted, length:', token.length)
     
     let clientId: string | null = null
     let userId: string | null = null
     let clientName: string | null = null
 
-    // Try JWT decode first (new format)
+    // Step 2: Verify JWT token
+    console.log('🔑 Step 2: Verifying JWT token...')
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any
+      console.log('✅ JWT verified successfully')
+      console.log('   Decoded payload:', { userId: decoded.userId, clientId: decoded.clientId, email: decoded.email })
+      
       clientId = decoded.clientId
       userId = decoded.userId
       
       // Get client name (only if clientId exists)
       if (clientId) {
+        console.log('👤 Fetching client details...')
         const client = await prisma.client.findUnique({
           where: { id: clientId },
         })
         clientName = client?.name || 'Client'
+        console.log('   Client name:', clientName)
       }
-    } catch (err) {
+    } catch (jwtErr) {
+      console.log('⚠️ JWT verification failed, trying session lookup...')
+      console.log('   JWT error:', jwtErr instanceof Error ? jwtErr.message : 'Unknown')
+      
       // Fallback: database lookup (old format)
       const session = await prisma.clientSession.findFirst({
         where: { 
@@ -61,20 +81,30 @@ export async function POST(
       })
 
       if (session?.user?.client) {
+        console.log('✅ Session found in database')
         clientId = session.user.client.id
         userId = session.user.id
         clientName = session.user.client.name
+      } else {
+        console.log('❌ No valid session found in database')
       }
     }
 
     if (!clientId || !userId) {
+      console.log('❌ Auth failed: clientId or userId missing')
       return NextResponse.json(
         { success: false, error: 'Invalid or expired session' },
         { status: 401 }
       )
     }
+    
+    console.log('✅ Step 2 complete: User authenticated')
+    console.log('   Client ID:', clientId)
+    console.log('   User ID:', userId)
+    console.log('   Client Name:', clientName)
 
-    // Verify client owns this project
+    // Step 3: Verify project ownership
+    console.log('📁 Step 3: Verifying project ownership...')
     const project = await prisma.project.findFirst({
       where: {
         id: params.id,
@@ -83,83 +113,104 @@ export async function POST(
     })
 
     if (!project) {
+      console.log('❌ Project not found or access denied')
+      console.log('   Project ID:', params.id)
+      console.log('   Client ID:', clientId)
       return NextResponse.json(
         { success: false, error: 'Project not found or access denied' },
         { status: 404 }
       )
     }
+    
+    console.log('✅ Step 3 complete: Project verified')
+    console.log('   Project name:', project.name)
 
+    // Step 4: Parse form data
+    console.log('📦 Step 4: Parsing form data...')
     const formData = await request.formData()
     const file = formData.get('file') as File
     const description = formData.get('description') as string
+    
+    console.log('   File object:', file ? 'Present' : 'Missing')
+    if (file) {
+      console.log('   File name:', file.name)
+      console.log('   File size:', file.size, 'bytes')
+      console.log('   File type:', file.type)
+    }
 
     if (!file) {
+      console.log('❌ No file in form data')
       return NextResponse.json(
         { success: false, error: 'No file provided' },
         { status: 400 }
       )
     }
 
-    // Validate file size (max 50MB)
+    // Step 5: Validate file size
+    console.log('⚖️ Step 5: Validating file size...')
     const maxSize = 50 * 1024 * 1024 // 50MB
+    console.log('   Max allowed:', maxSize, 'bytes')
+    console.log('   File size:', file.size, 'bytes')
+    
     if (file.size > maxSize) {
+      console.log('❌ File too large')
       return NextResponse.json(
         { success: false, error: 'File size exceeds 50MB limit' },
         { status: 400 }
       )
     }
+    
+    console.log('✅ Step 5 complete: File size valid')
 
-    // Convert file to buffer for Cloudinary upload
+    // Step 6: Convert file to base64 for Cloudinary
+    console.log('🔄 Step 6: Converting file to base64...')
     const bytes = await file.arrayBuffer()
+    console.log('   Array buffer size:', bytes.byteLength)
+    
     const buffer = Buffer.from(bytes)
+    console.log('   Buffer created, length:', buffer.length)
+    
     const base64 = buffer.toString('base64')
+    console.log('   Base64 string length:', base64.length)
+    
     const dataURI = `data:${file.type};base64,${base64}`
+    console.log('✅ Step 6 complete: File converted to data URI')
 
-    // Upload to Cloudinary
-    console.log('📤 Client uploading file to Cloudinary...')
-    const uploadResponse = await cloudinary.uploader.upload(dataURI, {
-      folder: `microai-projects/${project.name}/client-uploads`,
-      resource_type: 'auto',
-      public_id: `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
-    })
-
-    console.log('✅ File uploaded to Cloudinary:', uploadResponse.public_id)
-
-    // Create database record
-    console.log('📝 Creating database record with data:', {
-      name: file.name,
-      projectId: params.id,
-      clientId: clientId,
-      fileSize: file.size,
+    // Step 7: Upload to Cloudinary
+    console.log('☁️ Step 7: Uploading to Cloudinary...')
+    console.log('   Cloudinary config:', {
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      has_api_key: !!process.env.CLOUDINARY_API_KEY,
+      has_api_secret: !!process.env.CLOUDINARY_API_SECRET,
     })
     
-    const upload = await prisma.clientUpload.create({
-      data: {
-        name: file.name,
-        originalName: file.name,
-        description: description || null,
-        category: 'project-file',
-        fileUrl: uploadResponse.secure_url, // Cloudinary secure URL
-        fileSize: file.size,
-        mimeType: file.type || 'application/octet-stream',
-        format: file.name.split('.').pop() || '',
-        projectId: params.id,
-        clientId: clientId,
-        uploadedBy: clientId,
-        uploadedByRole: 'client',
-        cloudinaryId: uploadResponse.public_id, // Store for deletion
-      },
+    const folderPath = `microai-projects/${project.name}/client-uploads`
+    const publicId = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+    console.log('   Upload folder:', folderPath)
+    console.log('   Public ID:', publicId)
+    
+    const uploadResponse = await cloudinary.uploader.upload(dataURI, {
+      folder: folderPath,
+      resource_type: 'auto',
+      public_id: publicId,
     })
 
-    console.log('✅ Client file uploaded successfully:', {
-      id: upload.id,
-      filename: upload.originalName,
-      size: upload.fileSize,
-      project: params.id,
-      client: clientId
-    })
+    console.log('✅ Step 7 complete: File uploaded to Cloudinary')
+    console.log('   Cloudinary ID:', uploadResponse.public_id)
+    console.log('   Secure URL:', uploadResponse.secure_url)
+    console.log('   File format:', uploadResponse.format)
+    console.log('   Resource type:', uploadResponse.resource_type)
 
-    // Create notification for admin
+    // Step 8: Create database record
+    console.log('💾 Step 8: Creating database record...')
+    const dbData = {
+    console.log('✅ Step 8 complete: Database record created')
+    console.log('   Upload ID:', upload.id)
+    console.log('   Created at:', upload.createdAt)
+
+    // Step 9: Create notifications and activity logs
+    console.log('📢 Step 9: Creating notifications and activity logs...')
+    
     await prisma.notification.create({
       data: {
         type: 'new-upload',
@@ -171,8 +222,8 @@ export async function POST(
         entityId: params.id,
       },
     })
+    console.log('   ✓ Notification created')
 
-    // Log activity
     await prisma.activityLog.create({
       data: {
         action: 'Uploaded File',
@@ -187,12 +238,56 @@ export async function POST(
         }),
       },
     })
+    console.log('   ✓ Activity log created')
+    console.log('✅ Step 9 complete: Notifications and logs created')
 
-    return NextResponse.json({
+    // Step 10: Return success response
+    console.log('📤 Step 10: Preparing success response...')
+    const response = {
       success: true,
       upload: {
         id: upload.id,
         fileName: upload.originalName,
+        filePath: upload.fileUrl,
+        fileSize: upload.fileSize,
+        fileType: upload.mimeType,
+        description: upload.description,
+        createdAt: upload.createdAt,
+      },
+    }
+    
+    console.log('✅ CLIENT UPLOAD SUCCESSFUL!')
+    console.log('🎉 ========== REQUEST COMPLETE ==========\n')
+    
+    return NextResponse.json(response)
+    
+  } catch (error) {
+    console.error('\n💥 ========== UPLOAD ERROR ==========')
+    console.error('❌ Error type:', error?.constructor?.name)
+    console.error('❌ Error message:', error instanceof Error ? error.message : 'Unknown error')
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+    console.error('❌ Project ID:', params.id)
+    console.error('❌ Timestamp:', new Date().toISOString())
+    
+    // Check for specific error types
+    if (error instanceof Error) {
+      if (error.message.includes('Cloudinary')) {
+        console.error('🔴 CLOUDINARY ERROR - Check API credentials')
+      } else if (error.message.includes('Prisma') || error.message.includes('database')) {
+        console.error('🔴 DATABASE ERROR - Check Prisma connection')
+      } else if (error.message.includes('JWT') || error.message.includes('token')) {
+        console.error('🔴 AUTH ERROR - Check JWT secret and token')
+      }
+    }
+    
+    console.error('========================================\n')
+    
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : 'Failed to upload file' },
+      { status: 500 }
+    )
+  }
+}       fileName: upload.originalName,
         filePath: upload.fileUrl,
         fileSize: upload.fileSize,
         fileType: upload.mimeType,

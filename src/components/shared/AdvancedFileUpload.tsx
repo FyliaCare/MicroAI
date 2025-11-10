@@ -136,16 +136,31 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
       ? `/api/admin/projects/${projectId}/uploads`
       : `/api/client/projects/${projectId}/uploads`
 
+    console.log('🚀 [Frontend] Starting upload process...')
+    console.log('   Endpoint:', endpoint)
+    console.log('   Files to upload:', selectedFiles.length)
+    console.log('   Is Admin:', isAdmin)
+
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i]
+        console.log(`\n📤 [Frontend] Uploading file ${i + 1}/${selectedFiles.length}:`, file.name)
+        
         const formData = new FormData()
         formData.append('file', file)
+        
+        console.log('   Form data created')
+        console.log('   File size:', file.size, 'bytes')
+        console.log('   File type:', file.type)
 
         const headers: HeadersInit = {}
         if (!isAdmin) {
           const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
+          if (!session.token) {
+            throw new Error('No authentication token found. Please log in again.')
+          }
           headers['Authorization'] = `Bearer ${session.token}`
+          console.log('   Authorization header added')
         }
 
         // Simulate progress
@@ -158,6 +173,7 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
           }))
         }, 200)
 
+        console.log('   Sending POST request...')
         const res = await fetch(endpoint, {
           method: 'POST',
           headers,
@@ -167,25 +183,53 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
         })
 
         clearInterval(progressInterval)
-        setUploadProgress(prev => ({ ...prev, [file.name]: 100 }))
+        console.log('   Response received, status:', res.status)
 
         if (!res.ok) {
-          const data = await res.json()
-          throw new Error(data.error || 'Upload failed')
+          const contentType = res.headers.get('content-type')
+          let errorMessage = 'Upload failed'
+          
+          try {
+            if (contentType?.includes('application/json')) {
+              const data = await res.json()
+              errorMessage = data.error || errorMessage
+              console.error('   Error response:', data)
+            } else {
+              const text = await res.text()
+              console.error('   Error response (text):', text)
+              errorMessage = text || errorMessage
+            }
+          } catch (parseErr) {
+            console.error('   Could not parse error response:', parseErr)
+          }
+          
+          throw new Error(`${errorMessage} (Status: ${res.status})`)
         }
+
+        setUploadProgress(prev => ({ ...prev, [file.name]: 100 }))
+        console.log('✅ [Frontend] File uploaded successfully:', file.name)
 
         await new Promise(resolve => setTimeout(resolve, 500))
       }
 
       // Success - refresh files
+      console.log('🎉 [Frontend] All files uploaded successfully!')
       setSelectedFiles([])
       setUploadProgress({})
       await fetchFiles()
       onUploadComplete?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed')
+      console.error('💥 [Frontend] Upload error:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Upload failed'
+      setError(errorMessage)
+      
+      // Show browser alert for critical errors
+      if (errorMessage.includes('authentication') || errorMessage.includes('log in')) {
+        alert('Session expired. Please log in again.')
+      }
     } finally {
       setUploading(false)
+      console.log('🏁 [Frontend] Upload process finished\n')
     }
   }
 
