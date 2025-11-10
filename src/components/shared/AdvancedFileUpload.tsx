@@ -499,21 +499,34 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
       {/* Image Preview Modal */}
       {previewFile && previewFile.fileType.startsWith('image/') && (
         <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4"
           onClick={() => setPreviewFile(null)}
         >
-          <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+          <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setPreviewFile(null)}
-              className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+              className="absolute -top-14 right-0 p-3 bg-white rounded-lg hover:bg-gray-100 text-gray-800 transition-colors shadow-lg"
             >
               <X className="w-6 h-6" />
             </button>
-            <img
-              src={previewFile.fileUrl}
-              alt={previewFile.filename}
-              className="max-w-full max-h-[90vh] rounded-xl"
-            />
+            <div className="bg-white rounded-xl p-2 shadow-2xl">
+              <img
+                src={previewFile.fileUrl}
+                alt={previewFile.filename}
+                className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
+                onError={(e) => {
+                  console.error('Image failed to load:', previewFile.fileUrl)
+                  setError('Failed to load image preview')
+                  setPreviewFile(null)
+                }}
+              />
+              <div className="mt-3 px-2 pb-1">
+                <p className="text-sm font-medium text-gray-900 truncate">{previewFile.filename}</p>
+                <p className="text-xs text-gray-600">
+                  {formatFileSize(previewFile.fileSize)} • Uploaded by {previewFile.uploaderName}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

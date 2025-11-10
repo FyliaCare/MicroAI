@@ -313,9 +313,10 @@ export default function AdvancedComments({ projectId, isAdmin }: AdvancedComment
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={3}
                 disabled={submitting}
+                maxLength={2000}
               />
               <div className="flex items-center gap-2">
                 <button
@@ -366,9 +367,10 @@ export default function AdvancedComments({ projectId, isAdmin }: AdvancedComment
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
               placeholder="Write a reply..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-3 bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows={2}
               disabled={submitting}
+              maxLength={2000}
             />
             <div className="flex items-center gap-2 mt-3">
               <button
@@ -416,9 +418,10 @@ export default function AdvancedComments({ projectId, isAdmin }: AdvancedComment
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           placeholder="Share your thoughts..."
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          className="w-full px-4 py-3 bg-white text-gray-900 placeholder-gray-500 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           rows={4}
           disabled={submitting}
+          maxLength={2000}
         />
         
         <div className="flex items-center justify-between mt-4">
