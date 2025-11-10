@@ -149,7 +149,7 @@ Need help? Contact your project manager anytime!`)
             href={driveLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+            className="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]"
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12.01 2.011a3.2 3.2 0 0 1 3.2 3.2v3.197h3.197a3.2 3.2 0 0 1 3.2 3.199v3.2a3.2 3.2 0 0 1-3.2 3.2h-3.197v3.196a3.2 3.2 0 0 1-3.2 3.2h-3.2a3.2 3.2 0 0 1-3.2-3.2v-3.197H2.414a3.2 3.2 0 0 1-3.2-3.199v-3.2a3.2 3.2 0 0 1 3.2-3.2h3.196V5.21a3.2 3.2 0 0 1 3.2-3.2h3.2z"/>
@@ -164,10 +164,12 @@ Need help? Contact your project manager anytime!`)
           <button
             onClick={handleNotifyAdmin}
             disabled={notifying || notificationSent}
-            className={`mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-base shadow-md hover:shadow-lg transition-all ${
+            className={`w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-base shadow-md transition-all ${
               notificationSent
-                ? 'bg-green-500 text-white cursor-not-allowed'
-                : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white transform hover:scale-105'
+                ? 'bg-green-500 hover:bg-green-600 text-white cursor-default'
+                : notifying
+                ? 'bg-gray-400 text-white cursor-wait'
+                : 'bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-300 hover:border-gray-400 transform hover:scale-[1.02]'
             }`}
           >
             {notifying ? (
@@ -182,20 +184,20 @@ Need help? Contact your project manager anytime!`)
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Admin Notified!
+                Admin Notified Successfully!
               </>
             ) : (
               <>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
-                Notify Admin
+                Notify Project Team
               </>
             )}
           </button>
 
-          <p className="text-sm text-gray-500 mt-6">
-            Files uploaded to this folder will be instantly accessible to your project team.
+          <p className="text-sm text-gray-500 mt-4">
+            After uploading your files, click the "Notify Project Team" button above.
           </p>
         </div>
       </div>
