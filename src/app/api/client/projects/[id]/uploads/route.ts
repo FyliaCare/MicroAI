@@ -314,7 +314,16 @@ export async function GET(
         uploaderName: 'Client',
         uploaderRole: 'Client',
       })),
-    ].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+    ]
+
+    // Filter out legacy files with local paths (only keep Cloudinary URLs)
+    const validUploads = allUploads.filter(file => {
+      const isCloudinary = file.fileUrl.startsWith('http://') || file.fileUrl.startsWith('https://')
+      if (!isCloudinary) {
+        console.log(`⚠️ Skipping legacy file with local path: ${file.filename}`)
+      }
+      return isCloudinary
+    }).sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
 
     console.log('📁 Client uploads fetched:', {
       project: params.id,
@@ -322,12 +331,13 @@ export async function GET(
       cloudinaryCount: projectFiles.length,
       localCount: clientUploads.length,
       total: allUploads.length,
+      valid: validUploads.length,
     })
 
     return NextResponse.json({
       success: true,
-      uploads: allUploads,
-      files: allUploads, // Dual response for compatibility
+      uploads: validUploads,
+      files: validUploads, // Dual response for compatibility
     })
   } catch (error) {
     console.error('Get uploads error:', error)

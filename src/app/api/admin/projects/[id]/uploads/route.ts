@@ -184,13 +184,24 @@ export async function GET(
       })),
     ]
 
+    // Filter out legacy files with local paths (only keep Cloudinary URLs)
+    const validFiles = allFiles.filter(file => {
+      const isCloudinary = file.fileUrl.startsWith('http://') || file.fileUrl.startsWith('https://')
+      if (!isCloudinary) {
+        console.log(`⚠️ Skipping legacy file with local path: ${file.filename}`)
+      }
+      return isCloudinary
+    })
+
     // Sort by upload date (newest first)
-    allFiles.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+    validFiles.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
 
     console.log('📦 Total files merged:', allFiles.length)
+    console.log('✅ Valid Cloudinary files:', validFiles.length)
+    console.log('⚠️ Legacy files filtered:', allFiles.length - validFiles.length)
     console.log('📤 Returning files to frontend')
 
-    return NextResponse.json({ files: allFiles })
+    return NextResponse.json({ files: validFiles })
   } catch (error) {
     console.error('Fetch files error:', error)
     return NextResponse.json(
