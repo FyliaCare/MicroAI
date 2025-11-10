@@ -274,9 +274,9 @@ export async function GET(
       prisma.projectFile.findMany({
         where: {
           projectId: params.id,
-          uploaderRole: 'CLIENT', // Only client uploads
+          uploadedBy: { contains: 'Client' }, // Filter for client uploads
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { uploadedAt: 'desc' },
       }),
       // Old local file uploads from ClientUpload table
       prisma.clientUpload.findMany({
@@ -295,10 +295,10 @@ export async function GET(
         id: file.id,
         fileName: file.filename,
         filePath: file.fileUrl,
-        fileSize: 0, // Not stored in ProjectFile
+        fileSize: file.fileSize,
         fileType: file.fileType,
-        description: null,
-        createdAt: file.createdAt,
+        description: file.description,
+        createdAt: file.uploadedAt,
         source: 'cloudinary' as const,
       })),
       // Old local files
@@ -400,7 +400,7 @@ export async function DELETE(
       where: {
         id: fileId,
         projectId: params.id,
-        uploaderRole: 'CLIENT',
+        uploadedBy: { contains: 'Client' }, // Only client uploads
       },
     })
 
