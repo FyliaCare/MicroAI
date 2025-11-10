@@ -126,6 +126,13 @@ export async function POST(
     console.log('✅ File uploaded to Cloudinary:', uploadResponse.public_id)
 
     // Create database record
+    console.log('📝 Creating database record with data:', {
+      name: file.name,
+      projectId: params.id,
+      clientId: clientId,
+      fileSize: file.size,
+    })
+    
     const upload = await prisma.clientUpload.create({
       data: {
         name: file.name,
@@ -134,7 +141,7 @@ export async function POST(
         category: 'project-file',
         fileUrl: uploadResponse.secure_url, // Cloudinary secure URL
         fileSize: file.size,
-        mimeType: file.type,
+        mimeType: file.type || 'application/octet-stream',
         format: file.name.split('.').pop() || '',
         projectId: params.id,
         clientId: clientId,
