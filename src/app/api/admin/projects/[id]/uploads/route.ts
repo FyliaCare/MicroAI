@@ -20,10 +20,19 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions)
+    
+    console.log('🔍 POST /uploads - Session check:', {
+      hasSession: !!session,
+      userRole: session?.user?.role,
+      userEmail: session?.user?.email
+    })
+    
     if (!session || session.user.role !== 'ADMIN') {
+      console.log('❌ POST /uploads - Auth failed')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    console.log('✅ POST /uploads - Auth passed')
     const projectId = params.id
 
     // Check if project exists
@@ -104,11 +113,21 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Get session - must pass request for App Router
     const session = await getServerSession(authOptions)
+    
+    console.log('🔍 GET /uploads - Session check:', {
+      hasSession: !!session,
+      userRole: session?.user?.role,
+      userEmail: session?.user?.email
+    })
+    
     if (!session || session.user.role !== 'ADMIN') {
+      console.log('❌ GET /uploads - Auth failed')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    console.log('✅ GET /uploads - Auth passed')
     const projectId = params.id
 
     // Fetch from BOTH tables - admin uploads AND client uploads

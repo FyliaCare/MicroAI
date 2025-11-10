@@ -11,10 +11,19 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions)
+    
+    console.log('🔍 POST /comments - Session check:', {
+      hasSession: !!session,
+      userRole: session?.user?.role,
+      userEmail: session?.user?.email
+    })
+    
     if (!session || session.user.role !== 'ADMIN') {
+      console.log('❌ POST /comments - Auth failed')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    console.log('✅ POST /comments - Auth passed')
     const projectId = params.id
     const body = await request.json()
     const { content, parentId } = body
@@ -85,10 +94,19 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions)
+    
+    console.log('🔍 GET /comments - Session check:', {
+      hasSession: !!session,
+      userRole: session?.user?.role,
+      userEmail: session?.user?.email
+    })
+    
     if (!session || session.user.role !== 'ADMIN') {
+      console.log('❌ GET /comments - Auth failed')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    console.log('✅ GET /comments - Auth passed')
     const projectId = params.id
 
     // Fetch comments from both tables in parallel
