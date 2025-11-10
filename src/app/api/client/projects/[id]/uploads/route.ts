@@ -113,10 +113,18 @@ export async function POST(
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const base64 = buffer.toString('base64')
-    const dataURI = `data:${file.type};base64,${base64}`
+    const dataURI = `data:${file.type || 'application/octet-stream'};base64,${base64}`
 
     // Upload to Cloudinary
-    console.log('📤 Client uploading file to Cloudinary...')
+    console.log('📤 Client uploading file to Cloudinary...', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      hasApiKey: !!process.env.CLOUDINARY_API_KEY,
+      hasApiSecret: !!process.env.CLOUDINARY_API_SECRET,
+    })
+    
     const uploadResponse = await cloudinary.uploader.upload(dataURI, {
       folder: `microai-projects/${project.name}/client-uploads`,
       resource_type: 'auto',
@@ -125,28 +133,23 @@ export async function POST(
 
     console.log('✅ File uploaded to Cloudinary:', uploadResponse.public_id)
 
-    // Create database record
-    const upload = await prisma.clientUpload.create({
+    // Create database record in ProjectFile (same as admin uploads)
+    const upload = await prisma.projectFile.create({
       data: {
-        name: file.name,
-        originalName: file.name,
-        description: description || null,
-        category: 'project-file',
+        projectId: params.id,
+        filename: file.name,
         fileUrl: uploadResponse.secure_url, // Cloudinary secure URL
         fileSize: file.size,
-        mimeType: file.type,
-        format: file.name.split('.').pop() || '',
-        projectId: params.id,
-        clientId: clientId,
-        uploadedBy: clientId,
-        uploadedByRole: 'client',
+        fileType: file.type || 'application/octet-stream',
+        description: description || undefined,
+        uploadedBy: clientName || 'Client',
         cloudinaryId: uploadResponse.public_id, // Store for deletion
       },
     })
 
     console.log('✅ Client file uploaded successfully:', {
       id: upload.id,
-      filename: upload.originalName,
+      filename: upload.filename,
       size: upload.fileSize,
       project: params.id,
       client: clientId
@@ -183,20 +186,31 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
+      file: upload,
       upload: {
         id: upload.id,
-        fileName: upload.originalName,
+        fileName: upload.filename,
         filePath: upload.fileUrl,
         fileSize: upload.fileSize,
-        fileType: upload.mimeType,
+        fileType: upload.fileType,
         description: upload.description,
-        createdAt: upload.createdAt,
+        createdAt: upload.uploadedAt,
       },
     })
   } catch (error) {
-    console.error('Upload file error:', error)
+    console.error('❌ Upload file error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined,
+    })
+    
     return NextResponse.json(
-      { success: false, error: 'Failed to upload file' },
+      { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to upload file',
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : String(error)) : undefined
+      },
       { status: 500 }
     )
   }
@@ -268,66 +282,37 @@ export async function GET(
       )
     }
 
-    // Get files from BOTH tables - ProjectFile (Cloudinary new) AND ClientUpload (old local files)
-    const [projectFiles, clientUploads] = await Promise.all([
-      // New Cloudinary uploads from ProjectFile table
-      prisma.projectFile.findMany({
-        where: {
-          projectId: params.id,
-          uploadedBy: { contains: 'Client' }, // Filter for client uploads
-        },
-        orderBy: { uploadedAt: 'desc' },
-      }),
-      // Old local file uploads from ClientUpload table
-      prisma.clientUpload.findMany({
-        where: {
-          projectId: params.id,
-          clientId: clientId,
-        },
-        orderBy: { createdAt: 'desc' },
-      }),
-    ])
+    // Get all files for this project (both admin and client uploads)
+    const projectFiles = await prisma.projectFile.findMany({
+      where: {
+        projectId: params.id,
+      },
+      orderBy: { uploadedAt: 'desc' },
+    })
 
-    // Combine both sources into one list with matching field names
-    const allUploads = [
-      // New Cloudinary files
-      ...projectFiles.map((file) => ({
-        id: file.id,
-        filename: file.filename,
-        fileUrl: file.fileUrl,
-        fileSize: file.fileSize,
-        fileType: file.fileType,
-        description: file.description,
-        uploadedAt: file.uploadedAt.toISOString(),
-        uploaderName: 'Client',
-        uploaderRole: 'Client',
-      })),
-      // Old local files
-      ...clientUploads.map((upload) => ({
-        id: upload.id,
-        filename: upload.originalName,
-        fileUrl: upload.fileUrl,
-        fileSize: upload.fileSize,
-        fileType: upload.mimeType,
-        description: upload.description,
-        uploadedAt: upload.createdAt.toISOString(),
-        uploaderName: 'Client',
-        uploaderRole: 'Client',
-      })),
-    ].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+    // Map to consistent response format
+    const uploads = projectFiles.map((file) => ({
+      id: file.id,
+      filename: file.filename,
+      fileUrl: file.fileUrl,
+      fileSize: file.fileSize,
+      fileType: file.fileType,
+      description: file.description,
+      uploadedAt: file.uploadedAt.toISOString(),
+      uploaderName: file.uploadedBy,
+      uploaderRole: file.uploadedBy.toLowerCase().includes('client') ? 'Client' : 'Admin',
+    }))
 
     console.log('📁 Client uploads fetched:', {
       project: params.id,
       client: clientId,
-      cloudinaryCount: projectFiles.length,
-      localCount: clientUploads.length,
-      total: allUploads.length,
+      total: uploads.length,
     })
 
     return NextResponse.json({
       success: true,
-      uploads: allUploads,
-      files: allUploads, // Dual response for compatibility
+      uploads: uploads,
+      files: uploads, // Dual response for compatibility
     })
   } catch (error) {
     console.error('Get uploads error:', error)
@@ -398,62 +383,40 @@ export async function DELETE(
       )
     }
 
-    // Try to find in ProjectFile table first (Cloudinary)
+    // Try to find in ProjectFile table
     const projectFile = await prisma.projectFile.findFirst({
       where: {
         id: fileId,
         projectId: params.id,
-        uploadedBy: { contains: 'Client' }, // Only client uploads
       },
     })
 
-    if (projectFile) {
-      // Delete from Cloudinary
-      if (projectFile.cloudinaryId) {
-        try {
-          await cloudinary.uploader.destroy(projectFile.cloudinaryId)
-          console.log('🗑️ Deleted from Cloudinary:', projectFile.cloudinaryId)
-        } catch (err) {
-          console.error('⚠️ Failed to delete from Cloudinary:', err)
-        }
+    if (!projectFile) {
+      return NextResponse.json(
+        { success: false, error: 'File not found or access denied' },
+        { status: 404 }
+      )
+    }
+
+    // Delete from Cloudinary
+    if (projectFile.cloudinaryId) {
+      try {
+        await cloudinary.uploader.destroy(projectFile.cloudinaryId)
+        console.log('🗑️ Deleted from Cloudinary:', projectFile.cloudinaryId)
+      } catch (err) {
+        console.error('⚠️ Failed to delete from Cloudinary:', err)
       }
-
-      // Delete from database
-      await prisma.projectFile.delete({
-        where: { id: fileId },
-      })
-
-      return NextResponse.json({
-        success: true,
-        message: 'File deleted successfully',
-      })
     }
 
-    // Try ClientUpload table (old local files)
-    const clientUpload = await prisma.clientUpload.findFirst({
-      where: {
-        id: fileId,
-        projectId: params.id,
-        clientId: clientId,
-      },
+    // Delete from database
+    await prisma.projectFile.delete({
+      where: { id: fileId },
     })
 
-    if (clientUpload) {
-      // Delete from database (local file deletion handled elsewhere)
-      await prisma.clientUpload.delete({
-        where: { id: fileId },
-      })
-
-      return NextResponse.json({
-        success: true,
-        message: 'File deleted successfully',
-      })
-    }
-
-    return NextResponse.json(
-      { success: false, error: 'File not found or access denied' },
-      { status: 404 }
-    )
+    return NextResponse.json({
+      success: true,
+      message: 'File deleted successfully',
+    })
   } catch (error) {
     console.error('Delete file error:', error)
     return NextResponse.json(
