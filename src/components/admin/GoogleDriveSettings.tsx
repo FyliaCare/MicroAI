@@ -135,7 +135,7 @@ Need help? Contact your project manager anytime!`)
               value={driveLink}
               onChange={(e) => setDriveLink(e.target.value)}
               placeholder="https://drive.google.com/drive/folders/..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
             />
             <p className="mt-2 text-sm text-gray-500">
               Create a Google Drive folder and paste the shareable link here
@@ -150,8 +150,8 @@ Need help? Contact your project manager anytime!`)
             <textarea
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={12}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-mono text-sm"
               placeholder="Enter instructions for the client on how to upload files..."
             />
             <p className="mt-2 text-sm text-gray-500">
