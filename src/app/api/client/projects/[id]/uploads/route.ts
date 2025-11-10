@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { v2 as cloudinary } from 'cloudinary'
-import * as jwt from 'jsonwebtoken'
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+// FILE UPLOAD TEMPORARILY DISABLED
+// Feature disabled due to production issues - will be re-implemented
 
 // POST /api/client/projects/[id]/uploads - Upload file for project
 export async function POST(
