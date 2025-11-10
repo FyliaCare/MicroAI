@@ -288,31 +288,33 @@ export async function GET(
       }),
     ])
 
-    // Combine both sources into one list
+    // Combine both sources into one list with matching field names
     const allUploads = [
       // New Cloudinary files
       ...projectFiles.map((file) => ({
         id: file.id,
-        fileName: file.filename,
-        filePath: file.fileUrl,
+        filename: file.filename,
+        fileUrl: file.fileUrl,
         fileSize: file.fileSize,
         fileType: file.fileType,
         description: file.description,
-        createdAt: file.uploadedAt,
-        source: 'cloudinary' as const,
+        uploadedAt: file.uploadedAt.toISOString(),
+        uploaderName: 'Client',
+        uploaderRole: 'Client',
       })),
       // Old local files
       ...clientUploads.map((upload) => ({
         id: upload.id,
-        fileName: upload.originalName,
-        filePath: upload.fileUrl,
+        filename: upload.originalName,
+        fileUrl: upload.fileUrl,
         fileSize: upload.fileSize,
         fileType: upload.mimeType,
         description: upload.description,
-        createdAt: upload.createdAt,
-        source: 'local' as const,
+        uploadedAt: upload.createdAt.toISOString(),
+        uploaderName: 'Client',
+        uploaderRole: 'Client',
       })),
-    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    ].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
 
     console.log('📁 Client uploads fetched:', {
       project: params.id,
@@ -325,6 +327,7 @@ export async function GET(
     return NextResponse.json({
       success: true,
       uploads: allUploads,
+      files: allUploads, // Dual response for compatibility
     })
   } catch (error) {
     console.error('Get uploads error:', error)

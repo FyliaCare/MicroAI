@@ -149,8 +149,8 @@ export async function GET(
         fileType: file.fileType || 'application/octet-stream',
         description: file.description || null,
         uploadedAt: file.uploadedAt.toISOString(),
-        uploadedBy: file.uploadedBy || 'Admin',
-        source: 'admin',
+        uploaderName: file.uploadedBy || 'Admin',
+        uploaderRole: file.uploadedBy.includes('Client') ? 'Client' : 'Admin',
       })),
       ...clientUploads.map((upload) => ({
         id: upload.id,
@@ -160,8 +160,8 @@ export async function GET(
         fileType: upload.mimeType || 'application/octet-stream',
         description: upload.description || null,
         uploadedAt: upload.createdAt.toISOString(),
-        uploadedBy: 'Client',
-        source: 'client',
+        uploaderName: 'Client',
+        uploaderRole: 'Client',
       })),
     ]
 
