@@ -125,8 +125,15 @@ export async function POST(
       hasApiSecret: !!process.env.CLOUDINARY_API_SECRET,
     })
     
+    // Sanitize project name for Cloudinary folder (remove special chars, normalize spaces)
+    const sanitizedProjectName = project.name
+      .replace(/\s+/g, '_')  // Replace multiple spaces with single underscore
+      .replace(/[^a-zA-Z0-9_-]/g, '_')  // Replace special chars with underscore
+      .replace(/_+/g, '_')  // Replace multiple underscores with single
+      .replace(/^_|_$/g, '')  // Remove leading/trailing underscores
+    
     const uploadResponse = await cloudinary.uploader.upload(dataURI, {
-      folder: `microai-projects/${project.name}/client-uploads`,
+      folder: `microai-projects/${sanitizedProjectName}/client-uploads`,
       resource_type: 'auto',
       public_id: `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
     })

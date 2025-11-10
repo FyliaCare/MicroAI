@@ -64,10 +64,17 @@ export async function POST(
     const base64 = buffer.toString('base64')
     const dataURI = `data:${file.type};base64,${base64}`
 
+    // Sanitize project name for Cloudinary folder (remove special chars, normalize spaces)
+    const sanitizedProjectName = project.name
+      .replace(/\s+/g, '_')  // Replace multiple spaces with single underscore
+      .replace(/[^a-zA-Z0-9_-]/g, '_')  // Replace special chars with underscore
+      .replace(/_+/g, '_')  // Replace multiple underscores with single
+      .replace(/^_|_$/g, '')  // Remove leading/trailing underscores
+
     // Upload to Cloudinary
     console.log('📤 Uploading file to Cloudinary...')
     const uploadResponse = await cloudinary.uploader.upload(dataURI, {
-      folder: `microai-projects/${project.name}`,
+      folder: `microai-projects/${sanitizedProjectName}`,
       resource_type: 'auto',
       public_id: `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
     })
