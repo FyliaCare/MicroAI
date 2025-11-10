@@ -10,6 +10,8 @@ export default function GoogleDriveUploadButton({ projectId }: GoogleDriveUpload
   const [loading, setLoading] = useState(true)
   const [driveLink, setDriveLink] = useState<string | null>(null)
   const [instructions, setInstructions] = useState<string>('')
+  const [notifying, setNotifying] = useState(false)
+  const [notificationSent, setNotificationSent] = useState(false)
 
   useEffect(() => {
     fetchGoogleDriveSettings()
@@ -39,7 +41,7 @@ export default function GoogleDriveUploadButton({ projectId }: GoogleDriveUpload
 2. You'll be taken to a secure Google Drive folder for your project
 3. Click the "New" button or drag files directly into the folder
 4. Wait for files to finish uploading (you'll see a checkmark)
-5. Your project team will be notified automatically!
+5. Click the "Notify Admin" button below to let us know files are ready!
 
 💡 Tips:
 • Use clear file names (e.g., "Logo_Final_v2.png")
@@ -53,6 +55,33 @@ Need help? Contact your project manager anytime!`)
       console.error('Failed to fetch Google Drive settings:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleNotifyAdmin = async () => {
+    try {
+      setNotifying(true)
+      const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
+      const token = session.token
+
+      if (!token) return
+
+      const res = await fetch(`/api/client/projects/${projectId}/notify-upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (res.ok) {
+        setNotificationSent(true)
+        setTimeout(() => setNotificationSent(false), 5000) // Reset after 5 seconds
+      }
+    } catch (error) {
+      console.error('Failed to notify admin:', error)
+    } finally {
+      setNotifying(false)
     }
   }
 
@@ -130,6 +159,40 @@ Need help? Contact your project manager anytime!`)
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
+
+          {/* Notify Admin Button */}
+          <button
+            onClick={handleNotifyAdmin}
+            disabled={notifying || notificationSent}
+            className={`mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-base shadow-md hover:shadow-lg transition-all ${
+              notificationSent
+                ? 'bg-green-500 text-white cursor-not-allowed'
+                : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white transform hover:scale-105'
+            }`}
+          >
+            {notifying ? (
+              <>
+                <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Sending Notification...
+              </>
+            ) : notificationSent ? (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Admin Notified!
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                Notify Admin
+              </>
+            )}
+          </button>
 
           <p className="text-sm text-gray-500 mt-6">
             Files uploaded to this folder will be instantly accessible to your project team.

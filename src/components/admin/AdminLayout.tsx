@@ -17,6 +17,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<any[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [projectRequestsCount, setProjectRequestsCount] = useState(0)
   const { data: session } = useSession()
 
   const handleLogout = async () => {
@@ -38,6 +39,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       }
     } catch (error) {
       console.error('❌ Error fetching notifications:', error)
+    }
+  }
+
+  // Fetch project requests count
+  const fetchProjectRequestsCount = async () => {
+    try {
+      const response = await fetch('/api/admin/project-requests')
+      const data = await response.json()
+      if (data.success) {
+        const pendingCount = data.requests.filter((r: any) => r.status === 'pending').length
+        setProjectRequestsCount(pendingCount)
+      }
+    } catch (error) {
+      console.error('❌ Error fetching project requests:', error)
     }
   }
 
@@ -73,11 +88,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   }
 
-  // Fetch notifications on mount and every 10 seconds for real-time updates
+  // Fetch notifications and project requests on mount and every 10 seconds for real-time updates
   useEffect(() => {
     fetchNotifications().catch(err => console.error('Notification fetch error:', err))
+    fetchProjectRequestsCount().catch(err => console.error('Project requests fetch error:', err))
     const interval = setInterval(() => {
       fetchNotifications().catch(err => console.error('Notification fetch error:', err))
+      fetchProjectRequestsCount().catch(err => console.error('Project requests fetch error:', err))
     }, 10000) // Check every 10 seconds
     return () => clearInterval(interval)
   }, [])
@@ -339,9 +356,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Project Requests
-                  {unreadCount > 0 && (
+                  {projectRequestsCount > 0 && (
                     <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2.5 py-1 font-bold animate-pulse shadow-lg">
-                      {unreadCount}
+                      {projectRequestsCount}
                     </span>
                   )}
                 </Link>
@@ -586,6 +603,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                   Notifications
+                  {unreadCount > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2.5 py-1 font-bold animate-pulse shadow-lg">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               </li>
               <li>

@@ -32,7 +32,7 @@ export default function GoogleDriveSettings({ projectId }: GoogleDriveSettingsPr
 2. You'll be taken to a secure Google Drive folder for your project
 3. Click the "New" button or drag files directly into the folder
 4. Wait for files to finish uploading (you'll see a checkmark)
-5. Your project team will be notified automatically!
+5. Click the "Notify Admin" button below to let us know files are ready!
 
 💡 Tips:
 • Use clear file names (e.g., "Logo_Final_v2.png")
