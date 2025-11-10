@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import NewClientFileUploadSection from '@/components/client/NewClientFileUploadSection'
 import ClientCommentSection from '@/components/client/ClientCommentSection'
+import GoogleDriveUploadButton from '@/components/client/GoogleDriveUploadButton'
 
 interface Project {
   id: string
@@ -579,7 +579,7 @@ export default function ProjectDetailPage() {
                   </div>
                   <h2 className="text-xl font-bold text-slate-900">Project Files & Assets</h2>
                 </div>
-                <NewClientFileUploadSection projectId={params.id as string} />
+                <GoogleDriveUploadButton projectId={params.id as string} />
               </div>
             )}
 

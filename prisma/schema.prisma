@@ -93,6 +93,8 @@ model Project {
   sslCertificate Boolean       @default(false)
   tags           String?
   uptime         Float         @default(100)
+  googleDriveLink String?      // Google Drive folder link for client file uploads
+  googleDriveInstructions String? // Custom instructions for clients
   comments       Comment[]
   deployments    Deployment[]
   documents      Document[]

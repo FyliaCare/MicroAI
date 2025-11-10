@@ -6,6 +6,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import NewFileUploadSection from '@/components/admin/NewFileUploadSection'
 import AdminCommentSection from '@/components/admin/AdminCommentSection'
+import GoogleDriveSettings from '@/components/admin/GoogleDriveSettings'
 
 interface ProjectFile {
   id: string
@@ -473,6 +474,9 @@ export default function AdminProjectDetailPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Google Drive File Upload Settings */}
+                <GoogleDriveSettings projectId={project.id} />
               </div>
             )}
 
