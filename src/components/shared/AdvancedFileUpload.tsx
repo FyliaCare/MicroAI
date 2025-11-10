@@ -43,6 +43,8 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
         ? `/api/admin/projects/${projectId}/uploads`
         : `/api/client/projects/${projectId}/uploads`
       
+      console.log('🔍 [AdvancedFileUpload] Fetching files:', { projectId, isAdmin, endpoint })
+      
       const headers: HeadersInit = {}
       if (!isAdmin) {
         const session = JSON.parse(localStorage.getItem('clientSession') || '{}')
@@ -54,12 +56,24 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
         credentials: 'include'
       })
 
+      console.log('📡 [AdvancedFileUpload] Response status:', res.status)
+
       if (res.ok) {
         const data = await res.json()
-        setFiles(data.files || data.uploads || [])
+        console.log('📦 [AdvancedFileUpload] Full API response:', data)
+        console.log('📊 [AdvancedFileUpload] data.files:', data.files)
+        console.log('📊 [AdvancedFileUpload] data.uploads:', data.uploads)
+        
+        const filesArray = data.files || data.uploads || []
+        console.log('✅ [AdvancedFileUpload] Setting files array:', filesArray)
+        console.log('📈 [AdvancedFileUpload] Files count:', filesArray.length)
+        
+        setFiles(filesArray)
+      } else {
+        console.error('❌ [AdvancedFileUpload] Failed to fetch files, status:', res.status)
       }
     } catch (err) {
-      console.error('Failed to fetch files:', err)
+      console.error('❌ [AdvancedFileUpload] Failed to fetch files:', err)
     } finally {
       setLoading(false)
     }
@@ -69,6 +83,16 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
   useEffect(() => {
     fetchFiles()
   }, [fetchFiles])
+
+  // Debug: Track files state changes
+  useEffect(() => {
+    console.log('🔄 [AdvancedFileUpload] Files state updated:', {
+      count: files.length,
+      files: files,
+      isAdmin,
+      projectId
+    })
+  }, [files, isAdmin, projectId])
 
   // Handle drag events
   const handleDrag = useCallback((e: React.DragEvent) => {
