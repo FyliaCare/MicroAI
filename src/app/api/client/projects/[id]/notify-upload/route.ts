@@ -41,35 +41,22 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Get all admin users to notify
-    const admins = await prisma.user.findMany({
-      where: {
-        role: {
-          in: ['admin', 'super_admin'],
-        },
+    // Create notification for all admins
+    await prisma.notification.create({
+      data: {
+        type: 'file_upload',
+        title: 'New Files Uploaded',
+        message: `${project.client?.name || 'A client'} has uploaded files to Google Drive for project "${project.name}".`,
+        link: `/admin/projects/${project.id}?tab=files`,
+        priority: 'normal',
+        entityType: 'Project',
+        entityId: project.id,
       },
     })
-
-    // Create notifications for all admins
-    const notifications = await Promise.all(
-      admins.map((admin) =>
-        prisma.notification.create({
-          data: {
-            userId: admin.id,
-            type: 'file_upload',
-            title: 'New Files Uploaded',
-            message: `${project.client.name} has uploaded files to Google Drive for project "${project.name}".`,
-            link: `/admin/projects/${project.id}?tab=files`,
-            read: false,
-          },
-        })
-      )
-    )
 
     return NextResponse.json({
       success: true,
       message: 'Admin notified successfully',
-      notificationsCreated: notifications.length,
     })
   } catch (error) {
     console.error('Error notifying admin:', error)
