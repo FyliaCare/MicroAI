@@ -53,7 +53,8 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
 
       const res = await fetch(endpoint, { 
         headers,
-        credentials: 'include'
+        credentials: 'include',
+        cache: 'no-store' // Prevent caching issues with auth
       })
 
       console.log('📡 [AdvancedFileUpload] Response status:', res.status)
@@ -161,7 +162,8 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
           method: 'POST',
           headers,
           body: formData,
-          credentials: 'include'
+          credentials: 'include',
+          cache: 'no-store'
         })
 
         clearInterval(progressInterval)
@@ -205,7 +207,8 @@ export default function AdvancedFileUpload({ projectId, isAdmin, onUploadComplet
       const res = await fetch(endpoint, {
         method: 'DELETE',
         headers,
-        credentials: 'include'
+        credentials: 'include',
+        cache: 'no-store'
       })
 
       if (!res.ok) throw new Error('Delete failed')

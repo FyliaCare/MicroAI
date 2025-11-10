@@ -21,13 +21,25 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
+      cookieName: process.env.NODE_ENV === 'production' 
+        ? '__Secure-next-auth.session-token' 
+        : 'next-auth.session-token',
+    })
+
+    console.log('🔐 Middleware auth check:', {
+      path: pathname,
+      hasToken: !!token,
+      tokenEmail: token?.email,
+      isAdminRoute,
+      isAdminApiRoute
     })
 
     // Redirect to login if not authenticated
     if (!token) {
+      console.log('❌ No token found, returning 401')
       if (isAdminApiRoute) {
         return NextResponse.json(
-          { success: false, error: 'Unauthorized' },
+          { success: false, error: 'Unauthorized - No session token found' },
           { status: 401 }
         )
       }
@@ -39,15 +51,18 @@ export async function middleware(request: NextRequest) {
 
     // Check if admin is active
     if (!token.email) {
+      console.log('❌ Token has no email')
       if (isAdminApiRoute) {
         return NextResponse.json(
-          { success: false, error: 'Invalid session' },
+          { success: false, error: 'Invalid session - No email in token' },
           { status: 401 }
         )
       }
       
       return NextResponse.redirect(new URL('/admin/login', request.url))
     }
+
+    console.log('✅ Auth check passed for:', token.email)
   }
 
   const response = NextResponse.next()
