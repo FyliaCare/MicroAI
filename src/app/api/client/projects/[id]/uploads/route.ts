@@ -204,6 +204,26 @@ export async function POST(
     // Step 8: Create database record
     console.log('💾 Step 8: Creating database record...')
     const dbData = {
+      name: file.name,
+      originalName: file.name,
+      description: description || null,
+      category: 'project-file',
+      fileUrl: uploadResponse.secure_url,
+      fileSize: file.size,
+      mimeType: file.type || 'application/octet-stream',
+      format: file.name.split('.').pop() || '',
+      projectId: params.id,
+      clientId: clientId,
+      uploadedBy: clientId,
+      uploadedByRole: 'client',
+      cloudinaryId: uploadResponse.public_id,
+    }
+    console.log('   Database record data:', JSON.stringify(dbData, null, 2))
+    
+    const upload = await prisma.clientUpload.create({
+      data: dbData,
+    })
+
     console.log('✅ Step 8 complete: Database record created')
     console.log('   Upload ID:', upload.id)
     console.log('   Created at:', upload.createdAt)
@@ -284,26 +304,6 @@ export async function POST(
     
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Failed to upload file' },
-      { status: 500 }
-    )
-  }
-}       fileName: upload.originalName,
-        filePath: upload.fileUrl,
-        fileSize: upload.fileSize,
-        fileType: upload.mimeType,
-        description: upload.description,
-        createdAt: upload.createdAt,
-      },
-    })
-  } catch (error) {
-    console.error('❌ Client upload file error:', error)
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      projectId: params.id
-    })
-    return NextResponse.json(
-      { success: false, error: 'Failed to upload file' },
       { status: 500 }
     )
   }
