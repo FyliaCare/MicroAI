@@ -3,11 +3,12 @@ import { prisma } from '@/lib/prisma'
 import { v2 as cloudinary } from 'cloudinary'
 import * as jwt from 'jsonwebtoken'
 
-// Configure Cloudinary
+// Configure Cloudinary with trimmed credentials (remove any whitespace)
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.trim(),
+  api_key: process.env.CLOUDINARY_API_KEY?.trim(),
+  api_secret: process.env.CLOUDINARY_API_SECRET?.trim(),
+  secure: true,
 })
 
 // POST /api/client/projects/[id]/uploads - Upload file for project
@@ -130,6 +131,13 @@ export async function POST(
       .replace(/[^a-zA-Z0-9]+/g, '_')  // Replace ANY non-alphanumeric chars with underscore
       .replace(/_+/g, '_')  // Replace multiple underscores with single
       .replace(/^_|_$/g, '')  // Remove leading/trailing underscores
+    
+    console.log('🔧 Cloudinary upload config:', {
+      folder: `microai-projects/${sanitizedProjectName}/client-uploads`,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKeyLength: process.env.CLOUDINARY_API_KEY?.length,
+      apiSecretLength: process.env.CLOUDINARY_API_SECRET?.length,
+    })
     
     const uploadResponse = await cloudinary.uploader.upload(dataURI, {
       folder: `microai-projects/${sanitizedProjectName}/client-uploads`,
