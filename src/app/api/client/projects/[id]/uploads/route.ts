@@ -1,31 +1,59 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'import { NextRequest, NextResponse } from 'next/server'
 
-// FILE UPLOAD TEMPORARILY DISABLED
-// Feature disabled due to production issues - will be re-implemented
+
+
+// FILE UPLOAD FEATURE TEMPORARILY DISABLED// FILE UPLOAD TEMPORARILY DISABLED
+
+// This route has been simplified due to persistent production issues// Feature disabled due to production issues - will be re-implemented
+
+// Feature will be re-implemented in future update with proper testing
 
 // POST /api/client/projects/[id]/uploads - Upload file for project
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  console.log('\n🚀 ========== CLIENT UPLOAD REQUEST START ==========')
-  console.log('📍 Project ID:', params.id)
+
+export async function POST() {export async function POST(
+
+  return NextResponse.json(  request: NextRequest,
+
+    { error: 'File upload feature is currently unavailable. Please contact support.' },  { params }: { params: { id: string } }
+
+    { status: 503 }) {
+
+  )  console.log('\n🚀 ========== CLIENT UPLOAD REQUEST START ==========')
+
+}  console.log('📍 Project ID:', params.id)
+
   console.log('🕐 Timestamp:', new Date().toISOString())
-  
-  try {
-    // Step 1: Check authorization header
-    console.log('🔐 Step 1: Checking authorization header...')
-    const authHeader = request.headers.get('authorization')
-    console.log('   Auth header present:', !!authHeader)
-    console.log('   Auth header value:', authHeader ? authHeader.substring(0, 30) + '...' : 'null')
-    
+
+export async function GET() {  
+
+  // Return empty array so UI doesn't break  try {
+
+  return NextResponse.json({    // Step 1: Check authorization header
+
+    success: true,    console.log('🔐 Step 1: Checking authorization header...')
+
+    uploads: [],    const authHeader = request.headers.get('authorization')
+
+    files: [],    console.log('   Auth header present:', !!authHeader)
+
+  })    console.log('   Auth header value:', authHeader ? authHeader.substring(0, 30) + '...' : 'null')
+
+}    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('❌ Auth header missing or invalid format')
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - No token provided' },
-        { status: 401 }
-      )
-    }
+
+export async function DELETE() {      console.log('❌ Auth header missing or invalid format')
+
+  return NextResponse.json(      return NextResponse.json(
+
+    { error: 'Feature unavailable' },        { success: false, error: 'Unauthorized - No token provided' },
+
+    { status: 503 }        { status: 401 }
+
+  )      )
+
+}    }
+
 
     const token = authHeader.split('Bearer ')[1]
     console.log('✅ Token extracted, length:', token.length)
