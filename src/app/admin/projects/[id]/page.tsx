@@ -474,9 +474,6 @@ export default function AdminProjectDetailPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Google Drive File Upload Settings */}
-                <GoogleDriveSettings projectId={project.id} />
               </div>
             )}
 
@@ -489,9 +486,9 @@ export default function AdminProjectDetailPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                     </svg>
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900">Project Files</h2>
+                  <h2 className="text-xl font-bold text-gray-900">File Upload Management</h2>
                 </div>
-                <NewFileUploadSection projectId={project.id} />
+                <GoogleDriveSettings projectId={project.id} />
               </div>
             )}
 

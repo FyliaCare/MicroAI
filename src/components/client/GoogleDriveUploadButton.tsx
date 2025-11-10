@@ -33,7 +33,21 @@ export default function GoogleDriveUploadButton({ projectId }: GoogleDriveUpload
         const data = await res.json()
         const project = data.project || data
         setDriveLink(project.googleDriveLink || null)
-        setInstructions(project.googleDriveInstructions || 'Please upload your project files to this Google Drive folder. Make sure to organize them clearly and name files appropriately.')
+        setInstructions(project.googleDriveInstructions || `📁 How to Upload Files (Easy Steps):
+
+1. Click the "Open Google Drive Folder" button below
+2. You'll be taken to a secure Google Drive folder for your project
+3. Click the "New" button or drag files directly into the folder
+4. Wait for files to finish uploading (you'll see a checkmark)
+5. Your project team will be notified automatically!
+
+💡 Tips:
+• Use clear file names (e.g., "Logo_Final_v2.png")
+• Organize files in folders if you have many items
+• You can upload multiple files at once
+• All common file types are supported (images, documents, videos, etc.)
+
+Need help? Contact your project manager anytime!`)
       }
     } catch (error) {
       console.error('Failed to fetch Google Drive settings:', error)
