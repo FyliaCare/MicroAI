@@ -125,10 +125,9 @@ export async function POST(
       hasApiSecret: !!process.env.CLOUDINARY_API_SECRET,
     })
     
-    // Sanitize project name for Cloudinary folder (remove special chars, normalize spaces)
+    // Sanitize project name for Cloudinary folder (alphanumeric only)
     const sanitizedProjectName = project.name
-      .replace(/\s+/g, '_')  // Replace multiple spaces with single underscore
-      .replace(/[^a-zA-Z0-9_-]/g, '_')  // Replace special chars with underscore
+      .replace(/[^a-zA-Z0-9]+/g, '_')  // Replace ANY non-alphanumeric chars with underscore
       .replace(/_+/g, '_')  // Replace multiple underscores with single
       .replace(/^_|_$/g, '')  // Remove leading/trailing underscores
     
