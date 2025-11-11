@@ -2,15 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { v2 as cloudinary } from 'cloudinary'
-
-// Cloudinary automatically reads from environment variables:
-// CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
-// No manual config needed if env vars are set correctly
 
 // Force dynamic rendering - no caching
 export const dynamic = 'force-dynamic'
 
+// POST route disabled - file uploads now handled via Google Drive
+// Admin configures Google Drive link, clients upload directly to Google Drive
+/*
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -110,6 +108,7 @@ export async function POST(
     )
   }
 }
+*/
 
 export async function GET(
   request: NextRequest,
