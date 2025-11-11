@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
-import NewFileUploadSection from '@/components/admin/NewFileUploadSection'
 import AdminCommentSection from '@/components/admin/AdminCommentSection'
 import GoogleDriveSettings from '@/components/admin/GoogleDriveSettings'
 
