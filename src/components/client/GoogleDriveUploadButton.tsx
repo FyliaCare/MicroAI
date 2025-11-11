@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 
 interface GoogleDriveUploadButtonProps {
   projectId: string
+  isAdmin?: boolean
 }
 
-export default function GoogleDriveUploadButton({ projectId }: GoogleDriveUploadButtonProps) {
+export default function GoogleDriveUploadButton({ projectId, isAdmin = false }: GoogleDriveUploadButtonProps) {
   const [loading, setLoading] = useState(true)
   const [driveLink, setDriveLink] = useState<string | null>(null)
   const [instructions, setInstructions] = useState<string>('')

@@ -52,8 +52,11 @@ export async function POST(
     // Start transaction to create everything atomically
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create or update User account
+      // IMPORTANT: Always use lowercase email for consistency with login
+      const normalizedEmail = projectRequest.clientEmail.toLowerCase()
+      
       let user = await tx.user.findUnique({
-        where: { email: projectRequest.clientEmail }
+        where: { email: normalizedEmail }
       })
       
       let isNewUser = false
@@ -63,7 +66,7 @@ export async function POST(
       if (user) {
         // EXISTING USER - Only update necessary fields, keep password and verification status
         user = await tx.user.update({
-          where: { email: projectRequest.clientEmail },
+          where: { email: normalizedEmail },
           data: {
             name: projectRequest.clientName,
             role: 'client', // Ensure they have client role (lowercase to match schema)
@@ -86,7 +89,7 @@ export async function POST(
         
         user = await tx.user.create({
           data: {
-            email: projectRequest.clientEmail,
+            email: normalizedEmail,
             password: hashedPassword,
             name: projectRequest.clientName,
             role: 'client', // Lowercase to match schema default
@@ -103,14 +106,14 @@ export async function POST(
 
       // 2. Create or update Client record
       let client = await tx.client.findUnique({
-        where: { email: projectRequest.clientEmail },
+        where: { email: normalizedEmail },
       })
 
       if (!client) {
         client = await tx.client.create({
           data: {
             name: projectRequest.clientName,
-            email: projectRequest.clientEmail,
+            email: normalizedEmail,
             phone: projectRequest.clientPhone,
             company: projectRequest.clientCompany,
             website: projectRequest.clientWebsite,
@@ -175,12 +178,12 @@ export async function POST(
         
         await tx.emailQueue.create({
           data: {
-            to: projectRequest.clientEmail,
+            to: normalizedEmail,
             subject: '🎉 Welcome to MicroAI Systems - Your Project Has Been Approved!',
             htmlContent: generateWelcomeEmail({
               clientName: projectRequest.clientName,
               projectName: projectRequest.projectName,
-              email: projectRequest.clientEmail,
+              email: normalizedEmail,
               tempPassword,
               loginUrl,
               verifyUrl,
@@ -190,7 +193,7 @@ export async function POST(
             templateVars: JSON.stringify({
               clientName: projectRequest.clientName,
               projectName: projectRequest.projectName,
-              email: projectRequest.clientEmail,
+              email: normalizedEmail,
               tempPassword,
               loginUrl,
               verifyUrl,
@@ -205,7 +208,7 @@ export async function POST(
         // EXISTING USER - Send project approval notification only (no password)
         await tx.emailQueue.create({
           data: {
-            to: projectRequest.clientEmail,
+            to: normalizedEmail,
             subject: '🎉 New Project Approved - ' + projectRequest.projectName,
             htmlContent: generateExistingUserProjectEmail({
               clientName: projectRequest.clientName,
@@ -281,7 +284,7 @@ export async function POST(
         welcomeEmailHtml: generateWelcomeEmail({
           clientName: projectRequest.clientName,
           projectName: projectRequest.projectName,
-          email: projectRequest.clientEmail,
+          email: normalizedEmail,
           tempPassword,
           loginUrl: `${process.env.NEXT_PUBLIC_APP_URL}/client/login`,
           verifyUrl: `${process.env.NEXT_PUBLIC_APP_URL}/client/verify?token=${verificationToken}`,
@@ -292,7 +295,7 @@ export async function POST(
 
     // Email is already queued in the transaction above
     // The cron job will process it within 5 minutes
-    console.log('✅ Welcome email queued for:', projectRequest.clientEmail)
+    console.log('✅ Welcome email queued for:', result.user.email)
 
     return NextResponse.json({
       success: true,

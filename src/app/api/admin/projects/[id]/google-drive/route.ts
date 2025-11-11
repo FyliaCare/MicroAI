@@ -25,9 +25,9 @@ export async function PUT(
     const project = await prisma.project.update({
       where: { id: params.id },
       data: {
-        googleDriveLink,
-        googleDriveInstructions,
-      },
+        googleDriveLink: googleDriveLink || null,
+        googleDriveInstructions: googleDriveInstructions || null,
+      } as any,
     })
 
     return NextResponse.json({
