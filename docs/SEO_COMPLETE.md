@@ -322,7 +322,7 @@ Create listing:
 ### Priority 4: Social Media
 Add profiles to OrganizationSchema:
 - Twitter/X: @microaisystems
-- LinkedIn: company/microai-systems
+- LinkedIn: company/microaisystems
 - GitHub: github.com/microai-systems
 - Facebook: fb.com/microaisystems
 
