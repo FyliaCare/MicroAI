@@ -8,107 +8,15 @@ export const dynamic = 'force-dynamic'
 
 // POST route disabled - file uploads now handled via Google Drive
 // Admin configures Google Drive link, clients upload directly to Google Drive
-/*
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    console.log('🔍 POST /uploads - Session check:', {
-      hasSession: !!session,
-      userRole: session?.user?.role,
-      userEmail: session?.user?.email
-    })
-    
-    if (!session || !['ADMIN', 'super-admin'].includes(session.user.role)) {
-      console.log('❌ POST /uploads - Auth failed')
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    console.log('✅ POST /uploads - Auth passed')
-    const projectId = params.id
-
-    // Check if project exists
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-    })
-
-    if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 })
-    }
-
-    // Parse form data
-    const formData = await request.formData()
-    const file = formData.get('file') as File
-    const description = formData.get('description') as string | null
-
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 })
-    }
-
-    // Validate file size (50MB)
-    if (file.size > 50 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size exceeds 50MB limit' }, { status: 400 })
-    }
-
-    // Convert file to buffer for Cloudinary upload
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    const base64 = buffer.toString('base64')
-    const dataURI = `data:${file.type};base64,${base64}`
-
-    // Sanitize project name for Cloudinary folder (alphanumeric only)
-    const sanitizedProjectName = project.name
-      .replace(/[^a-zA-Z0-9]+/g, '_')  // Replace ANY non-alphanumeric chars with underscore
-      .replace(/_+/g, '_')  // Replace multiple underscores with single
-      .replace(/^_|_$/g, '')  // Remove leading/trailing underscores
-
-    // Upload to Cloudinary
-    console.log('📤 Uploading file to Cloudinary...')
-    const uploadResponse = await cloudinary.uploader.upload(dataURI, {
-      folder: `microai-projects/${sanitizedProjectName}`,
-      resource_type: 'auto',
-      public_id: `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`,
-    })
-
-    console.log('✅ File uploaded to Cloudinary:', uploadResponse.public_id)
-
-    // Create database record with Cloudinary URLs
-    const projectFile = await prisma.projectFile.create({
-      data: {
-        projectId,
-        filename: file.name,
-        fileUrl: uploadResponse.secure_url, // Cloudinary secure URL
-        fileSize: file.size,
-        fileType: file.type || 'application/octet-stream',
-        description: description || undefined,
-        uploadedBy: session.user.name || 'Admin',
-        cloudinaryId: uploadResponse.public_id, // Store Cloudinary public_id for deletion
-      },
-    })
-
-    console.log('✅ File uploaded successfully:', {
-      id: projectFile.id,
-      filename: projectFile.filename,
-      size: projectFile.fileSize,
-      project: projectId
-    })
-
-    return NextResponse.json({
-      success: true,
-      file: projectFile,
-    })
-  } catch (error) {
-    console.error('File upload error:', error)
-    return NextResponse.json(
-      { error: 'Failed to upload file' },
-      { status: 500 }
-    )
-  }
+export async function POST() {
+  return NextResponse.json(
+    { 
+      success: false, 
+      error: 'File uploads are now handled via Google Drive. Please configure Google Drive settings in project settings.' 
+    }, 
+    { status: 410 }
+  )
 }
-*/
 
 export async function GET(
   request: NextRequest,
