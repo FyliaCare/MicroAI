@@ -14,7 +14,9 @@ export default function ContactPage() {
     email: '',
     phone: '',
     company: '',
-    message: ''
+    message: '',
+    _honeypot: '', // Honeypot field for bot detection
+    _timestamp: Date.now() // Track form load time
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -37,7 +39,15 @@ export default function ContactPage() {
 
       if (response.ok) {
         setSubmitStatus('success')
-        setFormData({ name: '', email: '', phone: '', company: '', message: '' })
+        setFormData({ 
+          name: '', 
+          email: '', 
+          phone: '', 
+          company: '', 
+          message: '',
+          _honeypot: '',
+          _timestamp: Date.now()
+        })
         setTimeout(() => setSubmitStatus('idle'), 5000)
       } else {
         setSubmitStatus('error')
@@ -149,6 +159,18 @@ export default function ContactPage() {
                         name="company"
                         placeholder="Your Company"
                         value={formData.company}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    
+                    {/* Honeypot field - hidden from users, visible to bots */}
+                    <div className="hidden" aria-hidden="true">
+                      <input
+                        type="text"
+                        name="_honeypot"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={formData._honeypot}
                         onChange={handleChange}
                       />
                     </div>

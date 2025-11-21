@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendAdminNotificationNow, sendClientConfirmationNow } from '@/lib/send-email'
+import { checkBotProtection } from '@/lib/bot-protection'
 
 // POST /api/project-request - Submit new project request from chatbot/form
 export async function POST(request: NextRequest) {
@@ -46,7 +47,38 @@ export async function POST(request: NextRequest) {
       utmSource,
       utmMedium,
       utmCampaign,
+
+      // Bot protection
+      _honeypot,
+      _timestamp
     } = body
+
+    // ============================================
+    // BOT PROTECTION CHECK
+    // ============================================
+    console.log('🛡️ Running bot protection checks...')
+    const protection = await checkBotProtection(request, body, _honeypot)
+    
+    if (!protection.allowed) {
+      console.log('🚫 Bot detected and blocked:', {
+        ip: protection.fingerprint.ip,
+        reason: protection.reason,
+        botScore: protection.botScore?.score
+      })
+      
+      return NextResponse.json(
+        { 
+          success: false,
+          error: 'Unable to process request. Please try again later.' 
+        },
+        { status: 429 }
+      )
+    }
+    
+    console.log('✅ Bot protection passed:', {
+      botScore: protection.botScore?.score,
+      attemptsRemaining: protection.rateLimit?.attemptsRemaining
+    })
 
     // Validate required fields
     if (!clientName || !clientEmail || !projectName || !projectType || !description) {

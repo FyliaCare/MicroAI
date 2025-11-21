@@ -1505,3 +1505,20 @@ model ProjectComment {
   @@index([parentId])
   @@index([createdAt])
 }
+
+model BlockedRequest {
+  id          String   @id @default(uuid())
+  ipAddress   String
+  userAgent   String?
+  endpoint    String
+  botScore    Float
+  reasons     String   // JSON array
+  fingerprint String?  // JSON object
+  formData    String?  // JSON object
+  blockedAt   DateTime @default(now())
+  
+  @@index([ipAddress])
+  @@index([blockedAt])
+  @@index([botScore])
+  @@index([endpoint])
+}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { queueAdminNotificationEmail, queueClientConfirmationEmail } from '@/lib/email-queue'
+import { checkBotProtection } from '@/lib/bot-protection'
 
 interface ProjectInquiryData {
   projectIdea: string
@@ -9,6 +10,8 @@ interface ProjectInquiryData {
   name: string
   email: string
   phone?: string
+  _honeypot?: string
+  _timestamp?: number
 }
 
 // Mapping functions to convert numbers to descriptive text
@@ -58,6 +61,30 @@ function formatFieldValue(field: string, value: string): string {
 export async function POST(request: NextRequest) {
   try {
     const body: ProjectInquiryData = await request.json()
+    
+    // ============================================
+    // BOT PROTECTION CHECK
+    // ============================================
+    console.log('🛡️ Running bot protection checks...')
+    const protection = await checkBotProtection(request, body, body._honeypot)
+    
+    if (!protection.allowed) {
+      console.log('🚫 Bot detected and blocked:', {
+        ip: protection.fingerprint.ip,
+        reason: protection.reason,
+        botScore: protection.botScore?.score
+      })
+      
+      return NextResponse.json(
+        { error: 'Unable to process request. Please try again later.' },
+        { status: 429 }
+      )
+    }
+    
+    console.log('✅ Bot protection passed:', {
+      botScore: protection.botScore?.score,
+      attemptsRemaining: protection.rateLimit?.attemptsRemaining
+    })
     
     // Validate required fields
     if (!body.name || !body.email || !body.projectIdea) {

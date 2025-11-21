@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendAdminNotificationNow, sendClientConfirmationNow } from '@/lib/send-email'
 import { prisma } from '@/lib/prisma'
+import { checkBotProtection } from '@/lib/bot-protection'
 
 interface ContactFormData {
   name: string
@@ -8,6 +9,8 @@ interface ContactFormData {
   phone?: string
   company?: string
   message: string
+  _honeypot?: string // Honeypot field (should be empty)
+  _timestamp?: number // Form load timestamp
 }
 
 export async function POST(request: NextRequest) {
@@ -16,6 +19,31 @@ export async function POST(request: NextRequest) {
   try {
     const body: ContactFormData = await request.json()
     console.log('📥 Received data:', { name: body.name, email: body.email, hasMessage: !!body.message })
+    
+    // ============================================
+    // BOT PROTECTION CHECK
+    // ============================================
+    console.log('🛡️ Running bot protection checks...')
+    const protection = await checkBotProtection(request, body, body._honeypot)
+    
+    if (!protection.allowed) {
+      console.log('🚫 Bot detected and blocked:', {
+        ip: protection.fingerprint.ip,
+        reason: protection.reason,
+        botScore: protection.botScore?.score
+      })
+      
+      // Return generic error to bot (don't reveal detection)
+      return NextResponse.json(
+        { error: 'Unable to process request. Please try again later.' },
+        { status: 429 }
+      )
+    }
+    
+    console.log('✅ Bot protection passed:', {
+      botScore: protection.botScore?.score,
+      attemptsRemaining: protection.rateLimit?.attemptsRemaining
+    })
     
     // Validate required fields
     if (!body.name || !body.email || !body.message) {
