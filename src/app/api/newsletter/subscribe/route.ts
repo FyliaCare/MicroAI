@@ -1,16 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { queueEmail } from '@/lib/email-queue'
+import { checkBotProtection } from '@/lib/bot-protection'
 
 interface SubscribeData {
   email: string
   name?: string
   source?: string
+  _honeypot?: string
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: SubscribeData = await request.json()
+    
+    // Bot protection check
+    const protection = await checkBotProtection(request, body, body._honeypot)
+    if (!protection.allowed) {
+      console.log('🚫 Newsletter bot blocked:', protection.fingerprint.ip, protection.reason)
+      return NextResponse.json(
+        { error: 'Submission failed verification' },
+        { status: 403 }
+      )
+    }
     
     // Validate email
     if (!body.email) {

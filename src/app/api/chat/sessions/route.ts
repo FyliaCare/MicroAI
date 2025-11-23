@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkBotProtection } from '@/lib/bot-protection'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,16 @@ export async function POST(request: NextRequest) {
       currentPage,
       referrer,
     } = body
+
+    // Bot protection check for new session creation
+    const protection = await checkBotProtection(request, body)
+    if (!protection.allowed) {
+      console.log('🚫 Chat session creation blocked:', protection.fingerprint.ip, protection.reason)
+      return NextResponse.json(
+        { success: false, error: 'Unable to start chat session. Please try again later.' },
+        { status: 429 }
+      )
+    }
 
     // Check if visitor already has an active session
     let session = null

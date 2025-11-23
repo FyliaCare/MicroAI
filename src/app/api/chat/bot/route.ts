@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkBotProtection } from '@/lib/bot-protection'
 
 export const dynamic = 'force-dynamic'
 
@@ -249,6 +250,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'sessionId and message required' },
         { status: 400 }
+      )
+    }
+
+    // Bot protection check for initial messages or high-frequency submissions
+    const protection = await checkBotProtection(request, body)
+    if (!protection.allowed) {
+      console.log('🚫 Chat bot submission blocked:', protection.fingerprint.ip, protection.reason)
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please slow down.' },
+        { status: 429 }
       )
     }
 
