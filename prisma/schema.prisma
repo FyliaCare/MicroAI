@@ -639,15 +639,27 @@ model Payment {
 }
 
 model Setting {
-  id          String   @id @default(uuid())
-  key         String   @unique
-  value       String
-  type        String
-  category    String
-  description String?
-  updatedAt   DateTime @updatedAt
+  id           String            @id @default(uuid())
+  key          String            @unique
+  value        String
+  category     String
+  type         String            @default("string")
+  label        String
+  description  String?
+  isPublic     Boolean           @default(false)
+  isEncrypted  Boolean           @default(false)
+  validation   String?
+  defaultValue String?
+  metadata     String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  createdBy    String?
+  updatedBy    String?
+  history      SettingHistory[]
 
   @@index([category])
+  @@index([key])
+  @@index([updatedAt])
 }
 
 model AuditLog {
@@ -1522,3 +1534,173 @@ model BlockedRequest {
   @@index([botScore])
   @@index([endpoint])
 }
+
+// ============================================
+// ADVANCED SETTINGS SYSTEM (Additional Models)
+// ============================================
+
+model SettingHistory {
+  id           String   @id @default(uuid())
+  settingId    String
+  key          String
+  oldValue     String?
+  newValue     String
+  changedBy    String
+  changeReason String?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  setting      Setting  @relation(fields: [settingId], references: [id], onDelete: Cascade)
+
+  @@index([settingId])
+  @@index([changedBy])
+  @@index([createdAt])
+}
+
+model SettingsBackup {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  data        String
+  version     String
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  restoredAt  DateTime?
+
+  @@index([createdAt])
+  @@index([createdBy])
+}
+
+model SystemConfig {
+  id                       String   @id @default(uuid())
+  maintenanceMode          Boolean  @default(false)
+  maintenanceMessage       String?
+  allowedIPs               String?
+  maxUploadSize            Int      @default(5242880)
+  sessionTimeout           Int      @default(3600)
+  passwordMinLength        Int      @default(8)
+  passwordRequireSpecial   Boolean  @default(true)
+  passwordRequireNumber    Boolean  @default(true)
+  passwordRequireUppercase Boolean  @default(true)
+  twoFactorEnabled         Boolean  @default(false)
+  loginAttempts            Int      @default(5)
+  loginLockoutDuration     Int      @default(1800)
+  apiRateLimit             Int      @default(100)
+  apiRateLimitWindow       Int      @default(60)
+  enableLogging            Boolean  @default(true)
+  logLevel                 String   @default("info")
+  backupEnabled            Boolean  @default(true)
+  backupFrequency          String   @default("daily")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model ThemeConfig {
+  id              String   @id @default(uuid())
+  name            String   @default("default")
+  primaryColor    String   @default("#6366f1")
+  secondaryColor  String   @default("#8b5cf6")
+  accentColor     String   @default("#ec4899")
+  backgroundColor String   @default("#ffffff")
+  textColor       String   @default("#1f2937")
+  borderRadius    String   @default("0.5rem")
+  fontFamily      String   @default("Inter, sans-serif")
+  darkMode        Boolean  @default(false)
+  customCSS       String?
+  logo            String?
+  favicon         String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model EmailConfig {
+  id             String   @id @default(uuid())
+  provider       String   @default("resend")
+  fromName       String   @default("MicroAI Systems")
+  fromEmail      String
+  replyToEmail   String?
+  adminEmail     String
+  resendApiKey   String?
+  smtpHost       String?
+  smtpPort       Int?
+  smtpUser       String?
+  smtpPassword   String?
+  smtpSecure     Boolean  @default(true)
+  dailyLimit     Int      @default(1000)
+  hourlyLimit    Int      @default(100)
+  enableQueue    Boolean  @default(true)
+  queueRetries   Int      @default(3)
+  queueTimeout   Int      @default(30000)
+  templates      String?
+  webhookUrl     String?
+  webhookSecret  String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model NotificationConfig {
+  id                 String   @id @default(uuid())
+  emailEnabled       Boolean  @default(true)
+  pushEnabled        Boolean  @default(false)
+  smsEnabled         Boolean  @default(false)
+  slackEnabled       Boolean  @default(false)
+  slackWebhook       String?
+  events             String
+  priorityDelays     String   @default("{\"high\":0,\"medium\":2,\"low\":5}")
+  batchEnabled       Boolean  @default(false)
+  batchSize          Int      @default(50)
+  batchDelay         Int      @default(300)
+  quietHoursEnabled  Boolean  @default(false)
+  quietHoursStart    String?
+  quietHoursEnd      String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model SecurityConfig {
+  id                       String   @id @default(uuid())
+  corsEnabled              Boolean  @default(true)
+  corsOrigins              String   @default("*")
+  csrfEnabled              Boolean  @default(true)
+  rateLimitEnabled         Boolean  @default(true)
+  rateLimitRequests        Int      @default(100)
+  rateLimitWindow          Int      @default(60)
+  ipWhitelist              String?
+  ipBlacklist              String?
+  botProtectionEnabled     Boolean  @default(true)
+  botProtectionThreshold   Int      @default(10)
+  sqlInjectionProtection   Boolean  @default(true)
+  xssProtection            Boolean  @default(true)
+  contentSecurityPolicy    String?
+  sslOnly                  Boolean  @default(true)
+  hsts                     Boolean  @default(true)
+  hstsMaxAge               Int      @default(31536000)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model APIConfig {
+  id                String   @id @default(uuid())
+  enabled           Boolean  @default(true)
+  version           String   @default("v1")
+  baseUrl           String
+  docsEnabled       Boolean  @default(true)
+  authRequired      Boolean  @default(true)
+  rateLimitEnabled  Boolean  @default(true)
+  rateLimitTier1    Int      @default(60)
+  rateLimitTier2    Int      @default(120)
+  rateLimitTier3    Int      @default(300)
+  webhooksEnabled   Boolean  @default(true)
+  webhookSecret     String?
+  corsEnabled       Boolean  @default(true)
+  corsOrigins       String   @default("*")
+  logRequests       Boolean  @default(true)
+  logResponses      Boolean  @default(false)
+  cacheEnabled      Boolean  @default(true)
+  cacheTTL          Int      @default(300)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
