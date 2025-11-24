@@ -1,11 +1,11 @@
 'use client'
 
-import QuoteGenerator from '@/components/admin/QuoteGenerator'
+import QuoteBuilderNew from '@/components/admin/quotes/QuoteBuilderNew'
 
 export default function NewQuotePage() {
   return (
-    <div className="p-6">
-      <QuoteGenerator />
+    <div>
+      <QuoteBuilderNew />
     </div>
   )
 }

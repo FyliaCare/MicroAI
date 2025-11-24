@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { renderToBuffer } from '@react-pdf/renderer'
-import QuotePDFDocument from '@/components/admin/quotes/pdf/QuotePDFDocument'
+import QuotePDFNew from '@/components/admin/quotes/pdf/QuotePDFNew'
 import React from 'react'
 
 // GET /api/quotes/[id]/pdf - Generate PDF for public quote
@@ -47,51 +47,105 @@ export async function GET(
       return field
     }
 
-    const quoteAny = quote as any
-
     const quoteData = {
-      ...quote,
-      items: parseJSON(quoteAny.items) as any[],
-      milestones: parseJSON(quoteAny.milestones) as any[],
-      paymentTerms: parseJSON(quoteAny.pricingItems || quoteAny.paymentTerms) as any[],
-      objectives: parseJSON(quoteAny.executiveSummary) as string[],
-      scope: parseJSON(quoteAny.scopeOfWork || quoteAny.scope) as string[],
-      outOfScope: parseJSON(quoteAny.exclusions || quoteAny.outOfScope) as string[],
-      assumptions: parseJSON(quoteAny.assumptions) as string[],
-      constraints: [] as string[],
-      currency: quoteAny.currency || 'USD',
-      taxRate: quoteAny.taxRate || 0,
-      discountValue: quoteAny.discount || 0,
-      discountType: (quoteAny.discountType as 'percentage' | 'fixed') || 'fixed',
-      estimatedDuration: Math.ceil((quoteAny.estimatedHours || 0) / 8),
-      startDate: quote.issuedAt?.toISOString().split('T')[0] || '',
-      validUntil: quote.validUntil?.toISOString().split('T')[0] || '',
-      lateFeePercentage: 0,
-      earlyPaymentDiscount: 0,
-      acceptedPaymentMethods: [] as string[],
-      termsAndConditions: quote.terms || '',
+      quoteNumber: quote.quoteNumber,
+      title: quote.title,
+      description: quote.description || '',
+      
+      // Client info
+      clientName: quote.clientName || quote.client?.name || 'Client',
+      clientEmail: quote.clientEmail || quote.client?.email || '',
+      clientCompany: quote.clientCompany || quote.client?.company || undefined,
+      clientPhone: quote.clientPhone || quote.client?.phone || undefined,
+      clientAddress: quote.clientAddress || quote.client?.address || undefined,
+      
+      // Project details
+      projectType: quote.projectType || undefined,
+      executiveSummary: quote.executiveSummary || undefined,
+      objectives: [],
+      
+      // Scope
+      scopeItems: parseJSON(quote.scopeOfWork as any),
+      scopeOfWork: quote.scopeOfWork || undefined,
+      exclusions: parseJSON(quote.exclusions as any),
+      assumptions: parseJSON(quote.assumptions as any),
+      deliverables: parseJSON(quote.deliverables as any),
+      
+      // Pricing
+      lineItems: parseJSON(quote.items as any),
+      pricingItems: quote.pricingItems || undefined,
+      currency: quote.currency || 'USD',
+      discountType: (quote.discountType as 'fixed' | 'percentage' | undefined) || 'percentage',
+      discountValue: quote.discount || 0,
+      taxRate: quote.taxRate || 0,
+      subtotal: quote.subtotal || 0,
+      discount: quote.discount || 0,
+      tax: quote.tax || 0,
+      total: quote.total || 0,
+      
+      // Timeline
+      startDate: quote.createdAt?.toISOString(),
+      estimatedDuration: quote.estimatedHours || 0,
+      milestones: parseJSON(quote.milestones as any),
+      timeline: quote.timeline || undefined,
+      
+      // Payment
+      paymentSchedule: parseJSON(quote.paymentTerms as any),
+      depositRequired: (quote.depositPercent || 0) > 0,
+      depositPercentage: quote.depositPercent || 0,
+      depositPercent: quote.depositPercent || undefined,
+      depositAmount: quote.depositAmount || undefined,
+      acceptedPaymentMethods: ['bank-transfer', 'credit-card', 'paypal'],
+      
+      // Terms
+      termsAndConditions: quote.terms || undefined,
+      terms: quote.terms || undefined,
+      validUntil: quote.validUntil?.toISOString(),
       warranties: '',
-      supportTerms: '',
+      supportTerms: quote.maintenanceTerms || '',
+      maintenanceTerms: quote.maintenanceTerms || undefined,
+      revisionPolicy: quote.revisionsPolicy || undefined,
+      revisionsPolicy: quote.revisionsPolicy || undefined,
+      cancellationPolicy: '',
+      confidentialityClause: quote.confidentialityClause || undefined,
+      ipRights: quote.ipRights || undefined,
+      paymentTerms: quote.paymentTerms || undefined,
+      
+      // Branding
       brandColor: '#6366f1',
-      includeCompanyLogo: true,
+      includeLogo: true,
       includePortfolio: false,
-      includeTestimonials: false,
-      customCoverMessage: '',
+      customMessage: '',
       footerText: '',
-      criticalPath: [] as string[],
+      companyLogo: quote.companyLogo || undefined,
+      companyName: quote.companyName || 'MicroAI Systems',
+      companyAddress: quote.companyAddress || 'BR253 Pasture St. Takoradi, Ghana',
+      companyEmail: quote.companyEmail || 'sales@microaisystems.com',
+      companyPhone: quote.companyPhone || '+233 244486837',
+      companyWebsite: quote.companyWebsite || 'www.microaisystems.com',
+      
+      // Metadata
+      status: quote.status,
+      issuedAt: quote.issuedAt || quote.createdAt,
+      createdAt: quote.createdAt,
+      updatedAt: quote.updatedAt,
+      
+      // Signatures
+      clientSignature: quote.clientSignature || undefined,
+      clientSignedBy: quote.clientSignedBy || undefined,
+      clientSignedAt: quote.clientSignedAt || undefined,
+      providerSignature: quote.providerSignature || undefined,
+      providerSignedBy: quote.providerSignedBy || undefined,
+      providerSignedAt: quote.providerSignedAt || undefined,
+      
+      // Additional
+      freeSupportMonths: quote.freeSupportMonths || 1,
+      includedRevisions: quote.includedRevisions || 2,
     }
 
     // Generate PDF
     const pdfBuffer = await renderToBuffer(
-      React.createElement(QuotePDFDocument, {
-        quoteData: quoteData as any,
-        client: quote.client ? {
-          ...quote.client,
-          company: quote.client.company || undefined,
-          phone: quote.client.phone || undefined,
-          address: quote.client.address || undefined,
-        } : undefined,
-      }) as any // Type assertion for renderToBuffer
+      React.createElement(QuotePDFNew, { quote: quoteData }) as any
     )
 
     return new NextResponse(Buffer.from(pdfBuffer), {

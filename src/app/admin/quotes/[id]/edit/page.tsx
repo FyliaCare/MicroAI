@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import QuoteGenerator from '@/components/admin/quotes/QuoteGenerator'
+import QuoteBuilderNew from '@/components/admin/quotes/QuoteBuilderNew'
 
 export default function EditQuotePage() {
   const params = useParams()
@@ -57,8 +57,8 @@ export default function EditQuotePage() {
   }
 
   return (
-    <div className="p-6">
-      <QuoteGenerator editMode quoteId={quoteId} />
+    <div>
+      <QuoteBuilderNew editMode quoteId={quoteId} />
     </div>
   )
 }

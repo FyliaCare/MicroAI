@@ -1,25 +1,16 @@
-// Updated: Table spacing, expertise redesign, payment schedule details
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import jsPDF from 'jspdf';
-import {
-  generateModernMinimalist,
-  generateCorporateExecutive,
-  generateCreativeAgency,
-  generateTechStartup,
-  generatePremiumLuxury,
-  generateProfessionalLockedTemplate,
-  parseJSON,
-} from '@/lib/pdf-templates';
-import { getQuoteDefaults } from '@/lib/quote-defaults';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { renderToBuffer } from '@react-pdf/renderer'
+import React from 'react'
+import QuotePDFNew from '@/components/admin/quotes/pdf/QuotePDFNew'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('PDF generation started for quote:', params.id);
-    const quoteId = params.id;
+    const { id: quoteId } = await params
+    console.log('PDF generation started for quote:', quoteId)
 
     // Fetch quote from database
     const quote = await prisma.quote.findUnique({
@@ -27,124 +18,148 @@ export async function GET(
       include: {
         client: true,
       },
-    });
+    })
 
     if (!quote) {
-      console.log('Quote not found:', quoteId);
-      return NextResponse.json({ error: 'Quote not found' }, { status: 404 });
+      console.log('Quote not found:', quoteId)
+      return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
     }
 
-    console.log('Quote found:', quote.quoteNumber);
+    console.log('Quote found:', quote.quoteNumber)
 
-    // Get standard defaults based on project type
-    const defaults = getQuoteDefaults(quote.projectType || undefined);
+    // Parse JSON fields
+    const parseJSON = (str: string | null) => {
+      if (!str) return []
+      try {
+        return JSON.parse(str)
+      } catch {
+        return []
+      }
+    }
 
-    // Prepare quote data with intelligent defaults
+    // Prepare quote data for PDF
     const quoteData = {
-      id: quote.id,
       quoteNumber: quote.quoteNumber,
       title: quote.title,
       description: quote.description || '',
       
       // Client info
       clientName: quote.clientName || quote.client?.name || 'Client',
-      clientCompany: quote.clientCompany || quote.client?.company || '',
       clientEmail: quote.clientEmail || quote.client?.email || '',
-      clientPhone: quote.clientPhone || quote.client?.phone || '',
-      clientAddress: quote.clientAddress || quote.client?.address || '',
-      
-      // Company info (use defaults)
-      companyName: quote.companyName || defaults.companyName,
-      companyEmail: quote.companyEmail || defaults.companyEmail,
-      companyPhone: quote.companyPhone || defaults.companyPhone,
-      companyAddress: quote.companyAddress || defaults.companyAddress,
-      companyWebsite: quote.companyWebsite || defaults.companyWebsite,
+      clientCompany: quote.clientCompany || quote.client?.company || undefined,
+      clientPhone: quote.clientPhone || quote.client?.phone || undefined,
+      clientAddress: quote.clientAddress || quote.client?.address || undefined,
       
       // Project details
-      projectType: quote.projectType || '',
-      timeline: quote.timeline || defaults.timeline,
-      estimatedHours: quote.estimatedHours || defaults.estimatedHours,
+      projectType: quote.projectType || undefined,
+      executiveSummary: quote.executiveSummary || undefined,
+      objectives: [],
       
-      // Parsed JSON fields with smart defaults
-      items: parseJSON(quote.items) || [],
-      milestones: parseJSON(quote.milestones) || defaults.milestones || [],
-      paymentTerms: parseJSON(quote.paymentTerms) || defaults.paymentTerms || [],
-      scopeOfWork: parseJSON(quote.scopeOfWork) || defaults.scopeOfWork || [],
-      exclusions: parseJSON(quote.exclusions) || [],
-      assumptions: parseJSON(quote.assumptions) || defaults.assumptions || [],
-      techStack: parseJSON(quote.techStack) || [],
+      // Scope
+      scopeItems: parseJSON(quote.scopeOfWork as any),
+      scopeOfWork: quote.scopeOfWork || undefined,
+      exclusions: parseJSON(quote.exclusions as any),
+      assumptions: parseJSON(quote.assumptions as any),
+      deliverables: parseJSON(quote.deliverables as any),
       
-      // Financial
-      subtotal: quote.subtotal || 0,
-      tax: quote.tax || 0,
-      taxRate: quote.taxRate || 0,
-      discount: quote.discount || 0,
-      discountType: quote.discountType || 'fixed',
-      total: quote.total || 0,
+      // Pricing
+      lineItems: parseJSON(quote.items as any),
+      pricingItems: quote.pricingItems || undefined,
       currency: quote.currency || 'USD',
+      discountType: (quote.discountType as 'fixed' | 'percentage' | undefined) || 'percentage',
+      discountValue: quote.discount || 0,
+      taxRate: quote.taxRate || 0,
+      subtotal: quote.subtotal || 0,
+      discount: quote.discount || 0,
+      tax: quote.tax || 0,
+      total: quote.total || 0,
       
-      // Dates
-      createdAt: quote.createdAt,
+      // Timeline
+      startDate: quote.createdAt?.toISOString(),
+      estimatedDuration: quote.estimatedHours || 0,
+      milestones: parseJSON(quote.milestones as any),
+      timeline: quote.timeline || undefined,
+      
+      // Payment
+      paymentSchedule: parseJSON(quote.paymentTerms as any),
+      depositRequired: (quote.depositPercent || 0) > 0,
+      depositPercentage: quote.depositPercent || 0,
+      depositPercent: quote.depositPercent || undefined,
+      depositAmount: quote.depositAmount || undefined,
+      acceptedPaymentMethods: ['bank-transfer', 'credit-card', 'paypal'],
+      
+      // Terms
+      termsAndConditions: quote.terms || undefined,
+      terms: quote.terms || undefined,
+      validUntil: quote.validUntil?.toISOString(),
+      warranties: '',
+      supportTerms: quote.maintenanceTerms || '',
+      maintenanceTerms: quote.maintenanceTerms || undefined,
+      revisionPolicy: quote.revisionsPolicy || undefined,
+      revisionsPolicy: quote.revisionsPolicy || undefined,
+      cancellationPolicy: '',
+      confidentialityClause: quote.confidentialityClause || undefined,
+      ipRights: quote.ipRights || undefined,
+      paymentTerms: quote.paymentTerms || undefined,
+      
+      // Branding
+      brandColor: '#6366f1',
+      includeLogo: true,
+      includePortfolio: false,
+      customMessage: '',
+      footerText: '',
+      companyLogo: quote.companyLogo || undefined,
+      companyName: quote.companyName || 'MicroAI Systems',
+      companyAddress: quote.companyAddress || 'BR253 Pasture St. Takoradi, Ghana',
+      companyEmail: quote.companyEmail || 'sales@microaisystems.com',
+      companyPhone: quote.companyPhone || '+233 244486837',
+      companyWebsite: quote.companyWebsite || 'www.microaisystems.com',
+      
+      // Metadata
+      status: quote.status,
       issuedAt: quote.issuedAt || quote.createdAt,
-      validUntil: quote.validUntil,
+      createdAt: quote.createdAt,
+      updatedAt: quote.updatedAt,
       
-      // Terms (use standard terms)
-      terms: quote.terms || defaults.terms || '',
+      // Signatures
+      clientSignature: quote.clientSignature || undefined,
+      clientSignedBy: quote.clientSignedBy || undefined,
+      clientSignedAt: quote.clientSignedAt || undefined,
+      providerSignature: quote.providerSignature || undefined,
+      providerSignedBy: quote.providerSignedBy || undefined,
+      providerSignedAt: quote.providerSignedAt || undefined,
       
-      // Template style
-      templateStyle: (quote as any).templateStyle || 'modern-minimalist',
-    };
-
-    console.log('Quote data prepared, template:', quoteData.templateStyle);
-
-    // Create PDF document
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-    });
-
-    // Generate PDF based on selected template
-    switch (quoteData.templateStyle) {
-      case 'professional-locked':
-        generateProfessionalLockedTemplate(doc, quoteData);
-        break;
-      case 'corporate-executive':
-        generateCorporateExecutive(doc, quoteData);
-        break;
-      case 'creative-agency':
-        generateCreativeAgency(doc, quoteData);
-        break;
-      case 'tech-startup':
-        generateTechStartup(doc, quoteData);
-        break;
-      case 'premium-luxury':
-        generatePremiumLuxury(doc, quoteData);
-        break;
-      case 'modern-minimalist':
-      default:
-        generateModernMinimalist(doc, quoteData);
-        break;
+      // Additional
+      freeSupportMonths: quote.freeSupportMonths || 1,
+      includedRevisions: quote.includedRevisions || 2,
     }
 
-    console.log('PDF generated successfully with template:', quoteData.templateStyle);
+    console.log('Quote data prepared, generating PDF...')
 
-    // Generate PDF buffer
-    const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
-    console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes');
+    // Generate PDF using React PDF (use renderToBuffer for API routes)
+    const pdfBuffer = await renderToBuffer(
+      React.createElement(QuotePDFNew, { quote: quoteData }) as any
+    )
 
-    // Return the PDF buffer
-    return new NextResponse(pdfBuffer, {
+    console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
+
+    // Return the PDF
+    return new NextResponse(Buffer.from(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="quote-${quote.quoteNumber}.pdf"`,
+        'Cache-Control': 'no-cache',
       },
-    });
+    })
   } catch (error) {
-    console.error('PDF generation error:', error);
+    console.error('PDF generation error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate PDF', details: error instanceof Error ? error.message : String(error) },
+      { 
+        error: 'Failed to generate PDF', 
+        details: error instanceof Error ? error.message : String(error) 
+      },
       { status: 500 }
-    );
+    )
   }
 }
+
