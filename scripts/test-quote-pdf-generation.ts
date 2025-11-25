@@ -148,7 +148,7 @@ async function testPDFGeneration() {
       
       // Render the PDF
       const pdfBuffer = await renderToBuffer(
-        React.createElement(QuotePDFNew, { quote: quoteData })
+        React.createElement(QuotePDFNew, { quote: quoteData }) as React.ReactElement
       )
       
       console.log('✅ PDF rendered successfully!')

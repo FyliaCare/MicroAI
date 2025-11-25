@@ -170,7 +170,7 @@ export async function GET(
     // Generate PDF using React PDF (use renderToBuffer for API routes)
     let pdfBuffer
     try {
-      pdfBuffer = await renderToBuffer(React.createElement(QuotePDFNew, { quote: quoteData }))
+      pdfBuffer = await renderToBuffer(React.createElement(QuotePDFNew, { quote: quoteData }) as React.ReactElement)
       console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
     } catch (pdfError) {
       console.error('PDF rendering error:', pdfError)
