@@ -71,7 +71,7 @@ export async function GET(
       // Project details
       projectType: quote.projectType || undefined,
       executiveSummary: quote.executiveSummary || undefined,
-      exclusions: [],
+      objectives: [],
       
       // Scope
       scopeItems: scopeItems,
