@@ -1,32 +1,42 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+#!/usr/bin/env tsx
+
+/**
+ * Test Quote PDF Generation
+ * Tests the actual PDF rendering functionality
+ */
+
+import { PrismaClient } from '@prisma/client'
 import { renderToBuffer } from '@react-pdf/renderer'
-import QuotePDFNew from '@/components/admin/quotes/pdf/QuotePDFNew'
+import React from 'react'
+import fs from 'fs'
+import path from 'path'
 
-export const dynamic = 'force-dynamic'
+const prisma = new PrismaClient()
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+async function testPDFGeneration() {
   try {
-    const { id: quoteId } = await params
-    console.log('PDF generation started for quote:', quoteId)
+    console.log('🧪 Testing Quote PDF Generation...\n')
 
-    // Fetch quote from database
-    const quote = await prisma.quote.findUnique({
-      where: { id: quoteId },
+    // Find a quote to test with
+    const quote = await prisma.quote.findFirst({
+      where: {
+        items: { not: null }
+      },
       include: {
         Client: true,
       },
     })
 
     if (!quote) {
-      console.log('Quote not found:', quoteId)
-      return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
+      console.log('❌ No quotes found in database')
+      console.log('💡 Create a quote first using the quote system')
+      return
     }
 
-    console.log('Quote found:', quote.quoteNumber)
+    console.log('✅ Found quote:', quote.quoteNumber)
+    console.log('   Title:', quote.title)
+    console.log('   Client:', quote.clientName || quote.Client?.name)
+    console.log('   Total:', quote.total)
 
     // Parse JSON fields
     const parseJSON = (str: string | null) => {
@@ -35,12 +45,11 @@ export async function GET(
         const parsed = JSON.parse(str)
         return Array.isArray(parsed) ? parsed : []
       } catch (e) {
-        console.warn('JSON parse error:', e)
         return []
       }
     }
 
-    // Prepare quote data for PDF
+    // Prepare quote data
     const lineItems = parseJSON(quote.items as any)
     const scopeItems = parseJSON(quote.scopeOfWork as any)
     const exclusions = parseJSON(quote.exclusions as any)
@@ -49,39 +58,23 @@ export async function GET(
     const milestones = parseJSON(quote.milestones as any)
     const paymentSchedule = parseJSON(quote.paymentTerms as any)
 
-    console.log('Parsed data:', {
-      lineItems: lineItems.length,
-      scopeItems: scopeItems.length,
-      milestones: milestones.length,
-      paymentSchedule: paymentSchedule.length
-    })
-
-    // Prepare quote data for PDF
     const quoteData = {
       quoteNumber: quote.quoteNumber,
       title: quote.title,
       description: quote.description || '',
-      
-      // Client info
       clientName: quote.clientName || quote.Client?.name || 'Client',
       clientEmail: quote.clientEmail || quote.Client?.email || '',
       clientCompany: quote.clientCompany || quote.Client?.company || undefined,
       clientPhone: quote.clientPhone || quote.Client?.phone || undefined,
       clientAddress: quote.clientAddress || quote.Client?.address || undefined,
-      
-      // Project details
       projectType: quote.projectType || undefined,
       executiveSummary: quote.executiveSummary || undefined,
       objectives: [],
-      
-      // Scope
       scopeItems: scopeItems,
       scopeOfWork: quote.scopeOfWork || undefined,
       exclusions: exclusions,
       assumptions: assumptions,
       deliverables: deliverables,
-      
-      // Pricing
       lineItems: lineItems,
       pricingItems: quote.pricingItems || undefined,
       currency: quote.currency || 'USD',
@@ -92,113 +85,105 @@ export async function GET(
       discount: quote.discount || 0,
       tax: quote.tax || 0,
       total: quote.total || 0,
-      
-      // Timeline
       startDate: quote.createdAt?.toISOString(),
       estimatedDuration: quote.estimatedHours || 0,
       milestones: milestones,
       timeline: quote.timeline || undefined,
-      
-      // Payment
       paymentSchedule: paymentSchedule,
       depositRequired: (quote.depositPercent || 0) > 0,
       depositPercentage: quote.depositPercent || 0,
       depositPercent: quote.depositPercent || undefined,
       depositAmount: quote.depositAmount || undefined,
       acceptedPaymentMethods: ['bank-transfer', 'credit-card', 'paypal'],
-      
-      // Terms
       termsAndConditions: quote.terms || undefined,
       terms: quote.terms || undefined,
       validUntil: quote.validUntil?.toISOString(),
-      warranties: undefined,
-      supportTerms: quote.maintenanceTerms || undefined,
+      warranties: '',
+      supportTerms: quote.maintenanceTerms || '',
       maintenanceTerms: quote.maintenanceTerms || undefined,
       revisionPolicy: quote.revisionsPolicy || undefined,
       revisionsPolicy: quote.revisionsPolicy || undefined,
-      cancellationPolicy: undefined,
+      cancellationPolicy: '',
       confidentialityClause: quote.confidentialityClause || undefined,
       ipRights: quote.ipRights || undefined,
       paymentTerms: quote.paymentTerms || undefined,
-      
-      // Branding
       brandColor: '#6366f1',
       includeLogo: true,
       includePortfolio: false,
-      customMessage: undefined,
-      footerText: undefined,
+      customMessage: '',
+      footerText: '',
       companyLogo: quote.companyLogo || undefined,
       companyName: quote.companyName || 'MicroAI Systems',
       companyAddress: quote.companyAddress || 'BR253 Pasture St. Takoradi, Ghana',
       companyEmail: quote.companyEmail || 'sales@microaisystems.com',
       companyPhone: quote.companyPhone || '+233 244486837',
       companyWebsite: quote.companyWebsite || 'www.microaisystems.com',
-      
-      // Metadata
       status: quote.status,
       issuedAt: quote.issuedAt || quote.createdAt,
       createdAt: quote.createdAt,
       updatedAt: quote.updatedAt,
-      
-      // Signatures
       clientSignature: quote.clientSignature || undefined,
       clientSignedBy: quote.clientSignedBy || undefined,
       clientSignedAt: quote.clientSignedAt || undefined,
       providerSignature: quote.providerSignature || undefined,
       providerSignedBy: quote.providerSignedBy || undefined,
       providerSignedAt: quote.providerSignedAt || undefined,
-      
-      // Additional
       freeSupportMonths: quote.freeSupportMonths || 1,
       includedRevisions: quote.includedRevisions || 2,
     }
 
-    console.log('Quote data prepared, generating PDF...')
-    console.log('Line items count:', quoteData.lineItems?.length || 0)
-    console.log('Milestones count:', quoteData.milestones?.length || 0)
+    console.log('\n📊 Quote data prepared:')
+    console.log('   Line items:', lineItems.length)
+    console.log('   Scope items:', scopeItems.length)
+    console.log('   Milestones:', milestones.length)
 
-    // Validate required data before generating PDF
-    if (!quoteData.quoteNumber || !quoteData.clientName) {
-      console.error('Missing required quote data:', { quoteNumber: quoteData.quoteNumber, clientName: quoteData.clientName })
-      return NextResponse.json(
-        { error: 'Missing required quote data (quoteNumber or clientName)' },
-        { status: 400 }
-      )
-    }
-
-    // Generate PDF using React PDF (use renderToBuffer for API routes)
-    let pdfBuffer
+    // Try to import and render the PDF component
+    console.log('\n🔄 Attempting PDF generation...')
+    
     try {
-      pdfBuffer = await renderToBuffer(<QuotePDFNew quote={quoteData} />)
-      console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
-    } catch (pdfError) {
-      console.error('PDF rendering error:', pdfError)
-      return NextResponse.json(
-        { 
-          error: 'PDF rendering failed', 
-          details: pdfError instanceof Error ? pdfError.message : String(pdfError)
-        },
-        { status: 500 }
+      // Dynamic import to avoid compilation issues
+      const QuotePDFNew = (await import('../src/components/admin/quotes/pdf/QuotePDFNew')).default
+      
+      console.log('✅ PDF component imported successfully')
+      
+      // Render the PDF
+      const pdfBuffer = await renderToBuffer(
+        React.createElement(QuotePDFNew, { quote: quoteData })
       )
+      
+      console.log('✅ PDF rendered successfully!')
+      console.log('   Buffer size:', pdfBuffer.length, 'bytes')
+      console.log('   Size:', (pdfBuffer.length / 1024).toFixed(2), 'KB')
+
+      // Save to file for inspection
+      const outputPath = path.join(process.cwd(), 'test-quote.pdf')
+      fs.writeFileSync(outputPath, pdfBuffer)
+      console.log('\n💾 PDF saved to:', outputPath)
+      console.log('✅ You can open this file to verify the PDF was generated correctly')
+
+    } catch (renderError) {
+      console.error('\n❌ PDF Rendering Error:')
+      console.error('   Error:', renderError instanceof Error ? renderError.message : String(renderError))
+      if (renderError instanceof Error && renderError.stack) {
+        console.error('\n   Stack trace:')
+        console.error(renderError.stack)
+      }
+      throw renderError
     }
 
-    // Return the PDF
-    return new NextResponse(Buffer.from(pdfBuffer), {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="quote-${quote.quoteNumber}.pdf"`,
-        'Cache-Control': 'no-cache',
-      },
-    })
+    console.log('\n✅ PDF generation test completed successfully!')
+
   } catch (error) {
-    console.error('PDF generation error:', error)
-    return NextResponse.json(
-      { 
-        error: 'Failed to generate PDF', 
-        details: error instanceof Error ? error.message : String(error) 
-      },
-      { status: 500 }
-    )
+    console.error('\n❌ Test failed:')
+    console.error(error instanceof Error ? error.message : String(error))
+    if (error instanceof Error && error.stack) {
+      console.error('\nStack trace:')
+      console.error(error.stack)
+    }
+    process.exit(1)
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
+testPDFGeneration()
