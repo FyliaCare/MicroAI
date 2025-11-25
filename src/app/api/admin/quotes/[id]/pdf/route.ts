@@ -31,11 +31,29 @@ export async function GET(
     const parseJSON = (str: string | null) => {
       if (!str) return []
       try {
-        return JSON.parse(str)
-      } catch {
+        const parsed = JSON.parse(str)
+        return Array.isArray(parsed) ? parsed : []
+      } catch (e) {
+        console.warn('JSON parse error:', e)
         return []
       }
     }
+
+    // Prepare quote data for PDF
+    const lineItems = parseJSON(quote.items as any)
+    const scopeItems = parseJSON(quote.scopeOfWork as any)
+    const exclusions = parseJSON(quote.exclusions as any)
+    const assumptions = parseJSON(quote.assumptions as any)
+    const deliverables = parseJSON(quote.deliverables as any)
+    const milestones = parseJSON(quote.milestones as any)
+    const paymentSchedule = parseJSON(quote.paymentTerms as any)
+
+    console.log('Parsed data:', {
+      lineItems: lineItems.length,
+      scopeItems: scopeItems.length,
+      milestones: milestones.length,
+      paymentSchedule: paymentSchedule.length
+    })
 
     // Prepare quote data for PDF
     const quoteData = {
@@ -53,17 +71,17 @@ export async function GET(
       // Project details
       projectType: quote.projectType || undefined,
       executiveSummary: quote.executiveSummary || undefined,
-      objectives: [],
+      exclusions: [],
       
       // Scope
-      scopeItems: parseJSON(quote.scopeOfWork as any),
+      scopeItems: scopeItems,
       scopeOfWork: quote.scopeOfWork || undefined,
-      exclusions: parseJSON(quote.exclusions as any),
-      assumptions: parseJSON(quote.assumptions as any),
-      deliverables: parseJSON(quote.deliverables as any),
+      exclusions: exclusions,
+      assumptions: assumptions,
+      deliverables: deliverables,
       
       // Pricing
-      lineItems: parseJSON(quote.items as any),
+      lineItems: lineItems,
       pricingItems: quote.pricingItems || undefined,
       currency: quote.currency || 'USD',
       discountType: (quote.discountType as 'fixed' | 'percentage' | undefined) || 'percentage',
@@ -77,11 +95,11 @@ export async function GET(
       // Timeline
       startDate: quote.createdAt?.toISOString(),
       estimatedDuration: quote.estimatedHours || 0,
-      milestones: parseJSON(quote.milestones as any),
+      milestones: milestones,
       timeline: quote.timeline || undefined,
       
       // Payment
-      paymentSchedule: parseJSON(quote.paymentTerms as any),
+      paymentSchedule: paymentSchedule,
       depositRequired: (quote.depositPercent || 0) > 0,
       depositPercentage: quote.depositPercent || 0,
       depositPercent: quote.depositPercent || undefined,
@@ -135,13 +153,35 @@ export async function GET(
     }
 
     console.log('Quote data prepared, generating PDF...')
+    console.log('Line items count:', quoteData.lineItems?.length || 0)
+    console.log('Milestones count:', quoteData.milestones?.length || 0)
+
+    // Validate required data before generating PDF
+    if (!quoteData.quoteNumber || !quoteData.clientName) {
+      console.error('Missing required quote data:', { quoteNumber: quoteData.quoteNumber, clientName: quoteData.clientName })
+      return NextResponse.json(
+        { error: 'Missing required quote data (quoteNumber or clientName)' },
+        { status: 400 }
+      )
+    }
 
     // Generate PDF using React PDF (use renderToBuffer for API routes)
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(QuotePDFNew, { quote: quoteData }) as any
-    )
-
-    console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
+    let pdfBuffer
+    try {
+      pdfBuffer = await renderToBuffer(
+        React.createElement(QuotePDFNew, { quote: quoteData }) as any
+      )
+      console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
+    } catch (pdfError) {
+      console.error('PDF rendering error:', pdfError)
+      return NextResponse.json(
+        { 
+          error: 'PDF rendering failed', 
+          details: pdfError instanceof Error ? pdfError.message : String(pdfError)
+        },
+        { status: 500 }
+      )
+    }
 
     // Return the PDF
     return new NextResponse(Buffer.from(pdfBuffer), {
