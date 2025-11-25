@@ -4,6 +4,8 @@ import { renderToBuffer } from '@react-pdf/renderer'
 import React from 'react'
 import QuotePDFNew from '@/components/admin/quotes/pdf/QuotePDFNew'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
