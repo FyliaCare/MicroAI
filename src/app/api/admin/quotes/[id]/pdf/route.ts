@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { renderToBuffer } from '@react-pdf/renderer'
+import React from 'react'
 import QuotePDFNew from '@/components/admin/quotes/pdf/QuotePDFNew'
 
 export const dynamic = 'force-dynamic'
@@ -169,7 +170,7 @@ export async function GET(
     // Generate PDF using React PDF (use renderToBuffer for API routes)
     let pdfBuffer
     try {
-      pdfBuffer = await renderToBuffer(<QuotePDFNew quote={quoteData} />)
+      pdfBuffer = await renderToBuffer(React.createElement(QuotePDFNew, { quote: quoteData }))
       console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
     } catch (pdfError) {
       console.error('PDF rendering error:', pdfError)
