@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
+import SettingsAuditModal from './SettingsAuditModal'
 
 // Advanced Settings Categories
 const SETTINGS_CATEGORIES = [
@@ -47,6 +48,8 @@ export default function AdvancedSettingsManager() {
   const [showEncrypted, setShowEncrypted] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [showAuditModal, setShowAuditModal] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   // System Health
   const [systemHealth, setSystemHealth] = useState({
@@ -68,6 +71,7 @@ export default function AdvancedSettingsManager() {
       if (response.ok) {
         const data = await response.json()
         setSettings(data.settings || [])
+        setHasChanges(false)
       }
     } catch (error) {
       console.error('Error loading settings:', error)
@@ -86,6 +90,14 @@ export default function AdvancedSettingsManager() {
     } catch (error) {
       console.error('Error checking system health:', error)
     }
+  }
+
+  const updateSettingValue = (id: string, newValue: string) => {
+    setSettings(prevSettings => 
+      prevSettings.map(s => 
+        s.id === id ? { ...s, value: newValue } : s
+      )
+    )
   }
 
   const handleSave = async () => {
@@ -126,6 +138,76 @@ export default function AdvancedSettingsManager() {
       console.error('Error exporting settings:', error)
       alert('Failed to export settings')
     }
+  }
+
+  const handleImport = async () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'application/json'
+    
+    input.onchange = async (e: any) => {
+      const file = e.target?.files?.[0]
+      if (!file) return
+
+      try {
+        const text = await file.text()
+        const data = JSON.parse(text)
+
+        const confirmed = confirm(
+          `Import ${data.settings?.length || 0} settings? This will update existing settings.`
+        )
+        
+        if (!confirmed) return
+
+        const response = await fetch('/api/admin/settings/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data, mergeMode: 'replace' })
+        })
+
+        if (response.ok) {
+          const result = await response.json()
+          alert(result.message)
+          loadSettings()
+        } else {
+          throw new Error('Import failed')
+        }
+      } catch (error) {
+        console.error('Error importing settings:', error)
+        alert('Failed to import settings. Please check the file format.')
+      }
+    }
+
+    input.click()
+  }
+
+  const handleReset = async () => {
+    const confirmed = confirm(
+      `Reset all ${activeCategory} settings to default values? This cannot be undone.`
+    )
+    
+    if (!confirmed) return
+
+    try {
+      const response = await fetch('/api/admin/settings/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: activeCategory })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        alert(result.message)
+        loadSettings()
+      }
+    } catch (error) {
+      console.error('Error resetting settings:', error)
+      alert('Failed to reset settings')
+    }
+  }
+
+  const handleViewAuditLog = async () => {
+    setShowAuditModal(true)
   }
 
   const filteredSettings = settings.filter(setting =>
@@ -175,7 +257,7 @@ export default function AdvancedSettingsManager() {
 
               <Button
                 onClick={handleExport}
-                className="bg-blue-600 hover:bg-blue-700 flex items-center space-x-2"
+                className="bg-blue-600 hover:bg-blue-700 flex items-center space-x-2 px-4 py-2"
               >
                 <Download className="w-4 h-4" />
                 <span>Export</span>
@@ -184,7 +266,7 @@ export default function AdvancedSettingsManager() {
               <Button
                 onClick={handleSave}
                 disabled={saving || !hasChanges}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex items-center space-x-2"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 flex items-center space-x-2 px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="w-4 h-4" />
                 <span>{saving ? 'Saving...' : 'Save All'}</span>
@@ -248,14 +330,26 @@ export default function AdvancedSettingsManager() {
                   <span>Quick Actions</span>
                 </h3>
                 <div className="space-y-2">
-                  <button className="w-full text-left px-3 py-2 text-sm text-purple-700 hover:bg-purple-100 rounded-lg transition-colors">
-                    Reset to Defaults
+                  <button 
+                    onClick={handleReset}
+                    className="w-full text-left px-3 py-2 text-sm text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-2"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Reset to Defaults</span>
                   </button>
-                  <button className="w-full text-left px-3 py-2 text-sm text-purple-700 hover:bg-purple-100 rounded-lg transition-colors">
-                    Import Settings
+                  <button 
+                    onClick={handleImport}
+                    className="w-full text-left px-3 py-2 text-sm text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-2"
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>Import Settings</span>
                   </button>
-                  <button className="w-full text-left px-3 py-2 text-sm text-purple-700 hover:bg-purple-100 rounded-lg transition-colors">
-                    View Audit Log
+                  <button 
+                    onClick={handleViewAuditLog}
+                    className="w-full text-left px-3 py-2 text-sm text-purple-700 hover:bg-purple-100 rounded-lg transition-colors flex items-center space-x-2"
+                  >
+                    <FileText className="w-3 h-3" />
+                    <span>View Audit Log</span>
                   </button>
                 </div>
               </div>
@@ -337,6 +431,7 @@ export default function AdvancedSettingsManager() {
                           setting={setting}
                           showEncrypted={showEncrypted}
                           onChange={() => setHasChanges(true)}
+                          onUpdate={updateSettingValue}
                         />
                       ))}
                     </div>
@@ -347,6 +442,12 @@ export default function AdvancedSettingsManager() {
           </div>
         </div>
       </div>
+
+      {/* Settings Audit Modal */}
+      <SettingsAuditModal 
+        isOpen={showAuditModal} 
+        onClose={() => setShowAuditModal(false)} 
+      />
     </div>
   )
 }
@@ -355,17 +456,20 @@ export default function AdvancedSettingsManager() {
 function SettingCard({ 
   setting, 
   showEncrypted, 
-  onChange 
+  onChange,
+  onUpdate 
 }: { 
   setting: SettingValue
   showEncrypted: boolean
   onChange: () => void
+  onUpdate: (id: string, newValue: string) => void
 }) {
   const [value, setValue] = useState(setting.value)
   const [focused, setFocused] = useState(false)
 
   const handleChange = (newValue: string) => {
     setValue(newValue)
+    onUpdate(setting.id, newValue)
     onChange()
   }
 
