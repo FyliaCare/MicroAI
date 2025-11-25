@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cachedQuery, invalidatePattern } from '@/lib/cache-optimized'
 import { checkRateLimit, getClientIdentifier, DEFAULT_RATE_LIMIT } from '@/lib/rate-limit'
+import { nanoid } from 'nanoid'
 
 // Generate unique quote number
 function generateQuoteNumber(): string {
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
         return await prisma.quote.findMany({
           where,
           include: {
-            client: {
+            Client: {
               select: {
                 id: true,
                 name: true,
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
                 company: true,
               },
             },
-            project: {
+            Project: {
               select: {
                 id: true,
                 name: true,
@@ -208,6 +209,7 @@ export async function POST(request: NextRequest) {
 
     const quote = await prisma.quote.create({
       data: {
+        id: nanoid(),
         quoteNumber,
         title,
         description,
@@ -254,6 +256,7 @@ export async function POST(request: NextRequest) {
         paymentTerms: paymentTerms ? JSON.stringify(paymentTerms) : null,
         assumptions: assumptions ? JSON.stringify(assumptions) : null,
         clientObligations: clientObligations ? JSON.stringify(clientObligations) : null,
+        updatedAt: new Date(),
         maintenanceTerms: maintenanceTerms ? JSON.stringify(maintenanceTerms) : null,
         ipRights: intellectualProperty ? JSON.stringify(intellectualProperty) : null,
         revisionsPolicy: revisionsPolicy ? JSON.stringify(revisionsPolicy) : null,
@@ -262,14 +265,15 @@ export async function POST(request: NextRequest) {
         pricingItems: pricingItems ? JSON.stringify(pricingItems) : null,
       } as any, // Type assertion to bypass Prisma client sync issues
       include: {
-        client: true,
-        project: true,
+        Client: true,
+        Project: true,
       },
     })
 
     // Log activity (async, don't wait)
     prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Created',
         entity: 'Quote',
         entityId: quote.id,

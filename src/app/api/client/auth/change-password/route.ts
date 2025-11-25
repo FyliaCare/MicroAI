@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { nanoid } from 'nanoid'
 
 // POST /api/client/auth/change-password - Change password (first-time or regular)
 export async function POST(request: NextRequest) {
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        client: {
+        Client: {
           select: { id: true },
         },
       },
@@ -83,6 +84,7 @@ export async function POST(request: NextRequest) {
     // Create activity log
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'password-changed',
         title: 'Password Changed',
         description: `${user.name} changed their password`,
@@ -90,7 +92,7 @@ export async function POST(request: NextRequest) {
         actorId: user.id,
         actorName: user.name,
         isPublic: false,
-        clientId: user.client?.id,
+        clientId: user.Client?.id,
         icon: '🔒',
         color: '#6b7280',
       },
@@ -99,6 +101,7 @@ export async function POST(request: NextRequest) {
     // Send confirmation email
     await prisma.emailQueue.create({
       data: {
+        id: nanoid(),
         to: user.email,
         subject: 'Password Changed Successfully',
         htmlContent: generatePasswordChangeEmail({
@@ -108,7 +111,8 @@ export async function POST(request: NextRequest) {
         templateType: 'password-changed',
         priority: 'high',
         userId: user.id,
-        clientId: user.client?.id,
+        clientId: user.Client?.id,
+        updatedAt: new Date(),
       },
     })
 

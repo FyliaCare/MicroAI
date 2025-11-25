@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { nanoid } from 'nanoid'
 
 const prisma = new PrismaClient()
 
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
 
     const service = await prisma.service.create({
       data: {
+        id: nanoid(),
         name,
         description,
         category,
@@ -95,7 +97,8 @@ export async function POST(request: NextRequest) {
         color,
         sortOrder: sortOrder || 0,
         tags: tags ? JSON.stringify(tags) : null,
-        notes
+        notes,
+        updatedAt: new Date(),
       }
     })
 

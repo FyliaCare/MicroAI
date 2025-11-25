@@ -365,8 +365,10 @@ async function seedAdvancedSettings() {
         update: setting,
         create: {
           ...setting,
+          id: crypto.randomUUID(),
           createdBy: 'system',
-          updatedBy: 'system'
+          updatedBy: 'system',
+          updatedAt: new Date(),
         }
       })
       console.log(`✓ ${setting.label}`)
@@ -380,7 +382,7 @@ async function seedAdvancedSettings() {
     await prisma.systemConfig.upsert({
       where: { id: 'default' },
       update: {},
-      create: { id: 'default' }
+      create: { id: 'default', updatedAt: new Date() }
     })
     console.log('✓ System Config')
   } catch (error) {
@@ -392,7 +394,7 @@ async function seedAdvancedSettings() {
     await prisma.themeConfig.upsert({
       where: { id: 'default' },
       update: {},
-      create: { id: 'default', name: 'MicroAI Default' }
+      create: { id: 'default', name: 'MicroAI Default', updatedAt: new Date() }
     })
     console.log('✓ Theme Config')
   } catch (error) {
@@ -404,7 +406,7 @@ async function seedAdvancedSettings() {
     await prisma.securityConfig.upsert({
       where: { id: 'default' },
       update: {},
-      create: { id: 'default' }
+      create: { id: 'default', updatedAt: new Date() }
     })
     console.log('✓ Security Config')
   } catch (error) {
@@ -422,7 +424,8 @@ async function seedAdvancedSettings() {
           newProject: true,
           projectApproved: true,
           quoteAccepted: true
-        })
+        }),
+        updatedAt: new Date(),
       }
     })
     console.log('✓ Notification Config')

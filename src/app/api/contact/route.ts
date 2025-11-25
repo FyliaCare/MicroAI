@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sendAdminNotificationNow, sendClientConfirmationNow } from '@/lib/send-email'
 import { prisma } from '@/lib/prisma'
 import { checkBotProtection } from '@/lib/bot-protection'
+import { nanoid } from 'nanoid'
 
 interface ContactFormData {
   name: string
@@ -376,6 +377,7 @@ sales@microaisystems.com
     try {
       projectRequest = await prisma.projectRequest.create({
         data: {
+          id: nanoid(),
           requestNumber,
           projectName: `${body.company || body.name} - Website Inquiry`,
           clientName: body.name,
@@ -387,7 +389,8 @@ sales@microaisystems.com
           requirements: `Source: Website Contact Form${body.company ? `\nCompany: ${body.company}` : ''}`,
           status: 'pending',
           priority: 'medium',
-          source: 'contact-form'
+          source: 'contact-form',
+          updatedAt: new Date(),
         }
       })
       console.log('✅ Project request created:', projectRequest.id)
@@ -420,6 +423,7 @@ sales@microaisystems.com
         try {
           await prisma.notification.create({
             data: {
+              id: nanoid(),
               type: 'project_request',
               title: '📧 New Contact Form Submission',
               message: `${body.name}${body.company ? ` from ${body.company}` : ''} submitted an inquiry. Request: ${requestNumber}`,
@@ -445,6 +449,7 @@ sales@microaisystems.com
     try {
       await prisma.activityLog.create({
         data: {
+          id: nanoid(),
           action: 'Created',
           entity: 'ProjectRequest',
           entityId: projectRequest.id,

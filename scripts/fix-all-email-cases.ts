@@ -8,7 +8,7 @@ async function fixAllEmailCases() {
     
     // Get all users
     const users = await prisma.user.findMany({
-      include: { client: true }
+      include: { Client: true }
     })
     
     console.log(`📋 Found ${users.length} users\n`)
@@ -29,9 +29,9 @@ async function fixAllEmailCases() {
         })
         
         // Update client email if exists
-        if (user.client) {
+        if (user.Client) {
           await prisma.client.update({
-            where: { id: user.client.id },
+            where: { id: user.Client.id },
             data: { email: lowercaseEmail }
           })
         }

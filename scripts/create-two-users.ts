@@ -54,11 +54,13 @@ async function createUsers() {
       // Create admin user in Admin table
       const admin = await prisma.admin.create({
         data: {
+          id: crypto.randomUUID(),
           name: userData.name,
           email: userData.email,
           password: hashedPassword,
           role: userData.role,
-          isActive: true
+          isActive: true,
+          updatedAt: new Date(),
         }
       })
 

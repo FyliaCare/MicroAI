@@ -50,7 +50,7 @@ export async function GET(
         lastLoginAt: true,
         createdAt: true,
         updatedAt: true,
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
@@ -69,18 +69,18 @@ export async function GET(
             createdAt: true,
             _count: {
               select: {
-                projects: true,
-                quotes: true,
-                projectRequests: true,
-                invoices: true,
+                Project: true,
+                Quote: true,
+                ProjectRequest: true,
+                Invoice: true,
               }
             }
           }
         },
         _count: {
           select: {
-            codeAccessRequests: true,
-            sessions: true,
+            CodeAccessRequest: true,
+            ClientSession: true,
           }
         }
       }
@@ -96,7 +96,7 @@ export async function GET(
     // Get recent activity
     const recentProjects = await prisma.project.findMany({
       where: {
-        client: {
+        Client: {
           userId: userId
         }
       },
@@ -117,7 +117,7 @@ export async function GET(
 
     const recentQuotes = await prisma.quote.findMany({
       where: {
-        client: {
+        Client: {
           userId: userId
         }
       },

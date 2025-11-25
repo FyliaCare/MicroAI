@@ -26,9 +26,11 @@ export async function POST(request: NextRequest) {
           },
         },
         create: {
+          id: `typing_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           sessionId,
           userType,
           isTyping: true,
+          updatedAt: new Date(),
         },
         update: {
           isTyping: true,

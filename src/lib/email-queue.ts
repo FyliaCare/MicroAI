@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 export interface EmailQueueData {
   to: string
@@ -17,6 +18,7 @@ export async function queueEmail(data: EmailQueueData): Promise<void> {
   try {
     await prisma.emailQueue.create({
       data: {
+        id: nanoid(),
         to: data.to,
         subject: data.subject,
         htmlContent: data.htmlContent,
@@ -25,6 +27,7 @@ export async function queueEmail(data: EmailQueueData): Promise<void> {
         priority: data.priority || 'normal',
         attempts: 0,
         metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+        updatedAt: new Date(),
       },
     })
     console.log(`✅ Email queued for ${data.to}: ${data.subject}`)

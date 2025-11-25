@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendAdminNotificationNow, sendClientConfirmationNow } from '@/lib/send-email'
 import { checkBotProtection } from '@/lib/bot-protection'
+import { nanoid } from 'nanoid'
 
 // POST /api/project-request - Submit new project request from chatbot/form
 export async function POST(request: NextRequest) {
@@ -119,6 +120,7 @@ export async function POST(request: NextRequest) {
     // Create project request
     const projectRequest = await prisma.projectRequest.create({
       data: {
+        id: nanoid(),
         requestNumber,
         clientName,
         clientEmail,
@@ -147,12 +149,14 @@ export async function POST(request: NextRequest) {
         utmCampaign,
         ipAddress,
         status: 'pending',
+        updatedAt: new Date(),
       },
     })
 
     // Create notification for admin
     await prisma.notification.create({
       data: {
+        id: nanoid(),
         type: 'new-project-request',
         title: '🚀 New Project Request',
         message: `${clientName} from ${clientCompany || 'N/A'} submitted a request for ${projectName}`,
@@ -286,7 +290,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         skip: offset,
         include: {
-          client: {
+          Client: {
             select: {
               id: true,
               name: true,

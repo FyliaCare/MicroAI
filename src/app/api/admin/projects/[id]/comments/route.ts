@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,7 +37,7 @@ export async function POST(
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
@@ -64,11 +65,13 @@ export async function POST(
     // Create comment
     const comment = await prisma.projectComment.create({
       data: {
+        id: nanoid(),
         projectId,
         content: content.trim(),
         authorName: session.user.name || 'Admin',
         authorRole: 'ADMIN',
         parentId: parentId || null,
+        updatedAt: new Date(),
       },
     })
 
@@ -120,7 +123,7 @@ export async function GET(
       prisma.comment.findMany({
         where: { projectId, isInternal: false },
         include: {
-          author: {
+          TeamMember: {
             select: {
               id: true,
               name: true,
@@ -145,7 +148,7 @@ export async function GET(
         id: comment.id,
         projectId: comment.projectId || projectId,
         content: typeof parsedContent === 'string' ? parsedContent : parsedContent.text || comment.content,
-        authorName: parsedContent.authorName || comment.author?.name || 'Client',
+        authorName: parsedContent.authorName || comment.TeamMember?.name || 'Client',
         authorRole: parsedContent.authorType === 'client' ? 'CLIENT' : 'ADMIN',
         parentId: comment.parentId,
         createdAt: comment.createdAt,

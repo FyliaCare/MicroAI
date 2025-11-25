@@ -24,11 +24,13 @@ async function main() {
     // Create admin user
     const admin = await prisma.admin.create({
       data: {
+        id: crypto.randomUUID(),
         email: defaultEmail,
         password: hashedPassword,
         name: 'MicroAI Systems',
         role: 'super-admin',
         isActive: true,
+        updatedAt: new Date(),
       }
     })
 
@@ -57,6 +59,7 @@ async function main() {
     
     clientUser = await prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
         email: clientEmail,
         password: hashedClientPassword,
         name: 'Chief Client',
@@ -64,6 +67,7 @@ async function main() {
         isActive: true,
         isVerified: true,
         mustChangePassword: false,
+        updatedAt: new Date(),
       }
     })
     
@@ -80,6 +84,7 @@ async function main() {
       userId: clientUser.id,
     },
     create: {
+      id: crypto.randomUUID(),
       name: 'Chief Client',
       email: clientEmail,
       phone: '+233 244486837',
@@ -88,7 +93,8 @@ async function main() {
       status: 'active',
       hasPortalAccess: true,
       userId: clientUser.id,
-      notes: 'Primary client with full portal access'
+      notes: 'Primary client with full portal access',
+      updatedAt: new Date(),
     }
   })
 
@@ -99,13 +105,15 @@ async function main() {
     where: { email: 'john@example.com' },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       name: 'John Doe',
       email: 'john@example.com',
       phone: '+1 (555) 123-4567',
       company: 'Acme Corp',
       website: 'https://acmecorp.com',
       status: 'active',
-      notes: 'Sample client for testing'
+      notes: 'Sample client for testing',
+      updatedAt: new Date(),
     }
   })
 
@@ -114,6 +122,7 @@ async function main() {
   // Sample project
   const project = await prisma.project.create({
     data: {
+      id: crypto.randomUUID(),
       name: 'E-commerce Platform',
       description: 'Modern e-commerce solution with advanced features',
       type: 'web-app',
@@ -128,6 +137,7 @@ async function main() {
       clientId: client.id,
       startDate: new Date('2025-01-15'),
       deadline: new Date('2025-04-30'),
+      updatedAt: new Date(),
     }
   })
 
@@ -136,6 +146,7 @@ async function main() {
   // Sample service
   const service = await prisma.service.create({
     data: {
+      id: crypto.randomUUID(),
       name: 'Custom Web Application',
       description: 'Full-stack web application development with modern technologies',
       category: 'web-development',
@@ -163,7 +174,8 @@ async function main() {
       isPopular: true,
       icon: '💻',
       color: '#3B82F6',
-      tags: JSON.stringify(['web', 'custom', 'full-stack'])
+      tags: JSON.stringify(['web', 'custom', 'full-stack']),
+      updatedAt: new Date(),
     }
   })
 

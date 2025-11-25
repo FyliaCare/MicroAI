@@ -15,7 +15,7 @@ export async function GET(
     const quote = await prisma.quote.findUnique({
       where: { id: quoteId },
       include: {
-        client: true,
+        Client: true,
       },
     })
 
@@ -53,11 +53,11 @@ export async function GET(
       description: quote.description || '',
       
       // Client info
-      clientName: quote.clientName || quote.client?.name || 'Client',
-      clientEmail: quote.clientEmail || quote.client?.email || '',
-      clientCompany: quote.clientCompany || quote.client?.company || undefined,
-      clientPhone: quote.clientPhone || quote.client?.phone || undefined,
-      clientAddress: quote.clientAddress || quote.client?.address || undefined,
+      clientName: quote.clientName || quote.Client?.name || 'Client',
+      clientEmail: quote.clientEmail || quote.Client?.email || '',
+      clientCompany: quote.clientCompany || quote.Client?.company || undefined,
+      clientPhone: quote.clientPhone || quote.Client?.phone || undefined,
+      clientAddress: quote.clientAddress || quote.Client?.address || undefined,
       
       // Project details
       projectType: quote.projectType || undefined,

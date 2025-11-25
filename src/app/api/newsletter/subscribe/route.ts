@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { queueEmail } from '@/lib/email-queue'
 import { checkBotProtection } from '@/lib/bot-protection'
+import { nanoid } from 'nanoid'
 
 interface SubscribeData {
   email: string
@@ -80,6 +81,7 @@ export async function POST(request: NextRequest) {
     // Create new subscriber
     const subscriber = await prisma.newsletterSubscriber.create({
       data: {
+        id: nanoid(),
         email: body.email,
         name: body.name,
         source: body.source || 'website',
@@ -88,6 +90,8 @@ export async function POST(request: NextRequest) {
         confirmedAt: new Date(),
         ipAddress: ipAddress.split(',')[0].trim(),
         referrer: referrer || undefined,
+        unsubscribeToken: nanoid(),
+        updatedAt: new Date(),
       }
     })
 
@@ -192,6 +196,7 @@ export async function POST(request: NextRequest) {
       for (const admin of admins) {
         await prisma.notification.create({
           data: {
+            id: nanoid(),
             type: 'newsletter_subscription',
             title: `📧 New Newsletter Subscriber`,
             message: `${body.name || body.email} subscribed to the newsletter from ${body.source || 'website'}`,
@@ -209,6 +214,7 @@ export async function POST(request: NextRequest) {
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Subscribed',
         entity: 'NewsletterSubscriber',
         entityId: subscriber.id,

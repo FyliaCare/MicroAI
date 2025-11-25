@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/quotes/[id]/respond - Accept or reject quote
 export async function POST(
@@ -21,7 +22,7 @@ export async function POST(
     const quote = await prisma.quote.findUnique({
       where: { id: quoteId },
       include: {
-        client: true,
+        Client: true,
       },
     })
 
@@ -71,6 +72,7 @@ export async function POST(
       // Log activity
       await prisma.activityLog.create({
         data: {
+          id: nanoid(),
           action: 'Accepted',
           entity: 'Quote',
           entityId: quote.id,
@@ -85,6 +87,7 @@ export async function POST(
       // Create notification for admin
       await prisma.notification.create({
         data: {
+          id: nanoid(),
           type: 'quote-accepted',
           title: 'Quote Accepted',
           message: `${signerName} accepted quote ${quote.quoteNumber}`,
@@ -115,6 +118,7 @@ export async function POST(
       // Log activity
       await prisma.activityLog.create({
         data: {
+          id: nanoid(),
           action: 'Rejected',
           entity: 'Quote',
           entityId: quote.id,
@@ -125,6 +129,7 @@ export async function POST(
       // Create notification for admin
       await prisma.notification.create({
         data: {
+          id: nanoid(),
           type: 'quote-rejected',
           title: 'Quote Rejected',
           message: `Client rejected quote ${quote.quoteNumber}`,

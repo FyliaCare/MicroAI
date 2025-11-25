@@ -66,13 +66,7 @@ export async function GET(request: NextRequest) {
       where: { id: sessionId },
       select: {
         status: true,
-        assignedTo: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
+        assignedToId: true,
       },
     })
 
@@ -82,7 +76,7 @@ export async function GET(request: NextRequest) {
       typingIndicators,
       unreadCount,
       sessionStatus: session?.status,
-      assignedAgent: session?.assignedTo,
+      assignedAgent: session?.assignedToId,
     })
   } catch (error) {
     console.error('Error polling for updates:', error)

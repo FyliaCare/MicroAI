@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // GET /api/client/updates - Get project updates for client
 export async function GET(request: NextRequest) {
@@ -22,9 +23,9 @@ export async function GET(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    if (!session.user.client) {
+    if (!session.User.Client) {
       return NextResponse.json(
         { success: false, error: 'No client account found' },
         { status: 404 }
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
     // Build query
     const where: any = {
       project: {
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
       },
       isPublic: true, // Only show public updates to clients
     }
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
       const project = await prisma.project.findFirst({
         where: {
           id: projectId,
-          clientId: session.user.client.id,
+          clientId: session.User.Client.id,
         },
       })
 
@@ -75,9 +76,9 @@ export async function GET(request: NextRequest) {
     const updates = await prisma.projectUpdate.findMany({
       where,
       include: {
-        readBy: {
+        ProjectUpdateRead: {
           where: {
-            userId: session.user.id,
+            userId: session.User.id,
           },
           select: {
             readAt: true,
@@ -115,14 +116,14 @@ export async function GET(request: NextRequest) {
           type: update.type,
           progressBefore: update.progressBefore,
           progressAfter: update.progressAfter,
-          isRead: update.readBy.length > 0,
-          readAt: update.readBy[0]?.readAt || null,
+          isRead: update.ProjectUpdateRead.length > 0,
+          readAt: update.ProjectUpdateRead[0]?.readAt || null,
           createdAt: update.createdAt,
         }
       }),
       stats: {
         total: updates.length,
-        unread: updates.filter((u) => u.readBy.length === 0).length,
+        unread: updates.filter((u) => u.ProjectUpdateRead.length === 0).length,
       },
     })
   } catch (error) {
@@ -166,9 +167,9 @@ export async function POST(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
@@ -181,7 +182,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!session.user.client) {
+    if (!session.User.Client) {
       return NextResponse.json(
         { success: false, error: 'No client account found' },
         { status: 404 }
@@ -207,7 +208,7 @@ export async function POST(request: NextRequest) {
     const project = await prisma.project.findFirst({
       where: {
         id: update.projectId,
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
       },
     })
 
@@ -222,7 +223,7 @@ export async function POST(request: NextRequest) {
     const existingRead = await prisma.projectUpdateRead.findFirst({
       where: {
         updateId,
-        userId: session.user.id,
+        userId: session.User.id,
       },
     })
 
@@ -237,8 +238,9 @@ export async function POST(request: NextRequest) {
     // Mark as read
     const read = await prisma.projectUpdateRead.create({
       data: {
+        id: nanoid(),
         updateId,
-        userId: session.user.id,
+        userId: session.User.id,
       },
     })
 

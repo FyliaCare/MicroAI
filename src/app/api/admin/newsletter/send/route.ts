@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { queueEmail } from '@/lib/email-queue'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { nanoid } from 'nanoid'
 
 interface SendNewsletterData {
   subject: string
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
     // Create newsletter record
     const newsletter = await prisma.newsletter.create({
       data: {
+        id: nanoid(),
         subject: body.subject,
         content: body.content,
         textContent: body.textContent,
@@ -73,6 +75,7 @@ export async function POST(request: NextRequest) {
         segment: body.segment,
         createdBy: session.user?.id,
         createdByName: session.user?.name || session.user?.email,
+        updatedAt: new Date(),
       }
     })
 
@@ -264,6 +267,7 @@ export async function POST(request: NextRequest) {
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Sent',
         entity: 'Newsletter',
         entityId: newsletter.id,

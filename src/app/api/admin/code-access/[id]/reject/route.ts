@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/admin/code-access/[id]/reject - Reject code access request
 export async function POST(
@@ -24,7 +25,7 @@ export async function POST(
     const codeRequest = await prisma.codeAccessRequest.findUnique({
       where: { id: requestId },
       include: {
-        user: true,
+        User: true,
       },
     })
 
@@ -52,7 +53,7 @@ export async function POST(
     // Get project separately
     const project = await prisma.project.findUnique({
       where: { id: codeRequest.projectId },
-      include: { client: true },
+      include: { Client: true },
     })
 
     if (!project) {
@@ -75,6 +76,7 @@ export async function POST(
     // Create notification for client
     await prisma.notification.create({
       data: {
+        id: nanoid(),
         type: 'code-access-rejected',
         title: 'Code Access Request Declined',
         message: `Your code access request for ${project.name} was declined`,
@@ -86,13 +88,14 @@ export async function POST(
     })
 
     // Queue email to client
-    if (codeRequest.user) {
+    if (codeRequest.User) {
       await prisma.emailQueue.create({
         data: {
-          to: codeRequest.user.email,
+          id: nanoid(),
+          to: codeRequest.User.email,
           subject: 'Code Access Request Update',
           htmlContent: generateRejectionEmail({
-            clientName: codeRequest.user.name,
+            clientName: codeRequest.User.name,
             projectName: project.name,
             requestNumber: codeRequest.requestNumber,
             reason,
@@ -100,6 +103,7 @@ export async function POST(
           templateType: 'code-access-rejected',
           priority: 'normal',
           userId: codeRequest.userId,
+          updatedAt: new Date(),
         },
       })
     }
@@ -107,6 +111,7 @@ export async function POST(
     // Create activity feed
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'code-access-rejected',
         title: 'Code Access Declined',
         description: `Request ${codeRequest.requestNumber} declined`,

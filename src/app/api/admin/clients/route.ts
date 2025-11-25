@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // GET /api/admin/clients - List all clients
 export async function GET(request: NextRequest) {
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
     const clients = await prisma.client.findMany({
       where,
       include: {
-        projects: {
+        Project: {
           select: {
             id: true,
             name: true,
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
             budget: true,
           },
         },
-        quotes: {
+        Quote: {
           select: {
             id: true,
             quoteNumber: true,
@@ -31,9 +32,9 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            projects: true,
-            quotes: true,
-            invoices: true,
+            Project: true,
+            Quote: true,
+            Invoice: true,
           },
         },
       },
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
 
     const client = await prisma.client.create({
       data: {
+        id: nanoid(),
         name,
         email,
         phone,
@@ -109,12 +111,14 @@ export async function POST(request: NextRequest) {
         address,
         notes,
         status: status || 'active',
+        updatedAt: new Date(),
       },
     })
 
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Created',
         entity: 'Client',
         entityId: client.id,

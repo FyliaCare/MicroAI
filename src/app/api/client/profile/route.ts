@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: true
+        User: true
       }
     })
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         smsNotifications: true,
         createdAt: true,
         updatedAt: true,
-        client: {
+        Client: {
           select: {
             id: true,
             company: true,
@@ -107,7 +107,7 @@ export async function PATCH(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: true
+        User: true
       }
     })
 

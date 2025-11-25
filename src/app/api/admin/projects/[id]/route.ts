@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // GET /api/admin/projects/[id] - Get single project
 export async function GET(
@@ -10,17 +11,17 @@ export async function GET(
     const project = await prisma.project.findUnique({
       where: { id: params.id },
       include: {
-        client: true,
-        tasks: {
+        Client: true,
+        Task: {
           orderBy: { createdAt: 'desc' },
         },
-        milestones: {
+        Milestone: {
           orderBy: { dueDate: 'asc' },
         },
-        invoices: {
+        Invoice: {
           orderBy: { createdAt: 'desc' },
         },
-        quote: true,
+        Quote: true,
       },
     })
 
@@ -111,15 +112,16 @@ export async function PATCH(
       where: { id: params.id },
       data: updateData,
       include: {
-        client: true,
-        tasks: true,
-        milestones: true,
+        Client: true,
+        Task: true,
+        Milestone: true,
       },
     })
 
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Updated',
         entity: 'Project',
         entityId: project.id,
@@ -185,6 +187,7 @@ export async function DELETE(
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Deleted',
         entity: 'Project',
         entityId: params.id,

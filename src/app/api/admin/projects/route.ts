@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // GET /api/admin/projects - List all projects with filtering
 export async function GET(request: NextRequest) {
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
     const projects = await prisma.project.findMany({
       where,
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
@@ -25,14 +26,14 @@ export async function GET(request: NextRequest) {
             company: true,
           },
         },
-        tasks: {
+        Task: {
           select: {
             id: true,
             title: true,
             status: true,
           },
         },
-        milestones: {
+        Milestone: {
           select: {
             id: true,
             title: true,
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
             dueDate: true,
           },
         },
-        quote: {
+        Quote: {
           select: {
             id: true,
             quoteNumber: true,
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
 
     const project = await prisma.project.create({
       data: {
+        id: nanoid(),
         name,
         description,
         type,
@@ -123,15 +125,17 @@ export async function POST(request: NextRequest) {
         liveUrl,
         stagingUrl,
         notes,
+        updatedAt: new Date(),
       },
       include: {
-        client: true,
+        Client: true,
       },
     })
 
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Created',
         entity: 'Project',
         entityId: project.id,

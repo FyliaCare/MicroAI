@@ -37,19 +37,19 @@ export async function GET(request: NextRequest) {
     const [projects, clients, quotes, invoices] = await Promise.all([
       prisma.project.findMany({
         where: { createdAt: { gte: startDate } },
-        include: { client: true }
+        include: { Client: true }
       }),
       prisma.client.findMany({
         where: { createdAt: { gte: startDate } },
         include: {
-          projects: true,
-          quotes: true,
-          invoices: true
+          Project: true,
+          Quote: true,
+          Invoice: true
         }
       }),
       prisma.quote.findMany({
         where: { createdAt: { gte: startDate } },
-        include: { client: true }
+        include: { Client: true }
       }),
       prisma.invoice.findMany({
         where: { createdAt: { gte: startDate } }
@@ -134,9 +134,9 @@ export async function GET(request: NextRequest) {
     // Revenue by client
     const revenueByClient: Record<string, { amount: number; projects: number; name: string }> = {}
     projects.forEach((p: any) => {
-      if (p.clientId && p.client) {
+      if (p.clientId && p.Client) {
         if (!revenueByClient[p.clientId]) {
-          revenueByClient[p.clientId] = { amount: 0, projects: 0, name: p.client.name }
+          revenueByClient[p.clientId] = { amount: 0, projects: 0, name: p.Client.name }
         }
         revenueByClient[p.clientId].amount += p.revenue || 0
         revenueByClient[p.clientId].projects += 1

@@ -31,6 +31,7 @@ async function createAdminUser() {
     // Create admin user
     const admin = await prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
         name: 'Philip Montford',
         email: email,
         password: hashedPassword,
@@ -40,7 +41,8 @@ async function createAdminUser() {
         mustChangePassword: false,
         company: 'MicroAI Systems',
         phone: '+1234567890',
-        jobTitle: 'CEO & Founder'
+        jobTitle: 'CEO & Founder',
+        updatedAt: new Date(),
       }
     })
 

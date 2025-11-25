@@ -63,7 +63,8 @@ async function seedQuoteTemplates() {
         }
       }),
       profitMargin: 100,
-      sortOrder: 1
+      sortOrder: 1,
+      updatedAt: new Date(),
     }
   })
 
@@ -135,8 +136,9 @@ async function seedQuoteTemplates() {
           total: 0
         }
       }),
-      profitMargin: 120,
-      sortOrder: 2
+      profitMargin: 100,
+      sortOrder: 2,
+      updatedAt: new Date(),
     }
   })
 
@@ -217,7 +219,8 @@ async function seedQuoteTemplates() {
         }
       }),
       profitMargin: 95,
-      sortOrder: 3
+      sortOrder: 3,
+      updatedAt: new Date(),
     }
   })
 
@@ -313,7 +316,8 @@ async function seedQuoteTemplates() {
         }
       }),
       profitMargin: 75,
-      sortOrder: 4
+      sortOrder: 4,
+      updatedAt: new Date(),
     }
   })
 

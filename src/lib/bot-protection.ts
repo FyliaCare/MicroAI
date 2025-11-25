@@ -3,6 +3,7 @@
 
 import { NextRequest } from 'next/server'
 import { prisma } from './prisma'
+import { nanoid } from 'nanoid'
 
 // ============================================
 // 1. REQUEST FINGERPRINTING
@@ -299,6 +300,7 @@ export async function logBlockedRequest(
   try {
     await prisma.blockedRequest.create({
       data: {
+        id: nanoid(),
         ipAddress: fingerprint.ip,
         userAgent: fingerprint.userAgent,
         endpoint,

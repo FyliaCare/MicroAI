@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -21,15 +22,15 @@ export async function POST(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
     })
 
-    if (!session || !session.user?.client) {
+    if (!session || !session.User?.Client) {
       return NextResponse.json(
         { success: false, error: 'Invalid session' },
         { status: 401 }
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const client = session.user.client
+    const client = session.User.Client
 
     // Generate unique request number
     const requestCount = await prisma.projectRequest.count()
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
     // Create PROJECT REQUEST (not project yet - awaiting admin approval)
     const projectRequest = await prisma.projectRequest.create({
       data: {
+        id: nanoid(),
         requestNumber,
         clientName: client.name,
         clientEmail: client.email,
@@ -74,12 +76,14 @@ export async function POST(request: NextRequest) {
         status: 'pending', // Awaiting admin review
         clientId: client.id,
         source: 'client-portal',
+        updatedAt: new Date(),
       },
     })
 
     // Create notification for admin
     await prisma.notification.create({
       data: {
+        id: nanoid(),
         type: 'new-project-request',
         title: `New Project Request: ${name}`,
         message: `${client.name} has submitted a new project request (${requestNumber}). Click to review and approve.`,
@@ -93,6 +97,7 @@ export async function POST(request: NextRequest) {
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Created',
         entity: 'ProjectRequest',
         entityId: projectRequest.id,
@@ -141,15 +146,15 @@ export async function GET(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
     })
 
-    if (!session || !session.user?.client) {
+    if (!session || !session.User?.Client) {
       return NextResponse.json(
         { success: false, error: 'Invalid session' },
         { status: 401 }
@@ -159,7 +164,7 @@ export async function GET(request: NextRequest) {
     // Get project requests for this client
     const requests = await prisma.projectRequest.findMany({
       where: {
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
       },
       orderBy: { createdAt: 'desc' },
     })

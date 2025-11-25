@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/admin/code-access/[id]/approve - Approve code access request
 export async function POST(
@@ -17,7 +18,7 @@ export async function POST(
     const codeRequest = await prisma.codeAccessRequest.findUnique({
       where: { id: requestId },
       include: {
-        user: true,
+        User: true,
       },
     })
 
@@ -45,7 +46,7 @@ export async function POST(
     // Get project and client separately
     const project = await prisma.project.findUnique({
       where: { id: codeRequest.projectId },
-      include: { client: true },
+      include: { Client: true },
     })
 
     if (!project) {
@@ -85,13 +86,14 @@ export async function POST(
     })
 
     // Queue email to client
-    if (codeRequest.user) {
+    if (codeRequest.User) {
       await prisma.emailQueue.create({
         data: {
-          to: codeRequest.user.email,
+          id: nanoid(),
+          to: codeRequest.User.email,
           subject: 'Code Access Approved',
           htmlContent: generateApprovalEmail({
-            clientName: codeRequest.user.name,
+            clientName: codeRequest.User.name,
             projectName: project.name,
             requestNumber: codeRequest.requestNumber,
             repoUrl: repoUrl || 'Repository URL will be provided separately',
@@ -102,6 +104,7 @@ export async function POST(
           templateType: 'code-access-approved',
           priority: 'high',
           userId: codeRequest.userId,
+          updatedAt: new Date(),
         },
       })
     }
@@ -109,6 +112,7 @@ export async function POST(
     // Create activity feed
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'code-access-approved',
         title: 'Code Access Approved',
         description: `Request ${codeRequest.requestNumber} approved`,

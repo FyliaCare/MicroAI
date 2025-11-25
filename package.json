@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@hello-pangea/dnd": "^18.0.1",
     "@prisma/client": "^6.18.0",
     "@react-pdf/renderer": "^4.3.1",
     "@tinymce/tinymce-react": "^6.3.0",

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // GET /api/admin/settings - Get settings by category
 export async function GET(request: NextRequest) {
@@ -70,6 +71,7 @@ export async function PUT(request: NextRequest) {
       if (oldSetting && oldSetting.value !== setting.value) {
         await prisma.settingHistory.create({
           data: {
+            id: nanoid(),
             settingId: setting.id,
             key: setting.key,
             oldValue: oldSetting.value,
@@ -131,6 +133,7 @@ export async function POST(request: NextRequest) {
 
     const setting = await prisma.setting.create({
       data: {
+        id: nanoid(),
         key,
         value,
         category,
@@ -140,7 +143,8 @@ export async function POST(request: NextRequest) {
         isEncrypted,
         defaultValue: defaultValue || value,
         createdBy: session.user?.email || 'admin',
-        updatedBy: session.user?.email || 'admin'
+        updatedBy: session.user?.email || 'admin',
+        updatedAt: new Date()
       }
     })
 

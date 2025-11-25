@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,28 +28,17 @@ export async function PATCH(
     const session = await prisma.chatSession.update({
       where: { id: params.sessionId },
       data: updateData,
-      include: {
-        messages: {
-          orderBy: { createdAt: 'asc' },
-        },
-        assignedTo: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-      },
     })
 
     // If assigned, create system message
     if (assignedToId && updateData.assignedToId) {
       await prisma.chatMessage.create({
         data: {
+          id: nanoid(),
           sessionId: params.sessionId,
           senderType: 'system',
           senderName: 'System',
-          message: 'An agent has joined the chat.',
+          message: `Chat assigned to team member`,
           messageType: 'system',
         },
       })
@@ -76,10 +66,10 @@ export async function GET(
     const session = await prisma.chatSession.findUnique({
       where: { id: params.sessionId },
       include: {
-        messages: {
+        ChatMessage: {
           orderBy: { createdAt: 'asc' },
         },
-        assignedTo: {
+        User: {
           select: {
             id: true,
             name: true,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import * as jwt from 'jsonwebtoken'
+import { nanoid } from 'nanoid'
 
 // POST /api/client/auth/login - Client login
 export async function POST(request: NextRequest) {
@@ -20,11 +21,11 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
-            company: true,
+            email: true,
           },
         },
       },
@@ -132,7 +133,7 @@ export async function POST(request: NextRequest) {
       {
         userId: user.id,
         email: user.email,
-        clientId: user.client?.id,
+        clientId: user.Client?.id,
         role: user.role,
       },
       process.env.JWT_SECRET || 'your-secret-key',
@@ -152,6 +153,7 @@ export async function POST(request: NextRequest) {
 
     await prisma.clientSession.create({
       data: {
+        id: nanoid(),
         userId: user.id,
         sessionToken,
         ipAddress,
@@ -164,6 +166,7 @@ export async function POST(request: NextRequest) {
     // Create activity log
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'client-login',
         title: 'Client Logged In',
         description: `${user.name} logged in to the portal`,
@@ -171,7 +174,7 @@ export async function POST(request: NextRequest) {
         actorId: user.id,
         actorName: user.name,
         isPublic: false,
-        clientId: user.client?.id,
+        clientId: user.Client?.id,
         icon: '🔐',
         color: '#3b82f6',
       },
@@ -188,7 +191,7 @@ export async function POST(request: NextRequest) {
         role: user.role,
         isVerified: user.isVerified,
         mustChangePassword: user.mustChangePassword,
-        client: user.client,
+        client: user.Client,
       },
       session: {
         token: jwtToken, // Return JWT token instead of random string

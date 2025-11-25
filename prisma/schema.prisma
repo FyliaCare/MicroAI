@@ -10,8 +10,325 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model APIConfig {
+  id               String   @id
+  enabled          Boolean  @default(true)
+  version          String   @default("v1")
+  baseUrl          String
+  docsEnabled      Boolean  @default(true)
+  authRequired     Boolean  @default(true)
+  rateLimitEnabled Boolean  @default(true)
+  rateLimitTier1   Int      @default(60)
+  rateLimitTier2   Int      @default(120)
+  rateLimitTier3   Int      @default(300)
+  webhooksEnabled  Boolean  @default(true)
+  webhookSecret    String?
+  corsEnabled      Boolean  @default(true)
+  corsOrigins      String   @default("*")
+  logRequests      Boolean  @default(true)
+  logResponses     Boolean  @default(false)
+  cacheEnabled     Boolean  @default(true)
+  cacheTTL         Int      @default(300)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime
+}
+
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  Admin             Admin   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model ActivityFeed {
+  id               String   @id
+  type             String
+  title            String
+  description      String?
+  actorType        String
+  actorId          String?
+  actorName        String?
+  targetType       String?
+  targetId         String?
+  targetName       String?
+  isPublic         Boolean  @default(true)
+  visibleToClients String?
+  projectId        String?
+  clientId         String?
+  metadata         String?
+  icon             String?
+  color            String?
+  createdAt        DateTime @default(now())
+
+  @@index([actorType])
+  @@index([clientId])
+  @@index([createdAt])
+  @@index([isPublic])
+  @@index([projectId])
+  @@index([type])
+}
+
+model ActivityLog {
+  id          String   @id
+  action      String
+  entity      String
+  entityId    String
+  description String?
+  userId      String?
+  metadata    String?
+  createdAt   DateTime @default(now())
+}
+
+model Admin {
+  id          String    @id
+  email       String    @unique
+  password    String
+  name        String
+  role        String    @default("admin")
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  Account     Account[]
+  Session     Session[]
+}
+
+model ApiKey {
+  id          String    @id
+  name        String
+  key         String    @unique
+  description String?
+  permissions String
+  rateLimit   Int       @default(1000)
+  isActive    Boolean   @default(true)
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  usageCount  Int       @default(0)
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+
+  @@index([isActive])
+  @@index([key])
+}
+
+model AuditLog {
+  id          String   @id
+  action      String
+  entity      String
+  entityId    String?
+  oldValue    String?
+  newValue    String?
+  userId      String?
+  userEmail   String?
+  userIp      String?
+  userAgent   String?
+  description String?
+  metadata    String?
+  createdAt   DateTime @default(now())
+
+  @@index([action])
+  @@index([createdAt])
+  @@index([entityId])
+  @@index([entity])
+  @@index([userId])
+}
+
+model Backup {
+  id          String    @id
+  type        String
+  status      String    @default("pending")
+  fileUrl     String?
+  fileSize    Int?
+  recordCount Int?
+  duration    Int?
+  error       String?
+  isScheduled Boolean   @default(false)
+  triggeredBy String?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+  @@index([type])
+}
+
+model BlockedRequest {
+  id          String   @id
+  ipAddress   String
+  userAgent   String?
+  endpoint    String
+  botScore    Float
+  reasons     String
+  fingerprint String?
+  formData    String?
+  blockedAt   DateTime @default(now())
+
+  @@index([blockedAt])
+  @@index([botScore])
+  @@index([endpoint])
+  @@index([ipAddress])
+}
+
+model BlogCategory {
+  id          String   @id
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  color       String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  postCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@index([isActive])
+  @@index([slug])
+  @@index([sortOrder])
+}
+
+model BlogComment {
+  id                String        @id
+  postId            String
+  parentId          String?
+  authorName        String
+  authorEmail       String
+  content           String
+  status            String        @default("pending")
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime
+  BlogComment       BlogComment?  @relation("BlogCommentToBlogComment", fields: [parentId], references: [id], onDelete: Cascade)
+  other_BlogComment BlogComment[] @relation("BlogCommentToBlogComment")
+
+  @@index([createdAt])
+  @@index([parentId])
+  @@index([postId])
+  @@index([status])
+}
+
+model BlogPost {
+  id              String    @id
+  title           String
+  slug            String    @unique
+  excerpt         String?
+  content         String
+  coverImage      String?
+  coverImageAlt   String?
+  author          String?
+  authorName      String?
+  authorAvatar    String?
+  status          String    @default("draft")
+  published       Boolean   @default(false)
+  publishedAt     DateTime?
+  featured        Boolean   @default(false)
+  category        String?
+  tags            String?
+  metaTitle       String?
+  metaDescription String?
+  views           Int       @default(0)
+  likes           Int       @default(0)
+  readingTime     Int?
+  seoKeywords     String?
+  allowComments   Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime
+
+  @@index([category])
+  @@index([createdAt])
+  @@index([featured])
+  @@index([publishedAt])
+  @@index([published])
+  @@index([slug])
+  @@index([status])
+}
+
+model ChatMessage {
+  id          String      @id
+  sessionId   String
+  senderId    String?
+  senderType  String
+  senderName  String?
+  message     String
+  messageType String      @default("text")
+  fileUrl     String?
+  fileName    String?
+  fileSize    Int?
+  isRead      Boolean     @default(false)
+  readAt      DateTime?
+  metadata    String?
+  createdAt   DateTime    @default(now())
+  fileType    String?
+  ChatSession ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([isRead])
+  @@index([senderId])
+  @@index([senderType])
+  @@index([sessionId])
+}
+
+model ChatSession {
+  id              String        @id
+  visitorId       String?
+  visitorName     String?
+  visitorEmail    String?
+  visitorPhone    String?
+  visitorIp       String?
+  visitorDevice   String?
+  visitorBrowser  String?
+  visitorLocation String?
+  currentPage     String?
+  referrer        String?
+  status          String        @default("active")
+  assignedToId    String?
+  rating          Int?
+  feedback        String?
+  tags            String?
+  metadata        String?
+  startedAt       DateTime      @default(now())
+  closedAt        DateTime?
+  lastMessageAt   DateTime      @default(now())
+  ChatMessage     ChatMessage[]
+  User            User?         @relation(fields: [assignedToId], references: [id])
+
+  @@index([assignedToId])
+  @@index([lastMessageAt])
+  @@index([startedAt])
+  @@index([status])
+  @@index([visitorEmail])
+  @@index([visitorId])
+}
+
+model ChatTypingIndicator {
+  id        String   @id
+  sessionId String
+  userId    String?
+  userType  String
+  userName  String?
+  isTyping  Boolean  @default(true)
+  updatedAt DateTime
+
+  @@unique([sessionId, userType])
+  @@index([isTyping])
+  @@index([sessionId])
+}
+
 model Client {
-  id               String           @id @default(uuid())
+  id               String           @id
   name             String
   email            String           @unique
   phone            String?
@@ -21,7 +338,7 @@ model Client {
   notes            String?
   status           String           @default("active")
   createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  updatedAt        DateTime
   city             String?
   companySize      String?
   country          String?          @default("Ghana")
@@ -35,92 +352,821 @@ model Client {
   timezone         String?          @default("Africa/Accra")
   hasPortalAccess  Boolean          @default(false)
   userId           String?          @unique
-  user             User?            @relation(fields: [userId], references: [id])
-  uploads          ClientUpload[]
-  communications   Communication[]
-  contracts        Contract[]
-  documents        Document[]
-  invoices         Invoice[]
-  projects         Project[]
-  projectRequests  ProjectRequest[]
-  quotes           Quote[]
+  User             User?            @relation(fields: [userId], references: [id])
+  ClientUpload     ClientUpload[]
+  Communication    Communication[]
+  Contract         Contract[]
+  Document         Document[]
+  Invoice          Invoice[]
+  Project          Project[]
+  ProjectRequest   ProjectRequest[]
+  Quote            Quote[]
 
-  @@index([email])
-  @@index([status])
-  @@index([createdAt])
-  @@index([name])
   @@index([company])
   @@index([country])
-  @@index([userId])
+  @@index([createdAt])
+  @@index([email])
   @@index([hasPortalAccess])
+  @@index([name])
+  @@index([status])
+  @@index([userId])
+}
+
+model ClientSession {
+  id             String   @id
+  userId         String
+  sessionToken   String   @unique
+  ipAddress      String?
+  userAgent      String?
+  deviceType     String?
+  browser        String?
+  os             String?
+  country        String?
+  city           String?
+  isActive       Boolean  @default(true)
+  expiresAt      DateTime
+  lastActivityAt DateTime @default(now())
+  createdAt      DateTime @default(now())
+  User           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@index([isActive])
+  @@index([sessionToken])
+  @@index([userId])
+}
+
+model ClientUpload {
+  id                String    @id
+  name              String
+  originalName      String
+  description       String?
+  category          String
+  fileUrl           String
+  fileSize          Int
+  mimeType          String
+  format            String?
+  width             Int?
+  height            Int?
+  colorPalette      String?
+  version           Int       @default(1)
+  previousVersionId String?
+  isLatest          Boolean   @default(true)
+  status            String    @default("active")
+  isApproved        Boolean   @default(false)
+  approvedBy        String?
+  approvedAt        DateTime?
+  projectId         String?
+  clientId          String?
+  uploadedBy        String?
+  uploadedByRole    String?
+  tags              String?
+  notes             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime
+  cloudinaryId      String?
+  Client            Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([category])
+  @@index([clientId])
+  @@index([createdAt])
+  @@index([isLatest])
+  @@index([projectId])
+  @@index([status])
+}
+
+model CodeAccessRequest {
+  id                String    @id
+  requestNumber     String    @unique
+  projectId         String
+  userId            String
+  clientName        String
+  clientEmail       String
+  reason            String?
+  githubUsername    String?
+  status            String    @default("pending")
+  requestedAt       DateTime  @default(now())
+  reviewedAt        DateTime?
+  reviewedBy        String?
+  reviewNotes       String?
+  rejectionReason   String?
+  autoApprovedAt    DateTime?
+  repoUrl           String?
+  accessGranted     Boolean   @default(false)
+  accessGrantedAt   DateTime?
+  inviteSent        Boolean   @default(false)
+  inviteAccepted    Boolean   @default(false)
+  accessMethod      String?
+  accessCredentials String?
+  downloadUrl       String?
+  downloadExpiry    DateTime?
+  emailSent         Boolean   @default(false)
+  emailSentAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime
+  User              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([autoApprovedAt])
+  @@index([projectId])
+  @@index([requestNumber])
+  @@index([requestedAt])
+  @@index([status])
+  @@index([userId])
+}
+
+model Comment {
+  id            String      @id
+  content       String
+  isInternal    Boolean     @default(false)
+  projectId     String?
+  taskId        String?
+  authorId      String?
+  parentId      String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime
+  TeamMember    TeamMember? @relation(fields: [authorId], references: [id])
+  Comment       Comment?    @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
+  other_Comment Comment[]   @relation("CommentToComment")
+  Project       Project?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  Task          Task?       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([parentId])
+  @@index([projectId])
+  @@index([taskId])
+}
+
+model Communication {
+  id          String   @id
+  type        String
+  subject     String?
+  content     String
+  direction   String
+  clientId    String?
+  from        String?
+  to          String?
+  cc          String?
+  attachments String?
+  sentBy      String?
+  createdAt   DateTime @default(now())
+  Client      Client?  @relation(fields: [clientId], references: [id])
+
+  @@index([clientId])
+  @@index([createdAt])
+  @@index([type])
+}
+
+model Contract {
+  id                String    @id
+  title             String
+  description       String?
+  type              String
+  status            String    @default("draft")
+  content           String
+  clientId          String?
+  startDate         DateTime?
+  endDate           DateTime?
+  signedAt          DateTime?
+  value             Float?
+  currency          String    @default("GHS")
+  documentUrl       String?
+  signedDocumentUrl String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime
+  Client            Client?   @relation(fields: [clientId], references: [id])
+
+  @@index([clientId])
+  @@index([startDate])
+  @@index([status])
+  @@index([type])
+}
+
+model Deployment {
+  id          String   @id
+  version     String
+  environment String
+  status      String
+  commitHash  String?
+  branch      String?
+  deployedBy  String?
+  url         String?
+  notes       String?
+  changelog   String?
+  buildTime   Int?
+  projectId   String
+  deployedAt  DateTime @default(now())
+  Project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([deployedAt])
+  @@index([environment])
+  @@index([projectId])
+  @@index([status])
+}
+
+model Document {
+  id          String   @id
+  name        String
+  description String?
+  type        String
+  fileUrl     String
+  fileSize    Int?
+  mimeType    String?
+  isPublic    Boolean  @default(false)
+  clientId    String?
+  projectId   String?
+  uploadedBy  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  Client      Client?  @relation(fields: [clientId], references: [id])
+  Project     Project? @relation(fields: [projectId], references: [id])
+
+  @@index([clientId])
+  @@index([createdAt])
+  @@index([projectId])
+  @@index([type])
+}
+
+model EmailConfig {
+  id            String   @id
+  provider      String   @default("resend")
+  fromName      String   @default("MicroAI Systems")
+  fromEmail     String
+  replyToEmail  String?
+  adminEmail    String
+  resendApiKey  String?
+  smtpHost      String?
+  smtpPort      Int?
+  smtpUser      String?
+  smtpPassword  String?
+  smtpSecure    Boolean  @default(true)
+  dailyLimit    Int      @default(1000)
+  hourlyLimit   Int      @default(100)
+  enableQueue   Boolean  @default(true)
+  queueRetries  Int      @default(3)
+  queueTimeout  Int      @default(30000)
+  templates     String?
+  webhookUrl    String?
+  webhookSecret String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+}
+
+model EmailLog {
+  id         String    @id
+  to         String
+  from       String
+  subject    String
+  content    String?
+  status     String    @default("pending")
+  provider   String?
+  providerId String?
+  error      String?
+  retryCount Int       @default(0)
+  templateId String?
+  clientId   String?
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+  @@index([templateId])
+  @@index([to])
+}
+
+model EmailQueue {
+  id            String    @id
+  to            String
+  cc            String?
+  bcc           String?
+  subject       String
+  htmlContent   String
+  textContent   String?
+  templateType  String?
+  templateVars  String?
+  status        String    @default("pending")
+  priority      String    @default("normal")
+  attempts      Int       @default(0)
+  maxAttempts   Int       @default(3)
+  lastAttemptAt DateTime?
+  nextRetryAt   DateTime?
+  error         String?
+  errorDetails  String?
+  provider      String?
+  providerId    String?
+  metadata      String?
+  userId        String?
+  clientId      String?
+  projectId     String?
+  sentAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  User          User?     @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@index([nextRetryAt])
+  @@index([priority])
+  @@index([status])
+  @@index([to])
+}
+
+model EmailTemplate {
+  id        String   @id
+  name      String
+  subject   String
+  content   String
+  type      String
+  variables String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@index([isActive])
+  @@index([type])
+}
+
+model Expense {
+  id            String    @id
+  description   String
+  category      String
+  amount        Float
+  currency      String    @default("GHS")
+  paymentMethod String?
+  receipt       String?
+  projectId     String?
+  date          DateTime  @default(now())
+  paidAt        DateTime?
+  status        String    @default("pending")
+  vendor        String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  Project       Project?  @relation(fields: [projectId], references: [id])
+
+  @@index([category])
+  @@index([date])
+  @@index([projectId])
+  @@index([status])
+}
+
+model GitHubIntegration {
+  id            String    @id
+  projectId     String    @unique
+  repoName      String
+  repoOwner     String
+  repoFullName  String
+  repoUrl       String
+  repoId        Int?
+  isPrivate     Boolean   @default(true)
+  defaultBranch String    @default("main")
+  webhookId     Int?
+  webhookSecret String?
+  webhookActive Boolean   @default(false)
+  cloneUrl      String?
+  sshUrl        String?
+  isActive      Boolean   @default(true)
+  lastSync      DateTime?
+  syncStatus    String?
+  syncError     String?
+  language      String?
+  description   String?
+  topics        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+
+  @@index([isActive])
+  @@index([projectId])
+  @@index([repoFullName])
+}
+
+model Invoice {
+  id              String    @id
+  invoiceNumber   String    @unique
+  title           String
+  description     String?
+  clientId        String?
+  projectId       String?
+  subtotal        Float
+  tax             Float     @default(0)
+  discount        Float     @default(0)
+  total           Float
+  paidAmount      Float     @default(0)
+  items           String
+  status          String    @default("draft")
+  paymentMethod   String?
+  paymentDate     DateTime?
+  issuedAt        DateTime?
+  dueDate         DateTime?
+  sentAt          DateTime?
+  notes           String?
+  terms           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime
+  currency        String    @default("GHS")
+  discountType    String    @default("amount")
+  isRecurring     Boolean   @default(false)
+  lastReminderAt  DateTime?
+  recurringPeriod String?
+  remindersSent   Int       @default(0)
+  taxRate         Float     @default(0)
+  Client          Client?   @relation(fields: [clientId], references: [id])
+  Project         Project?  @relation(fields: [projectId], references: [id])
+  Payment         Payment[]
+
+  @@index([clientId])
+  @@index([dueDate])
+  @@index([invoiceNumber])
+  @@index([issuedAt])
+  @@index([projectId])
+  @@index([status])
+}
+
+model Milestone {
+  id            String    @id
+  title         String
+  description   String?
+  status        String    @default("pending")
+  deliverables  String?
+  dueDate       DateTime?
+  completedAt   DateTime?
+  paymentAmount Float?
+  isPaid        Boolean   @default(false)
+  projectId     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  Project       Project?  @relation(fields: [projectId], references: [id])
+}
+
+model Newsletter {
+  id                String    @id
+  subject           String
+  content           String
+  textContent       String?
+  previewText       String?
+  status            String    @default("draft")
+  scheduledFor      DateTime?
+  sentAt            DateTime?
+  sentTo            Int       @default(0)
+  openedCount       Int       @default(0)
+  clickedCount      Int       @default(0)
+  bouncedCount      Int       @default(0)
+  unsubscribedCount Int       @default(0)
+  failedCount       Int       @default(0)
+  createdBy         String?
+  createdByName     String?
+  tags              String?
+  segment           String?
+  templateId        String?
+  campaign          String?
+  attachments       String?
+  metadata          String?
+  error             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime
+
+  @@index([createdAt])
+  @@index([createdBy])
+  @@index([scheduledFor])
+  @@index([sentAt])
+  @@index([status])
+}
+
+model NewsletterClick {
+  id              String   @id
+  newsletterId    String
+  subscriberEmail String
+  url             String
+  clickedAt       DateTime @default(now())
+  ipAddress       String?
+  userAgent       String?
+
+  @@index([clickedAt])
+  @@index([newsletterId])
+  @@index([subscriberEmail])
+}
+
+model NewsletterOpen {
+  id              String   @id
+  newsletterId    String
+  subscriberEmail String
+  openedAt        DateTime @default(now())
+  ipAddress       String?
+  userAgent       String?
+
+  @@index([newsletterId])
+  @@index([openedAt])
+  @@index([subscriberEmail])
+}
+
+model NewsletterSubscriber {
+  id               String    @id
+  email            String    @unique
+  name             String?
+  source           String?   @default("website")
+  status           String    @default("active")
+  subscribed       Boolean   @default(true)
+  confirmedAt      DateTime?
+  unsubscribedAt   DateTime?
+  unsubscribeToken String    @unique
+  preferences      String?
+  tags             String?
+  metadata         String?
+  ipAddress        String?
+  country          String?
+  city             String?
+  referrer         String?
+  bounceCount      Int       @default(0)
+  lastBouncedAt    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime
+
+  @@index([createdAt])
+  @@index([email])
+  @@index([status])
+  @@index([subscribed])
+  @@index([unsubscribeToken])
+}
+
+model Notification {
+  id         String    @id
+  type       String
+  title      String
+  message    String
+  link       String?
+  isRead     Boolean   @default(false)
+  priority   String    @default("normal")
+  entityType String?
+  entityId   String?
+  createdAt  DateTime  @default(now())
+  readAt     DateTime?
+
+  @@index([createdAt])
+  @@index([isRead])
+  @@index([priority])
+  @@index([type])
+}
+
+model NotificationConfig {
+  id                String   @id
+  emailEnabled      Boolean  @default(true)
+  pushEnabled       Boolean  @default(false)
+  smsEnabled        Boolean  @default(false)
+  slackEnabled      Boolean  @default(false)
+  slackWebhook      String?
+  events            String
+  priorityDelays    String   @default("{\"high\":0,\"medium\":2,\"low\":5}")
+  batchEnabled      Boolean  @default(false)
+  batchSize         Int      @default(50)
+  batchDelay        Int      @default(300)
+  quietHoursEnabled Boolean  @default(false)
+  quietHoursStart   String?
+  quietHoursEnd     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime
+}
+
+model Payment {
+  id        String    @id
+  amount    Float
+  currency  String    @default("GHS")
+  method    String
+  reference String?
+  receipt   String?
+  invoiceId String?
+  status    String    @default("pending")
+  paidAt    DateTime?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  Invoice   Invoice?  @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+  @@index([paidAt])
+  @@index([reference])
+  @@index([status])
 }
 
 model Project {
-  id             String        @id @default(uuid())
-  name           String
-  description    String?
-  type           String
-  status         String        @default("planning")
-  priority       String        @default("medium")
-  budget         Float?
-  actualCost     Float?
-  revenue        Float?
-  profitMargin   Float?
-  startDate      DateTime?
-  endDate        DateTime?
-  deadline       DateTime?
-  completedAt    DateTime?
-  techStack      String?
-  githubRepo     String?
-  liveUrl        String?
-  stagingUrl     String?
-  progress       Int           @default(0)
-  notes          String?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  clientId       String?
-  actualHours    Float?
-  attachments    String?
-  currency       String        @default("GHS")
-  customFields   String?
-  demoUrl        String?
-  domain         String?
-  estimatedHours Float?
-  health         String        @default("good")
-  hosting        String?
-  lastChecked    DateTime?
-  requirements   String?
-  sslCertificate Boolean       @default(false)
-  tags           String?
-  uptime         Float         @default(100)
-  googleDriveLink String?      // Google Drive folder link for client file uploads
-  googleDriveInstructions String? // Custom instructions for clients
-  comments       Comment[]
-  deployments    Deployment[]
-  documents      Document[]
-  expenses       Expense[]
-  invoices       Invoice[]
-  milestones     Milestone[]
-  client         Client?       @relation(fields: [clientId], references: [id])
-  teamMembers    ProjectTeam[]
-  quote          Quote?
-  tasks          Task[]
-  projectFiles   ProjectFile[]
-  projectComments ProjectComment[]
-  timeEntries    TimeEntry[]
+  id                      String           @id
+  name                    String
+  description             String?
+  type                    String
+  status                  String           @default("planning")
+  priority                String           @default("medium")
+  budget                  Float?
+  actualCost              Float?
+  revenue                 Float?
+  profitMargin            Float?
+  startDate               DateTime?
+  endDate                 DateTime?
+  deadline                DateTime?
+  completedAt             DateTime?
+  techStack               String?
+  githubRepo              String?
+  liveUrl                 String?
+  stagingUrl              String?
+  progress                Int              @default(0)
+  notes                   String?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime
+  clientId                String?
+  actualHours             Float?
+  attachments             String?
+  currency                String           @default("GHS")
+  customFields            String?
+  demoUrl                 String?
+  domain                  String?
+  estimatedHours          Float?
+  health                  String           @default("good")
+  hosting                 String?
+  lastChecked             DateTime?
+  requirements            String?
+  sslCertificate          Boolean          @default(false)
+  tags                    String?
+  uptime                  Float            @default(100)
+  googleDriveInstructions String?
+  googleDriveLink         String?
+  Comment                 Comment[]
+  Deployment              Deployment[]
+  Document                Document[]
+  Expense                 Expense[]
+  Invoice                 Invoice[]
+  Milestone               Milestone[]
+  Client                  Client?          @relation(fields: [clientId], references: [id])
+  ProjectComment          ProjectComment[]
+  ProjectFile             ProjectFile[]
+  ProjectTeam             ProjectTeam[]
+  Quote                   Quote?
+  Task                    Task[]
+  TimeEntry               TimeEntry[]
 
   @@index([clientId])
-  @@index([status])
-  @@index([type])
-  @@index([priority])
   @@index([createdAt])
   @@index([deadline])
-  @@index([name])
   @@index([health])
+  @@index([name])
+  @@index([priority])
+  @@index([status])
+  @@index([type])
+}
+
+model ProjectComment {
+  id                   String           @id
+  projectId            String
+  content              String
+  authorName           String
+  authorRole           String           @default("CLIENT")
+  parentId             String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime
+  ProjectComment       ProjectComment?  @relation("ProjectCommentToProjectComment", fields: [parentId], references: [id], onDelete: Cascade)
+  other_ProjectComment ProjectComment[] @relation("ProjectCommentToProjectComment")
+  Project              Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([parentId])
+  @@index([projectId])
+}
+
+model ProjectFile {
+  id           String   @id
+  projectId    String
+  filename     String
+  fileUrl      String
+  fileSize     Int
+  fileType     String
+  description  String?
+  uploadedBy   String
+  uploadedAt   DateTime @default(now())
+  cloudinaryId String?
+  Project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([uploadedAt])
+}
+
+model ProjectRequest {
+  id                 String    @id
+  requestNumber      String    @unique
+  clientName         String
+  clientEmail        String
+  clientPhone        String?
+  clientCompany      String?
+  clientWebsite      String?
+  projectName        String
+  projectType        String
+  description        String
+  industry           String?
+  requirements       String
+  features           String?
+  techPreferences    String?
+  budget             Float?
+  budgetRange        String?
+  timeline           String?
+  startDate          DateTime?
+  deadline           DateTime?
+  priority           String    @default("normal")
+  status             String    @default("pending")
+  reviewedBy         String?
+  reviewedAt         DateTime?
+  reviewNotes        String?
+  rejectionReason    String?
+  convertedToProject Boolean   @default(false)
+  projectId          String?
+  clientId           String?
+  chatTranscript     String?
+  attachments        String?
+  source             String    @default("website")
+  referrer           String?
+  utmSource          String?
+  utmMedium          String?
+  utmCampaign        String?
+  ipAddress          String?
+  country            String?
+  city               String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime
+  Client             Client?   @relation(fields: [clientId], references: [id])
+
+  @@index([clientEmail])
+  @@index([convertedToProject])
+  @@index([createdAt])
+  @@index([projectType])
+  @@index([requestNumber])
+  @@index([status])
+}
+
+model ProjectTeam {
+  id         String     @id
+  role       String
+  projectId  String
+  memberId   String
+  assignedAt DateTime   @default(now())
+  TeamMember TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  Project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, memberId])
+  @@index([memberId])
+  @@index([projectId])
+}
+
+model ProjectUpdate {
+  id                String              @id
+  title             String
+  content           String
+  type              String              @default("progress")
+  isPublic          Boolean             @default(true)
+  isImportant       Boolean             @default(false)
+  summary           String?
+  attachments       String?
+  progressBefore    Int?
+  progressAfter     Int?
+  projectId         String
+  postedBy          String?
+  postedByName      String?
+  emailSent         Boolean             @default(false)
+  emailSentAt       DateTime?
+  emailRecipients   String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  ProjectUpdateRead ProjectUpdateRead[]
+
+  @@index([createdAt])
+  @@index([emailSent])
+  @@index([isPublic])
+  @@index([projectId])
+  @@index([type])
+}
+
+model ProjectUpdateRead {
+  id            String        @id
+  updateId      String
+  userId        String
+  readAt        DateTime      @default(now())
+  ProjectUpdate ProjectUpdate @relation(fields: [updateId], references: [id], onDelete: Cascade)
+  User          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([updateId, userId])
+  @@index([readAt])
+  @@index([updateId])
+  @@index([userId])
+}
+
+model PushSubscription {
+  id        String   @id
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@index([endpoint])
+  @@index([userId])
 }
 
 model Quote {
-  id                    String    @id @default(uuid())
+  id                    String    @id
   quoteNumber           String    @unique
   title                 String
   description           String?
@@ -140,7 +1186,7 @@ model Quote {
   notes                 String?
   terms                 String?
   createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  updatedAt             DateTime
   deliverables          String?
   designCost            Float?    @default(0)
   developmentCost       Float?    @default(0)
@@ -195,207 +1241,19 @@ model Quote {
   taxRate               Float?    @default(0)
   validityDays          Int       @default(30)
   templateStyle         String    @default("professional-locked")
-  client                Client?   @relation(fields: [clientId], references: [id])
-  project               Project?  @relation(fields: [projectId], references: [id])
+  Client                Client?   @relation(fields: [clientId], references: [id])
+  Project               Project?  @relation(fields: [projectId], references: [id])
 
   @@index([clientId])
-  @@index([projectId])
-  @@index([status])
-  @@index([quoteNumber])
   @@index([createdAt])
+  @@index([projectId])
+  @@index([quoteNumber])
+  @@index([status])
   @@index([validUntil])
 }
 
-model Invoice {
-  id              String    @id @default(uuid())
-  invoiceNumber   String    @unique
-  title           String
-  description     String?
-  clientId        String?
-  projectId       String?
-  subtotal        Float
-  tax             Float     @default(0)
-  discount        Float     @default(0)
-  total           Float
-  paidAmount      Float     @default(0)
-  items           String
-  status          String    @default("draft")
-  paymentMethod   String?
-  paymentDate     DateTime?
-  issuedAt        DateTime?
-  dueDate         DateTime?
-  sentAt          DateTime?
-  notes           String?
-  terms           String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  currency        String    @default("GHS")
-  discountType    String    @default("amount")
-  isRecurring     Boolean   @default(false)
-  lastReminderAt  DateTime?
-  recurringPeriod String?
-  remindersSent   Int       @default(0)
-  taxRate         Float     @default(0)
-  client          Client?   @relation(fields: [clientId], references: [id])
-  project         Project?  @relation(fields: [projectId], references: [id])
-  payments        Payment[]
-
-  @@index([clientId])
-  @@index([projectId])
-  @@index([status])
-  @@index([invoiceNumber])
-  @@index([dueDate])
-  @@index([issuedAt])
-}
-
-model Task {
-  id             String      @id @default(uuid())
-  title          String
-  description    String?
-  status         String      @default("todo")
-  priority       String      @default("medium")
-  estimatedHours Float?
-  actualHours    Float?
-  startDate      DateTime?
-  dueDate        DateTime?
-  completedAt    DateTime?
-  assignedTo     String?
-  projectId      String?
-  tags           String?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  attachments    String?
-  checklist      String?
-  comments       Comment[]
-  project        Project?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  timeEntries    TimeEntry[]
-
-  @@index([projectId])
-  @@index([status])
-  @@index([priority])
-  @@index([dueDate])
-}
-
-model Milestone {
-  id            String    @id @default(uuid())
-  title         String
-  description   String?
-  status        String    @default("pending")
-  deliverables  String?
-  dueDate       DateTime?
-  completedAt   DateTime?
-  paymentAmount Float?
-  isPaid        Boolean   @default(false)
-  projectId     String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  project       Project?  @relation(fields: [projectId], references: [id])
-}
-
-model Admin {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  password    String
-  name        String
-  role        String    @default("admin")
-  isActive    Boolean   @default(true)
-  lastLoginAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  accounts    Account[]
-  sessions    Session[]
-}
-
-model Account {
-  id                String  @id @default(uuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              Admin   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(uuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         Admin    @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Service {
-  id           String   @id @default(uuid())
-  name         String
-  description  String?
-  category     String
-  priceType    String   @default("fixed")
-  basePrice    Float?
-  minPrice     Float?
-  maxPrice     Float?
-  hourlyRate   Float?
-  features     String?
-  deliverables String?
-  duration     String?
-  isActive     Boolean  @default(true)
-  isPopular    Boolean  @default(false)
-  icon         String?
-  color        String?
-  sortOrder    Int      @default(0)
-  tags         String?
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
-
-model ActivityLog {
-  id          String   @id @default(uuid())
-  action      String
-  entity      String
-  entityId    String
-  description String?
-  userId      String?
-  metadata    String?
-  createdAt   DateTime @default(now())
-}
-
-model Notification {
-  id         String    @id @default(uuid())
-  type       String
-  title      String
-  message    String
-  link       String?
-  isRead     Boolean   @default(false)
-  priority   String    @default("normal")
-  entityType String?
-  entityId   String?
-  createdAt  DateTime  @default(now())
-  readAt     DateTime?
-
-  @@index([isRead])
-  @@index([type])
-  @@index([createdAt])
-  @@index([priority])
-}
-
 model QuoteTemplate {
-  id                 String   @id @default(uuid())
+  id                 String   @id
   name               String
   category           String
   description        String?
@@ -416,50 +1274,240 @@ model QuoteTemplate {
   isActive           Boolean  @default(true)
   sortOrder          Int      @default(0)
   createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  updatedAt          DateTime
+}
+
+model ScheduledTask {
+  id              String    @id
+  taskName        String    @unique
+  taskType        String
+  cronExpression  String
+  isActive        Boolean   @default(true)
+  lastRunAt       DateTime?
+  lastStatus      String?
+  lastRunDuration Int?
+  lastError       String?
+  nextRunAt       DateTime?
+  executionCount  Int       @default(0)
+  config          String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime
+
+  @@index([isActive])
+  @@index([lastRunAt])
+  @@index([nextRunAt])
+  @@index([taskName])
+  @@index([taskType])
+}
+
+model SecurityConfig {
+  id                     String   @id
+  corsEnabled            Boolean  @default(true)
+  corsOrigins            String   @default("*")
+  csrfEnabled            Boolean  @default(true)
+  rateLimitEnabled       Boolean  @default(true)
+  rateLimitRequests      Int      @default(100)
+  rateLimitWindow        Int      @default(60)
+  ipWhitelist            String?
+  ipBlacklist            String?
+  botProtectionEnabled   Boolean  @default(true)
+  botProtectionThreshold Int      @default(10)
+  sqlInjectionProtection Boolean  @default(true)
+  xssProtection          Boolean  @default(true)
+  contentSecurityPolicy  String?
+  sslOnly                Boolean  @default(true)
+  hsts                   Boolean  @default(true)
+  hstsMaxAge             Int      @default(31536000)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime
+}
+
+model Service {
+  id           String   @id
+  name         String
+  description  String?
+  category     String
+  priceType    String   @default("fixed")
+  basePrice    Float?
+  minPrice     Float?
+  maxPrice     Float?
+  hourlyRate   Float?
+  features     String?
+  deliverables String?
+  duration     String?
+  isActive     Boolean  @default(true)
+  isPopular    Boolean  @default(false)
+  icon         String?
+  color        String?
+  sortOrder    Int      @default(0)
+  tags         String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  Admin        Admin    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Setting {
+  id             String           @id
+  key            String           @unique
+  value          String
+  type           String           @default("string")
+  category       String
+  description    String?
+  updatedAt      DateTime
+  createdAt      DateTime         @default(now())
+  createdBy      String?
+  defaultValue   String?
+  isEncrypted    Boolean          @default(false)
+  isPublic       Boolean          @default(false)
+  label          String
+  metadata       String?
+  updatedBy      String?
+  validation     String?
+  SettingHistory SettingHistory[]
+
+  @@index([category])
+  @@index([key])
+  @@index([updatedAt])
+}
+
+model SettingHistory {
+  id           String   @id
+  settingId    String
+  key          String
+  oldValue     String?
+  newValue     String
+  changedBy    String
+  changeReason String?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  Setting      Setting  @relation(fields: [settingId], references: [id], onDelete: Cascade)
+
+  @@index([changedBy])
+  @@index([createdAt])
+  @@index([settingId])
+}
+
+model SettingsBackup {
+  id          String    @id
+  name        String
+  description String?
+  data        String
+  version     String
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  restoredAt  DateTime?
+
+  @@index([createdAt])
+  @@index([createdBy])
+}
+
+model SystemConfig {
+  id                       String   @id
+  maintenanceMode          Boolean  @default(false)
+  maintenanceMessage       String?
+  allowedIPs               String?
+  maxUploadSize            Int      @default(5242880)
+  sessionTimeout           Int      @default(3600)
+  passwordMinLength        Int      @default(8)
+  passwordRequireSpecial   Boolean  @default(true)
+  passwordRequireNumber    Boolean  @default(true)
+  passwordRequireUppercase Boolean  @default(true)
+  twoFactorEnabled         Boolean  @default(false)
+  loginAttempts            Int      @default(5)
+  loginLockoutDuration     Int      @default(1800)
+  apiRateLimit             Int      @default(100)
+  apiRateLimitWindow       Int      @default(60)
+  enableLogging            Boolean  @default(true)
+  logLevel                 String   @default("info")
+  backupEnabled            Boolean  @default(true)
+  backupFrequency          String   @default("daily")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime
+}
+
+model Task {
+  id             String      @id
+  title          String
+  description    String?
+  status         String      @default("todo")
+  priority       String      @default("medium")
+  estimatedHours Float?
+  actualHours    Float?
+  startDate      DateTime?
+  dueDate        DateTime?
+  completedAt    DateTime?
+  assignedTo     String?
+  projectId      String?
+  tags           String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime
+  attachments    String?
+  checklist      String?
+  Comment        Comment[]
+  Project        Project?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  TimeEntry      TimeEntry[]
+
+  @@index([dueDate])
+  @@index([priority])
+  @@index([projectId])
+  @@index([status])
 }
 
 model TeamMember {
-  id                 String        @id @default(uuid())
-  name               String
-  email              String        @unique
-  phone              String?
-  role               String
-  title              String?
-  skills             String?
-  hourlyRate         Float?
-  availability       String        @default("available")
-  password           String?
-  isActive           Boolean       @default(true)
-  avatar             String?
-  bio                String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  comments           Comment[]
-  projectAssignments ProjectTeam[]
-  timeEntries        TimeEntry[]
+  id           String        @id
+  name         String
+  email        String        @unique
+  phone        String?
+  role         String
+  title        String?
+  skills       String?
+  hourlyRate   Float?
+  availability String        @default("available")
+  password     String?
+  isActive     Boolean       @default(true)
+  avatar       String?
+  bio          String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime
+  Comment      Comment[]
+  ProjectTeam  ProjectTeam[]
+  TimeEntry    TimeEntry[]
 
   @@index([email])
-  @@index([role])
   @@index([isActive])
+  @@index([role])
 }
 
-model ProjectTeam {
-  id         String     @id @default(uuid())
-  role       String
-  projectId  String
-  memberId   String
-  assignedAt DateTime   @default(now())
-  member     TeamMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  @@unique([projectId, memberId])
-  @@index([projectId])
-  @@index([memberId])
+model ThemeConfig {
+  id              String   @id
+  name            String   @default("default")
+  primaryColor    String   @default("#6366f1")
+  secondaryColor  String   @default("#8b5cf6")
+  accentColor     String   @default("#ec4899")
+  backgroundColor String   @default("#ffffff")
+  textColor       String   @default("#1f2937")
+  borderRadius    String   @default("0.5rem")
+  fontFamily      String   @default("Inter, sans-serif")
+  darkMode        Boolean  @default(false)
+  customCSS       String?
+  logo            String?
+  favicon         String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
 }
 
 model TimeEntry {
-  id          String      @id @default(uuid())
+  id          String      @id
   description String
   hours       Float
   date        DateTime    @default(now())
@@ -469,331 +1517,19 @@ model TimeEntry {
   taskId      String?
   memberId    String?
   createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  member      TeamMember? @relation(fields: [memberId], references: [id])
-  project     Project?    @relation(fields: [projectId], references: [id])
-  task        Task?       @relation(fields: [taskId], references: [id])
+  updatedAt   DateTime
+  TeamMember  TeamMember? @relation(fields: [memberId], references: [id])
+  Project     Project?    @relation(fields: [projectId], references: [id])
+  Task        Task?       @relation(fields: [taskId], references: [id])
 
-  @@index([projectId])
-  @@index([taskId])
+  @@index([date])
   @@index([memberId])
-  @@index([date])
-}
-
-model Document {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  type        String
-  fileUrl     String
-  fileSize    Int?
-  mimeType    String?
-  isPublic    Boolean  @default(false)
-  clientId    String?
-  projectId   String?
-  uploadedBy  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  client      Client?  @relation(fields: [clientId], references: [id])
-  project     Project? @relation(fields: [projectId], references: [id])
-
-  @@index([clientId])
-  @@index([projectId])
-  @@index([type])
-  @@index([createdAt])
-}
-
-model Comment {
-  id         String      @id @default(uuid())
-  content    String
-  isInternal Boolean     @default(false)
-  projectId  String?
-  taskId     String?
-  authorId   String?
-  parentId   String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  author     TeamMember? @relation(fields: [authorId], references: [id])
-  parent     Comment?    @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies    Comment[]   @relation("CommentReplies")
-  project    Project?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  task       Task?       @relation(fields: [taskId], references: [id], onDelete: Cascade)
-
   @@index([projectId])
   @@index([taskId])
-  @@index([authorId])
-  @@index([parentId])
-  @@index([createdAt])
-}
-
-model Communication {
-  id          String   @id @default(uuid())
-  type        String
-  subject     String?
-  content     String
-  direction   String
-  clientId    String?
-  from        String?
-  to          String?
-  cc          String?
-  attachments String?
-  sentBy      String?
-  createdAt   DateTime @default(now())
-  client      Client?  @relation(fields: [clientId], references: [id])
-
-  @@index([clientId])
-  @@index([type])
-  @@index([createdAt])
-}
-
-model Contract {
-  id                String    @id @default(uuid())
-  title             String
-  description       String?
-  type              String
-  status            String    @default("draft")
-  content           String
-  clientId          String?
-  startDate         DateTime?
-  endDate           DateTime?
-  signedAt          DateTime?
-  value             Float?
-  currency          String    @default("GHS")
-  documentUrl       String?
-  signedDocumentUrl String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  client            Client?   @relation(fields: [clientId], references: [id])
-
-  @@index([clientId])
-  @@index([status])
-  @@index([type])
-  @@index([startDate])
-}
-
-model Deployment {
-  id          String   @id @default(uuid())
-  version     String
-  environment String
-  status      String
-  commitHash  String?
-  branch      String?
-  deployedBy  String?
-  url         String?
-  notes       String?
-  changelog   String?
-  buildTime   Int?
-  projectId   String
-  deployedAt  DateTime @default(now())
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  @@index([projectId])
-  @@index([environment])
-  @@index([status])
-  @@index([deployedAt])
-}
-
-model Expense {
-  id            String    @id @default(uuid())
-  description   String
-  category      String
-  amount        Float
-  currency      String    @default("GHS")
-  paymentMethod String?
-  receipt       String?
-  projectId     String?
-  date          DateTime  @default(now())
-  paidAt        DateTime?
-  status        String    @default("pending")
-  vendor        String?
-  notes         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  project       Project?  @relation(fields: [projectId], references: [id])
-
-  @@index([projectId])
-  @@index([category])
-  @@index([date])
-  @@index([status])
-}
-
-model Payment {
-  id        String    @id @default(uuid())
-  amount    Float
-  currency  String    @default("GHS")
-  method    String
-  reference String?
-  receipt   String?
-  invoiceId String?
-  status    String    @default("pending")
-  paidAt    DateTime?
-  notes     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  invoice   Invoice?  @relation(fields: [invoiceId], references: [id])
-
-  @@index([invoiceId])
-  @@index([status])
-  @@index([paidAt])
-  @@index([reference])
-}
-
-model Setting {
-  id           String            @id @default(uuid())
-  key          String            @unique
-  value        String
-  category     String
-  type         String            @default("string")
-  label        String
-  description  String?
-  isPublic     Boolean           @default(false)
-  isEncrypted  Boolean           @default(false)
-  validation   String?
-  defaultValue String?
-  metadata     String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  createdBy    String?
-  updatedBy    String?
-  history      SettingHistory[]
-
-  @@index([category])
-  @@index([key])
-  @@index([updatedAt])
-}
-
-model AuditLog {
-  id          String   @id @default(uuid())
-  action      String
-  entity      String
-  entityId    String?
-  oldValue    String?
-  newValue    String?
-  userId      String?
-  userEmail   String?
-  userIp      String?
-  userAgent   String?
-  description String?
-  metadata    String?
-  createdAt   DateTime @default(now())
-
-  @@index([entity])
-  @@index([entityId])
-  @@index([userId])
-  @@index([action])
-  @@index([createdAt])
-}
-
-model EmailTemplate {
-  id        String   @id @default(uuid())
-  name      String
-  subject   String
-  content   String
-  type      String
-  variables String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([type])
-  @@index([isActive])
-}
-
-model EmailLog {
-  id         String    @id @default(uuid())
-  to         String
-  from       String
-  subject    String
-  content    String?
-  status     String    @default("pending")
-  provider   String?
-  providerId String?
-  error      String?
-  retryCount Int       @default(0)
-  templateId String?
-  clientId   String?
-  sentAt     DateTime?
-  createdAt  DateTime  @default(now())
-
-  @@index([to])
-  @@index([status])
-  @@index([createdAt])
-  @@index([templateId])
-}
-
-model ApiKey {
-  id          String    @id @default(uuid())
-  name        String
-  key         String    @unique
-  description String?
-  permissions String
-  rateLimit   Int       @default(1000)
-  isActive    Boolean   @default(true)
-  expiresAt   DateTime?
-  lastUsedAt  DateTime?
-  usageCount  Int       @default(0)
-  createdBy   String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([key])
-  @@index([isActive])
-}
-
-model WebhookEndpoint {
-  id         String            @id @default(uuid())
-  url        String
-  events     String
-  secret     String?
-  isActive   Boolean           @default(true)
-  maxRetries Int               @default(3)
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  deliveries WebhookDelivery[]
-
-  @@index([isActive])
-}
-
-model WebhookDelivery {
-  id           String          @id @default(uuid())
-  event        String
-  payload      String
-  status       String          @default("pending")
-  responseCode Int?
-  responseBody String?
-  attempts     Int             @default(0)
-  nextRetryAt  DateTime?
-  webhookId    String
-  deliveredAt  DateTime?
-  createdAt    DateTime        @default(now())
-  webhook      WebhookEndpoint @relation(fields: [webhookId], references: [id], onDelete: Cascade)
-
-  @@index([webhookId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-model Backup {
-  id          String    @id @default(uuid())
-  type        String
-  status      String    @default("pending")
-  fileUrl     String?
-  fileSize    Int?
-  recordCount Int?
-  duration    Int?
-  error       String?
-  isScheduled Boolean   @default(false)
-  triggeredBy String?
-  completedAt DateTime?
-  createdAt   DateTime  @default(now())
-
-  @@index([type])
-  @@index([status])
-  @@index([createdAt])
 }
 
 model User {
-  id                 String              @id @default(uuid())
+  id                 String              @id
   email              String              @unique
   password           String
   name               String
@@ -816,7 +1552,7 @@ model User {
   emailNotifications Boolean             @default(true)
   smsNotifications   Boolean             @default(false)
   createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  updatedAt          DateTime
   address            String?
   bio                String?
   city               String?
@@ -826,342 +1562,55 @@ model User {
   state              String?
   website            String?
   zipCode            String?
-  client             Client?
-  sessions           ClientSession[]
-  codeAccessRequests CodeAccessRequest[]
-  emailQueue         EmailQueue[]
-  projectUpdatesRead ProjectUpdateRead[]
-  assignedChats      ChatSession[]
+  ChatSession        ChatSession[]
+  Client             Client?
+  ClientSession      ClientSession[]
+  CodeAccessRequest  CodeAccessRequest[]
+  EmailQueue         EmailQueue[]
+  ProjectUpdateRead  ProjectUpdateRead[]
 
+  @@index([accessExpiresAt])
   @@index([email])
-  @@index([role])
   @@index([isActive])
   @@index([isVerified])
-  @@index([accessExpiresAt])
+  @@index([role])
 }
 
-model ProjectRequest {
-  id                 String    @id @default(uuid())
-  requestNumber      String    @unique
-  clientName         String
-  clientEmail        String
-  clientPhone        String?
-  clientCompany      String?
-  clientWebsite      String?
-  projectName        String
-  projectType        String
-  description        String
-  industry           String?
-  requirements       String
-  features           String?
-  techPreferences    String?
-  budget             Float?
-  budgetRange        String?
-  timeline           String?
-  startDate          DateTime?
-  deadline           DateTime?
-  priority           String    @default("normal")
-  status             String    @default("pending")
-  reviewedBy         String?
-  reviewedAt         DateTime?
-  reviewNotes        String?
-  rejectionReason    String?
-  convertedToProject Boolean   @default(false)
-  projectId          String?
-  clientId           String?
-  chatTranscript     String?
-  attachments        String?
-  source             String    @default("website")
-  referrer           String?
-  utmSource          String?
-  utmMedium          String?
-  utmCampaign        String?
-  ipAddress          String?
-  country            String?
-  city               String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  client             Client?   @relation(fields: [clientId], references: [id])
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-  @@index([status])
-  @@index([clientEmail])
-  @@index([projectType])
-  @@index([createdAt])
-  @@index([requestNumber])
-  @@index([convertedToProject])
+  @@unique([identifier, token])
 }
 
-model ClientUpload {
-  id                String    @id @default(uuid())
-  name              String
-  originalName      String
-  description       String?
-  category          String
-  fileUrl           String
-  fileSize          Int
-  mimeType          String
-  format            String?
-  width             Int?
-  height            Int?
-  colorPalette      String?
-  version           Int       @default(1)
-  previousVersionId String?
-  isLatest          Boolean   @default(true)
-  status            String    @default("active")
-  isApproved        Boolean   @default(false)
-  approvedBy        String?
-  approvedAt        DateTime?
-  projectId         String?
-  clientId          String?
-  uploadedBy        String?
-  uploadedByRole    String?
-  tags              String?
-  notes             String?
-  cloudinaryId      String?   // Cloudinary public_id for deletion
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  client            Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+model VisitorAnalytics {
+  id           String    @id
+  visitorId    String?
+  sessionId    String?
+  ipAddress    String?
+  country      String?
+  city         String?
+  region       String?
+  latitude     Float?
+  longitude    Float?
+  device       String?
+  browser      String?
+  os           String?
+  referrer     String?
+  landingPage  String?
+  pagesVisited String?
+  sessionStart DateTime  @default(now())
+  sessionEnd   DateTime?
+  duration     Int?
+  interactions Int       @default(0)
+  converted    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
 
-  @@index([projectId])
-  @@index([clientId])
-  @@index([category])
-  @@index([status])
-  @@index([isLatest])
-  @@index([createdAt])
-}
-
-model ProjectUpdate {
-  id              String              @id @default(uuid())
-  title           String
-  content         String
-  type            String              @default("progress")
-  isPublic        Boolean             @default(true)
-  isImportant     Boolean             @default(false)
-  summary         String?
-  attachments     String?
-  progressBefore  Int?
-  progressAfter   Int?
-  projectId       String
-  postedBy        String?
-  postedByName    String?
-  emailSent       Boolean             @default(false)
-  emailSentAt     DateTime?
-  emailRecipients String?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  readBy          ProjectUpdateRead[]
-
-  @@index([projectId])
-  @@index([type])
-  @@index([isPublic])
-  @@index([createdAt])
-  @@index([emailSent])
-}
-
-model ProjectUpdateRead {
-  id       String        @id @default(uuid())
-  updateId String
-  userId   String
-  readAt   DateTime      @default(now())
-  update   ProjectUpdate @relation(fields: [updateId], references: [id], onDelete: Cascade)
-  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([updateId, userId])
-  @@index([updateId])
-  @@index([userId])
-  @@index([readAt])
-}
-
-model CodeAccessRequest {
-  id                String    @id @default(uuid())
-  requestNumber     String    @unique
-  projectId         String
-  userId            String
-  clientName        String
-  clientEmail       String
-  reason            String?
-  githubUsername    String?
-  status            String    @default("pending")
-  requestedAt       DateTime  @default(now())
-  reviewedAt        DateTime?
-  reviewedBy        String?
-  reviewNotes       String?
-  rejectionReason   String?
-  autoApprovedAt    DateTime?
-  repoUrl           String?
-  accessGranted     Boolean   @default(false)
-  accessGrantedAt   DateTime?
-  inviteSent        Boolean   @default(false)
-  inviteAccepted    Boolean   @default(false)
-  accessMethod      String?
-  accessCredentials String?
-  downloadUrl       String?
-  downloadExpiry    DateTime?
-  emailSent         Boolean   @default(false)
-  emailSentAt       DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([projectId])
-  @@index([userId])
-  @@index([status])
-  @@index([requestedAt])
-  @@index([autoApprovedAt])
-  @@index([requestNumber])
-}
-
-model EmailQueue {
-  id            String    @id @default(uuid())
-  to            String
-  cc            String?
-  bcc           String?
-  subject       String
-  htmlContent   String
-  textContent   String?
-  templateType  String?
-  templateVars  String?
-  status        String    @default("pending")
-  priority      String    @default("normal")
-  attempts      Int       @default(0)
-  maxAttempts   Int       @default(3)
-  lastAttemptAt DateTime?
-  nextRetryAt   DateTime?
-  error         String?
-  errorDetails  String?
-  provider      String?
-  providerId    String?
-  metadata      String?
-  userId        String?
-  clientId      String?
-  projectId     String?
-  sentAt        DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  user          User?     @relation(fields: [userId], references: [id])
-
-  @@index([status])
-  @@index([priority])
-  @@index([createdAt])
-  @@index([nextRetryAt])
-  @@index([to])
-}
-
-model ScheduledTask {
-  id              String    @id @default(uuid())
-  taskName        String    @unique
-  taskType        String
-  cronExpression  String
-  isActive        Boolean   @default(true)
-  lastRunAt       DateTime?
-  lastStatus      String?
-  lastRunDuration Int?
-  lastError       String?
-  nextRunAt       DateTime?
-  executionCount  Int       @default(0)
-  config          String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  @@index([taskName])
-  @@index([taskType])
-  @@index([isActive])
-  @@index([nextRunAt])
-  @@index([lastRunAt])
-}
-
-model GitHubIntegration {
-  id            String    @id @default(uuid())
-  projectId     String    @unique
-  repoName      String
-  repoOwner     String
-  repoFullName  String
-  repoUrl       String
-  repoId        Int?
-  isPrivate     Boolean   @default(true)
-  defaultBranch String    @default("main")
-  webhookId     Int?
-  webhookSecret String?
-  webhookActive Boolean   @default(false)
-  cloneUrl      String?
-  sshUrl        String?
-  isActive      Boolean   @default(true)
-  lastSync      DateTime?
-  syncStatus    String?
-  syncError     String?
-  language      String?
-  description   String?
-  topics        String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  @@index([projectId])
-  @@index([repoFullName])
-  @@index([isActive])
-}
-
-model ClientSession {
-  id             String   @id @default(uuid())
-  userId         String
-  sessionToken   String   @unique
-  ipAddress      String?
-  userAgent      String?
-  deviceType     String?
-  browser        String?
-  os             String?
-  country        String?
-  city           String?
-  isActive       Boolean  @default(true)
-  expiresAt      DateTime
-  lastActivityAt DateTime @default(now())
-  createdAt      DateTime @default(now())
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([sessionToken])
-  @@index([isActive])
-  @@index([expiresAt])
-}
-
-model ActivityFeed {
-  id               String   @id @default(uuid())
-  type             String
-  title            String
-  description      String?
-  actorType        String
-  actorId          String?
-  actorName        String?
-  targetType       String?
-  targetId         String?
-  targetName       String?
-  isPublic         Boolean  @default(true)
-  visibleToClients String?
-  projectId        String?
-  clientId         String?
-  metadata         String?
-  icon             String?
-  color            String?
-  createdAt        DateTime @default(now())
-
-  @@index([type])
-  @@index([projectId])
-  @@index([clientId])
-  @@index([isPublic])
-  @@index([createdAt])
-  @@index([actorType])
-}
-
-model PushSubscription {
-  id        String   @id
-  endpoint  String   @unique
-  p256dh    String
-  auth      String
-  userId    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-
-  @@index([endpoint])
-  @@index([userId])
+  @@index([converted])
+  @@index([country])
+  @@index([ipAddress])
+  @@index([sessionStart])
 }
 
 model VisitorMessage {
@@ -1218,489 +1667,680 @@ model VisitorTracking {
   @@index([sessionId])
 }
 
-model ChatSession {
-  id              String          @id @default(uuid())
-  visitorId       String?
-  visitorName     String?
-  visitorEmail    String?
-  visitorPhone    String?
-  visitorIp       String?
-  visitorDevice   String?
-  visitorBrowser  String?
-  visitorLocation String?
-  currentPage     String?
-  referrer        String?
-  status          String          @default("active") // active, closed, archived
-  assignedToId    String?
-  assignedTo      User?           @relation(fields: [assignedToId], references: [id])
-  rating          Int?
-  feedback        String?
-  tags            String?
-  metadata        String?
-  startedAt       DateTime        @default(now())
-  closedAt        DateTime?
-  lastMessageAt   DateTime        @default(now())
-  messages        ChatMessage[]
-  
-  @@index([visitorId])
-  @@index([visitorEmail])
-  @@index([status])
-  @@index([assignedToId])
-  @@index([startedAt])
-  @@index([lastMessageAt])
-}
+model WebhookDelivery {
+  id              String          @id
+  event           String
+  payload         String
+  status          String          @default("pending")
+  responseCode    Int?
+  responseBody    String?
+  attempts        Int             @default(0)
+  nextRetryAt     DateTime?
+  webhookId       String
+  deliveredAt     DateTime?
+  createdAt       DateTime        @default(now())
+  WebhookEndpoint WebhookEndpoint @relation(fields: [webhookId], references: [id], onDelete: Cascade)
 
-model ChatMessage {
-  id              String      @id @default(uuid())
-  sessionId       String
-  session         ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  senderId        String?
-  senderType      String      // visitor, admin
-  senderName      String?
-  message         String
-  messageType     String      @default("text") // text, file, image, system
-  fileUrl         String?
-  fileName        String?
-  fileSize        Int?
-  fileType        String?
-  isRead          Boolean     @default(false)
-  readAt          DateTime?
-  metadata        String?
-  createdAt       DateTime    @default(now())
-  
-  @@index([sessionId])
-  @@index([senderId])
-  @@index([senderType])
-  @@index([isRead])
   @@index([createdAt])
-}
-
-model ChatTypingIndicator {
-  id        String   @id @default(uuid())
-  sessionId String
-  userId    String?
-  userType  String   // visitor, admin
-  userName  String?
-  isTyping  Boolean  @default(true)
-  updatedAt DateTime @updatedAt
-  
-  @@unique([sessionId, userType])
-  @@index([sessionId])
-  @@index([isTyping])
-}
-
-model VisitorAnalytics {
-  id            String   @id @default(uuid())
-  visitorId     String?
-  sessionId     String?
-  ipAddress     String?
-  country       String?
-  city          String?
-  region        String?
-  latitude      Float?
-  longitude     Float?
-  device        String?
-  browser       String?
-  os            String?
-  referrer      String?
-  landingPage   String?
-  pagesVisited  String?  // JSON array of pages
-  sessionStart  DateTime @default(now())
-  sessionEnd    DateTime?
-  duration      Int?     // in seconds
-  interactions  Int      @default(0)
-  converted     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  
-  @@index([ipAddress])
-  @@index([country])
-  @@index([sessionStart])
-  @@index([converted])
-}
-
-model NewsletterSubscriber {
-  id               String   @id @default(uuid())
-  email            String   @unique
-  name             String?
-  source           String?  @default("website") // website, admin, api
-  status           String   @default("active") // active, unsubscribed, bounced
-  subscribed       Boolean  @default(true)
-  confirmedAt      DateTime?
-  unsubscribedAt   DateTime?
-  unsubscribeToken String   @unique @default(uuid())
-  preferences      String?  // JSON: topics, frequency
-  tags             String?  // JSON array
-  metadata         String?  // JSON: utm_source, etc
-  ipAddress        String?
-  country          String?
-  city             String?
-  referrer         String?
-  bounceCount      Int      @default(0)
-  lastBouncedAt    DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
-  @@index([email])
   @@index([status])
-  @@index([subscribed])
-  @@index([createdAt])
-  @@index([unsubscribeToken])
+  @@index([webhookId])
 }
 
-model Newsletter {
-  id              String    @id @default(uuid())
-  subject         String
-  content         String    // HTML content
-  textContent     String?   // Plain text fallback
-  previewText     String?   // Email preview text
-  status          String    @default("draft") // draft, scheduled, sending, sent, failed
-  scheduledFor    DateTime?
-  sentAt          DateTime?
-  sentTo          Int       @default(0) // Count of recipients
-  openedCount     Int       @default(0)
-  clickedCount    Int       @default(0)
-  bouncedCount    Int       @default(0)
-  unsubscribedCount Int     @default(0)
-  failedCount     Int       @default(0)
-  createdBy       String?   // User ID
-  createdByName   String?
-  tags            String?   // JSON array
-  segment         String?   // Filter criteria
-  templateId      String?
-  campaign        String?
-  attachments     String?   // JSON array of file URLs
-  metadata        String?   // JSON: A/B test data, etc
-  error           String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  @@index([status])
-  @@index([createdBy])
-  @@index([sentAt])
-  @@index([scheduledFor])
-  @@index([createdAt])
-}
+model WebhookEndpoint {
+  id              String            @id
+  url             String
+  events          String
+  secret          String?
+  isActive        Boolean           @default(true)
+  maxRetries      Int               @default(3)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  WebhookDelivery WebhookDelivery[]
 
-model NewsletterClick {
-  id             String   @id @default(uuid())
-  newsletterId   String
-  subscriberEmail String
-  url            String
-  clickedAt      DateTime @default(now())
-  ipAddress      String?
-  userAgent      String?
-  
-  @@index([newsletterId])
-  @@index([subscriberEmail])
-  @@index([clickedAt])
-}
-
-model NewsletterOpen {
-  id             String   @id @default(uuid())
-  newsletterId   String
-  subscriberEmail String
-  openedAt       DateTime @default(now())
-  ipAddress      String?
-  userAgent      String?
-  
-  @@index([newsletterId])
-  @@index([subscriberEmail])
-  @@index([openedAt])
-}
-
-model BlogPost {
-  id            String    @id @default(uuid())
-  title         String
-  slug          String    @unique
-  excerpt       String?
-  content       String    // Markdown or HTML
-  coverImage    String?
-  coverImageAlt String?
-  author        String?   // User ID
-  authorName    String?
-  authorAvatar  String?
-  status        String    @default("draft") // draft, published, archived
-  published     Boolean   @default(false)
-  publishedAt   DateTime?
-  featured      Boolean   @default(false)
-  category      String?
-  tags          String?   // JSON array
-  metaTitle     String?
-  metaDescription String?
-  views         Int       @default(0)
-  likes         Int       @default(0)
-  readingTime   Int?      // Minutes
-  seoKeywords   String?
-  allowComments Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  @@index([slug])
-  @@index([status])
-  @@index([published])
-  @@index([publishedAt])
-  @@index([category])
-  @@index([featured])
-  @@index([createdAt])
-}
-
-model BlogCategory {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  slug        String   @unique
-  description String?
-  icon        String?
-  color       String?
-  sortOrder   Int      @default(0)
-  isActive    Boolean  @default(true)
-  postCount   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([slug])
   @@index([isActive])
-  @@index([sortOrder])
 }
 
-model BlogComment {
-  id         String        @id @default(uuid())
-  postId     String
-  parentId   String?
-  authorName String
-  authorEmail String
-  content    String
-  status     String        @default("pending") // pending, approved, spam
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  parent     BlogComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies    BlogComment[] @relation("CommentReplies")
-  
-  @@index([postId])
-  @@index([parentId])
+// ===== SALES ACTIVITY SYSTEM =====
+
+model SalesLead {
+  id                  String              @id
+  leadNumber          String              @unique
+  firstName           String
+  lastName            String
+  email               String
+  phone               String?
+  company             String?
+  jobTitle            String?
+  industry            String?
+  website             String?
+  address             String?
+  city                String?
+  state               String?
+  country             String?
+  zipCode             String?
+  source              String              // website, referral, cold-call, linkedin, trade-show, etc.
+  status              String              @default("new") // new, contacted, qualified, proposal, negotiation, won, lost
+  rating              String?             @default("cold") // hot, warm, cold
+  leadScore           Int                 @default(0) // 0-100 automated lead scoring
+  estimatedValue      Float?
+  estimatedCloseDate  DateTime?
+  probability         Float?              @default(0) // 0-100
+  notes               String?
+  tags                String?
+  assignedTo          String?
+  assignedToName      String?
+  lastContactDate     DateTime?
+  nextFollowUpDate    DateTime?
+  convertedToOpportunity Boolean          @default(false)
+  opportunityId       String?             @unique
+  lostReason          String?
+  lostAt              DateTime?
+  wonAt               DateTime?
+  metadata            String?             // JSON for custom fields
+  campaignSource      String?
+  utmSource           String?
+  utmMedium           String?
+  utmCampaign         String?
+  referredBy          String?
+  interests           String?             // JSON array of interests
+  painPoints          String?
+  budget              Float?
+  decisionMaker       Boolean             @default(false)
+  authority           String?             // decision-maker, influencer, gatekeeper
+  timeline            String?
+  competitors         String?
+  socialProfiles      String?             // JSON: linkedin, twitter, etc.
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime
+  SalesOpportunity    SalesOpportunity?   @relation(fields: [opportunityId], references: [id])
+  SalesActivity       SalesActivity[]
+  SalesNote           SalesNote[]
+  SalesCall           SalesCall[]
+  SalesEmail          SalesEmail[]
+  SalesMeeting        SalesMeeting[]
+  SalesTask           SalesTask[]
+
+  @@index([email])
+  @@index([company])
   @@index([status])
+  @@index([source])
+  @@index([rating])
+  @@index([leadScore])
+  @@index([assignedTo])
+  @@index([createdAt])
+  @@index([nextFollowUpDate])
+  @@index([estimatedCloseDate])
+}
+
+model SalesOpportunity {
+  id                    String              @id
+  opportunityNumber     String              @unique
+  name                  String
+  description           String?
+  stage                 String              @default("prospecting") // prospecting, qualification, proposal, negotiation, closed-won, closed-lost
+  value                 Float
+  probability           Float               @default(0) // 0-100
+  expectedCloseDate     DateTime?
+  actualCloseDate       DateTime?
+  accountId             String?             // Link to Client
+  contactId             String?             // Primary contact (Lead)
+  assignedTo            String?
+  assignedToName        String?
+  type                  String?             // new-business, existing-business, renewal
+  source                String?
+  notes                 String?
+  tags                  String?
+  forecastCategory      String?             // pipeline, best-case, commit, closed
+  nextStep              String?
+  competitorInfo        String?
+  painPoints            String?
+  proposalSent          Boolean             @default(false)
+  proposalSentAt        DateTime?
+  contractSent          Boolean             @default(false)
+  contractSentAt        DateTime?
+  wonReason             String?
+  lostReason            String?
+  products              String?             // JSON array of products/services
+  customFields          String?             // JSON for custom fields
+  dealScore             Int                 @default(0)
+  salesCycle            Int?                // Days
+  lastActivityDate      DateTime?
+  stageChangedAt        DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime
+  SalesLead             SalesLead[]
+  SalesActivity         SalesActivity[]
+  SalesNote             SalesNote[]
+  SalesCall             SalesCall[]
+  SalesEmail            SalesEmail[]
+  SalesMeeting          SalesMeeting[]
+  SalesTask             SalesTask[]
+  SalesProduct          SalesProduct[]
+
+  @@index([stage])
+  @@index([assignedTo])
+  @@index([expectedCloseDate])
+  @@index([actualCloseDate])
+  @@index([forecastCategory])
+  @@index([createdAt])
+  @@index([value])
+}
+
+model SalesActivity {
+  id                String              @id
+  activityType      String              // call, email, meeting, task, note, demo, proposal, contract
+  subject           String
+  description       String?
+  status            String              @default("planned") // planned, completed, cancelled
+  priority          String              @default("normal") // high, normal, low
+  dueDate           DateTime?
+  completedDate     DateTime?
+  duration          Int?                // minutes
+  outcome           String?
+  leadId            String?
+  opportunityId     String?
+  assignedTo        String?
+  assignedToName    String?
+  relatedTo         String?             // Type of related record
+  relatedToId       String?
+  attendees         String?             // JSON array
+  location          String?
+  isReminder        Boolean             @default(false)
+  reminderDate      DateTime?
+  reminderSent      Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  SalesLead         SalesLead?          @relation(fields: [leadId], references: [id])
+  SalesOpportunity  SalesOpportunity?   @relation(fields: [opportunityId], references: [id])
+
+  @@index([activityType])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([assignedTo])
+  @@index([leadId])
+  @@index([opportunityId])
   @@index([createdAt])
 }
 
-model ProjectFile {
-  id           String   @id @default(uuid())
-  projectId    String
-  filename     String
-  fileUrl      String
-  fileSize     Int
-  fileType     String
-  description  String?
-  uploadedBy   String
-  uploadedAt   DateTime @default(now())
-  cloudinaryId String?  // Cloudinary public_id for deletion
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  @@index([projectId])
-  @@index([uploadedAt])
-}
+model SalesCall {
+  id                String              @id
+  subject           String
+  callType          String              // inbound, outbound
+  direction         String?             // incoming, outgoing
+  purpose           String?
+  status            String              @default("scheduled") // scheduled, completed, missed, cancelled
+  startTime         DateTime?
+  endTime           DateTime?
+  duration          Int?                // seconds
+  outcome           String?             // connected, no-answer, voicemail, busy, wrong-number
+  notes             String?
+  recordingUrl      String?
+  phoneNumber       String?
+  leadId            String?
+  opportunityId     String?
+  assignedTo        String?
+  assignedToName    String?
+  nextSteps         String?
+  sentiment         String?             // positive, neutral, negative
+  callDisposition   String?
+  isFollowUpRequired Boolean            @default(false)
+  followUpDate      DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  SalesLead         SalesLead?          @relation(fields: [leadId], references: [id])
+  SalesOpportunity  SalesOpportunity?   @relation(fields: [opportunityId], references: [id])
 
-model ProjectComment {
-  id         String           @id @default(uuid())
-  projectId  String
-  content    String
-  authorName String
-  authorRole String           @default("CLIENT")
-  parentId   String?
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-  project    Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  parent     ProjectComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies    ProjectComment[] @relation("CommentReplies")
-  
-  @@index([projectId])
-  @@index([parentId])
+  @@index([callType])
+  @@index([status])
+  @@index([startTime])
+  @@index([assignedTo])
+  @@index([leadId])
+  @@index([opportunityId])
   @@index([createdAt])
 }
 
-model BlockedRequest {
-  id          String   @id @default(uuid())
-  ipAddress   String
-  userAgent   String?
-  endpoint    String
-  botScore    Float
-  reasons     String   // JSON array
-  fingerprint String?  // JSON object
-  formData    String?  // JSON object
-  blockedAt   DateTime @default(now())
-  
-  @@index([ipAddress])
-  @@index([blockedAt])
-  @@index([botScore])
-  @@index([endpoint])
-}
+model SalesEmail {
+  id                String              @id
+  subject           String
+  body              String?
+  emailType         String              @default("manual") // manual, template, automated
+  direction         String              // sent, received
+  status            String              @default("draft") // draft, sent, delivered, opened, clicked, bounced, failed
+  fromAddress       String
+  toAddress         String
+  ccAddress         String?
+  bccAddress        String?
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  openedAt          DateTime?
+  openedCount       Int                 @default(0)
+  clickedAt         DateTime?
+  clickedCount      Int                 @default(0)
+  bouncedAt         DateTime?
+  attachments       String?             // JSON array
+  templateId        String?
+  leadId            String?
+  opportunityId     String?
+  assignedTo        String?
+  assignedToName    String?
+  trackingEnabled   Boolean             @default(true)
+  threadId          String?
+  inReplyTo         String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  SalesLead         SalesLead?          @relation(fields: [leadId], references: [id])
+  SalesOpportunity  SalesOpportunity?   @relation(fields: [opportunityId], references: [id])
 
-// ============================================
-// ADVANCED SETTINGS SYSTEM (Additional Models)
-// ============================================
-
-model SettingHistory {
-  id           String   @id @default(uuid())
-  settingId    String
-  key          String
-  oldValue     String?
-  newValue     String
-  changedBy    String
-  changeReason String?
-  ipAddress    String?
-  userAgent    String?
-  createdAt    DateTime @default(now())
-  setting      Setting  @relation(fields: [settingId], references: [id], onDelete: Cascade)
-
-  @@index([settingId])
-  @@index([changedBy])
+  @@index([emailType])
+  @@index([direction])
+  @@index([status])
+  @@index([sentAt])
+  @@index([assignedTo])
+  @@index([leadId])
+  @@index([opportunityId])
   @@index([createdAt])
 }
 
-model SettingsBackup {
-  id          String    @id @default(uuid())
-  name        String
-  description String?
-  data        String
-  version     String
-  createdBy   String
-  createdAt   DateTime  @default(now())
-  restoredAt  DateTime?
+model SalesMeeting {
+  id                String              @id
+  title             String
+  description       String?
+  meetingType       String              // discovery, demo, negotiation, closing, follow-up
+  status            String              @default("scheduled") // scheduled, completed, cancelled, no-show
+  startTime         DateTime
+  endTime           DateTime
+  duration          Int?                // minutes
+  location          String?
+  meetingUrl        String?             // Zoom, Teams, etc.
+  attendees         String              // JSON array
+  organizer         String
+  organizerName     String?
+  outcome           String?
+  notes             String?
+  agenda            String?
+  actionItems       String?             // JSON array
+  leadId            String?
+  opportunityId     String?
+  isOnline          Boolean             @default(false)
+  recordingUrl      String?
+  sentiment         String?             // positive, neutral, negative
+  nextMeetingDate   DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  SalesLead         SalesLead?          @relation(fields: [leadId], references: [id])
+  SalesOpportunity  SalesOpportunity?   @relation(fields: [opportunityId], references: [id])
 
+  @@index([meetingType])
+  @@index([status])
+  @@index([startTime])
+  @@index([organizer])
+  @@index([leadId])
+  @@index([opportunityId])
   @@index([createdAt])
+}
+
+model SalesTask {
+  id                String              @id
+  title             String
+  description       String?
+  taskType          String              // follow-up, research, proposal, contract, admin
+  status            String              @default("todo") // todo, in-progress, completed, cancelled
+  priority          String              @default("normal") // high, normal, low
+  dueDate           DateTime?
+  completedDate     DateTime?
+  estimatedTime     Int?                // minutes
+  actualTime        Int?                // minutes
+  leadId            String?
+  opportunityId     String?
+  assignedTo        String
+  assignedToName    String?
+  relatedTo         String?
+  relatedToId       String?
+  checklist         String?             // JSON array
+  attachments       String?             // JSON array
+  isRecurring       Boolean             @default(false)
+  recurringPattern  String?
+  parentTaskId      String?
+  reminderDate      DateTime?
+  reminderSent      Boolean             @default(false)
+  completionNotes   String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  SalesLead         SalesLead?          @relation(fields: [leadId], references: [id])
+  SalesOpportunity  SalesOpportunity?   @relation(fields: [opportunityId], references: [id])
+
+  @@index([taskType])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([assignedTo])
+  @@index([leadId])
+  @@index([opportunityId])
+  @@index([createdAt])
+}
+
+model SalesNote {
+  id                String              @id
+  title             String?
+  content           String
+  noteType          String              @default("general") // general, meeting-notes, call-notes, research
+  isPrivate         Boolean             @default(false)
+  isPinned          Boolean             @default(false)
+  leadId            String?
+  opportunityId     String?
+  createdBy         String
+  createdByName     String?
+  attachments       String?             // JSON array
+  tags              String?
+  mentions          String?             // JSON array of user IDs
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  SalesLead         SalesLead?          @relation(fields: [leadId], references: [id])
+  SalesOpportunity  SalesOpportunity?   @relation(fields: [opportunityId], references: [id])
+
+  @@index([noteType])
+  @@index([isPinned])
   @@index([createdBy])
+  @@index([leadId])
+  @@index([opportunityId])
+  @@index([createdAt])
 }
 
-model SystemConfig {
-  id                       String   @id @default(uuid())
-  maintenanceMode          Boolean  @default(false)
-  maintenanceMessage       String?
-  allowedIPs               String?
-  maxUploadSize            Int      @default(5242880)
-  sessionTimeout           Int      @default(3600)
-  passwordMinLength        Int      @default(8)
-  passwordRequireSpecial   Boolean  @default(true)
-  passwordRequireNumber    Boolean  @default(true)
-  passwordRequireUppercase Boolean  @default(true)
-  twoFactorEnabled         Boolean  @default(false)
-  loginAttempts            Int      @default(5)
-  loginLockoutDuration     Int      @default(1800)
-  apiRateLimit             Int      @default(100)
-  apiRateLimitWindow       Int      @default(60)
-  enableLogging            Boolean  @default(true)
-  logLevel                 String   @default("info")
-  backupEnabled            Boolean  @default(true)
-  backupFrequency          String   @default("daily")
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
+model SalesProduct {
+  id                String              @id
+  name              String
+  description       String?
+  category          String?
+  sku               String?             @unique
+  price             Float
+  cost              Float?
+  currency          String              @default("USD")
+  isActive          Boolean             @default(true)
+  unit              String?             // license, hour, project, etc.
+  taxRate           Float?              @default(0)
+  features          String?             // JSON array
+  specifications    String?
+  imageUrl          String?
+  opportunityId     String?
+  quantity          Int                 @default(1)
+  discount          Float?              @default(0)
+  subtotal          Float?
+  total             Float?
+  notes             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  SalesOpportunity  SalesOpportunity?   @relation(fields: [opportunityId], references: [id])
+
+  @@index([name])
+  @@index([category])
+  @@index([isActive])
+  @@index([opportunityId])
 }
 
-model ThemeConfig {
-  id              String   @id @default(uuid())
-  name            String   @default("default")
-  primaryColor    String   @default("#6366f1")
-  secondaryColor  String   @default("#8b5cf6")
-  accentColor     String   @default("#ec4899")
-  backgroundColor String   @default("#ffffff")
-  textColor       String   @default("#1f2937")
-  borderRadius    String   @default("0.5rem")
-  fontFamily      String   @default("Inter, sans-serif")
-  darkMode        Boolean  @default(false)
-  customCSS       String?
-  logo            String?
-  favicon         String?
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+model SalesPipeline {
+  id                String              @id
+  name              String
+  description       String?
+  stages            String              // JSON array of stages
+  isDefault         Boolean             @default(false)
+  isActive          Boolean             @default(true)
+  sortOrder         Int                 @default(0)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([isDefault])
+  @@index([isActive])
 }
 
-model EmailConfig {
-  id             String   @id @default(uuid())
-  provider       String   @default("resend")
-  fromName       String   @default("MicroAI Systems")
-  fromEmail      String
-  replyToEmail   String?
-  adminEmail     String
-  resendApiKey   String?
-  smtpHost       String?
-  smtpPort       Int?
-  smtpUser       String?
-  smtpPassword   String?
-  smtpSecure     Boolean  @default(true)
-  dailyLimit     Int      @default(1000)
-  hourlyLimit    Int      @default(100)
-  enableQueue    Boolean  @default(true)
-  queueRetries   Int      @default(3)
-  queueTimeout   Int      @default(30000)
-  templates      String?
-  webhookUrl     String?
-  webhookSecret  String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+model SalesTarget {
+  id                String              @id
+  name              String
+  description       String?
+  targetType        String              // revenue, deals, activities, calls, emails, meetings
+  period            String              // daily, weekly, monthly, quarterly, yearly
+  startDate         DateTime
+  endDate           DateTime
+  targetValue       Float
+  currentValue      Float               @default(0)
+  unit              String              // currency, count, hours
+  assignedTo        String?             // User ID or team ID
+  assignedToName    String?
+  assignedToType    String?             // user, team
+  status            String              @default("active") // active, completed, missed
+  progress          Float               @default(0) // 0-100
+  metAt             DateTime?
+  notes             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([targetType])
+  @@index([period])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([assignedTo])
+  @@index([status])
 }
 
-model NotificationConfig {
-  id                 String   @id @default(uuid())
-  emailEnabled       Boolean  @default(true)
-  pushEnabled        Boolean  @default(false)
-  smsEnabled         Boolean  @default(false)
-  slackEnabled       Boolean  @default(false)
-  slackWebhook       String?
-  events             String
-  priorityDelays     String   @default("{\"high\":0,\"medium\":2,\"low\":5}")
-  batchEnabled       Boolean  @default(false)
-  batchSize          Int      @default(50)
-  batchDelay         Int      @default(300)
-  quietHoursEnabled  Boolean  @default(false)
-  quietHoursStart    String?
-  quietHoursEnd      String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+model SalesTeam {
+  id                String              @id
+  name              String
+  description       String?
+  leaderId          String
+  leaderName        String
+  members           String              // JSON array of user IDs and names
+  isActive          Boolean             @default(true)
+  targets           String?             // JSON of team targets
+  territories       String?             // JSON array
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([leaderId])
+  @@index([isActive])
 }
 
-model SecurityConfig {
-  id                       String   @id @default(uuid())
-  corsEnabled              Boolean  @default(true)
-  corsOrigins              String   @default("*")
-  csrfEnabled              Boolean  @default(true)
-  rateLimitEnabled         Boolean  @default(true)
-  rateLimitRequests        Int      @default(100)
-  rateLimitWindow          Int      @default(60)
-  ipWhitelist              String?
-  ipBlacklist              String?
-  botProtectionEnabled     Boolean  @default(true)
-  botProtectionThreshold   Int      @default(10)
-  sqlInjectionProtection   Boolean  @default(true)
-  xssProtection            Boolean  @default(true)
-  contentSecurityPolicy    String?
-  sslOnly                  Boolean  @default(true)
-  hsts                     Boolean  @default(true)
-  hstsMaxAge               Int      @default(31536000)
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
+model SalesForecast {
+  id                String              @id
+  name              String
+  period            String              // monthly, quarterly, yearly
+  startDate         DateTime
+  endDate           DateTime
+  forecastType      String              // pipeline, best-case, commit, closed
+  expectedRevenue   Float
+  committedRevenue  Float?
+  bestCaseRevenue   Float?
+  closedRevenue     Float               @default(0)
+  dealCount         Int                 @default(0)
+  closedDeals       Int                 @default(0)
+  averageDealSize   Float?
+  winRate           Float?              // 0-100
+  assignedTo        String?
+  assignedToName    String?
+  notes             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([period])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([assignedTo])
 }
 
-model APIConfig {
-  id                String   @id @default(uuid())
-  enabled           Boolean  @default(true)
-  version           String   @default("v1")
-  baseUrl           String
-  docsEnabled       Boolean  @default(true)
-  authRequired      Boolean  @default(true)
-  rateLimitEnabled  Boolean  @default(true)
-  rateLimitTier1    Int      @default(60)
-  rateLimitTier2    Int      @default(120)
-  rateLimitTier3    Int      @default(300)
-  webhooksEnabled   Boolean  @default(true)
-  webhookSecret     String?
-  corsEnabled       Boolean  @default(true)
-  corsOrigins       String   @default("*")
-  logRequests       Boolean  @default(true)
-  logResponses      Boolean  @default(false)
-  cacheEnabled      Boolean  @default(true)
-  cacheTTL          Int      @default(300)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+model SalesReport {
+  id                String              @id
+  name              String
+  description       String?
+  reportType        String              // revenue, pipeline, activity, forecast, conversion, performance
+  period            String?             // daily, weekly, monthly, quarterly, yearly
+  startDate         DateTime
+  endDate           DateTime
+  filters           String?             // JSON
+  data              String              // JSON report data
+  charts            String?             // JSON chart configurations
+  generatedBy       String
+  generatedByName   String?
+  isScheduled       Boolean             @default(false)
+  schedulePattern   String?
+  recipientEmails   String?             // JSON array
+  lastSentAt        DateTime?
+  format            String              @default("json") // json, pdf, csv, excel
+  fileUrl           String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([reportType])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([generatedBy])
+  @@index([isScheduled])
+  @@index([createdAt])
 }
 
+model SalesEmailTemplate {
+  id                String              @id
+  name              String
+  description       String?
+  category          String?             // follow-up, proposal, meeting-request, thank-you, etc.
+  subject           String
+  body              String
+  variables         String?             // JSON array of available variables
+  isActive          Boolean             @default(true)
+  usageCount        Int                 @default(0)
+  createdBy         String?
+  createdByName     String?
+  tags              String?
+  language          String              @default("en")
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([category])
+  @@index([isActive])
+  @@index([usageCount])
+}
+
+model SalesCallScript {
+  id                String              @id
+  name              String
+  description       String?
+  scriptType        String              // cold-call, warm-call, discovery, demo, follow-up
+  content           String
+  sections          String?             // JSON: intro, questions, objections, closing
+  isActive          Boolean             @default(true)
+  usageCount        Int                 @default(0)
+  successRate       Float?              // 0-100
+  createdBy         String?
+  createdByName     String?
+  tags              String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([scriptType])
+  @@index([isActive])
+  @@index([usageCount])
+}
+
+model SalesPlaybook {
+  id                String              @id
+  name              String
+  description       String?
+  category          String?             // prospecting, qualification, negotiation, closing
+  content           String              // Markdown/HTML content
+  steps             String?             // JSON array of steps
+  bestPractices     String?
+  commonObjections  String?             // JSON array
+  resources         String?             // JSON array of links/files
+  isActive          Boolean             @default(true)
+  viewCount         Int                 @default(0)
+  createdBy         String?
+  createdByName     String?
+  tags              String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([category])
+  @@index([isActive])
+  @@index([viewCount])
+}
+
+model SalesAutomation {
+  id                String              @id
+  name              String
+  description       String?
+  triggerType       String              // lead-created, stage-changed, date-reached, etc.
+  triggerConditions String              // JSON
+  actions           String              // JSON array of actions
+  isActive          Boolean             @default(true)
+  executionCount    Int                 @default(0)
+  lastExecutedAt    DateTime?
+  createdBy         String?
+  createdByName     String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([triggerType])
+  @@index([isActive])
+  @@index([lastExecutedAt])
+}
+
+model SalesMetric {
+  id                String              @id
+  metricName        String
+  metricType        String              // revenue, conversion, activity, performance
+  period            String              // daily, weekly, monthly, quarterly, yearly
+  date              DateTime
+  value             Float
+  target            Float?
+  unit              String?
+  assignedTo        String?
+  assignedToName    String?
+  assignedToType    String?             // user, team
+  metadata          String?             // JSON for additional data
+  createdAt         DateTime            @default(now())
+
+  @@index([metricName])
+  @@index([metricType])
+  @@index([period])
+  @@index([date])
+  @@index([assignedTo])
+}
+
+model SalesLeaderboard {
+  id                String              @id
+  name              String
+  description       String?
+  metricType        String              // revenue, deals-closed, activities, calls, etc.
+  period            String              // daily, weekly, monthly, quarterly, yearly
+  startDate         DateTime
+  endDate           DateTime
+  rankings          String              // JSON array of rankings
+  isActive          Boolean             @default(true)
+  displayOnDashboard Boolean            @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([metricType])
+  @@index([period])
+  @@index([isActive])
+}
+
+model SalesCompetitor {
+  id                String              @id
+  name              String
+  website           String?
+  description       String?
+  strengths         String?             // JSON array
+  weaknesses        String?             // JSON array
+  pricing           String?
+  products          String?             // JSON array
+  marketShare       Float?
+  battleCards       String?             // JSON: how to compete
+  winRate           Float?              // 0-100 when we compete
+  lossRate          Float?              // 0-100
+  notes             String?
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+
+  @@index([name])
+  @@index([isActive])
+}

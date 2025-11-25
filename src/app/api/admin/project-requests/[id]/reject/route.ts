@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,6 +70,7 @@ export async function POST(
     // Send rejection email to client
     await prisma.emailQueue.create({
       data: {
+        id: nanoid(),
         to: projectRequest.clientEmail,
         subject: `Update on Your Project Request - ${projectRequest.requestNumber}`,
         htmlContent: generateRejectionEmail({
@@ -85,12 +87,14 @@ export async function POST(
           reason,
         }),
         priority: 'normal',
+        updatedAt: new Date(),
       },
     })
 
     // Create activity log
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'project-request-rejected',
         title: 'Project Request Rejected',
         description: `${projectRequest.projectName} request was declined`,

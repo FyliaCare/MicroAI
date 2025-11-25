@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // GET /api/admin/clients/[id] - Get single client
 export async function GET(
@@ -10,13 +11,13 @@ export async function GET(
     const client = await prisma.client.findUnique({
       where: { id: params.id },
       include: {
-        projects: {
+        Project: {
           orderBy: { createdAt: 'desc' },
         },
-        quotes: {
+        Quote: {
           orderBy: { createdAt: 'desc' },
         },
-        invoices: {
+        Invoice: {
           orderBy: { createdAt: 'desc' },
         },
       },
@@ -89,13 +90,14 @@ export async function PATCH(
       where: { id: params.id },
       data: updateData,
       include: {
-        projects: true,
+        Project: true,
       },
     })
 
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: crypto.randomUUID(),
         action: 'Updated',
         entity: 'Client',
         entityId: client.id,
@@ -129,9 +131,9 @@ export async function DELETE(
         name: true,
         _count: {
           select: {
-            projects: true,
-            quotes: true,
-            invoices: true,
+            Project: true,
+            Quote: true,
+            Invoice: true,
           },
         },
       },
@@ -145,11 +147,11 @@ export async function DELETE(
     }
 
     // Check if client has active projects
-    if (client._count.projects > 0) {
+    if (client._count.Project > 0) {
       return NextResponse.json(
         {
           success: false,
-          error: `Cannot delete client with ${client._count.projects} active project(s). Please delete or reassign projects first.`,
+          error: `Cannot delete client with ${client._count.Project} active project(s). Please delete or reassign projects first.`,
         },
         { status: 400 }
       )
@@ -172,6 +174,7 @@ export async function DELETE(
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Deleted',
         entity: 'Client',
         entityId: params.id,

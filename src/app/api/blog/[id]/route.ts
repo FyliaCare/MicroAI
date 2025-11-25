@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { nanoid } from 'nanoid'
 
 // Helper function to generate slug from title
 function generateSlug(title: string): string {
@@ -151,6 +152,7 @@ export async function PUT(
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Updated',
         entity: 'BlogPost',
         entityId: post.id,
@@ -215,6 +217,7 @@ export async function DELETE(
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Deleted',
         entity: 'BlogPost',
         entityId: id,

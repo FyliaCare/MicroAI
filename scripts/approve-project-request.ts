@@ -42,6 +42,7 @@ async function approveProjectRequest() {
       // 1. Create User
       const user = await tx.user.create({
         data: {
+          id: crypto.randomUUID(),
           email: projectRequest.clientEmail,
           password: hashedPassword,
           name: projectRequest.clientName,
@@ -52,12 +53,14 @@ async function approveProjectRequest() {
           accessExpiresAt,
           verificationToken,
           verificationExpiry,
+          updatedAt: new Date(),
         },
       })
       
       // 2. Create Client
       const client = await tx.client.create({
         data: {
+          id: crypto.randomUUID(),
           name: projectRequest.clientName,
           email: projectRequest.clientEmail,
           phone: projectRequest.clientPhone,
@@ -69,12 +72,14 @@ async function approveProjectRequest() {
           userId: user.id,
           source: projectRequest.source,
           referredBy: projectRequest.referrer,
+          updatedAt: new Date(),
         },
       })
       
       // 3. Create Project
       const project = await tx.project.create({
         data: {
+          id: crypto.randomUUID(),
           name: projectRequest.projectName,
           description: projectRequest.description,
           type: projectRequest.projectType,
@@ -88,6 +93,7 @@ async function approveProjectRequest() {
           techStack: projectRequest.techPreferences || '',
           tags: projectRequest.features || '',
           notes: `Created from project request ${projectRequest.requestNumber}`,
+          updatedAt: new Date(),
         },
       })
       
@@ -109,6 +115,7 @@ async function approveProjectRequest() {
       
       await tx.emailQueue.create({
         data: {
+          id: crypto.randomUUID(),
           to: projectRequest.clientEmail,
           subject: '🎉 Welcome to MicroAI Systems - Your Project Has Been Approved!',
           htmlContent: generateWelcomeEmail({
@@ -133,6 +140,7 @@ async function approveProjectRequest() {
           userId: user.id,
           clientId: client.id,
           projectId: project.id,
+          updatedAt: new Date(),
         },
       })
       

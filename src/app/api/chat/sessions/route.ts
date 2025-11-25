@@ -40,11 +40,11 @@ export async function POST(request: NextRequest) {
           status: 'active',
         },
         include: {
-          messages: {
+          ChatMessage: {
             orderBy: { createdAt: 'asc' },
             take: 50,
           },
-          assignedTo: {
+          User: {
             select: {
               id: true,
               name: true,
@@ -57,8 +57,11 @@ export async function POST(request: NextRequest) {
 
     // Create new session if none exists
     if (!session) {
+      const sessionId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      
       session = await prisma.chatSession.create({
         data: {
+          id: sessionId,
           visitorId,
           visitorName,
           visitorEmail,
@@ -72,8 +75,8 @@ export async function POST(request: NextRequest) {
           status: 'active',
         },
         include: {
-          messages: true,
-          assignedTo: {
+          ChatMessage: true,
+          User: {
             select: {
               id: true,
               name: true,
@@ -86,6 +89,7 @@ export async function POST(request: NextRequest) {
       // Create system message
       await prisma.chatMessage.create({
         data: {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           sessionId: session.id,
           senderType: 'system',
           senderName: 'System',
@@ -126,11 +130,11 @@ export async function GET(request: NextRequest) {
     const sessions = await prisma.chatSession.findMany({
       where,
       include: {
-        messages: {
+        ChatMessage: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
-        assignedTo: {
+        User: {
           select: {
             id: true,
             name: true,
@@ -139,7 +143,7 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            messages: true,
+            ChatMessage: true,
           },
         },
       },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/client/auth/verify - Verify email with token
 export async function POST(request: NextRequest) {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { verificationToken: token },
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
@@ -76,6 +77,7 @@ export async function POST(request: NextRequest) {
     // Create activity log
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'account-verified',
         title: 'Account Verified',
         description: `${user.name} verified their email address`,
@@ -83,7 +85,7 @@ export async function POST(request: NextRequest) {
         actorId: user.id,
         actorName: user.name,
         isPublic: false,
-        clientId: user.client?.id,
+        clientId: user.Client?.id,
         icon: '✅',
         color: '#10b981',
       },
@@ -92,6 +94,7 @@ export async function POST(request: NextRequest) {
     // Send welcome confirmation email
     await prisma.emailQueue.create({
       data: {
+        id: nanoid(),
         to: user.email,
         subject: 'Welcome to MicroAI Systems! 🎉',
         htmlContent: generateWelcomeConfirmationEmail({
@@ -101,7 +104,8 @@ export async function POST(request: NextRequest) {
         templateType: 'account-verified',
         priority: 'normal',
         userId: user.id,
-        clientId: user.client?.id,
+        clientId: user.Client?.id,
+        updatedAt: new Date(),
       },
     })
 

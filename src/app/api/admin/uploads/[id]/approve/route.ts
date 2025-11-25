@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/admin/uploads/[id]/approve - Approve an upload
 export async function POST(
@@ -17,7 +18,7 @@ export async function POST(
     const upload = await prisma.clientUpload.findUnique({
       where: { id: uploadId },
       include: {
-        client: true,
+        Client: true,
       },
     })
 
@@ -54,6 +55,7 @@ export async function POST(
     // Create notification for client
     await prisma.notification.create({
       data: {
+        id: nanoid(),
         type: 'upload-approved',
         title: 'Document Approved',
         message: `Your ${upload.category} "${upload.name}" has been approved`,
@@ -65,13 +67,14 @@ export async function POST(
     })
 
     // Queue email to client
-    if (upload.client) {
+    if (upload.Client) {
       await prisma.emailQueue.create({
         data: {
-          to: upload.client.email,
+          id: nanoid(),
+          to: upload.Client.email,
           subject: 'Document Approved',
           htmlContent: generateApprovalEmail({
-            clientName: upload.client.name,
+            clientName: upload.Client.name,
             documentName: upload.name,
             projectName: project?.name || 'your project',
             category: upload.category,
@@ -79,6 +82,7 @@ export async function POST(
           }),
           templateType: 'upload-approved',
           priority: 'normal',
+          updatedAt: new Date(),
         },
       })
     }
@@ -86,6 +90,7 @@ export async function POST(
     // Create activity feed
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'document-approved',
         title: 'Document Approved',
         description: `${upload.name} (${upload.category})`,

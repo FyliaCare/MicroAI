@@ -9,7 +9,7 @@ async function checkProjectData() {
     // Get all clients with their projects
     const clients = await prisma.client.findMany({
       include: {
-        projects: {
+        Project: {
           select: {
             id: true,
             name: true,
@@ -28,9 +28,9 @@ async function checkProjectData() {
     for (const client of clients) {
       console.log(`\n👤 CLIENT: ${client.name} (${client.email})`)
       console.log(`   Client ID: ${client.id}`)
-      console.log(`   Projects: ${client.projects.length}`)
+      console.log(`   Projects: ${client.Project.length}`)
 
-      for (const project of client.projects) {
+      for (const project of client.Project) {
         console.log(`\n   📁 PROJECT: ${project.name}`)
         console.log(`      Project ID: ${project.id}`)
         console.log(`      Status: ${project.status}`)

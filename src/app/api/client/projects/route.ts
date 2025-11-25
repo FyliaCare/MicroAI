@@ -47,18 +47,18 @@ export async function GET(request: NextRequest) {
           }
         },
         include: {
-          user: {
+          User: {
             include: {
-              client: true
+              Client: true
             }
           },
         },
       })
 
-      if (session?.user?.client) {
-        console.log('✅ Found session in database (old format):', session.user.email)
-        clientId = session.user.client.id
-        userId = session.user.id
+      if (session?.User?.Client) {
+        console.log('✅ Found session in database (old format):', session.User.email)
+        clientId = session.User.Client.id
+        userId = session.User.id
       } else {
         console.error('❌ Token is neither valid JWT nor found in database')
       }
@@ -78,9 +78,9 @@ export async function GET(request: NextRequest) {
     const client = await prisma.client.findUnique({
       where: { id: clientId },
       include: {
-        projects: {
+        Project: {
           include: {
-            client: {
+            Client: {
               select: {
                 id: true,
                 name: true,
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const projectIds = client.projects.map((p: any) => p.id)
+    const projectIds = client.Project.map((p: any) => p.id)
 
     // Fetch related data for all projects in parallel
     const [updates, uploads, codeAccessRequests] = await Promise.all([
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
           isPublic: true,
         },
         include: {
-          readBy: {
+          ProjectUpdateRead: {
             where: { userId },
           },
         },
@@ -165,7 +165,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Get projects with computed fields
-    const projects = client.projects.map((project: any) => {
+    const projects = client.Project.map((project: any) => {
       // Parse JSON fields safely
       let techStack: string[] = []
       let requirements: any = {}
@@ -231,7 +231,7 @@ export async function GET(request: NextRequest) {
 
       // Count unread updates
       const unreadUpdates = projectUpdates.filter(
-        (update) => update.readBy.length === 0
+        (update) => update.ProjectUpdateRead.length === 0
       ).length
 
       // Get latest code access request status
@@ -271,7 +271,7 @@ export async function GET(request: NextRequest) {
           title: update.title,
           type: update.type,
           createdAt: update.createdAt,
-          isRead: update.readBy.length > 0,
+          isRead: update.ProjectUpdateRead.length > 0,
         })),
 
         // Client info

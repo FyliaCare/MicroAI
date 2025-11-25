@@ -11,7 +11,7 @@ async function checkUser() {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        client: true,
+        Client: true,
       }
     })
     
@@ -30,11 +30,11 @@ async function checkUser() {
     console.log(`   Must Change Password: ${user.mustChangePassword}`)
     console.log(`   Created: ${user.createdAt.toLocaleString()}`)
     
-    if (user.client) {
+    if (user.Client) {
       console.log(`\n👤 Client Info:`)
-      console.log(`   Name: ${user.client.name}`)
-      console.log(`   Company: ${user.client.company || 'N/A'}`)
-      console.log(`   Phone: ${user.client.phone || 'N/A'}`)
+      console.log(`   Name: ${user.Client.name}`)
+      console.log(`   Company: ${user.Client.company || 'N/A'}`)
+      console.log(`   Phone: ${user.Client.phone || 'N/A'}`)
     }
     
     console.log('\n⚠️  PASSWORD INFORMATION:')

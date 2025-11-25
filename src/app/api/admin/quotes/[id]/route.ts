@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // GET /api/admin/quotes/[id] - Get a single quote
 export async function GET(
@@ -12,7 +13,7 @@ export async function GET(
     const quote = await prisma.quote.findUnique({
       where: { id },
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
@@ -21,7 +22,7 @@ export async function GET(
             phone: true,
           },
         },
-        project: {
+        Project: {
           select: {
             id: true,
             name: true,
@@ -196,14 +197,15 @@ export async function PUT(
       where: { id },
       data: updateData,
       include: {
-        client: true,
-        project: true,
+        Client: true,
+        Project: true,
       },
     })
 
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Updated',
         entity: 'Quote',
         entityId: quote.id,
@@ -253,6 +255,7 @@ export async function DELETE(
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Deleted',
         entity: 'Quote',
         entityId: id,

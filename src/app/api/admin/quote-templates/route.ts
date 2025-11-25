@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
 
     const template = await prisma.quoteTemplate.create({
       data: {
+        id: nanoid(),
         name,
         category,
         description: description || null,
@@ -91,6 +93,7 @@ export async function POST(request: NextRequest) {
         profitMargin: profitMargin ? parseFloat(profitMargin) : 100,
         isActive: isActive !== undefined ? isActive : true,
         sortOrder: sortOrder ? parseInt(sortOrder) : 999,
+        updatedAt: new Date(),
       },
     })
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/admin/quotes/[id]/convert - Convert accepted quote to project
 export async function POST(
@@ -13,7 +14,7 @@ export async function POST(
     const quote = await prisma.quote.findUnique({
       where: { id: quoteId },
       include: {
-        client: true,
+        Client: true,
       },
     })
 
@@ -84,6 +85,7 @@ export async function POST(
     // Create the project
     const project = await prisma.project.create({
       data: {
+        id: nanoid(),
         name: quote.title,
         description: description,
         clientId: quote.clientId,
@@ -103,6 +105,7 @@ export async function POST(
           originalTotal: quote.total,
           projectType: projectType,
         }),
+        updatedAt: new Date(),
       } as any, // Type assertion for Prisma client sync
     })
 
@@ -124,6 +127,7 @@ export async function POST(
         
         await prisma.milestone.create({
           data: {
+            id: nanoid(),
             projectId: project.id,
             title: milestone.title,
             description: milestone.description || '',
@@ -131,6 +135,7 @@ export async function POST(
             status: 'pending',
             deliverables: JSON.stringify(milestone.deliverables || []),
             paymentAmount: milestone.amount || 0,
+            updatedAt: new Date(),
           },
         })
         
@@ -141,6 +146,7 @@ export async function POST(
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Converted',
         entity: 'Quote',
         entityId: quote.id,

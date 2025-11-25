@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -140,6 +141,7 @@ export async function POST(request: NextRequest) {
 
     const analytics = await prisma.visitorAnalytics.create({
       data: {
+        id: nanoid(),
         visitorId,
         sessionId,
         ipAddress,

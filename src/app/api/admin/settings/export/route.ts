@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // GET /api/admin/settings/export - Export all settings
 export async function GET(request: NextRequest) {
@@ -52,6 +53,7 @@ export async function GET(request: NextRequest) {
     // Create backup record
     await prisma.settingsBackup.create({
       data: {
+        id: nanoid(),
         name: `Export ${new Date().toLocaleDateString()}`,
         description: `Settings export by ${session.user?.email}`,
         data: JSON.stringify(exportData),

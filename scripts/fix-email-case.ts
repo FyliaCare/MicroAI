@@ -9,7 +9,7 @@ async function fixEmailCase() {
     // Find user with capital letters
     const user = await prisma.user.findUnique({
       where: { email: 'Benjyamp@gmail.com' },
-      include: { client: true }
+      include: { Client: true }
     })
     
     if (!user) {
@@ -29,9 +29,9 @@ async function fixEmailCase() {
     console.log('✅ User email updated')
     
     // Update client email if exists
-    if (user.client) {
+    if (user.Client) {
       await prisma.client.update({
-        where: { id: user.client.id },
+        where: { id: user.Client.id },
         data: { email: newEmail }
       })
       console.log('✅ Client email updated')

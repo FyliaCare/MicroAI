@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { nanoid } from 'nanoid'
 
 // GET: List all newsletters
 export async function GET(request: NextRequest) {
@@ -87,6 +88,7 @@ export async function POST(request: NextRequest) {
 
     const newsletter = await prisma.newsletter.create({
       data: {
+        id: nanoid(),
         subject: body.subject,
         content: body.content || '',
         textContent: body.textContent,
@@ -96,6 +98,7 @@ export async function POST(request: NextRequest) {
         createdByName: session.user?.name || session.user?.email,
         campaign: body.campaign,
         tags: body.tags ? JSON.stringify(body.tags) : undefined,
+        updatedAt: new Date(),
       }
     })
 

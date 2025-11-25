@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 export async function POST(request: NextRequest) {
   try {
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
       // Create new visitor analytics record
       await prisma.visitorAnalytics.create({
         data: {
+          id: nanoid(),
           sessionId,
           ipAddress: ip,
           country: geoData.country || null,

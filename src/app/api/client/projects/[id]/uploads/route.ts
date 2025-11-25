@@ -22,9 +22,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     } catch (err) {
       const session = await prisma.clientSession.findFirst({
         where: { sessionToken: token, isActive: true, expiresAt: { gt: new Date() } },
-        include: { user: { include: { client: true } } }
+        include: { User: { include: { Client: true } } }
       })
-      if (session?.user?.client) clientId = session.user.client.id
+      if (session?.User?.Client) clientId = session.User.Client.id
     }
 
     if (!clientId) {

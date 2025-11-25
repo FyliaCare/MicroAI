@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { nanoid } from 'nanoid'
 
 // GET: List all subscribers
 export async function GET(request: NextRequest) {
@@ -93,12 +94,15 @@ export async function POST(request: NextRequest) {
 
     const subscriber = await prisma.newsletterSubscriber.create({
       data: {
+        id: nanoid(),
         email: body.email,
         name: body.name,
         source: 'admin',
         status: 'active',
         subscribed: true,
         confirmedAt: new Date(),
+        unsubscribeToken: nanoid(),
+        updatedAt: new Date(),
       }
     })
 

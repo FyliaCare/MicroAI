@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkBotProtection } from '@/lib/bot-protection'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -320,6 +321,7 @@ export async function POST(request: NextRequest) {
 
         await prisma.notification.create({
           data: {
+            id: nanoid(),
             type: 'chat_new',
             title: notificationTitle,
             message: notificationMessage,
@@ -376,6 +378,7 @@ export async function POST(request: NextRequest) {
     // Send bot response
     const botMessage = await prisma.chatMessage.create({
       data: {
+        id: nanoid(),
         sessionId,
         senderType: 'admin',
         senderName: 'MicroAI Assistant',
@@ -430,6 +433,7 @@ export async function GET(request: NextRequest) {
     // Send welcome message
     const welcomeMessage = await prisma.chatMessage.create({
       data: {
+        id: nanoid(),
         sessionId,
         senderType: 'admin',
         senderName: 'MicroAI Assistant',

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic'
@@ -31,12 +32,12 @@ export async function GET(request: NextRequest) {
         ],
       },
       include: {
-        client: {
+        Client: {
           include: {
-            projects: true,
+            Project: true,
           },
         },
-        sessions: true,
+        ClientSession: true,
       },
     })
 
@@ -50,16 +51,16 @@ export async function GET(request: NextRequest) {
         // Delete user and related data in a transaction
         await prisma.$transaction(async (tx) => {
           // Delete sessions
-          if (user.sessions.length > 0) {
+          if (user.ClientSession.length > 0) {
             await tx.clientSession.deleteMany({
               where: { userId: user.id },
             })
           }
 
           // Delete client-related data if client exists
-          if (user.client) {
+          if (user.Client) {
             // Delete project-related data
-            for (const project of user.client.projects) {
+            for (const project of user.Client.Project) {
               // Delete project updates
               await tx.projectUpdate.deleteMany({
                 where: { projectId: project.id },
@@ -88,7 +89,7 @@ export async function GET(request: NextRequest) {
 
             // Delete projects
             await tx.project.deleteMany({
-              where: { clientId: user.client.id },
+              where: { clientId: user.Client.id },
             })
 
             // Delete project requests
@@ -100,15 +101,15 @@ export async function GET(request: NextRequest) {
             await tx.activityFeed.deleteMany({
               where: {
                 OR: [
-                  { actorId: user.client.id, actorType: 'client' },
-                  { targetId: user.client.id, targetType: 'client' },
+                  { actorId: user.Client.id, actorType: 'client' },
+                  { targetId: user.Client.id, targetType: 'client' },
                 ],
               },
             })
 
             // Delete client
             await tx.client.delete({
-              where: { id: user.client.id },
+              where: { id: user.Client.id },
             })
           }
 
@@ -139,6 +140,7 @@ export async function GET(request: NextRequest) {
         // Log the deletion in activity feed (if admin exists)
         await prisma.activityFeed.create({
           data: {
+            id: nanoid(),
             type: 'account-deleted',
             title: 'Expired Account Deleted',
             description: `Unverified account ${user.email} was automatically deleted after 30 days`,
@@ -164,6 +166,7 @@ export async function GET(request: NextRequest) {
     await prisma.scheduledTask.upsert({
       where: { taskName: 'cleanup-unverified-accounts' },
       create: {
+        id: nanoid(),
         taskName: 'cleanup-unverified-accounts',
         taskType: 'cleanup',
         cronExpression: '0 0 * * *', // Daily at midnight
@@ -176,12 +179,14 @@ export async function GET(request: NextRequest) {
           description: 'Delete unverified client accounts after 30 days',
           retentionDays: 30,
         }),
+        updatedAt: now,
       },
       update: {
         lastRunAt: now,
         nextRunAt: new Date(now.getTime() + 24 * 60 * 60 * 1000),
         lastStatus: errors.length > 0 ? 'partial-success' : 'success',
         executionCount: { increment: 1 },
+        updatedAt: now,
       },
     })
 
@@ -205,6 +210,7 @@ export async function GET(request: NextRequest) {
     await prisma.scheduledTask.upsert({
       where: { taskName: 'cleanup-unverified-accounts' },
       create: {
+        id: nanoid(),
         taskName: 'cleanup-unverified-accounts',
         taskType: 'cleanup',
         cronExpression: '0 0 * * *',
@@ -213,12 +219,14 @@ export async function GET(request: NextRequest) {
         lastStatus: 'error',
         lastError: error instanceof Error ? error.message : 'Unknown error',
         executionCount: 1,
+        updatedAt: new Date(),
       },
       update: {
         lastRunAt: new Date(),
         lastStatus: 'error',
         lastError: error instanceof Error ? error.message : 'Unknown error',
         executionCount: { increment: 1 },
+        updatedAt: new Date(),
       },
     }).catch(() => {
       // Ignore if this fails

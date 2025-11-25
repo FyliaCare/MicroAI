@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,7 +27,7 @@ export async function PATCH(
         sessionToken: token,
         expires: { gt: new Date() }
       },
-      include: { user: true }
+      include: { Admin: true }
     })
 
     if (!userSession) {
@@ -36,7 +37,7 @@ export async function PATCH(
       )
     }
 
-    const userEmail = userSession.user.email
+    const userEmail = userSession.Admin.email
 
     // Get the project request
     const projectRequest = await prisma.projectRequest.findUnique({
@@ -112,6 +113,7 @@ export async function PATCH(
       for (const admin of admins) {
         await prisma.notification.create({
           data: {
+            id: nanoid(),
             type: 'project_request',
             title: `Project Request Resubmitted: ${projectName}`,
             message: `${projectRequest.clientName} has resubmitted their project request (${projectRequest.requestNumber}). Click to review and approve.`,

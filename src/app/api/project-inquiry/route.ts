@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { queueAdminNotificationEmail, queueClientConfirmationEmail } from '@/lib/email-queue'
 import { checkBotProtection } from '@/lib/bot-protection'
+import { nanoid } from 'nanoid'
 
 interface ProjectInquiryData {
   projectIdea: string
@@ -425,6 +426,7 @@ sales@microaisystems.com
       // Create ProjectRequest (pending approval)
       const projectRequest = await prisma.projectRequest.create({
         data: {
+          id: nanoid(),
           requestNumber,
           projectName: `${body.name} - AI Bot ${formattedProjectType}`,
           clientName: body.name,
@@ -437,7 +439,8 @@ sales@microaisystems.com
           timeline: formattedTimeline,
           status: 'pending',
           priority: 'high',
-          source: 'ai-bot'
+          source: 'ai-bot',
+          updatedAt: new Date(),
         }
       })
       projectRequestId = projectRequest.id
@@ -455,6 +458,7 @@ sales@microaisystems.com
       for (const admin of adminUsers) {
         await prisma.notification.create({
           data: {
+            id: nanoid(),
             type: 'project_request',
             title: `🤖 New AI Bot Inquiry from ${body.name}`,
             message: `${body.name} - ${formattedProjectType} project - ${formattedBudget}, ${formattedTimeline}. Request: ${requestNumber}`,
@@ -471,6 +475,7 @@ sales@microaisystems.com
       // Log activity
       await prisma.activityLog.create({
         data: {
+          id: nanoid(),
           action: 'Created',
           entity: 'ProjectRequest',
           entityId: projectRequest.id,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { nanoid } from 'nanoid'
 
 // Helper function to generate slug from title
 function generateSlug(title: string): string {
@@ -154,6 +155,7 @@ export async function POST(request: NextRequest) {
 
     const post = await prisma.blogPost.create({
       data: {
+        id: nanoid(),
         title: body.title,
         slug: uniqueSlug,
         excerpt: seoData.summary,
@@ -174,12 +176,14 @@ export async function POST(request: NextRequest) {
         seoKeywords: seoData.keywords.join(', '),
         readingTime: seoData.readingTime,
         allowComments: body.allowComments !== undefined ? body.allowComments : true,
+        updatedAt: new Date(),
       }
     })
 
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Created',
         entity: 'BlogPost',
         entityId: post.id,

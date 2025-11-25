@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/quotes/[id]/view - Mark quote as viewed
 export async function POST(
@@ -33,6 +34,7 @@ export async function POST(
       // Log activity
       await prisma.activityLog.create({
         data: {
+          id: nanoid(),
           action: 'Viewed',
           entity: 'Quote',
           entityId: quote.id,

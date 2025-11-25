@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic'
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
         autoApprovedAt: { lte: now },
       },
       include: {
-        user: true,
+        User: true,
       },
     })
 
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
         // Fetch project separately
         const project = await prisma.project.findUnique({
           where: { id: request.projectId },
-          include: { client: true },
+          include: { Client: true },
         })
 
         if (!project) {
@@ -73,6 +74,7 @@ export async function GET(request: NextRequest) {
         // Create notification for client
         await prisma.notification.create({
           data: {
+            id: nanoid(),
             type: 'code-access-approved',
             title: 'Code Access Approved',
             message: `Your code access request for ${project.name} has been automatically approved`,
@@ -84,13 +86,14 @@ export async function GET(request: NextRequest) {
         })
 
         // Queue email to client
-        if (request.user) {
+        if (request.User) {
           await prisma.emailQueue.create({
             data: {
-              to: request.user.email,
+              id: nanoid(),
+              to: request.User.email,
               subject: 'Code Access Approved',
               htmlContent: generateApprovalEmail({
-                clientName: request.user.name,
+                clientName: request.User.name,
                 projectName: project.name,
                 requestNumber: request.requestNumber,
                 repoUrl: repoUrl || 'Repository information will be provided separately',
@@ -100,6 +103,7 @@ export async function GET(request: NextRequest) {
               templateType: 'code-access-auto-approved',
               priority: 'high',
               userId: request.userId,
+              updatedAt: new Date(),
             },
           })
         }
@@ -107,6 +111,7 @@ export async function GET(request: NextRequest) {
         // Create activity feed
         await prisma.activityFeed.create({
           data: {
+            id: nanoid(),
             type: 'code-access-auto-approved',
             title: 'Code Access Auto-Approved',
             description: `Request ${request.requestNumber} automatically approved after 24 hours`,
@@ -129,6 +134,7 @@ export async function GET(request: NextRequest) {
         // Notify admin
         await prisma.notification.create({
           data: {
+            id: nanoid(),
             type: 'code-access-auto-approved',
             title: 'Code Access Auto-Approved',
             message: `Request ${request.requestNumber} for ${project.name} was automatically approved`,
@@ -150,6 +156,7 @@ export async function GET(request: NextRequest) {
     await prisma.scheduledTask.upsert({
       where: { taskName: 'auto-approve-code-access' },
       create: {
+        id: nanoid(),
         taskName: 'auto-approve-code-access',
         taskType: 'automation',
         cronExpression: '0 * * * *', // Every hour
@@ -162,12 +169,14 @@ export async function GET(request: NextRequest) {
           description: 'Auto-approve code access requests after 24 hours',
           approvalDelay: '24 hours',
         }),
+        updatedAt: now,
       },
       update: {
         lastRunAt: now,
         nextRunAt: new Date(now.getTime() + 60 * 60 * 1000),
         lastStatus: errors.length > 0 ? 'partial-success' : 'success',
         executionCount: { increment: 1 },
+        updatedAt: now,
       },
     })
 
@@ -191,6 +200,7 @@ export async function GET(request: NextRequest) {
     await prisma.scheduledTask.upsert({
       where: { taskName: 'auto-approve-code-access' },
       create: {
+        id: nanoid(),
         taskName: 'auto-approve-code-access',
         taskType: 'automation',
         cronExpression: '0 * * * *',
@@ -199,12 +209,14 @@ export async function GET(request: NextRequest) {
         lastStatus: 'error',
         lastError: error instanceof Error ? error.message : 'Unknown error',
         executionCount: 1,
+        updatedAt: new Date(),
       },
       update: {
         lastRunAt: new Date(),
         lastStatus: 'error',
         lastError: error instanceof Error ? error.message : 'Unknown error',
         executionCount: { increment: 1 },
+        updatedAt: new Date(),
       },
     }).catch(() => {
       // Ignore if this fails

@@ -47,16 +47,16 @@ export async function GET(
                   }
                 },
                 include: {
-                  user: {
+                  User: {
                     include: {
-                      client: true
+                      Client: true
                     }
                   }
                 }
               })
               
-              if (clientSession?.user?.client?.id) {
-                clientId = clientSession.user.client.id
+              if (clientSession?.User?.Client?.id) {
+                clientId = clientSession.User.Client.id
                 console.log('✅ Found client via old session token:', clientId)
                 console.log('⚠️  Client should logout and login again to get new JWT token')
               }
@@ -106,7 +106,7 @@ export async function GET(
         clientId: clientId, // Ensure client can only see their own projects
       },
       include: {
-        client: {
+        Client: {
           select: {
             name: true,
             email: true,

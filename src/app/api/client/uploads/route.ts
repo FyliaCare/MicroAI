@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { nanoid } from 'nanoid'
 
 // POST /api/client/uploads - Upload a document
 export async function POST(request: NextRequest) {
@@ -22,9 +23,9 @@ export async function POST(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!session.user.client) {
+    if (!session.User.Client) {
       return NextResponse.json(
         { success: false, error: 'No client account found' },
         { status: 404 }
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     const project = await prisma.project.findFirst({
       where: {
         id: projectId,
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
       },
     })
 
@@ -113,6 +114,7 @@ export async function POST(request: NextRequest) {
     // Create database record
     const upload = await prisma.clientUpload.create({
       data: {
+        id: nanoid(),
         name,
         originalName: file.name,
         description,
@@ -122,19 +124,21 @@ export async function POST(request: NextRequest) {
         category,
         version: 1,
         projectId,
-        clientId: session.user.client.id,
-        uploadedBy: session.user.id,
+        clientId: session.User.Client.id,
+        uploadedBy: session.User.id,
         uploadedByRole: 'client',
         colorPalette: colorPalette || undefined,
+        updatedAt: new Date(),
       },
     })
 
     // Create admin notification
     await prisma.notification.create({
       data: {
+        id: nanoid(),
         type: 'upload',
         title: 'New Document Uploaded',
-        message: `${session.user.client.name} uploaded a new ${category} for ${project.name}`,
+        message: `${session.User.Client.name} uploaded a new ${category} for ${project.name}`,
         link: `/admin/projects/${projectId}?tab=documents`,
         priority: 'normal',
       },
@@ -143,17 +147,18 @@ export async function POST(request: NextRequest) {
     // Create activity feed entry
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'document-uploaded',
         title: 'Document Uploaded',
         description: `${name} (${category})`,
         actorType: 'client',
-        actorId: session.user.client.id,
-        actorName: session.user.client.name,
+        actorId: session.User.Client.id,
+        actorName: session.User.Client.name,
         targetType: 'project',
         targetId: projectId,
         targetName: project.name,
         isPublic: true,
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
         icon: '📎',
         color: '#8b5cf6',
       },
@@ -212,9 +217,9 @@ export async function GET(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
@@ -227,7 +232,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    if (!session.user.client) {
+    if (!session.User.Client) {
       return NextResponse.json(
         { success: false, error: 'No client account found' },
         { status: 404 }
@@ -238,7 +243,7 @@ export async function GET(request: NextRequest) {
     const project = await prisma.project.findFirst({
       where: {
         id: projectId,
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
       },
     })
 
@@ -253,11 +258,11 @@ export async function GET(request: NextRequest) {
     const uploads = await prisma.clientUpload.findMany({
       where: {
         projectId,
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
       },
       orderBy: { createdAt: 'desc' },
       include: {
-        client: {
+        Client: {
           select: {
             name: true,
             email: true,
@@ -344,9 +349,9 @@ export async function DELETE(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
@@ -359,7 +364,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    if (!session.user.client) {
+    if (!session.User.Client) {
       return NextResponse.json(
         { success: false, error: 'No client account found' },
         { status: 404 }
@@ -370,8 +375,8 @@ export async function DELETE(request: NextRequest) {
     const upload = await prisma.clientUpload.findFirst({
       where: {
         id: uploadId,
-        clientId: session.user.client.id,
-        uploadedBy: session.user.id,
+        clientId: session.User.Client.id,
+        uploadedBy: session.User.id,
       },
     })
 

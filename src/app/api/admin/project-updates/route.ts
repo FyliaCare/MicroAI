@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/admin/project-updates - Create a project update
 export async function POST(request: NextRequest) {
@@ -29,9 +30,9 @@ export async function POST(request: NextRequest) {
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: {
-        client: {
+        Client: {
           include: {
-            user: true,
+            User: true,
           },
         },
       },
@@ -47,6 +48,7 @@ export async function POST(request: NextRequest) {
     // Create update
     const update = await prisma.projectUpdate.create({
       data: {
+        id: nanoid(),
         projectId,
         title,
         content,
@@ -54,6 +56,7 @@ export async function POST(request: NextRequest) {
         isPublic,
         progressBefore: progressBefore || project.progress || 0,
         progressAfter: progressAfter || project.progress || 0,
+        updatedAt: new Date(),
       },
     })
 
@@ -66,9 +69,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create client notification
-    if (project.client) {
+    if (project.Client) {
       await prisma.notification.create({
         data: {
+          id: nanoid(),
           type: 'project-update',
           title: `Project Update: ${project.name}`,
           message: title,
@@ -81,13 +85,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email notification
-    if (sendEmail && project.client?.user) {
+    if (sendEmail && project.Client?.User) {
       await prisma.emailQueue.create({
         data: {
-          to: project.client.user.email,
+          id: nanoid(),
+          to: project.Client.User.email,
           subject: `Project Update: ${project.name}`,
           htmlContent: generateUpdateEmail({
-            clientName: project.client.name,
+            clientName: project.Client.name,
             projectName: project.name,
             updateTitle: title,
             updateContent: content,
@@ -98,8 +103,9 @@ export async function POST(request: NextRequest) {
           }),
           templateType: 'project-update',
           priority: type === 'issue' ? 'high' : 'normal',
-          userId: project.client.userId,
+          userId: project.Client.userId,
           clientId: project.clientId,
+          updatedAt: new Date(),
         },
       })
 
@@ -113,6 +119,7 @@ export async function POST(request: NextRequest) {
     // Create activity feed
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'project-updated',
         title: 'Project Update Posted',
         description: title,
@@ -168,7 +175,7 @@ export async function GET(request: NextRequest) {
     const updates = await prisma.projectUpdate.findMany({
       where,
       include: {
-        readBy: {
+        ProjectUpdateRead: {
           select: {
             userId: true,
             readAt: true,
@@ -185,7 +192,7 @@ export async function GET(request: NextRequest) {
     const projects = await prisma.project.findMany({
       where: { id: { in: projectIds } },
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
@@ -212,8 +219,8 @@ export async function GET(request: NextRequest) {
           emailSent: update.emailSent,
           projectId: update.projectId,
           projectName: project?.name || 'Unknown Project',
-          clientName: project?.client?.name || 'Unknown Client',
-          readCount: update.readBy.length,
+          clientName: project?.Client?.name || 'Unknown Client',
+          readCount: update.ProjectUpdateRead.length,
           createdAt: update.createdAt,
         }
       }),

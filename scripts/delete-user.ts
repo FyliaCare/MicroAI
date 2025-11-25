@@ -11,7 +11,7 @@ async function deleteUser() {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        client: true,
+        Client: true,
       }
     })
     
@@ -36,7 +36,7 @@ async function deleteUser() {
         where: { 
           OR: [
             { entityType: 'user', entityId: user.id },
-            { entityType: 'client', entityId: user.client?.id }
+            { entityType: 'client', entityId: user.Client?.id }
           ]
         }
       })
@@ -53,16 +53,16 @@ async function deleteUser() {
         where: { 
           OR: [
             { actorType: 'user', actorId: user.id },
-            { actorType: 'client', actorId: user.client?.id }
+            { actorType: 'client', actorId: user.Client?.id }
           ]
         }
       })
       console.log(`   Activity entries: ${activityDeleted.count}`)
       
       // Delete client record if exists
-      if (user.client) {
+      if (user.Client) {
         await tx.client.delete({
-          where: { id: user.client.id }
+          where: { id: user.Client.id }
         })
         console.log(`   Client record: 1`)
       }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verify } from 'jsonwebtoken'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
@@ -28,7 +29,7 @@ export async function POST(
     const project = await prisma.project.findUnique({
       where: { id: params.id },
       include: {
-        client: true,
+        Client: true,
       },
     })
 
@@ -44,9 +45,10 @@ export async function POST(
     // Create notification for all admins
     await prisma.notification.create({
       data: {
+        id: nanoid(),
         type: 'file_upload',
         title: 'New Files Uploaded',
-        message: `${project.client?.name || 'A client'} has uploaded files to Google Drive for project "${project.name}".`,
+        message: `${project.Client?.name || 'A client'} has uploaded files to Google Drive for project "${project.name}".`,
         link: `/admin/projects/${project.id}?tab=files`,
         priority: 'normal',
         entityType: 'Project',

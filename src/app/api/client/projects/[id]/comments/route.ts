@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import * as jwt from 'jsonwebtoken'
+import { nanoid } from 'nanoid'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
 
@@ -53,24 +54,24 @@ export async function POST(
           expiresAt: { gt: new Date() }
         },
         include: {
-          user: {
+          User: {
             include: {
-              client: true,
+              Client: true,
             },
           },
         },
       })
 
-      if (!session || !session.user?.client) {
+      if (!session || !session.User?.Client) {
         return NextResponse.json(
           { success: false, error: 'Invalid or expired session' },
           { status: 401 }
         )
       }
       
-      clientId = session.user.client.id
-      clientName = session.user.client.name
-      clientEmail = session.user.client.email
+      clientId = session.User.Client.id
+      clientName = session.User.Client.name
+      clientEmail = session.User.Client.email
       
       console.log('Database auth successful:', { clientId, clientEmail, clientName })
     }
@@ -110,17 +111,20 @@ export async function POST(
     // Create comment using ProjectComment table (unified with admin)
     const comment = await prisma.projectComment.create({
       data: {
+        id: nanoid(),
         content: content.trim(),
         projectId: params.id,
         authorName: clientName || 'Client',
         authorRole: 'CLIENT',
         parentId: parentId || null,
+        updatedAt: new Date(),
       },
     })
 
     // Create notification for admin
     await prisma.notification.create({
       data: {
+        id: nanoid(),
         type: 'new-comment',
         title: `New comment on ${project.name}`,
         message: `${clientName} commented on the project`,
@@ -134,6 +138,7 @@ export async function POST(
     // Log activity
     await prisma.activityLog.create({
       data: {
+        id: nanoid(),
         action: 'Commented',
         entity: 'Project',
         entityId: params.id,
@@ -198,22 +203,22 @@ export async function GET(
           expiresAt: { gt: new Date() }
         },
         include: {
-          user: {
+          User: {
             include: {
-              client: true,
+              Client: true,
             },
           },
         },
       })
 
-      if (!session || !session.user?.client) {
+      if (!session || !session.User?.Client) {
         return NextResponse.json(
           { success: false, error: 'Invalid or expired session' },
           { status: 401 }
         )
       }
       
-      clientId = session.user.client.id
+      clientId = session.User.Client.id
       console.log('Database auth successful:', { clientId })
     }
 
@@ -327,22 +332,22 @@ export async function DELETE(
           expiresAt: { gt: new Date() }
         },
         include: {
-          user: {
+          User: {
             include: {
-              client: true,
+              Client: true,
             },
           },
         },
       })
 
-      if (!session || !session.user?.client) {
+      if (!session || !session.User?.Client) {
         return NextResponse.json(
           { success: false, error: 'Invalid or expired session' },
           { status: 401 }
         )
       }
       
-      clientId = session.user.client.id
+      clientId = session.User.Client.id
     }
 
     if (!clientId) {
@@ -357,7 +362,7 @@ export async function DELETE(
       where: {
         id: commentId,
         authorRole: 'CLIENT',
-        project: {
+        Project: {
           clientId: clientId
         }
       },

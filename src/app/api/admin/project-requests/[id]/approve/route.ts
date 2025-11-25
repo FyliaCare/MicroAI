@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 import { Resend } from 'resend'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,6 +90,7 @@ export async function POST(
         
         user = await tx.user.create({
           data: {
+            id: nanoid(),
             email: normalizedEmail,
             password: hashedPassword,
             name: projectRequest.clientName,
@@ -99,6 +101,7 @@ export async function POST(
             accessExpiresAt,
             verificationToken,
             verificationExpiry,
+            updatedAt: new Date(),
           },
         })
         console.log('✅ Created new user:', user.email)
@@ -112,6 +115,7 @@ export async function POST(
       if (!client) {
         client = await tx.client.create({
           data: {
+            id: nanoid(),
             name: projectRequest.clientName,
             email: normalizedEmail,
             phone: projectRequest.clientPhone,
@@ -123,6 +127,7 @@ export async function POST(
             userId: user.id,
             source: projectRequest.source,
             referredBy: projectRequest.referrer,
+            updatedAt: new Date(),
           },
         })
       } else {
@@ -139,6 +144,7 @@ export async function POST(
       // 3. Create Project
       const project = await tx.project.create({
         data: {
+          id: nanoid(),
           name: projectRequest.projectName,
           description: projectRequest.description,
           type: projectRequest.projectType,
@@ -152,6 +158,7 @@ export async function POST(
           techStack: projectRequest.techPreferences || '',
           tags: projectRequest.features || '',
           notes: `Created from project request ${projectRequest.requestNumber}${notes ? '\n\nAdmin Notes: ' + notes : ''}`,
+          updatedAt: new Date(),
         },
       })
 
@@ -178,6 +185,7 @@ export async function POST(
         
         await tx.emailQueue.create({
           data: {
+            id: nanoid(),
             to: normalizedEmail,
             subject: '🎉 Welcome to MicroAI Systems - Your Project Has Been Approved!',
             htmlContent: generateWelcomeEmail({
@@ -202,12 +210,14 @@ export async function POST(
             userId: user.id,
             clientId: client.id,
             projectId: project.id,
+            updatedAt: new Date(),
           },
         })
       } else {
         // EXISTING USER - Send project approval notification only (no password)
         await tx.emailQueue.create({
           data: {
+            id: nanoid(),
             to: normalizedEmail,
             subject: '🎉 New Project Approved - ' + projectRequest.projectName,
             htmlContent: generateExistingUserProjectEmail({
@@ -225,6 +235,7 @@ export async function POST(
             userId: user.id,
             clientId: client.id,
             projectId: project.id,
+            updatedAt: new Date(),
           },
         })
       }
@@ -242,6 +253,7 @@ export async function POST(
       for (const admin of adminUsers) {
         await tx.notification.create({
           data: {
+            id: nanoid(),
             type: 'project-created',
             title: '✅ Project Approved & Created',
             message: `${projectRequest.clientName} - ${projectRequest.projectName} has been approved. Client account created for ${projectRequest.clientName}.`,
@@ -258,6 +270,7 @@ export async function POST(
       // 7. Create activity feed entry
       await tx.activityFeed.create({
         data: {
+          id: nanoid(),
           type: 'project-created',
           title: 'New Project Created',
           description: `${projectRequest.projectName} has been approved and set up`,

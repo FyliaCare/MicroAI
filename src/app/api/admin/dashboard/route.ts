@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       take: 5,
       orderBy: { createdAt: 'desc' },
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       include: {
         _count: {
           select: {
-            projects: true,
+            Project: true,
           },
         },
       },

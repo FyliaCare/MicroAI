@@ -17,7 +17,7 @@ async function testLogin() {
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
       include: {
-        client: {
+        Client: {
           select: {
             id: true,
             name: true,
@@ -95,8 +95,8 @@ async function testLogin() {
     console.log(`   Role: ${user.role}`)
     console.log(`   Verified: ${user.isVerified}`)
     console.log(`   Must Change Password: ${user.mustChangePassword}`)
-    console.log(`   Client ID: ${user.client?.id}`)
-    console.log(`   Client Name: ${user.client?.name}`)
+    console.log(`   Client ID: ${user.Client?.id}`)
+    console.log(`   Client Name: ${user.Client?.name}`)
     
     console.log('\n🌐 Try logging in at:')
     console.log('   https://microai-kz7f.onrender.com/client/login')

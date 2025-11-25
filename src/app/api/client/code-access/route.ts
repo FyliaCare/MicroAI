@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 // POST /api/client/code-access - Request code access
 export async function POST(request: NextRequest) {
@@ -19,9 +20,9 @@ export async function POST(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!session.user.client) {
+    if (!session.User.Client) {
       return NextResponse.json(
         { success: false, error: 'No client account found' },
         { status: 404 }
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
     const project = await prisma.project.findFirst({
       where: {
         id: projectId,
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
       },
     })
 
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
     const existingRequest = await prisma.codeAccessRequest.findFirst({
       where: {
         projectId,
-        userId: session.user.id,
+        userId: session.User.id,
         status: {
           in: ['pending', 'approved'],
         },
@@ -109,23 +110,26 @@ export async function POST(request: NextRequest) {
     // Create code access request
     const codeAccessRequest = await prisma.codeAccessRequest.create({
       data: {
+        id: nanoid(),
         requestNumber,
         projectId,
-        userId: session.user.id,
-        clientName: session.user.client.name,
-        clientEmail: session.user.client.email,
+        userId: session.User.id,
+        clientName: session.User.Client.name,
+        clientEmail: session.User.Client.email,
         reason: reason || 'Client requested code access',
         status: 'pending',
         autoApprovedAt,
+        updatedAt: new Date(),
       },
     })
 
     // Create admin notification
     await prisma.notification.create({
       data: {
+        id: nanoid(),
         type: 'code-access-request',
         title: 'Code Access Request',
-        message: `${session.user.client.name} requested code access for ${project.name}`,
+        message: `${session.User.Client.name} requested code access for ${project.name}`,
         link: `/admin/projects/${project.id}`,
         priority: 'high',
       },
@@ -134,10 +138,11 @@ export async function POST(request: NextRequest) {
     // Queue email to admin
     await prisma.emailQueue.create({
       data: {
+        id: nanoid(),
         to: process.env.ADMIN_EMAIL || 'admin@microai.systems',
         subject: `Code Access Request: ${project.name}`,
         htmlContent: generateAdminNotificationEmail({
-          clientName: session.user.client.name,
+          clientName: session.User.Client.name,
           projectName: project.name,
           requestNumber,
           reason: reason || 'No reason provided',
@@ -145,23 +150,25 @@ export async function POST(request: NextRequest) {
         }),
         templateType: 'code-access-request',
         priority: 'high',
+        updatedAt: new Date(),
       },
     })
 
     // Create activity feed
     await prisma.activityFeed.create({
       data: {
+        id: nanoid(),
         type: 'code-access-requested',
         title: 'Code Access Requested',
         description: `Request ${requestNumber}`,
         actorType: 'client',
-        actorId: session.user.client.id,
-        actorName: session.user.client.name,
+        actorId: session.User.Client.id,
+        actorName: session.User.Client.name,
         targetType: 'project',
         targetId: projectId,
         targetName: project.name,
         isPublic: false,
-        clientId: session.user.client.id,
+        clientId: session.User.Client.id,
         icon: '🔐',
         color: '#f59e0b',
       },
@@ -211,9 +218,9 @@ export async function GET(request: NextRequest) {
     const session = await prisma.clientSession.findUnique({
       where: { sessionToken },
       include: {
-        user: {
+        User: {
           include: {
-            client: true,
+            Client: true,
           },
         },
       },
@@ -226,7 +233,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    if (!session.user.client) {
+    if (!session.User.Client) {
       return NextResponse.json(
         { success: false, error: 'No client account found' },
         { status: 404 }
@@ -235,7 +242,7 @@ export async function GET(request: NextRequest) {
 
     // Build query
     const where: any = {
-      userId: session.user.id,
+      userId: session.User.id,
     }
 
     if (projectId) {
@@ -243,7 +250,7 @@ export async function GET(request: NextRequest) {
       const project = await prisma.project.findFirst({
         where: {
           id: projectId,
-          clientId: session.user.client.id,
+          clientId: session.User.Client.id,
         },
       })
 

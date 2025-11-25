@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkBotProtection } from '@/lib/bot-protection'
+import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
     // Create message
     const chatMessage = await prisma.chatMessage.create({
       data: {
+        id: nanoid(),
         sessionId,
         senderType,
         senderId,
@@ -89,6 +91,7 @@ export async function POST(request: NextRequest) {
         const notificationPromises = admins.map((admin) =>
           prisma.notification.create({
             data: {
+              id: nanoid(),
               type: 'CHAT_MESSAGE',
               title: 'New Chat Message',
               message: `${session?.visitorName || 'Visitor'} sent a message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,

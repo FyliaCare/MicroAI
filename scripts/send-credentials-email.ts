@@ -12,7 +12,7 @@ async function sendManualCredentials() {
     
     const user = await prisma.user.findUnique({
       where: { email },
-      include: { client: true }
+      include: { Client: true }
     })
     
     if (!user) {
@@ -23,6 +23,7 @@ async function sendManualCredentials() {
     // Queue a simple credentials email
     await prisma.emailQueue.create({
       data: {
+        id: crypto.randomUUID(),
         to: email,
         subject: '🔑 Your MicroAI Systems Login Credentials',
         htmlContent: `
@@ -113,7 +114,8 @@ async function sendManualCredentials() {
         }),
         priority: 'high',
         userId: user.id,
-        clientId: user.client?.id,
+        clientId: user.Client?.id,
+        updatedAt: new Date(),
       }
     })
     
