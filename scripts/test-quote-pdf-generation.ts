@@ -6,8 +6,8 @@
  */
 
 import { PrismaClient } from '@prisma/client'
-import { renderToBuffer } from '@react-pdf/renderer'
 import React from 'react'
+import ReactPDF from '@react-pdf/renderer'
 import fs from 'fs'
 import path from 'path'
 
@@ -146,10 +146,17 @@ async function testPDFGeneration() {
       
       console.log('✅ PDF component imported successfully')
       
-      // Render the PDF
-      const pdfBuffer = await renderToBuffer(
+      // Render the PDF using stream
+      const stream = await ReactPDF.renderToStream(
         React.createElement(QuotePDFNew, { quote: quoteData }) as React.ReactElement
       )
+      
+      // Convert stream to buffer
+      const chunks: Buffer[] = []
+      for await (const chunk of stream) {
+        chunks.push(Buffer.from(chunk))
+      }
+      const pdfBuffer = Buffer.concat(chunks)
       
       console.log('✅ PDF rendered successfully!')
       console.log('   Buffer size:', pdfBuffer.length, 'bytes')

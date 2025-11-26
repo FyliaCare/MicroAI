@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { renderToBuffer } from '@react-pdf/renderer'
 import React from 'react'
+import ReactPDF from '@react-pdf/renderer'
 import QuotePDFNew from '@/components/admin/quotes/pdf/QuotePDFNew'
 
 export const dynamic = 'force-dynamic'
+
+// Ensure we're in Node environment for PDF generation
+export const runtime = 'nodejs'
 
 export async function GET(
   request: NextRequest,
@@ -167,13 +170,41 @@ export async function GET(
       )
     }
 
-    // Generate PDF using React PDF (use renderToBuffer for API routes)
-    let pdfBuffer
+    // Generate PDF using React PDF
     try {
-      pdfBuffer = await renderToBuffer(React.createElement(QuotePDFNew, { quote: quoteData }) as React.ReactElement)
+      console.log('Creating PDF document...')
+      
+      // Create the PDF document stream
+      const stream = await ReactPDF.renderToStream(
+        React.createElement(QuotePDFNew, { quote: quoteData }) as React.ReactElement
+      )
+      
+      console.log('PDF stream created successfully')
+      
+      // Convert stream to buffer
+      const chunks: Buffer[] = []
+      
+      for await (const chunk of stream) {
+        chunks.push(Buffer.from(chunk))
+      }
+      
+      const pdfBuffer = Buffer.concat(chunks)
       console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
+
+      // Return the PDF
+      return new NextResponse(pdfBuffer, {
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="quote-${quote.quoteNumber}.pdf"`,
+          'Cache-Control': 'no-cache',
+          'Content-Length': pdfBuffer.length.toString(),
+        },
+      })
     } catch (pdfError) {
       console.error('PDF rendering error:', pdfError)
+      if (pdfError instanceof Error) {
+        console.error('Error stack:', pdfError.stack)
+      }
       return NextResponse.json(
         { 
           error: 'PDF rendering failed', 
@@ -182,15 +213,6 @@ export async function GET(
         { status: 500 }
       )
     }
-
-    // Return the PDF
-    return new NextResponse(Buffer.from(pdfBuffer), {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="quote-${quote.quoteNumber}.pdf"`,
-        'Cache-Control': 'no-cache',
-      },
-    })
   } catch (error) {
     console.error('PDF generation error:', error)
     return NextResponse.json(
