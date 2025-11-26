@@ -183,22 +183,13 @@ export async function GET(
         console.warn('[PDF Route] No line items, using empty array')
       }
       
-      console.log('[PDF Route] Creating React element...')
-      const pdfElement = React.createElement(QuotePDFNew, { quote: quoteData })
+      console.log('[PDF Route] Creating PDF document...')
+      const PDFDocument = React.createElement(QuotePDFNew, { quote: quoteData })
       
-      // Generate PDF using renderToStream
-      console.log('[PDF Route] Rendering PDF to stream...')
-      const stream = await ReactPDF.renderToStream(pdfElement as any)
+      // Generate PDF buffer directly (more reliable than stream in production)
+      console.log('[PDF Route] Rendering PDF to buffer...')
+      const pdfBuffer = await ReactPDF.renderToBuffer(PDFDocument as React.ReactElement)
       
-      console.log('[PDF Route] Stream created, converting to buffer...')
-      
-      // Convert readable stream to buffer
-      const chunks: Buffer[] = []
-      for await (const chunk of stream) {
-        chunks.push(Buffer.from(chunk))
-      }
-      
-      const pdfBuffer = Buffer.concat(chunks)
       console.log('[PDF Route] PDF generated successfully! Size:', pdfBuffer.length, 'bytes')
       
       // Validate the PDF buffer
