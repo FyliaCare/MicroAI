@@ -204,8 +204,8 @@ export async function GET(
         throw new Error('Generated file is not a valid PDF')
       }
 
-      // Return the PDF
-      return new NextResponse(pdfBuffer, {
+      // Return the PDF (convert Buffer to Uint8Array for NextResponse)
+      return new NextResponse(new Uint8Array(pdfBuffer), {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="quote-${quote.quoteNumber}.pdf"`,
