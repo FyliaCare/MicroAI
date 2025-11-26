@@ -198,6 +198,109 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
   const [saving, setSaving] = useState(false)
   const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved')
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [aiGenerated, setAiGenerated] = useState(false)
+
+  // Load AI-generated quote data on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('aiGenerated') === 'true') {
+      const aiQuoteData = sessionStorage.getItem('aiGeneratedQuote')
+      if (aiQuoteData) {
+        try {
+          const parsedData = JSON.parse(aiQuoteData)
+          loadAIGeneratedQuote(parsedData)
+          sessionStorage.removeItem('aiGeneratedQuote')
+          setAiGenerated(true)
+        } catch (error) {
+          console.error('Failed to load AI-generated quote:', error)
+        }
+      }
+    }
+  }, [])
+
+  const loadAIGeneratedQuote = (aiData: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      // Basic Info
+      title: aiData.title || prev.title,
+      clientName: aiData.clientName || prev.clientName,
+      clientEmail: aiData.clientEmail || prev.clientEmail,
+      clientCompany: aiData.clientCompany || prev.clientCompany,
+      clientPhone: aiData.clientPhone || prev.clientPhone,
+      
+      // Project Details
+      projectType: aiData.projectType || prev.projectType,
+      description: aiData.description || prev.description,
+      executiveSummary: aiData.executiveSummary || prev.executiveSummary,
+      objectives: aiData.objectives || prev.objectives,
+      
+      // Scope
+      scopeItems: aiData.scopeItems || prev.scopeItems,
+      exclusions: aiData.exclusions || prev.exclusions,
+      assumptions: aiData.assumptions || prev.assumptions,
+      deliverables: aiData.deliverables || prev.deliverables,
+      
+      // Pricing
+      lineItems: aiData.lineItems?.map((item: any, index: number) => ({
+        id: `item-${Date.now()}-${index}`,
+        name: item.name || item.description,
+        description: item.details || item.description,
+        category: 'development',
+        quantity: item.quantity || 1,
+        unitPrice: item.unitPrice || 0,
+        discount: 0,
+        taxable: true,
+        order: index,
+      })) || prev.lineItems,
+      currency: aiData.currency || prev.currency,
+      subtotal: aiData.subtotal || prev.subtotal,
+      tax: aiData.tax || prev.tax,
+      taxRate: aiData.taxRate || prev.taxRate,
+      total: aiData.total || prev.total,
+      
+      // Timeline
+      estimatedDuration: parseEstimatedDuration(aiData.estimatedDuration) || prev.estimatedDuration,
+      milestones: aiData.milestones?.map((m: any, index: number) => ({
+        id: `milestone-${Date.now()}-${index}`,
+        title: m.name || m.title,
+        description: m.deliverables || m.description || '',
+        deliverables: typeof m.deliverables === 'string' ? [m.deliverables] : (m.deliverables || []),
+        duration: parseDuration(m.duration || m.timeline) || 0,
+        percentage: 0,
+        dependencies: [],
+      })) || prev.milestones,
+      
+      // Payment
+      paymentSchedule: aiData.paymentSchedule?.map((p: any, index: number) => ({
+        id: `payment-${Date.now()}-${index}`,
+        title: p.phase || p.description,
+        percentage: (p.amount / aiData.total) * 100,
+        amount: p.amount,
+        dueDate: 'milestone',
+        description: p.description,
+      })) || prev.paymentSchedule,
+      depositRequired: !!aiData.depositPercentage || !!aiData.depositAmount,
+      depositPercentage: aiData.depositPercentage || 30,
+      
+      // Terms
+      termsAndConditions: aiData.termsAndConditions || prev.termsAndConditions,
+      warranties: aiData.intellectualProperty || prev.warranties,
+      supportTerms: aiData.supportPeriod || prev.supportTerms,
+      validUntil: aiData.validUntil || prev.validUntil,
+    }))
+  }
+
+  const parseEstimatedDuration = (duration: string): number => {
+    if (!duration) return 0
+    const match = duration.match(/(\d+)/)
+    return match ? parseInt(match[1]) : 0
+  }
+
+  const parseDuration = (duration: string): number => {
+    if (!duration) return 0
+    const match = duration.match(/(\d+)/)
+    return match ? parseInt(match[1]) : 0
+  }
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showPDFPreview, setShowPDFPreview] = useState(false)
   const [clients, setClients] = useState<any[]>([])
@@ -780,9 +883,16 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
                 <span>Back</span>
               </Button>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  {editMode ? 'Edit Quote' : 'Create Quote'}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-bold text-gray-900">
+                    {editMode ? 'Edit Quote' : 'Create Quote'}
+                  </h1>
+                  {aiGenerated && (
+                    <span className="px-2 py-1 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 text-xs font-semibold rounded-full flex items-center gap-1">
+                      ✨ AI Generated
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-gray-500">{formData.quoteNumber}</p>
               </div>
             </div>

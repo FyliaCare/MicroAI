@@ -7,6 +7,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import ConvertToProjectModal from '@/components/admin/quotes/ConvertToProjectModal'
+import AIQuoteCreator from '@/components/admin/quotes/AIQuoteCreator'
 
 interface Quote {
   id: string
@@ -40,6 +41,7 @@ export default function QuotesListPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [convertModalOpen, setConvertModalOpen] = useState(false)
   const [selectedQuoteForConvert, setSelectedQuoteForConvert] = useState<Quote | null>(null)
+  const [showAICreator, setShowAICreator] = useState(false)
 
   useEffect(() => {
     fetchQuotes()
@@ -320,12 +322,21 @@ export default function QuotesListPage() {
                 Manage and track all your quotes
               </p>
             </div>
-            <Link href="/admin/quotes/new">
-              <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-                <span className="mr-2">+</span>
-                New Quote
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => setShowAICreator(true)}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              >
+                <span className="mr-2">✨</span>
+                AI Quote Generator
               </Button>
-            </Link>
+              <Link href="/admin/quotes/new">
+                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                  <span className="mr-2">+</span>
+                  New Quote
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Stats Cards */}
@@ -647,6 +658,11 @@ export default function QuotesListPage() {
           </Card>
         )}
       </div>
+
+      {/* AI Quote Creator Modal */}
+      {showAICreator && (
+        <AIQuoteCreator onClose={() => setShowAICreator(false)} />
+      )}
 
       {/* Conversion Modal */}
       {selectedQuoteForConvert && (
