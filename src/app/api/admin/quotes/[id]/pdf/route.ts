@@ -178,15 +178,25 @@ export async function GET(
     // Generate PDF using React PDF
     console.log('[PDF Route] Starting PDF rendering...')
     try {
-      // Use renderToBuffer for more reliable PDF generation
-      const pdfBuffer = await ReactPDF.renderToBuffer(
-        React.createElement(QuotePDFNew, { quote: quoteData }) as React.ReactElement
+      // Generate PDF using renderToStream
+      console.log('[PDF Route] Rendering PDF to stream...')
+      const stream = await ReactPDF.renderToStream(
+        React.createElement(QuotePDFNew, { quote: quoteData }) as any
       )
       
+      console.log('[PDF Route] Stream created, converting to buffer...')
+      
+      // Convert readable stream to buffer
+      const chunks: Buffer[] = []
+      for await (const chunk of stream) {
+        chunks.push(Buffer.from(chunk))
+      }
+      
+      const pdfBuffer = Buffer.concat(chunks)
       console.log('[PDF Route] PDF generated successfully! Size:', pdfBuffer.length, 'bytes')
 
-      // Return the PDF - convert Buffer to Uint8Array for NextResponse
-      return new NextResponse(pdfBuffer as unknown as BodyInit, {
+      // Return the PDF
+      return new NextResponse(pdfBuffer, {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="quote-${quote.quoteNumber}.pdf"`,

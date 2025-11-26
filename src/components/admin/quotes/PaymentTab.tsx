@@ -407,7 +407,7 @@ export default function PaymentTab({ formData, updateFormData }: PaymentTabProps
                         </label>
                         <input
                           type="date"
-                          value={term.customDate || ''}
+                          value={term.customDate ? new Date(term.customDate).toISOString().split('T')[0] : ''}
                           onChange={(e) => updatePaymentTerm(term.id, 'customDate', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         />
