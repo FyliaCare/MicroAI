@@ -7,10 +7,10 @@ export const dynamic = 'force-dynamic'
 // GET /api/admin/quotes/[id] - Get a single quote
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
 
     const quote = await prisma.quote.findUnique({
       where: { id },
@@ -58,10 +58,10 @@ export async function GET(
 // PUT /api/admin/quotes/[id] - Update a quote
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
 
     // Check if quote exists
