@@ -514,17 +514,10 @@ export default function QuotesListPage() {
                   </button>
                   <button
                     onClick={() => handleDownloadWord(quote)}
-                    className="flex-1 px-3 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-lg hover:bg-indigo-50 transition-colors"
-                    title="Download as Word document"
-                  >
-                    📄 Word
-                  </button>
-                  <button
-                    onClick={() => handleDownloadPDF(quote)}
                     className="flex-1 px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
-                    title="Download as PDF"
+                    title="Download quote"
                   >
-                    📥 PDF
+                    📥 Download
                   </button>
                   {quote.status === 'accepted' && (
                     <button
@@ -625,17 +618,10 @@ export default function QuotesListPage() {
                         </Link>
                         <button
                           onClick={() => handleDownloadWord(quote)}
-                          className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
-                          title="Download as Word"
-                        >
-                          Word
-                        </button>
-                        <button
-                          onClick={() => handleDownloadPDF(quote)}
                           className="text-green-600 hover:text-green-700 font-medium text-sm"
-                          title="Download as PDF"
+                          title="Download quote"
                         >
-                          PDF
+                          Download
                         </button>
                         {quote.status === 'accepted' && (
                           <button
