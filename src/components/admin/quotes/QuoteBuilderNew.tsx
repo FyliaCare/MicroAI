@@ -501,22 +501,46 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
   }
 
   const handleGeneratePDF = async () => {
+    if (!quoteId) return
+    
     try {
       setLoading(true)
-      const res = await fetch(`/api/admin/quotes/${quoteId}/pdf`, {
-        method: 'POST',
-      })
-
-      if (res.ok) {
-        const blob = await res.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${formData.quoteNumber}.pdf`
-        a.click()
+      console.log('Downloading PDF for quote:', quoteId)
+      
+      // Use simple GET request to download PDF
+      const response = await fetch(`/api/admin/quotes/${quoteId}/pdf`)
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('PDF generation failed:', errorData)
+        alert('Failed to generate PDF. Please try again.')
+        return
       }
+      
+      // Get the blob
+      const blob = await response.blob()
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = url
+      a.download = `quote-${formData.quoteNumber || quoteId}.pdf`
+      
+      // Trigger download
+      document.body.appendChild(a)
+      a.click()
+      
+      // Cleanup
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }, 100)
+      
+      console.log('PDF downloaded successfully')
     } catch (error) {
-      console.error('Failed to generate PDF:', error)
+      console.error('Failed to download PDF:', error)
+      alert('Failed to download PDF. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -13,9 +13,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  console.log('[PDF Route] Starting PDF generation...')
+  
   try {
     const { id: quoteId } = await params
-    console.log('PDF generation started for quote:', quoteId)
+    console.log('[PDF Route] Quote ID:', quoteId)
 
     // Fetch quote from database
     const quote = await prisma.quote.findUnique({
@@ -26,11 +28,11 @@ export async function GET(
     })
 
     if (!quote) {
-      console.log('Quote not found:', quoteId)
+      console.error('[PDF Route] Quote not found:', quoteId)
       return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
     }
 
-    console.log('Quote found:', quote.quoteNumber)
+    console.log('[PDF Route] Quote found:', quote.quoteNumber, 'Status:', quote.status)
 
     // Parse JSON fields
     const parseJSON = (str: string | null) => {
@@ -53,7 +55,7 @@ export async function GET(
     const milestones = parseJSON(quote.milestones as any)
     const paymentSchedule = parseJSON(quote.paymentTerms as any)
 
-    console.log('Parsed data:', {
+    console.log('[PDF Route] Parsed data:', {
       lineItems: lineItems.length,
       scopeItems: scopeItems.length,
       milestones: milestones.length,
@@ -157,13 +159,16 @@ export async function GET(
       includedRevisions: quote.includedRevisions || 2,
     }
 
-    console.log('Quote data prepared, generating PDF...')
-    console.log('Line items count:', quoteData.lineItems?.length || 0)
-    console.log('Milestones count:', quoteData.milestones?.length || 0)
+    console.log('[PDF Route] Quote data prepared')
+    console.log('[PDF Route] Line items:', quoteData.lineItems?.length || 0)
+    console.log('[PDF Route] Milestones:', quoteData.milestones?.length || 0)
 
     // Validate required data before generating PDF
     if (!quoteData.quoteNumber || !quoteData.clientName) {
-      console.error('Missing required quote data:', { quoteNumber: quoteData.quoteNumber, clientName: quoteData.clientName })
+      console.error('[PDF Route] Missing required data:', { 
+        quoteNumber: quoteData.quoteNumber, 
+        clientName: quoteData.clientName 
+      })
       return NextResponse.json(
         { error: 'Missing required quote data (quoteNumber or clientName)' },
         { status: 400 }
@@ -171,15 +176,13 @@ export async function GET(
     }
 
     // Generate PDF using React PDF
+    console.log('[PDF Route] Starting PDF rendering...')
     try {
-      console.log('Creating PDF document...')
-      
-      // Create the PDF document stream
       const stream = await ReactPDF.renderToStream(
         React.createElement(QuotePDFNew, { quote: quoteData }) as React.ReactElement
       )
       
-      console.log('PDF stream created successfully')
+      console.log('[PDF Route] PDF stream created, converting to buffer...')
       
       // Convert stream to buffer
       const chunks: Buffer[] = []
@@ -189,7 +192,7 @@ export async function GET(
       }
       
       const pdfBuffer = Buffer.concat(chunks)
-      console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes')
+      console.log('[PDF Route] PDF generated successfully! Size:', pdfBuffer.length, 'bytes')
 
       // Return the PDF
       return new NextResponse(pdfBuffer, {
@@ -201,9 +204,10 @@ export async function GET(
         },
       })
     } catch (pdfError) {
-      console.error('PDF rendering error:', pdfError)
+      console.error('[PDF Route] PDF rendering error:', pdfError)
       if (pdfError instanceof Error) {
-        console.error('Error stack:', pdfError.stack)
+        console.error('[PDF Route] Error message:', pdfError.message)
+        console.error('[PDF Route] Error stack:', pdfError.stack)
       }
       return NextResponse.json(
         { 
@@ -214,7 +218,11 @@ export async function GET(
       )
     }
   } catch (error) {
-    console.error('PDF generation error:', error)
+    console.error('[PDF Route] Unexpected error:', error)
+    if (error instanceof Error) {
+      console.error('[PDF Route] Error message:', error.message)
+      console.error('[PDF Route] Error stack:', error.stack)
+    }
     return NextResponse.json(
       { 
         error: 'Failed to generate PDF', 
