@@ -98,20 +98,20 @@ async function testPDFGeneration() {
       termsAndConditions: quote.terms || undefined,
       terms: quote.terms || undefined,
       validUntil: quote.validUntil?.toISOString(),
-      warranties: '',
-      supportTerms: quote.maintenanceTerms || '',
+      warranties: undefined,
+      supportTerms: quote.maintenanceTerms || undefined,
       maintenanceTerms: quote.maintenanceTerms || undefined,
       revisionPolicy: quote.revisionsPolicy || undefined,
       revisionsPolicy: quote.revisionsPolicy || undefined,
-      cancellationPolicy: '',
+      cancellationPolicy: undefined,
       confidentialityClause: quote.confidentialityClause || undefined,
       ipRights: quote.ipRights || undefined,
       paymentTerms: quote.paymentTerms || undefined,
       brandColor: '#6366f1',
       includeLogo: true,
       includePortfolio: false,
-      customMessage: '',
-      footerText: '',
+      customMessage: undefined,
+      footerText: undefined,
       companyLogo: quote.companyLogo || undefined,
       companyName: quote.companyName || 'MicroAI Systems',
       companyAddress: quote.companyAddress || 'BR253 Pasture St. Takoradi, Ghana',
@@ -163,7 +163,8 @@ async function testPDFGeneration() {
       console.log('   Size:', (pdfBuffer.length / 1024).toFixed(2), 'KB')
 
       // Save to file for inspection
-      const outputPath = path.join(process.cwd(), 'test-quote.pdf')
+      const timestamp = new Date().getTime()
+      const outputPath = path.join(process.cwd(), `test-quote-${timestamp}.pdf`)
       fs.writeFileSync(outputPath, pdfBuffer)
       console.log('\n💾 PDF saved to:', outputPath)
       console.log('✅ You can open this file to verify the PDF was generated correctly')

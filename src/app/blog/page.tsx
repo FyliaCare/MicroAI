@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
+import { prisma } from '@/lib/prisma'
 
 export const metadata: Metadata = {
   title: 'Blog | MicroAI Systems',
@@ -14,18 +15,33 @@ export const metadata: Metadata = {
   },
 }
 
+export const revalidate = 60 // Revalidate every 60 seconds
+
 async function getBlogPosts() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const response = await fetch(`${baseUrl}/api/blog?limit=50`, {
-      next: { revalidate: 60 } // Revalidate every 60 seconds
+    // Direct database access instead of API call during build
+    const posts = await prisma.blogPost.findMany({
+      where: { published: true },
+      orderBy: { publishedAt: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        content: true,
+        coverImage: true,
+        category: true,
+        tags: true,
+        author: true,
+        authorName: true,
+        publishedAt: true,
+        readingTime: true,
+        views: true,
+      },
     })
     
-    if (!response.ok) {
-      return { posts: [], pagination: null }
-    }
-    
-    return await response.json()
+    return { posts, pagination: null }
   } catch (error) {
     console.error('Failed to fetch blog posts:', error)
     return { posts: [], pagination: null }

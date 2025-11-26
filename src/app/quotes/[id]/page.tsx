@@ -158,18 +158,64 @@ export default function PublicQuotePage() {
 
   const downloadPDF = async () => {
     try {
-      const res = await fetch(`/api/quotes/${params.id}/pdf`)
+      // Show loading feedback
+      const loadingToast = document.createElement('div')
+      loadingToast.id = 'pdf-loading-toast'
+      loadingToast.style.cssText = 'position:fixed;top:20px;right:20px;background:#4F46E5;color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;font-family:system-ui,-apple-system,sans-serif;font-size:14px;'
+      loadingToast.textContent = '⏳ Generating PDF...'
+      document.body.appendChild(loadingToast)
+      
+      const res = await fetch(`/api/quotes/${params.id}/pdf`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      })
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+        throw new Error(errorData.error || 'Failed to generate PDF')
+      }
+      
+      // Verify we got a PDF
+      const contentType = res.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/pdf')) {
+        throw new Error('Server did not return a PDF file')
+      }
+      
       const blob = await res.blob()
+      
+      if (blob.size === 0) {
+        throw new Error('Generated PDF is empty')
+      }
+      
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
       a.download = `quote-${quote?.quoteNumber}.pdf`
       document.body.appendChild(a)
       a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      
+      // Update toast to success
+      loadingToast.style.background = '#10B981'
+      loadingToast.textContent = '✅ PDF downloaded successfully!'
+      
+      // Cleanup
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        if (loadingToast.parentNode) {
+          loadingToast.remove()
+        }
+      }, 2000)
     } catch (err) {
-      alert('Failed to download PDF')
+      // Remove loading toast if it exists
+      const loadingToast = document.getElementById('pdf-loading-toast')
+      if (loadingToast) loadingToast.remove()
+      
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      alert(`Failed to download PDF: ${errorMessage}\n\nPlease try again or contact support.`)
+      console.error('PDF download error:', err)
     }
   }
 

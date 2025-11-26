@@ -501,24 +501,51 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
   }
 
   const handleGeneratePDF = async () => {
-    if (!quoteId) return
+    if (!quoteId) {
+      alert('Quote ID is missing. Please save the quote first.')
+      return
+    }
     
     try {
       setLoading(true)
-      console.log('Downloading PDF for quote:', quoteId)
+      console.log('📄 Downloading PDF for quote:', quoteId)
+      
+      // Show loading feedback
+      const loadingToast = document.createElement('div')
+      loadingToast.id = 'pdf-loading-toast'
+      loadingToast.style.cssText = 'position:fixed;top:20px;right:20px;background:#4F46E5;color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;font-family:system-ui,-apple-system,sans-serif;font-size:14px;'
+      loadingToast.textContent = '⏳ Generating PDF...'
+      document.body.appendChild(loadingToast)
       
       // Use simple GET request to download PDF
-      const response = await fetch(`/api/admin/quotes/${quoteId}/pdf`)
+      const response = await fetch(`/api/admin/quotes/${quoteId}/pdf`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      })
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
         console.error('PDF generation failed:', errorData)
-        alert('Failed to generate PDF. Please try again.')
-        return
+        throw new Error(errorData.error || 'Failed to generate PDF')
+      }
+      
+      // Verify we got a PDF
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/pdf')) {
+        console.error('Invalid content type:', contentType)
+        throw new Error('Server did not return a PDF file')
       }
       
       // Get the blob
       const blob = await response.blob()
+      
+      if (blob.size === 0) {
+        throw new Error('Generated PDF is empty')
+      }
+      
+      console.log('✅ PDF generated successfully, size:', blob.size, 'bytes')
       
       // Create download link
       const url = window.URL.createObjectURL(blob)
@@ -531,16 +558,30 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
       document.body.appendChild(a)
       a.click()
       
+      // Update toast to success
+      loadingToast.style.background = '#10B981'
+      loadingToast.textContent = '✅ PDF downloaded successfully!'
+      
       // Cleanup
       setTimeout(() => {
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
-      }, 100)
+        if (loadingToast.parentNode) {
+          loadingToast.remove()
+        }
+      }, 2000)
       
-      console.log('PDF downloaded successfully')
+      console.log('📥 PDF downloaded successfully')
     } catch (error) {
       console.error('Failed to download PDF:', error)
-      alert('Failed to download PDF. Please try again.')
+      
+      // Remove loading toast if it exists
+      const loadingToast = document.getElementById('pdf-loading-toast')
+      if (loadingToast) loadingToast.remove()
+      
+      // Show error
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      alert(`Failed to download PDF: ${errorMessage}\n\nPlease check:\n• Your internet connection\n• Quote has required data (client name, items)\n• Try refreshing the page`)
     } finally {
       setLoading(false)
     }

@@ -771,7 +771,7 @@ const CoverPage: React.FC<{ quote: QuoteData; styles: any }> = ({ quote, styles 
           </View>
         </View>
         
-        {quote.customMessage && (
+        {quote.customMessage && quote.customMessage.trim() !== '' && (
           <Text style={styles.coverMessage}>{quote.customMessage}</Text>
         )}
       </View>
@@ -805,13 +805,13 @@ const ExecutiveSummary: React.FC<{ quote: QuoteData; styles: any }> = ({ quote, 
           <Text style={styles.sectionTitle}>Executive Summary</Text>
         </View>
         
-        {quote.executiveSummary && (
+        {quote.executiveSummary && quote.executiveSummary.trim() !== '' && (
           <View style={{ marginBottom: 20 }}>
             <Text style={styles.paragraph}>{quote.executiveSummary}</Text>
           </View>
         )}
         
-        {quote.description && !quote.executiveSummary && (
+        {quote.description && quote.description.trim() !== '' && !quote.executiveSummary && (
           <View style={{ marginBottom: 20 }}>
             <Text style={styles.sectionSubtitle}>Project Overview</Text>
             <Text style={styles.paragraph}>{quote.description}</Text>
@@ -888,7 +888,7 @@ const ScopeOfWork: React.FC<{ quote: QuoteData; styles: any }> = ({ quote, style
           </View>
         )}
         
-        {typeof quote.scopeOfWork === 'string' && quote.scopeOfWork && (
+        {typeof quote.scopeOfWork === 'string' && quote.scopeOfWork && quote.scopeOfWork.trim() !== '' && (
           <View style={{ marginBottom: 25 }}>
             <Text style={styles.paragraph}>{quote.scopeOfWork}</Text>
           </View>
@@ -1046,7 +1046,7 @@ const PricingBreakdown: React.FC<{ quote: QuoteData; styles: any }> = ({ quote, 
           </View>
         )}
         
-        {quote.description && lineItems.length === 0 && (
+        {quote.description && quote.description.trim() !== '' && lineItems.length === 0 && (
           <View style={{ marginTop: 20 }}>
             <Text style={styles.paragraph}>{quote.description}</Text>
           </View>
@@ -1322,14 +1322,14 @@ const TermsAndConditions: React.FC<{ quote: QuoteData; styles: any }> = ({ quote
           </View>
         ))}
         
-        {quote.warranties && (
+        {quote.warranties && quote.warranties.trim() !== '' && (
           <View style={{ marginTop: 20, marginBottom: 20 }}>
             <Text style={styles.sectionSubtitle}>Warranties & Guarantees</Text>
             <Text style={styles.paragraph}>{quote.warranties}</Text>
           </View>
         )}
         
-        {quote.supportTerms && (
+        {quote.supportTerms && quote.supportTerms.trim() !== '' && (
           <View style={{ marginBottom: 20 }}>
             <Text style={styles.sectionSubtitle}>Support Terms</Text>
             <Text style={styles.paragraph}>{quote.supportTerms}</Text>
@@ -1357,28 +1357,28 @@ const TermsAndConditions: React.FC<{ quote: QuoteData; styles: any }> = ({ quote
           </View>
         )}
         
-        {quote.cancellationPolicy && (
+        {quote.cancellationPolicy && quote.cancellationPolicy.trim() !== '' && (
           <View style={{ marginBottom: 20 }}>
             <Text style={styles.sectionSubtitle}>Cancellation Policy</Text>
             <Text style={styles.paragraph}>{quote.cancellationPolicy}</Text>
           </View>
         )}
         
-        {quote.confidentialityClause && (
+        {quote.confidentialityClause && quote.confidentialityClause.trim() !== '' && (
           <View style={{ marginBottom: 20 }}>
             <Text style={styles.sectionSubtitle}>Confidentiality</Text>
             <Text style={styles.paragraph}>{quote.confidentialityClause}</Text>
           </View>
         )}
         
-        {quote.ipRights && (
+        {quote.ipRights && quote.ipRights.trim() !== '' && (
           <View style={{ marginBottom: 20 }}>
             <Text style={styles.sectionSubtitle}>Intellectual Property Rights</Text>
             <Text style={styles.paragraph}>{quote.ipRights}</Text>
           </View>
         )}
         
-        {quote.maintenanceTerms && (
+        {quote.maintenanceTerms && quote.maintenanceTerms.trim() !== '' && (
           <View style={{ marginBottom: 20 }}>
             <Text style={styles.sectionSubtitle}>Maintenance Terms</Text>
             <Text style={styles.paragraph}>{quote.maintenanceTerms}</Text>
@@ -1523,7 +1523,7 @@ const SignaturePage: React.FC<{ quote: QuoteData; styles: any }> = ({ quote, sty
           </Text>
         </View>
         
-        {quote.footerText && (
+        {quote.footerText && quote.footerText.trim() !== '' && (
           <View style={{ marginTop: 30, textAlign: 'center' }}>
             <Text style={[styles.paragraph, { textAlign: 'center', fontSize: 9, color: '#6B7280' }]}>
               {quote.footerText}
