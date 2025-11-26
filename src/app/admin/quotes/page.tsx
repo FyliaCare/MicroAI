@@ -121,6 +121,59 @@ export default function QuotesListPage() {
     }
   }
 
+  const handleDownloadWord = async (quote: Quote) => {
+    try {
+      console.log('📄 Downloading Word document for quote:', quote.id)
+      
+      const timestamp = Date.now()
+      const response = await fetch(`/api/admin/quotes/${quote.id}/docx?t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+      })
+      
+      console.log('Response status:', response.status)
+      
+      if (response.ok) {
+        const blob = await response.blob()
+        
+        if (blob.size === 0) {
+          console.error('Empty document received')
+          alert('Received empty document. Please try again.')
+          return
+        }
+        
+        console.log('✅ Word document download successful')
+        
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `quote-${quote.quoteNumber}.docx`
+        document.body.appendChild(a)
+        a.click()
+        
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+        }, 100)
+        
+        console.log('✅ Word document downloaded:', `quote-${quote.quoteNumber}.docx`)
+      } else {
+        const errorData = await response.json().catch(() => ({ 
+          error: 'Unknown error', 
+          details: `Server returned ${response.status}` 
+        }))
+        console.error('❌ Word document generation failed:', errorData)
+        alert(`Failed to generate Word document: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error('❌ Word document download error:', error)
+      alert(`Failed to download Word document: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
   const handleDownloadPDF = async (quote: Quote) => {
     try {
       console.log('📄 Downloading PDF for quote:', quote.id)
@@ -460,8 +513,16 @@ export default function QuotesListPage() {
                     ✏️ Edit
                   </button>
                   <button
+                    onClick={() => handleDownloadWord(quote)}
+                    className="flex-1 px-3 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-300 rounded-lg hover:bg-indigo-50 transition-colors"
+                    title="Download as Word document"
+                  >
+                    📄 Word
+                  </button>
+                  <button
                     onClick={() => handleDownloadPDF(quote)}
                     className="flex-1 px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
+                    title="Download as PDF"
                   >
                     📥 PDF
                   </button>
@@ -563,8 +624,16 @@ export default function QuotesListPage() {
                           </button>
                         </Link>
                         <button
+                          onClick={() => handleDownloadWord(quote)}
+                          className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                          title="Download as Word"
+                        >
+                          Word
+                        </button>
+                        <button
                           onClick={() => handleDownloadPDF(quote)}
                           className="text-green-600 hover:text-green-700 font-medium text-sm"
+                          title="Download as PDF"
                         >
                           PDF
                         </button>
