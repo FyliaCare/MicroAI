@@ -418,8 +418,10 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
       // Recalculate totals
       const calculatedData = calculateTotals(formData)
 
+      // Map formData to API payload format
       const payload = {
         ...calculatedData,
+        items: calculatedData.lineItems, // API expects 'items' not 'lineItems'
         status,
       }
 
