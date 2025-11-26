@@ -18,7 +18,8 @@ import {
   RefreshCw,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Printer
 } from 'lucide-react'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
@@ -410,6 +411,7 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
       const validationErrors = validateQuote()
       if (Object.keys(validationErrors).length > 0) {
         setErrors(validationErrors)
+        alert('Please fix validation errors:\n' + Object.values(validationErrors).join('\n'))
         return
       }
 
@@ -427,6 +429,13 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
       
       const method = editMode && quoteId ? 'PUT' : 'POST'
 
+      // Show saving feedback
+      const savingToast = document.createElement('div')
+      savingToast.id = 'saving-toast'
+      savingToast.style.cssText = 'position:fixed;top:20px;right:20px;background:#4F46E5;color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;font-family:system-ui,-apple-system,sans-serif;font-size:14px;'
+      savingToast.textContent = status === 'draft' ? '💾 Saving draft...' : '📤 Saving and sending...'
+      document.body.appendChild(savingToast)
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -435,20 +444,55 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
 
       if (res.ok) {
         const data = await res.json()
+        const savedQuoteId = data.quote.id
         localStorage.removeItem('quote_draft')
+        hasUnsavedChanges.current = false
         
-        if (onSave) {
-          onSave(data.quote)
+        // If sending to client, trigger email notification
+        if (status === 'sent' && savedQuoteId) {
+          try {
+            await fetch(`/api/admin/quotes/${savedQuoteId}/send`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            })
+            savingToast.style.background = '#10B981'
+            savingToast.textContent = '✅ Quote sent to client!'
+          } catch (emailError) {
+            console.error('Failed to send email:', emailError)
+            savingToast.style.background = '#F59E0B'
+            savingToast.textContent = '⚠️ Quote saved but email failed'
+          }
         } else {
-          window.location.href = '/admin/quotes'
+          savingToast.style.background = '#10B981'
+          savingToast.textContent = status === 'draft' ? '✅ Draft saved!' : '✅ Quote saved!'
         }
+
+        // Remove toast and redirect after delay
+        setTimeout(() => {
+          if (savingToast.parentNode) savingToast.remove()
+          if (onSave) {
+            onSave(data.quote)
+          } else {
+            // Always redirect to dashboard after save
+            window.location.href = '/admin/quotes'
+          }
+        }, 1500)
       } else {
         const error = await res.json()
+        savingToast.style.background = '#EF4444'
+        savingToast.textContent = '❌ Save failed'
+        setTimeout(() => savingToast.remove(), 3000)
         setErrors({ general: error.error || 'Failed to save quote' })
       }
     } catch (error) {
       console.error('Failed to save quote:', error)
       setErrors({ general: 'An error occurred while saving' })
+      const toast = document.getElementById('saving-toast')
+      if (toast) {
+        toast.style.background = '#EF4444'
+        toast.textContent = '❌ Error occurred'
+        setTimeout(() => toast.remove(), 3000)
+      }
     } finally {
       setSaving(false)
     }
@@ -585,6 +629,36 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
     } finally {
       setLoading(false)
     }
+  }
+
+  const handlePrint = () => {
+    if (!quoteId) {
+      alert('Quote ID is missing. Please save the quote first.')
+      return
+    }
+    
+    // Show loading feedback
+    const loadingToast = document.createElement('div')
+    loadingToast.id = 'print-loading-toast'
+    loadingToast.style.cssText = 'position:fixed;top:20px;right:20px;background:#4F46E5;color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;font-family:system-ui,-apple-system,sans-serif;font-size:14px;'
+    loadingToast.textContent = '🖨️ Preparing to print...'
+    document.body.appendChild(loadingToast)
+    
+    // Delay to ensure user sees the toast, then trigger print
+    setTimeout(() => {
+      window.print()
+      
+      // Update toast to success
+      loadingToast.style.background = '#10B981'
+      loadingToast.textContent = '✅ Print dialog opened!'
+      
+      // Remove toast after a short delay
+      setTimeout(() => {
+        if (loadingToast.parentNode) {
+          loadingToast.remove()
+        }
+      }, 2000)
+    }, 300)
   }
 
   const updateFormData = (field: string, value: any) => {
@@ -743,6 +817,16 @@ export default function QuoteBuilderNew({ quoteId, editMode = false, onSave, onC
               >
                 <Eye className="w-4 h-4" />
                 <span>Preview</span>
+              </Button>
+
+              <Button
+                variant="secondary"
+                onClick={handlePrint}
+                disabled={!quoteId || saving}
+                className="flex items-center space-x-2"
+              >
+                <Printer className="w-4 h-4" />
+                <span>Print</span>
               </Button>
 
               <Button

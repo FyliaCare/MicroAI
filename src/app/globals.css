@@ -753,53 +753,112 @@ html {
 @media print {
   @page {
     size: A4;
-    margin: 1cm;
-  }
-
-  /* When printing quotes, hide everything except the quote preview */
-  body.printing-quote > *:not(.quote-preview-container) {
-    display: none !important;
-  }
-
-  body.printing-quote .quote-preview-container > *:not([class*="Card"]) {
-    display: none !important;
-  }
-
-  /* Hide form section when printing */
-  body.printing-quote form,
-  body.printing-quote nav,
-  body.printing-quote header,
-  body.printing-quote .print\:hidden {
-    display: none !important;
+    margin: 1.5cm;
   }
 
   body {
     background: white !important;
     color: black !important;
+    font-size: 11pt !important;
   }
 
+  /* Hide all navigation, buttons, and forms */
+  nav,
+  header:not(.quote-header),
+  footer:not(.quote-footer),
+  button,
+  input,
+  textarea,
+  select,
+  .no-print,
   .print\:hidden {
     display: none !important;
   }
 
-  .page-break {
+  /* Show only the preview tab content */
+  [role="tabpanel"]:not([aria-hidden="false"]) {
+    display: none !important;
+  }
+
+  /* Ensure quote content is visible */
+  .quote-preview-container,
+  .quote-content,
+  [aria-labelledby*="preview"] {
+    display: block !important;
+    page-break-inside: avoid;
+  }
+
+  /* Typography for print */
+  h1 { 
+    font-size: 24pt !important; 
+    margin-bottom: 12pt !important;
+  }
+  h2 { 
+    font-size: 20pt !important;
+    margin-bottom: 10pt !important;
+  }
+  h3 { 
+    font-size: 16pt !important;
+    margin-bottom: 8pt !important;
+  }
+  p {
+    margin-bottom: 8pt !important;
+  }
+
+  /* Table styles for print */
+  table {
+    page-break-inside: avoid;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th, td {
+    border: 1px solid #ddd !important;
+    padding: 8px !important;
+  }
+
+  /* Page breaks */
+  .page-break,
+  .page-break-after {
     page-break-after: always;
     break-after: page;
   }
 
+  .page-break-before {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  .page-break-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Preserve colors for branding */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
-  button:not(.print-show), input, textarea, select {
-    display: none !important;
+  /* Remove shadows for cleaner print */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 
-  body { font-size: 11pt !important; }
-  h1 { font-size: 24pt !important; }
-  h2 { font-size: 20pt !important; }
-  h3 { font-size: 16pt !important; }
+  /* Links should show their URLs in print */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* Hide link URLs for internal navigation */
+  a[href^="#"]:after,
+  a[href^="/"]:after {
+    content: "";
+  }
 }
 
 @layer utilities {
