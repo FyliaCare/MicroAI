@@ -540,7 +540,7 @@ export async function POST(request: NextRequest) {
       } : null
     })
     
-    if (!session || !session.user?.role || session.user.role !== 'admin') {
+    if (!session || !session.user?.role || (session.user.role !== 'admin' && session.user.role !== 'super-admin')) {
       console.error('❌ Unauthorized access attempt:', { 
         hasSession: !!session,
         hasUser: !!session?.user,
