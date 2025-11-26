@@ -532,15 +532,37 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session || session.user.role !== 'ADMIN') {
+    console.log('🔍 AI Generate - Session Details:', {
+      hasSession: !!session,
+      session: session ? {
+        user: session.user,
+        expires: session.expires
+      } : null
+    })
+    
+    if (!session || !session.user?.role || session.user.role !== 'admin') {
+      console.error('❌ Unauthorized access attempt:', { 
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        role: session?.user?.role,
+        email: session?.user?.email
+      })
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - Admin access required' },
         { status: 401 }
       )
     }
     
+    console.log('✅ Authorization successful for:', session.user.email)
+    
     const body = await request.json()
     const { readmeContent, clientInfo } = body
+    
+    console.log('AI Quote Generation Request:', {
+      hasReadme: !!readmeContent,
+      readmeLength: readmeContent?.length,
+      hasClientInfo: !!clientInfo,
+    })
     
     if (!readmeContent) {
       return NextResponse.json(
@@ -550,17 +572,26 @@ export async function POST(request: NextRequest) {
     }
     
     // Generate intelligent quote
+    console.log('Starting quote generation...')
     const quote = await analyzeProjectAndGenerateQuote(readmeContent, clientInfo || {})
+    console.log('Quote generated successfully')
     
     return NextResponse.json({
       success: true,
       quote,
     })
     
-  } catch (error) {
-    console.error('AI quote generation error:', error)
+  } catch (error: any) {
+    console.error('AI quote generation error:', {
+      message: error.message,
+      stack: error.stack,
+      error
+    })
     return NextResponse.json(
-      { error: 'Failed to generate quote' },
+      { 
+        error: 'Failed to generate quote',
+        details: error.message || 'Unknown error'
+      },
       { status: 500 }
     )
   }

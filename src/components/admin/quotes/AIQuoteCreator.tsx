@@ -41,6 +41,7 @@ export default function AIQuoteCreator({ onClose }: AIQuoteCreatorProps) {
     setError('')
 
     try {
+      console.log('Sending AI quote generation request...')
       const response = await fetch('/api/admin/quotes/ai-generate', {
         method: 'POST',
         headers: {
@@ -52,11 +53,13 @@ export default function AIQuoteCreator({ onClose }: AIQuoteCreatorProps) {
         }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to generate quote')
-      }
-
+      console.log('Response status:', response.status)
       const data = await response.json()
+      console.log('Response data:', data)
+
+      if (!response.ok) {
+        throw new Error(data.details || data.error || 'Failed to generate quote')
+      }
 
       if (data.success && data.quote) {
         // Store the generated quote in sessionStorage for the quote builder
@@ -65,9 +68,10 @@ export default function AIQuoteCreator({ onClose }: AIQuoteCreatorProps) {
         // Navigate to quote builder with the generated data
         router.push('/admin/quotes/new?aiGenerated=true')
       } else {
-        throw new Error('Invalid response from AI generator')
+        throw new Error(data.error || 'Invalid response from AI generator')
       }
     } catch (err: any) {
+      console.error('AI generation error:', err)
       setError(err.message || 'Failed to generate quote. Please try again.')
     } finally {
       setIsGenerating(false)
