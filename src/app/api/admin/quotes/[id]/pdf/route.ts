@@ -178,11 +178,17 @@ export async function GET(
     // Generate PDF using React PDF
     console.log('[PDF Route] Starting PDF rendering...')
     try {
+      // Validate quote data before rendering
+      if (!quoteData.lineItems || quoteData.lineItems.length === 0) {
+        console.warn('[PDF Route] No line items, using empty array')
+      }
+      
+      console.log('[PDF Route] Creating React element...')
+      const pdfElement = React.createElement(QuotePDFNew, { quote: quoteData })
+      
       // Generate PDF using renderToStream
       console.log('[PDF Route] Rendering PDF to stream...')
-      const stream = await ReactPDF.renderToStream(
-        React.createElement(QuotePDFNew, { quote: quoteData }) as any
-      )
+      const stream = await ReactPDF.renderToStream(pdfElement as any)
       
       console.log('[PDF Route] Stream created, converting to buffer...')
       
@@ -194,6 +200,18 @@ export async function GET(
       
       const pdfBuffer = Buffer.concat(chunks)
       console.log('[PDF Route] PDF generated successfully! Size:', pdfBuffer.length, 'bytes')
+      
+      // Validate the PDF buffer
+      if (pdfBuffer.length === 0) {
+        throw new Error('Generated PDF is empty')
+      }
+      
+      // Check PDF header
+      const header = pdfBuffer.toString('utf8', 0, 4)
+      if (header !== '%PDF') {
+        console.error('[PDF Route] Invalid PDF header:', header)
+        throw new Error('Generated file is not a valid PDF')
+      }
 
       // Return the PDF
       return new NextResponse(pdfBuffer, {
@@ -207,9 +225,36 @@ export async function GET(
     } catch (pdfError) {
       console.error('[PDF Route] PDF rendering error:', pdfError)
       if (pdfError instanceof Error) {
+        console.error('[PDF Route] Error name:', pdfError.name)
         console.error('[PDF Route] Error message:', pdfError.message)
         console.error('[PDF Route] Error stack:', pdfError.stack)
+        
+        // Check for specific error types
+        if (pdfError.message.includes('font') || pdfError.message.includes('Font')) {
+          console.error('[PDF Route] Font loading error detected')
+          return NextResponse.json(
+            { 
+              error: 'PDF font loading failed', 
+              details: 'Unable to load required fonts. Please try again.',
+              technicalDetails: pdfError.message
+            },
+            { status: 500 }
+          )
+        }
+        
+        if (pdfError.message.includes('timeout') || pdfError.message.includes('ETIMEDOUT')) {
+          console.error('[PDF Route] Timeout error detected')
+          return NextResponse.json(
+            { 
+              error: 'PDF generation timeout', 
+              details: 'PDF generation took too long. Please try again with less complex data.',
+              technicalDetails: pdfError.message
+            },
+            { status: 500 }
+          )
+        }
       }
+      
       return NextResponse.json(
         { 
           error: 'PDF rendering failed', 

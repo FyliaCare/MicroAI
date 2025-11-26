@@ -123,28 +123,82 @@ export default function QuotesListPage() {
 
   const handleDownloadPDF = async (quote: Quote) => {
     try {
-      console.log('Downloading PDF for quote:', quote.id)
-      const response = await fetch(`/api/admin/quotes/${quote.id}/pdf`)
+      console.log('📄 Downloading PDF for quote:', quote.id)
+      
+      // Add cache-busting parameter
+      const timestamp = Date.now()
+      const response = await fetch(`/api/admin/quotes/${quote.id}/pdf?t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+      })
+      
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
       
       if (response.ok) {
-        console.log('PDF download successful')
+        const contentType = response.headers.get('content-type')
+        
+        // Verify it's actually a PDF
+        if (!contentType || !contentType.includes('application/pdf')) {
+          console.error('Invalid content type:', contentType)
+          alert('Server returned invalid file type. Please try again.')
+          return
+        }
+        
+        console.log('✅ PDF download successful')
         const blob = await response.blob()
+        
+        // Verify blob size
+        if (blob.size === 0) {
+          console.error('Empty PDF received')
+          alert('Received empty PDF. Please try again.')
+          return
+        }
+        
+        console.log('PDF size:', blob.size, 'bytes')
+        
+        // Create download link
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
         a.download = `quote-${quote.quoteNumber}.pdf`
         document.body.appendChild(a)
         a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
+        
+        // Cleanup
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+        }, 100)
+        
+        console.log('✅ PDF downloaded:', `quote-${quote.quoteNumber}.pdf`)
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        console.error('PDF generation failed:', errorData)
-        alert(`Failed to generate PDF: ${errorData.error}${errorData.details ? ' - ' + errorData.details : ''}`)
+        const errorData = await response.json().catch(() => ({ 
+          error: 'Unknown error', 
+          details: `Server returned ${response.status}` 
+        }))
+        console.error('❌ PDF generation failed:', errorData)
+        alert(
+          `Failed to generate PDF: ${errorData.error}\n\n` +
+          `${errorData.details || ''}\n\n` +
+          `If this problem persists, try:\n` +
+          `• Refreshing the page\n` +
+          `• Clearing your browser cache\n` +
+          `• Contacting support`
+        )
       }
     } catch (error) {
-      console.error('PDF download error:', error)
-      alert(`Failed to download PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error('❌ PDF download error:', error)
+      alert(
+        `Failed to download PDF: ${error instanceof Error ? error.message : 'Unknown error'}\n\n` +
+        `Please check:\n` +
+        `• Your internet connection\n` +
+        `• Browser console for details\n` +
+        `• Try refreshing the page`
+      )
     }
   }
 

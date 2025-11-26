@@ -154,6 +154,9 @@ interface QuotePDFProps {
 // ========================
 
 // Register fonts (using system fonts fallback)
+// Using Helvetica as default which is always available in PDF viewers
+// Roboto fonts are registered but won't fail if unavailable
+let fontsRegistered = false
 try {
   Font.register({
     family: 'Roboto',
@@ -163,8 +166,9 @@ try {
       { src: 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmSU5vAx05IsDqlA.ttf', fontWeight: 500 },
     ],
   })
+  fontsRegistered = true
 } catch (error) {
-  console.error('Failed to register fonts:', error)
+  console.warn('[PDF] Font registration skipped, using default fonts:', error)
 }
 
 // ========================
@@ -212,7 +216,7 @@ const createStyles = (brandColor: string = '#6366f1') => StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
-    fontFamily: 'Roboto',
+    fontFamily: 'Helvetica',
     fontSize: 10,
     paddingBottom: 60,
   },

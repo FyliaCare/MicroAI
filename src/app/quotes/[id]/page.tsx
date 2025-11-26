@@ -165,10 +165,13 @@ export default function PublicQuotePage() {
       loadingToast.textContent = '⏳ Generating PDF...'
       document.body.appendChild(loadingToast)
       
-      const res = await fetch(`/api/quotes/${params.id}/pdf`, {
+      // Add cache-busting parameter
+      const timestamp = Date.now()
+      const res = await fetch(`/api/quotes/${params.id}/pdf?t=${timestamp}`, {
         method: 'GET',
         headers: {
           'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
         },
       })
       

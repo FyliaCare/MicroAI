@@ -258,24 +258,60 @@ export default function AdvancedQuotesManager() {
 
   const handleDownloadPDF = async (quote: Quote) => {
     try {
-      // Use our new PDF API endpoint
-      const response = await fetch(`/api/admin/quotes/${quote.id}/pdf`)
+      console.log('📄 Downloading PDF for quote:', quote.id)
+      
+      // Add cache-busting parameter
+      const timestamp = Date.now()
+      const response = await fetch(`/api/admin/quotes/${quote.id}/pdf?t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+      })
+      
       if (response.ok) {
+        const contentType = response.headers.get('content-type')
+        
+        // Verify it's actually a PDF
+        if (!contentType || !contentType.includes('application/pdf')) {
+          console.error('Invalid content type:', contentType)
+          alert('Server returned invalid file type. Please try again.')
+          return
+        }
+        
+        console.log('✅ PDF download successful')
         const blob = await response.blob()
+        
+        // Verify blob size
+        if (blob.size === 0) {
+          console.error('Empty PDF received')
+          alert('Received empty PDF. Please try again.')
+          return
+        }
+        
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
         a.download = `quote-${quote.quoteNumber}.pdf`
         document.body.appendChild(a)
         a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
+        
+        // Cleanup
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+        }, 100)
       } else {
-        alert('Failed to generate PDF')
+        const errorData = await response.json().catch(() => ({ 
+          error: 'Failed to generate PDF' 
+        }))
+        console.error('PDF generation failed:', errorData)
+        alert(`Failed to generate PDF: ${errorData.error}`)
       }
     } catch (error) {
       console.error('PDF download error:', error)
-      alert('Failed to download PDF')
+      alert('Failed to download PDF. Please try again.')
     }
   }
 
