@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { generateQuotePDF } from '@/lib/quotePdfTemplates'
+import { generateQuotePDF } from '@/lib/quotePdfTemplatesPDFKit'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -68,11 +68,12 @@ export async function GET(
     // Generate PDF with selected template
     const pdfBuffer = await generateQuotePDF(quoteData, template)
 
-    // Return PDF
-    return new NextResponse(pdfBuffer as any, {
+    // Return PDF as Uint8Array for Next.js compatibility
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="quote-${quote.quoteNumber}-${template}.pdf"`,
+        'Content-Length': pdfBuffer.length.toString(),
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
