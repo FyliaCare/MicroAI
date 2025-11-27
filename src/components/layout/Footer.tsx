@@ -10,6 +10,7 @@ interface FooterProps {
 export default function Footer({ hideNewsletter = false }: FooterProps) {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
+  const [honeypot, setHoneypot] = useState('') // Bot trap
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
@@ -28,7 +29,12 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
       const response = await fetch('/api/newsletter/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name: name || undefined })
+        body: JSON.stringify({ 
+          email, 
+          name: name || undefined,
+          source: 'footer',
+          _honeypot: honeypot // Bot detection field
+        })
       })
 
       const data = await response.json()
@@ -69,6 +75,25 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
             </p>
 
             <form onSubmit={handleSubscribe} className="space-y-3">
+              {/* Honeypot field - hidden from users, bots will fill it */}
+              <input
+                type="text"
+                name="website"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                autoComplete="off"
+                tabIndex={-1}
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  left: '-9999px',
+                  width: '1px',
+                  height: '1px',
+                  opacity: 0,
+                  pointerEvents: 'none'
+                }}
+              />
+              
               <div className="flex flex-col sm:flex-row gap-3 max-w-4xl mx-auto justify-center items-center">
                 <input
                   type="text"
