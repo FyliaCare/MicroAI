@@ -2,19 +2,19 @@
 
 /**
  * Test Quote Word Document Generation
- * Tests the DOCX generation directly with ISO template
+ * Tests the PDF-matching DOCX generation directly
  */
 
 import { PrismaClient } from '@prisma/client'
 import * as fs from 'fs'
 import * as path from 'path'
-import { generateISOQuoteDocx } from '../src/lib/docx/quoteISOProfessional'
+import { generatePDFMatchQuoteDocx } from '../src/lib/docx/quotePDFMatch'
 
 const prisma = new PrismaClient()
 
 async function testDocxGeneration() {
   try {
-    console.log('🧪 Testing Quote DOCX Generation (ISO Professional Template)...\n')
+    console.log('🧪 Testing Quote DOCX Generation (PDF-Match Template)...\n')
 
     // Find a quote to test with
     const quote = await prisma.quote.findFirst({
@@ -76,11 +76,11 @@ async function testDocxGeneration() {
       companyEmail: 'contact@microai.systems',
       companyPhone: '+1 (555) 123-4567',
       items: items.map((item: any) => ({
-        title: item.title || item.name || 'Unnamed Item',
+        name: item.title || item.name || 'Unnamed Item',
         description: item.description || '',
         category: item.category || 'Service',
         quantity: Number(item.quantity) || 1,
-        rate: Number(item.rate) || Number(item.price) || 0,
+        unitPrice: Number(item.rate) || Number(item.price) || Number(item.unitPrice) || 0,
         total: Number(item.total) || Number(item.amount) || 0,
       })),
       milestones: milestones.map((m: any) => ({
@@ -105,7 +105,7 @@ async function testDocxGeneration() {
     }
 
     console.log('🔧 Generating DOCX...')
-    const buffer = await generateISOQuoteDocx(quoteData)
+    const buffer = await generatePDFMatchQuoteDocx(quoteData)
     
     console.log('✅ DOCX generated successfully!')
     console.log('   Size:', buffer.byteLength, 'bytes')
@@ -128,28 +128,20 @@ async function testDocxGeneration() {
     }
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
-    const outputFile = path.join(outputDir, `quote-${quote.quoteNumber}-iso-professional-${timestamp}.docx`)
+    const outputFile = path.join(outputDir, `quote-${quote.quoteNumber}-pdf-match-${timestamp}.docx`)
     
     fs.writeFileSync(outputFile, buffer)
     console.log('💾 File saved to:')
     console.log('   ', outputFile)
     console.log('')
     console.log('🎉 SUCCESS! Open the file in Microsoft Word to verify:')
-    console.log('   - Professional ISO-compliant formatting')
-    console.log('   - Navy blue & green color scheme')
-    console.log('   - All 9 sections present')
-    console.log('   - Comprehensive quote information')
+    console.log('   - Matches PDF preview exactly')
+    console.log('   - Full-page colored cover')
+    console.log('   - Clean section headers')
+    console.log('   - Professional tables')
     console.log('')
-    console.log('📋 Expected sections:')
-    console.log('   1. Cover Page')
-    console.log('   2. Contact Information')
-    console.log('   3. Project Overview')
-    console.log('   4. Scope of Work')
-    console.log('   5. Pricing Breakdown')
-    console.log('   6. Project Timeline')
-    console.log('   7. Payment Terms')
-    console.log('   8. Terms & Conditions')
-    console.log('   9. Signature Block')
+    console.log('📋 Template: PDF-Match (default)')
+    console.log('   Designed to exactly match the PDF preview styling')
 
   } catch (error) {
     console.error('❌ Test failed:', error)

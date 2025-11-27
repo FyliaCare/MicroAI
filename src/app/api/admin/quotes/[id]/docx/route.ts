@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { generateQuoteDocx } from '@/lib/quoteDocxPro'
 import { generateQuoteDocxTemplate, type TemplateType } from '@/lib/quoteDocxTemplates'
 import { generateISOQuoteDocx } from '@/lib/docx/quoteISOProfessional'
+import { generatePDFMatchQuoteDocx } from '@/lib/docx/quotePDFMatch'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -19,12 +20,13 @@ export async function GET(
     const templateParam = searchParams.get('template')
     
     // Support multiple template types
-    const template: TemplateType | 'iso-professional' = 
+    const template: TemplateType | 'iso-professional' | 'pdf-match' = 
+      templateParam === 'pdf-match' ? 'pdf-match' :
       templateParam === 'iso-professional' ? 'iso-professional' :
       templateParam === 'minimalist-clean' ? 'minimalist-clean' :
       templateParam === 'vibrant-gradient' ? 'vibrant-gradient' :
       templateParam === 'modern-corporate' ? 'modern-corporate' :
-      'iso-professional' // Default to ISO-compliant professional template
+      'pdf-match' // Default to PDF-matching template
     
     console.log('[DOCX Route] Quote ID:', quoteId, 'Template:', template)
 
@@ -125,16 +127,18 @@ export async function GET(
 
     console.log('[DOCX Route] Generating Word document with template:', template)
     
-    // Use ISO professional template by default, or legacy templates if specified
+    // Use PDF-match as default (matches PDF preview exactly)
     let docxBuffer: Buffer
     
-    if (template === 'iso-professional') {
+    if (template === 'pdf-match') {
+      docxBuffer = await generatePDFMatchQuoteDocx(quoteData as any)
+    } else if (template === 'iso-professional') {
       docxBuffer = await generateISOQuoteDocx(quoteData as any)
     } else if (template === 'modern-corporate' || template === 'minimalist-clean' || template === 'vibrant-gradient') {
       docxBuffer = await generateQuoteDocxTemplate(quoteData as any, template as TemplateType)
     } else {
-      // Fallback to ISO professional (new default)
-      docxBuffer = await generateISOQuoteDocx(quoteData as any)
+      // Fallback to PDF-match (new default)
+      docxBuffer = await generatePDFMatchQuoteDocx(quoteData as any)
     }
     
     console.log('[DOCX Route] Document generated successfully! Size:', docxBuffer.length, 'bytes')
