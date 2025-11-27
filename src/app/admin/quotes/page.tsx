@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import ConvertToProjectModal from '@/components/admin/quotes/ConvertToProjectModal'
 import AIQuoteCreator from '@/components/admin/quotes/AIQuoteCreator'
+import TemplateSelectorModal from '@/components/admin/quotes/TemplateSelectorModal'
 
 interface Quote {
   id: string
@@ -42,6 +43,8 @@ export default function QuotesListPage() {
   const [convertModalOpen, setConvertModalOpen] = useState(false)
   const [selectedQuoteForConvert, setSelectedQuoteForConvert] = useState<Quote | null>(null)
   const [showAICreator, setShowAICreator] = useState(false)
+  const [templateSelectorOpen, setTemplateSelectorOpen] = useState(false)
+  const [selectedQuoteForDownload, setSelectedQuoteForDownload] = useState<Quote | null>(null)
 
   useEffect(() => {
     fetchQuotes()
@@ -123,57 +126,9 @@ export default function QuotesListPage() {
     }
   }
 
-  const handleDownloadWord = async (quote: Quote) => {
-    try {
-      console.log('📄 Downloading Word document for quote:', quote.id)
-      
-      const timestamp = Date.now()
-      const response = await fetch(`/api/admin/quotes/${quote.id}/docx?t=${timestamp}`, {
-        method: 'GET',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-        },
-      })
-      
-      console.log('Response status:', response.status)
-      
-      if (response.ok) {
-        const blob = await response.blob()
-        
-        if (blob.size === 0) {
-          console.error('Empty document received')
-          alert('Received empty document. Please try again.')
-          return
-        }
-        
-        console.log('✅ Word document download successful')
-        
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `quote-${quote.quoteNumber}.docx`
-        document.body.appendChild(a)
-        a.click()
-        
-        setTimeout(() => {
-          window.URL.revokeObjectURL(url)
-          document.body.removeChild(a)
-        }, 100)
-        
-        console.log('✅ Word document downloaded:', `quote-${quote.quoteNumber}.docx`)
-      } else {
-        const errorData = await response.json().catch(() => ({ 
-          error: 'Unknown error', 
-          details: `Server returned ${response.status}` 
-        }))
-        console.error('❌ Word document generation failed:', errorData)
-        alert(`Failed to generate Word document: ${errorData.error}`)
-      }
-    } catch (error) {
-      console.error('❌ Word document download error:', error)
-      alert(`Failed to download Word document: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    }
+  const handleOpenTemplateSelector = (quote: Quote) => {
+    setSelectedQuoteForDownload(quote)
+    setTemplateSelectorOpen(true)
   }
 
   const handleDownloadPDF = async (quote: Quote) => {
@@ -524,7 +479,7 @@ export default function QuotesListPage() {
                     ✏️ Edit
                   </button>
                   <button
-                    onClick={() => handleDownloadWord(quote)}
+                    onClick={() => handleOpenTemplateSelector(quote)}
                     className="flex-1 px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
                     title="Download quote"
                   >
@@ -628,7 +583,7 @@ export default function QuotesListPage() {
                           </button>
                         </Link>
                         <button
-                          onClick={() => handleDownloadWord(quote)}
+                          onClick={() => handleOpenTemplateSelector(quote)}
                           className="text-green-600 hover:text-green-700 font-medium text-sm"
                           title="Download quote"
                         >
@@ -662,6 +617,19 @@ export default function QuotesListPage() {
       {/* AI Quote Creator Modal */}
       {showAICreator && (
         <AIQuoteCreator onClose={() => setShowAICreator(false)} />
+      )}
+
+      {/* Template Selector Modal */}
+      {selectedQuoteForDownload && (
+        <TemplateSelectorModal
+          isOpen={templateSelectorOpen}
+          onClose={() => {
+            setTemplateSelectorOpen(false)
+            setSelectedQuoteForDownload(null)
+          }}
+          quoteId={selectedQuoteForDownload.id}
+          quoteNumber={selectedQuoteForDownload.quoteNumber}
+        />
       )}
 
       {/* Conversion Modal */}
