@@ -13,28 +13,28 @@ interface TemplateSelectorModalProps {
 
 const templates = [
   {
-    id: 'modern' as const,
+    id: 'modern-corporate' as const,
     name: 'Modern Corporate',
     description: 'Professional design with blue color scheme, perfect for corporate clients',
     preview: '/templates/modern.png',
-    colors: ['#0047AB', '#ffffff', '#e5e7eb'],
+    colors: ['#0047AB', '#00BCD4', '#e5e7eb'],
     features: ['Corporate Header', 'Structured Layout', 'Professional Tables', 'Clear Totals Section'],
   },
   {
-    id: 'minimalist' as const,
+    id: 'minimalist-clean' as const,
     name: 'Minimalist Clean',
     description: 'Clean and elegant design focusing on clarity and readability',
     preview: '/templates/minimalist.png',
-    colors: ['#0066CC', '#FFF9E6', '#f9fafb'],
-    features: ['Centered Title', 'Highlight Boxes', 'Clean Typography', 'Spacious Layout'],
+    colors: ['#1E88E5', '#FFC107', '#f9fafb'],
+    features: ['Centered Title', 'Simple Bullets', 'Clean Typography', 'Spacious Layout'],
   },
   {
-    id: 'vibrant' as const,
+    id: 'vibrant-gradient' as const,
     name: 'Vibrant Gradient',
     description: 'Eye-catching design with purple-green gradients, modern and dynamic',
     preview: '/templates/vibrant.png',
     colors: ['#667eea', '#10b981', '#f9fafb'],
-    features: ['Gradient Header', 'Color Info Boxes', 'Zebra Tables', 'Green Totals'],
+    features: ['Gradient Markers', 'Color Info Boxes', 'Bold Typography', 'Green Accents'],
   },
 ]
 
@@ -44,7 +44,7 @@ export default function TemplateSelectorModal({
   quoteId,
   quoteNumber,
 }: TemplateSelectorModalProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<'modern' | 'minimalist' | 'vibrant'>('modern')
+  const [selectedTemplate, setSelectedTemplate] = useState<'modern-corporate' | 'minimalist-clean' | 'vibrant-gradient'>('modern-corporate')
   const [downloading, setDownloading] = useState(false)
 
   if (!isOpen) return null
@@ -55,7 +55,7 @@ export default function TemplateSelectorModal({
       
       const timestamp = Date.now()
       const response = await fetch(
-        `/api/admin/quotes/${quoteId}/pdf-template?template=${selectedTemplate}&t=${timestamp}`,
+        `/api/admin/quotes/${quoteId}/docx?template=${selectedTemplate}&t=${timestamp}`,
         {
           method: 'GET',
           headers: {
@@ -70,7 +70,7 @@ export default function TemplateSelectorModal({
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `quote-${quoteNumber}-${selectedTemplate}.pdf`
+        a.download = `quote-${quoteNumber}.docx`
         document.body.appendChild(a)
         a.click()
         
@@ -82,11 +82,11 @@ export default function TemplateSelectorModal({
         onClose()
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        alert(`Failed to generate PDF: ${errorData.error}`)
+        alert(`Failed to generate document: ${errorData.error}`)
       }
     } catch (error) {
-      console.error('PDF download error:', error)
-      alert(`Failed to download PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error('Document download error:', error)
+      alert(`Failed to download document: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setDownloading(false)
     }
@@ -196,7 +196,7 @@ export default function TemplateSelectorModal({
               className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               <Download className="w-4 h-4 mr-2" />
-              {downloading ? 'Generating PDF...' : 'Download PDF'}
+              {downloading ? 'Generating Document...' : 'Download Document'}
             </Button>
           </div>
         </div>

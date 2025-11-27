@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { generateQuoteDocx } from '@/lib/quoteDocxPro'
+import { generateQuoteDocxTemplate, type TemplateType } from '@/lib/quoteDocxTemplates'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -13,7 +14,15 @@ export async function GET(
   
   try {
     const { id: quoteId } = await params
-    console.log('[DOCX Route] Quote ID:', quoteId)
+    const { searchParams } = new URL(request.url)
+    const templateParam = searchParams.get('template')
+    const template: TemplateType = 
+      templateParam === 'minimalist-clean' ? 'minimalist-clean' :
+      templateParam === 'vibrant-gradient' ? 'vibrant-gradient' :
+      templateParam === 'modern-corporate' ? 'modern-corporate' :
+      null as any
+    
+    console.log('[DOCX Route] Quote ID:', quoteId, 'Template:', template || 'professional (default)')
 
     // Fetch quote from database
     const quote = await prisma.quote.findUnique({
@@ -51,28 +60,23 @@ export async function GET(
       quoteNumber: quote.quoteNumber,
       title: quote.title,
       description: quote.description || '',
-      
       clientName: quote.clientName || quote.Client?.name || 'Client',
       clientEmail: quote.clientEmail || quote.Client?.email || '',
       clientCompany: quote.clientCompany || quote.Client?.company || undefined,
       clientPhone: quote.clientPhone || quote.Client?.phone || undefined,
       clientAddress: quote.clientAddress || quote.Client?.address || undefined,
-      
       lineItems: lineItems,
       currency: quote.currency || 'USD',
       subtotal: quote.subtotal || 0,
       discount: quote.discount || 0,
       tax: quote.tax || 0,
       total: quote.total || 0,
-      
       validUntil: quote.validUntil,
       createdAt: quote.createdAt,
-      
       companyName: quote.companyName || 'MicroAI Systems',
       companyAddress: quote.companyAddress || 'BR253 Pasture St. Takoradi, Ghana',
       companyEmail: quote.companyEmail || 'sales@microaisystems.com',
       companyPhone: quote.companyPhone || '+233 244486837',
-      
       terms: quote.terms || undefined,
       scopeOfWork: quote.scopeOfWork || undefined,
       milestones: milestones,
@@ -80,7 +84,11 @@ export async function GET(
     }
 
     console.log('[DOCX Route] Generating Word document...')
-    const docxBuffer = await generateQuoteDocx(quoteData as any)
+    
+    // Use template-based generation if template specified, otherwise use professional default
+    const docxBuffer = template 
+      ? await generateQuoteDocxTemplate(quoteData as any, template)
+      : await generateQuoteDocx(quoteData as any)
     
     console.log('[DOCX Route] Document generated successfully! Size:', docxBuffer.length, 'bytes')
 
