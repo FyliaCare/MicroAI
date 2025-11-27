@@ -51,7 +51,7 @@ async function testDocxGeneration() {
 
     const items = parseJSON(quote.items)
     const milestones = parseJSON(quote.milestones)
-    const paymentSchedule = parseJSON(quote.paymentSchedule)
+    const paymentSchedule: any[] = [] // Payment schedule not in schema yet
 
     console.log('📊 Quote Data:')
     console.log('   Items:', items.length)
@@ -61,8 +61,12 @@ async function testDocxGeneration() {
 
     // Prepare quote data
     const quoteData = {
+      id: quote.id,
       quoteNumber: quote.quoteNumber,
       title: quote.title || '',
+      status: quote.status,
+      createdAt: quote.createdAt,
+      validUntil: quote.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       clientName: quote.clientName || quote.Client?.name || '',
       clientEmail: quote.clientEmail || quote.Client?.email || '',
       clientPhone: quote.clientPhone || quote.Client?.phone || '',
@@ -71,9 +75,6 @@ async function testDocxGeneration() {
       companyAddress: '123 Business Street, Tech City, TC 12345',
       companyEmail: 'contact@microai.systems',
       companyPhone: '+1 (555) 123-4567',
-      validUntil: quote.validUntil ? quote.validUntil.toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      issueDate: quote.createdAt.toISOString(),
-      status: quote.status,
       items: items.map((item: any) => ({
         title: item.title || item.name || 'Unnamed Item',
         description: item.description || '',
@@ -89,6 +90,7 @@ async function testDocxGeneration() {
         progress: Number(m.progress) || 0,
       })),
       paymentSchedule: paymentSchedule.map((p: any) => ({
+        title: p.milestone || p.description || 'Payment',
         milestone: p.milestone || p.description || 'Payment',
         percentage: Number(p.percentage) || 0,
         amount: Number(p.amount) || 0,
