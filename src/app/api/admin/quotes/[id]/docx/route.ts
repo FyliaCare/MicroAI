@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { generateQuoteDocx } from '@/lib/quoteDocxPro'
 import { generateQuoteDocxTemplate, type TemplateType } from '@/lib/quoteDocxTemplates'
+import { generateISOQuoteDocx } from '@/lib/docx/quoteISOProfessional'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -16,13 +17,16 @@ export async function GET(
     const { id: quoteId } = await params
     const { searchParams } = new URL(request.url)
     const templateParam = searchParams.get('template')
-    const template: TemplateType = 
+    
+    // Support multiple template types
+    const template: TemplateType | 'iso-professional' = 
+      templateParam === 'iso-professional' ? 'iso-professional' :
       templateParam === 'minimalist-clean' ? 'minimalist-clean' :
       templateParam === 'vibrant-gradient' ? 'vibrant-gradient' :
       templateParam === 'modern-corporate' ? 'modern-corporate' :
-      null as any
+      'iso-professional' // Default to ISO-compliant professional template
     
-    console.log('[DOCX Route] Quote ID:', quoteId, 'Template:', template || 'professional (default)')
+    console.log('[DOCX Route] Quote ID:', quoteId, 'Template:', template)
 
     // Fetch quote from database
     const quote = await prisma.quote.findUnique({
@@ -57,38 +61,81 @@ export async function GET(
     const paymentSchedule = parseJSON(quote.paymentTerms as any)
 
     const quoteData = {
+      id: quote.id,
       quoteNumber: quote.quoteNumber,
       title: quote.title,
       description: quote.description || '',
+      status: quote.status,
+      
+      // Dates
+      createdAt: quote.createdAt,
+      validUntil: quote.validUntil,
+      startDate: quote.createdAt,
+      
+      // Client Information
       clientName: quote.clientName || quote.Client?.name || 'Client',
       clientEmail: quote.clientEmail || quote.Client?.email || '',
       clientCompany: quote.clientCompany || quote.Client?.company || undefined,
       clientPhone: quote.clientPhone || quote.Client?.phone || undefined,
       clientAddress: quote.clientAddress || quote.Client?.address || undefined,
+      
+      // Company Information
+      companyName: quote.companyName || 'MicroAI Systems',
+      companyTagline: 'Professional Software Development Services',
+      companyAddress: quote.companyAddress || 'BR253 Pasture St. Takoradi, Ghana',
+      companyEmail: quote.companyEmail || 'sales@microaisystems.com',
+      companyPhone: quote.companyPhone || '+233 244486837',
+      companyWebsite: quote.companyWebsite || 'www.microaisystems.com',
+      
+      // Project Details
+      executiveSummary: quote.executiveSummary || undefined,
+      projectType: quote.projectType || undefined,
+      industry: undefined, // Not in schema yet
+      objectives: [], // Parse from description if needed
+      scopeItems: parseJSON(quote.scopeOfWork as any),
+      deliverables: parseJSON(quote.deliverables as any),
+      exclusions: parseJSON(quote.exclusions as any),
+      assumptions: parseJSON(quote.assumptions as any),
+      
+      // Pricing
       lineItems: lineItems,
       currency: quote.currency || 'USD',
       subtotal: quote.subtotal || 0,
       discount: quote.discount || 0,
       tax: quote.tax || 0,
+      taxRate: quote.taxRate || 0,
       total: quote.total || 0,
-      validUntil: quote.validUntil,
-      createdAt: quote.createdAt,
-      companyName: quote.companyName || 'MicroAI Systems',
-      companyAddress: quote.companyAddress || 'BR253 Pasture St. Takoradi, Ghana',
-      companyEmail: quote.companyEmail || 'sales@microaisystems.com',
-      companyPhone: quote.companyPhone || '+233 244486837',
-      terms: quote.terms || undefined,
-      scopeOfWork: quote.scopeOfWork || undefined,
+      
+      // Timeline
+      estimatedDuration: undefined, // Not in schema yet
+      timeline: quote.timeline || undefined,
       milestones: milestones,
+      
+      // Payment Terms
       paymentSchedule: paymentSchedule,
+      depositRequired: false, // Not in schema yet
+      depositAmount: quote.depositAmount || undefined,
+      acceptedPaymentMethods: ['Bank Transfer', 'Credit Card', 'PayPal', 'Stripe'],
+      
+      // Terms & Conditions
+      terms: quote.terms || undefined,
+      termsAndConditions: quote.terms || undefined,
+      scopeOfWork: quote.scopeOfWork || undefined,
     }
 
-    console.log('[DOCX Route] Generating Word document...')
+    console.log('[DOCX Route] Generating Word document with template:', template)
     
-    // Use template-based generation if template specified, otherwise use professional default
-    const docxBuffer = template 
-      ? await generateQuoteDocxTemplate(quoteData as any, template)
-      : await generateQuoteDocx(quoteData as any)
+    // Use ISO professional template by default, or legacy templates if specified
+    let docxBuffer: Buffer
+    
+    if (template === 'iso-professional') {
+      docxBuffer = await generateISOQuoteDocx(quoteData as any)
+    } else if (template === 'modern-corporate' || template === 'minimalist-clean' || template === 'vibrant-gradient') {
+      docxBuffer = await generateQuoteDocxTemplate(quoteData as any, template as TemplateType)
+    } else {
+      // Fallback to ISO professional (new default)
+      docxBuffer = await generateISOQuoteDocx(quoteData as any)
+    }
     
     console.log('[DOCX Route] Document generated successfully! Size:', docxBuffer.length, 'bytes')
 
