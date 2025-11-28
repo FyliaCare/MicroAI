@@ -23,7 +23,11 @@ interface Project {
   tags?: string
   notes?: string
   githubRepo?: string
-  client: {
+  client?: {
+    name: string
+    email: string
+  }
+  Client?: {
     name: string
     email: string
   }

@@ -41,14 +41,22 @@ interface Project {
   requirements: string
   techStack: string[]
   tags: string
-  client: {
+  Client?: {
     id: string
     name: string
     email: string
     phone: string | null
     company: string | null
     userId: string | null
-  }
+  } | null
+  client?: {
+    id: string
+    name: string
+    email: string
+    phone: string | null
+    company: string | null
+    userId: string | null
+  } | null
   createdAt: string
   updatedAt: string
 }
@@ -535,41 +543,48 @@ export default function AdminProjectDetailPage() {
             </div>
 
             {/* Client Information */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-6 border border-purple-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Client</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Name</p>
-                  <p className="text-gray-900 font-semibold">{project.client.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Email</p>
-                  <p className="text-gray-900">{project.client.email}</p>
-                </div>
-                {project.client.phone && (
+            {(project.Client || project.client) && (
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-6 border border-purple-200">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Client</h3>
+                <div className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1">Phone</p>
-                    <p className="text-gray-900">{project.client.phone}</p>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Name</p>
+                    <p className="text-gray-900 font-semibold">
+                      {(project.Client || project.client)?.name || 'N/A'}
+                    </p>
                   </div>
-                )}
-                {project.client.company && (
                   <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1">Company</p>
-                    <p className="text-gray-900">{project.client.company}</p>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Email</p>
+                    <p className="text-gray-900">
+                      {(project.Client || project.client)?.email || 'N/A'}
+                    </p>
                   </div>
-                )}
-                <Button
-                  onClick={() => {
-                    if (project.client.userId) {
-                      router.push(`/admin/clients/${project.client.userId}/profile`)
-                    }
-                  }}
-                  className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg"
-                >
-                  View Client Profile
-                </Button>
+                  {(project.Client || project.client)?.phone && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-1">Phone</p>
+                      <p className="text-gray-900">{(project.Client || project.client)?.phone}</p>
+                    </div>
+                  )}
+                  {(project.Client || project.client)?.company && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-1">Company</p>
+                      <p className="text-gray-900">{(project.Client || project.client)?.company}</p>
+                    </div>
+                  )}
+                  <Button
+                    onClick={() => {
+                      const clientData = project.Client || project.client
+                      if (clientData?.userId) {
+                        router.push(`/admin/clients/${clientData.userId}/profile`)
+                      }
+                    }}
+                    className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg"
+                  >
+                    View Client Profile
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Project Activity */}
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-lg p-6 border border-green-200">
