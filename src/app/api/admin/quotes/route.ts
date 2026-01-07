@@ -33,11 +33,11 @@ function cleanQuoteForAPI(quote: any) {
     scopeOfWork: safeParseJSON(quote.scopeOfWork, {}),
     terms: safeParseJSON(quote.terms, {}),
     techStack: safeParseJSON(quote.techStack, []),
-    // Ensure dates are strings
-    createdAt: quote.createdAt?.toString() || quote.createdAt,
-    updatedAt: quote.updatedAt?.toString() || quote.updatedAt,
-    validUntil: quote.validUntil?.toString() || quote.validUntil,
-    issuedAt: quote.issuedAt?.toString() || quote.issuedAt,
+    // Ensure dates are ISO strings
+    createdAt: quote.createdAt instanceof Date ? quote.createdAt.toISOString() : quote.createdAt,
+    updatedAt: quote.updatedAt instanceof Date ? quote.updatedAt.toISOString() : quote.updatedAt,
+    validUntil: quote.validUntil instanceof Date ? quote.validUntil.toISOString() : quote.validUntil,
+    issuedAt: quote.issuedAt instanceof Date ? quote.issuedAt.toISOString() : quote.issuedAt,
   }
 }
 

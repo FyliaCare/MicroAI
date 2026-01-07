@@ -284,17 +284,25 @@ export default function QuotesDashboard() {
     )
   }
 
-  const formatCurrency = (amount: number, currency: string = 'USD') => {
+  const formatCurrency = (amount: number | undefined | null, currency: string = 'USD') => {
+    if (amount === undefined || amount === null || isNaN(amount)) return '$0.00'
     const symbols: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', GHS: '₵' }
-    return `${symbols[currency] || '$'}${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+    return `${symbols[currency] || '$'}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
+  const formatDate = (date: string | undefined | null) => {
+    if (!date) return 'N/A'
+    try {
+      const dateObj = new Date(date)
+      if (isNaN(dateObj.getTime())) return 'Invalid date'
+      return dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    } catch (error) {
+      return 'Invalid date'
+    }
   }
 
   if (loading) {
