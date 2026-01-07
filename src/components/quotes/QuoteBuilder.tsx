@@ -132,6 +132,7 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
   const [saving, setSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [clients, setClients] = useState<any[]>([])
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   // Load existing quote if editing
   useEffect(() => {
@@ -349,6 +350,15 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
   }
 
   const handleSave = async (asDraft = true) => {
+    const validationErrors = validateAll(formData)
+    if (validationErrors.length > 0) {
+      setMessage({
+        type: 'error',
+        text: `Please fix the following errors before saving:\n${validationErrors.join('\n')}`,
+      })
+      return
+    }
+
     setSaving(true)
     try {
       const quoteData = convertFormToQuote()
@@ -363,17 +373,36 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
         body: JSON.stringify(quoteData),
       })
 
+      if (!res.ok) {
+        let serverError = 'Failed to save quote'
+        try {
+          const errJson = await res.json()
+          serverError = errJson?.error || serverError
+        } catch (err) {
+          const text = await res.text()
+          serverError = text || serverError
+        }
+        throw new Error(serverError)
+      }
+
       const data = await res.json()
 
       if (data.success) {
-        alert(`Quote ${asDraft ? 'saved' : 'created and sent'} successfully!`)
+        setMessage({
+          type: 'success',
+          text: `Quote ${asDraft ? 'saved' : 'created and sent'} successfully!`,
+        })
         router.push('/admin/quotes')
       } else {
-        alert(`Error: ${data.error || 'Failed to save quote'}`)
+        throw new Error(data.error || 'Failed to save quote')
       }
     } catch (error) {
       console.error('Error saving quote:', error)
-      alert('Failed to save quote')
+      const errMsg = error instanceof Error ? error.message : 'Unknown error'
+      setMessage({
+        type: 'error',
+        text: `Failed to save quote: ${errMsg}`,
+      })
     } finally {
       setSaving(false)
     }
@@ -383,7 +412,7 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
     // Validate current step before proceeding
     const errors = validateStep(currentStep, formData)
     if (errors.length > 0) {
-      alert(`Please fix the following errors:\n\n${errors.join('\n')}`)
+      setMessage({ type: 'error', text: `Please fix the following errors:\n${errors.join('\n')}` })
       return
     }
     
@@ -399,6 +428,23 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
   }
 
   const goToStep = (step: number) => {
+    if (step > currentStep) {
+      const accumulatedErrors: string[] = []
+      for (let i = currentStep; i < step; i++) {
+        const stepErrors = validateStep(i, formData)
+        if (stepErrors.length) {
+          accumulatedErrors.push(...stepErrors.map((err) => `Step ${i}: ${err}`))
+        }
+      }
+      if (accumulatedErrors.length > 0) {
+        setMessage({
+          type: 'error',
+          text: `Please resolve these before proceeding:\n${accumulatedErrors.join('\n')}`,
+        })
+        return
+      }
+    }
+    setMessage(null)
     setCurrentStep(step)
   }
 
@@ -462,6 +508,17 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
     return errors
   }
 
+  const validateAll = (data: QuoteFormData): string[] => {
+    const errors: string[] = []
+    for (let i = 1; i <= STEPS.length; i++) {
+      const stepErrors = validateStep(i, data)
+      if (stepErrors.length) {
+        errors.push(...stepErrors.map((err) => `Step ${i}: ${err}`))
+      }
+    }
+    return errors
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -482,6 +539,17 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
           <p className="mt-2 text-slate-600">
             Follow the steps below to create a professional quote
           </p>
+          {message && (
+            <div
+              className={`mt-4 rounded-lg border px-4 py-3 text-sm whitespace-pre-line ${
+                message.type === 'success'
+                  ? 'border-green-200 bg-green-50 text-green-800'
+                  : 'border-red-200 bg-red-50 text-red-800'
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
         </div>
 
         {/* Progress Steps */}
