@@ -8,18 +8,10 @@ import { Document, Page, Text, View, StyleSheet, Font, Image, Link } from '@reac
 import type { Quote, QuoteLineItem, QuoteMilestone } from '@/types/quote'
 
 // ============================================================================
-// FONT REGISTRATION
+// FONT CONFIG
 // ============================================================================
-
-// Register custom fonts for better typography
-Font.register({
-  family: 'Inter',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2', fontWeight: 400 },
-    { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hiA.woff2', fontWeight: 600 },
-    { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hiA.woff2', fontWeight: 700 },
-  ],
-})
+// Use built-in Helvetica to avoid external font fetches (prevents CSP violations)
+const DEFAULT_FONT_FAMILY = 'Helvetica'
 
 // ============================================================================
 // STYLES
@@ -28,7 +20,7 @@ Font.register({
 const createStyles = (brandColor: string = '#4F46E5') => StyleSheet.create({
   // Page Styles
   page: {
-    fontFamily: 'Inter',
+    fontFamily: DEFAULT_FONT_FAMILY,
     fontSize: 10,
     paddingTop: 35,
     paddingBottom: 65,
@@ -414,7 +406,10 @@ const createStyles = (brandColor: string = '#4F46E5') => StyleSheet.create({
 // HELPER FUNCTIONS
 // ============================================================================
 
-const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+const formatCurrency = (amount: number | undefined | null, currency: string = 'USD'): string => {
+  // Gracefully handle missing or non-numeric amounts
+  const safeAmount = typeof amount === 'number' && !isNaN(amount) ? amount : 0
+
   const symbols: Record<string, string> = {
     USD: '$',
     EUR: '€',
@@ -422,7 +417,7 @@ const formatCurrency = (amount: number, currency: string = 'USD'): string => {
     GHS: '₵',
   }
   
-  return `${symbols[currency] || '$'}${amount.toLocaleString('en-US', {
+  return `${symbols[currency] || '$'}${safeAmount.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`
@@ -430,8 +425,10 @@ const formatCurrency = (amount: number, currency: string = 'USD'): string => {
 
 const formatDate = (date: string | Date | undefined): string => {
   if (!date) return 'N/A'
-  
+
   const d = new Date(date)
+  if (isNaN(d.getTime())) return 'N/A'
+
   return d.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -450,22 +447,21 @@ interface QuotePDFProps {
 const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
   const styles = createStyles(quote.brandColor || '#4F46E5')
   
-  // Parse JSON fields
-  const items: QuoteLineItem[] = typeof quote.items === 'string' 
-    ? JSON.parse(quote.items || '[]') 
-    : quote.items || []
-    
-  const milestones: QuoteMilestone[] = typeof quote.milestones === 'string'
-    ? JSON.parse(quote.milestones || '[]')
-    : quote.milestones || []
-  
-  const scope = typeof quote.scope === 'string'
-    ? JSON.parse(quote.scope || '{}')
-    : quote.scope || {}
-  
-  const terms = typeof quote.terms === 'string'
-    ? JSON.parse(quote.terms || '{}')
-    : quote.terms || {}
+  // Parse JSON fields safely to handle legacy plain-text values
+  const safeParse = <T,>(value: any, fallback: T): T => {
+    if (!value) return fallback
+    if (typeof value === 'object') return value as T
+    try {
+      return JSON.parse(value) as T
+    } catch {
+      return fallback
+    }
+  }
+
+  const items: QuoteLineItem[] = safeParse<QuoteLineItem[]>(quote.items, [])
+  const milestones: QuoteMilestone[] = safeParse<QuoteMilestone[]>(quote.milestones, [])
+  const scope = safeParse<Record<string, any>>(quote.scope, {})
+  const terms = safeParse<Record<string, any>>(quote.terms, {})
   
   return (
     <Document
