@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation'
 import { nanoid } from 'nanoid'
 import type { Quote, QuoteFormData, QuoteLineItem, QuoteMilestone } from '@/types/quote'
 import QuotePDFPreview, { QuoteDownloadButton } from '@/components/quotes/QuotePDFPreview'
+import Step7BrandingAdvanced from '@/components/quotes/Step7BrandingAdvanced'
+import SmartTextInput from '@/components/quotes/SmartTextInput'
 import {
   FileText,
   User,
@@ -112,6 +114,50 @@ const getInitialFormData = (): QuoteFormData => ({
   includeLogo: true,
   includePortfolio: false,
   templateStyle: 'modern',
+  
+  // Provider Company Profile
+  providerCompanyName: 'MicroAI Systems',
+  providerTagline: '10x Faster Development - Revolutionary Technology',
+  providerEmail: 'sales@microaisystems.com',
+  providerPhone: '+233 244 486 837 | +233 544 230 568',
+  providerWebsite: 'www.microaisystems.com',
+  providerAddress: 'BR253 Pasture St. Takoradi, Ghana',
+  providerDescription: 'MicroAI Systems delivers revolutionary development technology, building web applications, SaaS platforms, and digital solutions in 1/10th the time. Serving clients worldwide across Africa, North America, Europe, UK, and Australia.',
+  providerServicesOverview: [
+    'Custom Web Application Development',
+    'SaaS Platform Development',
+    'E-commerce Solutions',
+    'Business Management Systems',
+    'AI Integration & Automation',
+    'API Development & Integration',
+    'Database Design & Optimization',
+    'Cloud Infrastructure Setup',
+  ],
+  providerCertifications: [
+    'Verified Production Portfolio',
+    'Full-Stack Development Expertise',
+    'Multiple Live Projects in Production',
+    'Ghana-Based with Global Standards',
+  ],
+  providerExpertise: [
+    'Next.js 14 & React 18',
+    'TypeScript & JavaScript',
+    'Prisma ORM & PostgreSQL',
+    'Tailwind CSS & Modern UI',
+    'NextAuth.js Authentication',
+    'RESTful API Development',
+    'Vercel & Render Deployment',
+    'Git & GitHub Workflows',
+  ],
+  providerAboutSection: 'MicroAI Systems is revolutionizing software development with cutting-edge technology that delivers enterprise-grade projects 10x faster than traditional companies. Based in Takoradi, Ghana, we serve clients globally across Africa, North America, Europe, UK, and Australia. Our expertise spans full-stack web applications, SaaS platforms, e-commerce solutions, and business management systems. Using modern technologies like Next.js, React, TypeScript, and Prisma, we build scalable, production-ready solutions with transparent communication and predictable timelines.',
+  providerCoreValues: [
+    '10x Faster - Deliver in weeks, not months',
+    'Production Quality - Real projects, real results',
+    'Transparent Pricing - No hidden costs or surprises',
+    'Modern Stack - Next.js, TypeScript, Tailwind CSS',
+    'Global Standards - Ghana-based, world-class quality',
+  ],
+  providerLogo: '',
   
   // Step 8
   validityDays: 30,
@@ -243,6 +289,50 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
       includePortfolio: false,
       templateStyle: quote.templateStyle || 'modern',
       
+      // Provider Company Profile (Real MicroAI Data)
+      providerCompanyName: 'MicroAI Systems',
+      providerTagline: '10x Faster Development - Revolutionary Technology',
+      providerEmail: 'sales@microaisystems.com',
+      providerPhone: '+233 244 486 837 | +233 544 230 568',
+      providerWebsite: 'www.microaisystems.com',
+      providerAddress: 'BR253 Pasture St. Takoradi, Ghana',
+      providerDescription: 'MicroAI Systems delivers revolutionary development technology, building web applications, SaaS platforms, and digital solutions in 1/10th the time. Serving clients worldwide across Africa, North America, Europe, UK, and Australia.',
+      providerServicesOverview: [
+        'Custom Web Application Development',
+        'SaaS Platform Development',
+        'E-commerce Solutions',
+        'Business Management Systems',
+        'AI Integration & Automation',
+        'API Development & Integration',
+        'Database Design & Optimization',
+        'Cloud Infrastructure Setup',
+      ],
+      providerCertifications: [
+        'Verified Production Portfolio',
+        'Full-Stack Development Expertise',
+        'Multiple Live Projects in Production',
+        'Ghana-Based with Global Standards',
+      ],
+      providerExpertise: [
+        'Next.js 14 & React 18',
+        'TypeScript & JavaScript',
+        'Prisma ORM & PostgreSQL',
+        'Tailwind CSS & Modern UI',
+        'NextAuth.js Authentication',
+        'RESTful API Development',
+        'Vercel & Render Deployment',
+        'Git & GitHub Workflows',
+      ],
+      providerAboutSection: 'MicroAI Systems is revolutionizing software development with cutting-edge technology that delivers enterprise-grade projects 10x faster than traditional companies. Based in Takoradi, Ghana, we serve clients globally across Africa, North America, Europe, UK, and Australia. Our expertise spans full-stack web applications, SaaS platforms, e-commerce solutions, and business management systems. Using modern technologies like Next.js, React, TypeScript, and Prisma, we build scalable, production-ready solutions with transparent communication and predictable timelines.',
+      providerCoreValues: [
+        '10x Faster - Deliver in weeks, not months',
+        'Production Quality - Real projects, real results',
+        'Transparent Pricing - No hidden costs or surprises',
+        'Modern Stack - Next.js, TypeScript, Tailwind CSS',
+        'Global Standards - Ghana-based, world-class quality',
+      ],
+      providerLogo: '',
+      
       validityDays: quote.validityDays || 30,
       notes: quote.notes || '',
       internalNotes: quote.internalNotes || '',
@@ -332,12 +422,19 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
       createdAt: new Date(),
       updatedAt: new Date(),
       branding: {
-        companyName: formData.clientCompany || 'Your Company',
-        companyEmail: formData.clientEmail || 'contact@example.com',
-        companyPhone: formData.clientPhone || '',
-        companyAddress: formData.clientAddress || '',
-        companyWebsite: '',
+        companyName: formData.providerCompanyName || 'Your Company',
+        companyEmail: formData.providerEmail || 'contact@example.com',
+        companyPhone: formData.providerPhone || '',
+        companyAddress: formData.providerAddress || '',
+        companyWebsite: formData.providerWebsite || '',
         brandColor: formData.brandColor,
+        companyDescription: formData.providerDescription,
+        servicesOverview: formData.providerServicesOverview,
+        certifications: formData.providerCertifications,
+        expertise: formData.providerExpertise,
+        aboutSection: formData.providerAboutSection,
+        coreValues: formData.providerCoreValues,
+        tagline: formData.providerTagline,
       },
       brandColor: formData.brandColor,
       customMessage: formData.customMessage,
@@ -841,7 +938,7 @@ function StepContent({
     case 6:
       return <Step6Terms formData={formData} updateFormData={updateFormData} />
     case 7:
-      return <Step7Branding formData={formData} updateFormData={updateFormData} />
+      return <Step7BrandingAdvanced formData={formData} updateFormData={updateFormData} />
     case 8:
       return <Step8Review formData={formData} />
     default:
@@ -1157,136 +1254,40 @@ function Step3Scope({ formData, updateFormData }: any) {
       </div>
 
       {/* Objectives */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Project Objectives
-        </label>
-        <div className="space-y-2">
-          {formData.objectives.map((obj: string, index: number) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="text"
-                value={obj}
-                onChange={(e) => updateItem('objectives', index, e.target.value)}
-                placeholder="e.g., Increase online sales by 40%"
-                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-              <button
-                onClick={() => removeItem('objectives', index)}
-                className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </div>
-          ))}
-          <button
-            onClick={() => addItem('objectives')}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Objective
-          </button>
-        </div>
-      </div>
+      <SmartTextInput
+        label="Project Objectives"
+        items={formData.objectives}
+        onChange={(items) => updateFormData('objectives', items)}
+        placeholder="e.g., Increase online sales by 40%"
+        helpText="Define the key goals and objectives of this project"
+      />
 
       {/* Deliverables */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Deliverables
-        </label>
-        <div className="space-y-2">
-          {formData.deliverables.map((del: string, index: number) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="text"
-                value={del}
-                onChange={(e) => updateItem('deliverables', index, e.target.value)}
-                placeholder="e.g., Responsive website with 10 pages"
-                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-              <button
-                onClick={() => removeItem('deliverables', index)}
-                className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </div>
-          ))}
-          <button
-            onClick={() => addItem('deliverables')}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Deliverable
-          </button>
-        </div>
-      </div>
+      <SmartTextInput
+        label="Deliverables"
+        items={formData.deliverables}
+        onChange={(items) => updateFormData('deliverables', items)}
+        placeholder="e.g., Responsive website with 10 pages"
+        helpText="List all items that will be delivered to the client"
+      />
 
       {/* Exclusions */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Exclusions (Out of Scope)
-        </label>
-        <div className="space-y-2">
-          {formData.exclusions.map((exc: string, index: number) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="text"
-                value={exc}
-                onChange={(e) => updateItem('exclusions', index, e.target.value)}
-                placeholder="e.g., Third-party API integrations"
-                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-              <button
-                onClick={() => removeItem('exclusions', index)}
-                className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </div>
-          ))}
-          <button
-            onClick={() => addItem('exclusions')}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Exclusion
-          </button>
-        </div>
-      </div>
+      <SmartTextInput
+        label="Exclusions (Out of Scope)"
+        items={formData.exclusions}
+        onChange={(items) => updateFormData('exclusions', items)}
+        placeholder="e.g., Third-party API integrations"
+        helpText="Clearly define what is NOT included in this project"
+      />
 
       {/* Assumptions */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Assumptions
-        </label>
-        <div className="space-y-2">
-          {formData.assumptions.map((assumption: string, index: number) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="text"
-                value={assumption}
-                onChange={(e) => updateItem('assumptions', index, e.target.value)}
-                placeholder="e.g., Client provides all content and images"
-                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-              />
-              <button
-                onClick={() => removeItem('assumptions', index)}
-                className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
-            </div>
-          ))}
-          <button
-            onClick={() => addItem('assumptions')}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Assumption
-          </button>
-        </div>
-      </div>
+      <SmartTextInput
+        label="Assumptions"
+        items={formData.assumptions}
+        onChange={(items) => updateFormData('assumptions', items)}
+        placeholder="e.g., Client provides all content and images"
+        helpText="List any assumptions made about the project"
+      />
 
       {/* Timeline & Hours */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2043,157 +2044,6 @@ function Step6Terms({ formData, updateFormData }: any) {
 }
 
 // Step 7: Branding & Customization Component
-function Step7Branding({ formData, updateFormData }: any) {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900">Branding & Customization</h2>
-        <p className="text-slate-600 mt-2">Customize the look and feel of your quote</p>
-      </div>
-
-      {/* Template Style */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-3">
-          Template Style
-        </label>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { value: 'modern', label: 'Modern', description: 'Clean and contemporary design' },
-            { value: 'classic', label: 'Classic', description: 'Traditional and professional' },
-            { value: 'minimal', label: 'Minimal', description: 'Simple and elegant' },
-          ].map((style) => (
-            <button
-              key={style.value}
-              onClick={() => updateFormData('templateStyle', style.value)}
-              className={`p-4 border-2 rounded-lg text-left transition-all ${
-                formData.templateStyle === style.value
-                  ? 'border-indigo-600 bg-indigo-50'
-                  : 'border-slate-300 hover:border-slate-400'
-              }`}
-            >
-              <div className="font-semibold text-slate-900 mb-1">{style.label}</div>
-              <div className="text-sm text-slate-600">{style.description}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Brand Color */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Brand Color
-        </label>
-        <div className="flex gap-4 items-center">
-          <input
-            type="color"
-            value={formData.brandColor}
-            onChange={(e) => updateFormData('brandColor', e.target.value)}
-            className="h-12 w-20 rounded-lg cursor-pointer border border-slate-300"
-          />
-          <input
-            type="text"
-            value={formData.brandColor}
-            onChange={(e) => updateFormData('brandColor', e.target.value)}
-            placeholder="#4F46E5"
-            className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 font-mono"
-          />
-        </div>
-        <p className="mt-2 text-sm text-slate-500">
-          This color will be used for headers, accents, and branding elements in the quote PDF.
-        </p>
-      </div>
-
-      {/* Logo & Portfolio Options */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="flex items-center gap-3 p-4 border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-            <input
-              type="checkbox"
-              checked={formData.includeLogo}
-              onChange={(e) => updateFormData('includeLogo', e.target.checked)}
-              className="w-5 h-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
-            />
-            <div>
-              <div className="font-medium text-slate-900">Include Company Logo</div>
-              <div className="text-sm text-slate-600">Display your logo on the quote</div>
-            </div>
-          </label>
-        </div>
-
-        <div>
-          <label className="flex items-center gap-3 p-4 border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-            <input
-              type="checkbox"
-              checked={formData.includePortfolio}
-              onChange={(e) => updateFormData('includePortfolio', e.target.checked)}
-              className="w-5 h-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500"
-            />
-            <div>
-              <div className="font-medium text-slate-900">Include Portfolio</div>
-              <div className="text-sm text-slate-600">Show portfolio items in quote</div>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      {/* Custom Message */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Custom Message
-        </label>
-        <textarea
-          value={formData.customMessage}
-          onChange={(e) => updateFormData('customMessage', e.target.value)}
-          placeholder="Add a personalized message to your client (e.g., 'Thank you for considering our services...')"
-          rows={4}
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        />
-      </div>
-
-      {/* Footer Text */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-2">
-          Footer Text
-        </label>
-        <input
-          type="text"
-          value={formData.footerText}
-          onChange={(e) => updateFormData('footerText', e.target.value)}
-          placeholder="e.g., Thank you for your business | www.yourcompany.com"
-          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-        />
-        <p className="mt-2 text-sm text-slate-500">
-          This text will appear at the bottom of every page in the quote PDF.
-        </p>
-      </div>
-
-      {/* Preview */}
-      <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-        <h4 className="text-sm font-semibold text-slate-900 mb-4">Preview</h4>
-        <div 
-          className="h-40 rounded-lg border-2 flex items-center justify-center"
-          style={{ 
-            borderColor: formData.brandColor,
-            backgroundColor: `${formData.brandColor}10`
-          }}
-        >
-          <div className="text-center">
-            <div 
-              className="text-2xl font-bold mb-2"
-              style={{ color: formData.brandColor }}
-            >
-              Quote Preview
-            </div>
-            <div className="text-sm text-slate-600">
-              {formData.templateStyle.charAt(0).toUpperCase() + formData.templateStyle.slice(1)} Style
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // Step 8: Review & Send Component
 function Step8Review({ formData }: any) {
   const calculateTotals = () => {

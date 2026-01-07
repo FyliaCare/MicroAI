@@ -6,10 +6,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer'
+import dynamic from 'next/dynamic'
+import { PDFDownloadLink } from '@react-pdf/renderer'
 import QuotePDF from './QuotePDF'
 import type { Quote } from '@/types/quote'
 import { Download, Eye, EyeOff, Loader2, FileText } from 'lucide-react'
+
+// Dynamically import PDFViewer to prevent SSR issues
+const PDFViewer = dynamic(
+  () => import('@react-pdf/renderer').then((mod) => mod.PDFViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-full bg-slate-50">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+      </div>
+    ),
+  }
+)
 
 interface QuotePDFPreviewProps {
   quote: Quote

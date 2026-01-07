@@ -63,6 +63,21 @@ export interface QuoteBranding {
   tagline?: string
   taxId?: string
   registrationNumber?: string
+  // Extended company info
+  companyDescription?: string
+  servicesOverview?: string[]
+  certifications?: string[]
+  expertise?: string[]
+  aboutSection?: string
+  coreValues?: string[]
+  teamSize?: string
+  yearsInBusiness?: string
+  projectsCompleted?: string
+  supportEmail?: string
+  salesEmail?: string
+  linkedIn?: string
+  github?: string
+  twitter?: string
 }
 
 export interface QuoteClient {
@@ -346,6 +361,21 @@ export interface QuoteFormData {
   includeLogo: boolean
   includePortfolio: boolean
   templateStyle: string
+  
+  // Company Profile (MicroAI Systems Info)
+  providerCompanyName: string
+  providerTagline: string
+  providerEmail: string
+  providerPhone: string
+  providerWebsite: string
+  providerAddress: string
+  providerDescription: string
+  providerServicesOverview: string[]
+  providerCertifications: string[]
+  providerExpertise: string[]
+  providerAboutSection: string
+  providerCoreValues: string[]
+  providerLogo: string
   
   // Step 8: Review & Send
   validityDays: number
