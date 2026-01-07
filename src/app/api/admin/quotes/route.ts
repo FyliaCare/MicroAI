@@ -13,6 +13,34 @@ function generateQuoteNumber(): string {
   return `QT-${year}${month}-${random}`
 }
 
+// Safely parse JSON fields (handles legacy plain text)
+function safeParseJSON(value: any, fallback: any = null) {
+  if (!value) return fallback
+  if (typeof value === 'object') return value
+  try {
+    return JSON.parse(value)
+  } catch {
+    return fallback
+  }
+}
+
+// Clean quote data for API response
+function cleanQuoteForAPI(quote: any) {
+  return {
+    ...quote,
+    items: safeParseJSON(quote.items, []),
+    milestones: safeParseJSON(quote.milestones, []),
+    scopeOfWork: safeParseJSON(quote.scopeOfWork, {}),
+    terms: safeParseJSON(quote.terms, {}),
+    techStack: safeParseJSON(quote.techStack, []),
+    // Ensure dates are strings
+    createdAt: quote.createdAt?.toString() || quote.createdAt,
+    updatedAt: quote.updatedAt?.toString() || quote.updatedAt,
+    validUntil: quote.validUntil?.toString() || quote.validUntil,
+    issuedAt: quote.issuedAt?.toString() || quote.issuedAt,
+  }
+}
+
 // GET /api/admin/quotes - List all quotes (optimized with caching)
 export async function GET(request: NextRequest) {
   try {
@@ -80,12 +108,15 @@ export async function GET(request: NextRequest) {
       120 // 2 minutes cache
     )
 
+    // Clean quotes data before sending
+    const cleanedQuotes = quotes.map(cleanQuoteForAPI)
+
     // Add rate limit headers to response
     return NextResponse.json(
       {
         success: true,
-        quotes,
-        count: quotes.length,
+        quotes: cleanedQuotes,
+        count: cleanedQuotes.length,
         page,
         limit,
       },

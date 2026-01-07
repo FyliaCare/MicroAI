@@ -4,6 +4,34 @@ import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
+// Safely parse JSON fields (handles legacy plain text)
+function safeParseJSON(value: any, fallback: any = null) {
+  if (!value) return fallback
+  if (typeof value === 'object') return value
+  try {
+    return JSON.parse(value)
+  } catch {
+    return fallback
+  }
+}
+
+// Clean quote data for API response
+function cleanQuoteForAPI(quote: any) {
+  return {
+    ...quote,
+    items: safeParseJSON(quote.items, []),
+    milestones: safeParseJSON(quote.milestones, []),
+    scopeOfWork: safeParseJSON(quote.scopeOfWork, {}),
+    terms: safeParseJSON(quote.terms, {}),
+    techStack: safeParseJSON(quote.techStack, []),
+    // Ensure dates are strings
+    createdAt: quote.createdAt?.toString() || quote.createdAt,
+    updatedAt: quote.updatedAt?.toString() || quote.updatedAt,
+    validUntil: quote.validUntil?.toString() || quote.validUntil,
+    issuedAt: quote.issuedAt?.toString() || quote.issuedAt,
+  }
+}
+
 // GET /api/admin/quotes/[id] - Get a single quote
 export async function GET(
   request: NextRequest,
@@ -44,7 +72,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      quote,
+      quote: cleanQuoteForAPI(quote),
     })
   } catch (error: any) {
     console.error('Error fetching quote:', error)
