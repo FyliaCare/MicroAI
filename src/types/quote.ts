@@ -208,6 +208,8 @@ export interface Quote {
   // Template & Style
   templateStyle: string
   templateId?: string
+  includeLogo?: boolean
+  includePortfolio?: boolean
   
   // Analytics
   analytics: QuoteAnalytics

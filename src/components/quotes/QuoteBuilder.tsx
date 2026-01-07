@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { nanoid } from 'nanoid'
 import type { Quote, QuoteFormData, QuoteLineItem, QuoteMilestone } from '@/types/quote'
-import QuotePDFPreview from '@/components/quotes/QuotePDFPreview'
+import QuotePDFPreview, { QuoteDownloadButton } from '@/components/quotes/QuotePDFPreview'
 import {
   FileText,
   User,
@@ -264,6 +264,93 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
     const total = afterDiscount + tax
 
     return { subtotal, tax, total, discountAmount }
+  }
+
+  const buildPreviewQuote = (): Quote => {
+    const { subtotal, tax, total, discountAmount } = calculateTotals()
+    const validUntilDate = new Date()
+    validUntilDate.setDate(validUntilDate.getDate() + (formData.validityDays || 30))
+
+    return {
+      id: quoteId || 'preview-quote',
+      quoteNumber: formData.title ? `DRAFT-${formData.title.slice(0, 6).toUpperCase()}` : 'DRAFT-QUOTE',
+      version: 1,
+      title: formData.title,
+      description: formData.description,
+      status: formData.status || 'draft',
+      clientId: formData.clientId || undefined,
+      clientName: formData.clientName,
+      clientCompany: formData.clientCompany,
+      clientEmail: formData.clientEmail,
+      clientPhone: formData.clientPhone,
+      clientAddress: formData.clientAddress,
+      contactPerson: formData.contactPerson,
+      items: formData.items.map(item => ({
+        ...item,
+        name: item.description || 'Line item',
+        unitPrice: item.unitPrice ?? item.total / Math.max(item.quantity || 1, 1),
+        taxable: true,
+      })),
+      subtotal,
+      tax,
+      discount: discountAmount,
+      total,
+      currency: formData.currency,
+      taxRate: formData.taxRate,
+      discountType: formData.discountType,
+      paymentTerms: formData.paymentTerms,
+      milestones: formData.milestones,
+      scope: {
+        summary: formData.scopeSummary,
+        objectives: formData.objectives,
+        deliverables: formData.deliverables,
+        exclusions: formData.exclusions,
+        assumptions: formData.assumptions,
+        techStack: formData.techStack,
+      },
+      pricing: {
+        setupFee: formData.setupFee || 0,
+        developmentCost: formData.developmentCost || 0,
+        designCost: formData.designCost || 0,
+        monthlyHosting: formData.monthlyHosting || 0,
+        monthlyMaintenance: formData.monthlyMaintenance || 0,
+        monthlyRecurring: 0,
+        yearlyRecurring: 0,
+      },
+      terms: {
+        payment: formData.paymentTerms,
+        warranty: formData.warrantyTerms,
+        support: formData.supportTerms,
+        revisions: formData.revisionPolicy,
+        cancellation: formData.cancellationPolicy,
+        intellectualProperty: formData.ipRights,
+        confidentiality: formData.confidentialityClause,
+      },
+      techStack: formData.techStack,
+      validUntil: validUntilDate,
+      issuedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      branding: {
+        companyName: formData.clientCompany || 'Your Company',
+        companyEmail: formData.clientEmail || 'contact@example.com',
+        companyPhone: formData.clientPhone || '',
+        companyAddress: formData.clientAddress || '',
+        companyWebsite: '',
+        brandColor: formData.brandColor,
+      },
+      brandColor: formData.brandColor,
+      customMessage: formData.customMessage,
+      footerText: formData.footerText,
+      templateStyle: formData.templateStyle,
+      includeLogo: formData.includeLogo,
+      includePortfolio: formData.includePortfolio,
+      notes: formData.notes,
+      freeSupportMonths: formData.freeSupportMonths,
+      includedRevisions: formData.includedRevisions,
+      validityDays: formData.validityDays,
+      analytics: { viewCount: 0, downloadCount: 0 },
+    }
   }
 
   const convertFormToQuote = (): any => {
@@ -677,6 +764,17 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
                   <Eye className="w-4 h-4" />
                   {showPreview ? 'Hide' : 'Show'} PDF Preview
                 </button>
+
+                <div className="mt-3">
+                  <QuoteDownloadButton
+                    quote={buildPreviewQuote()}
+                    fullWidth
+                    variant="outline"
+                    size="md"
+                  >
+                    Download PDF
+                  </QuoteDownloadButton>
+                </div>
               </div>
             </div>
           </div>
@@ -696,8 +794,12 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
                 </button>
               </div>
               <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
-                {/* Preview component will go here */}
-                <p className="text-slate-600">PDF Preview will render here</p>
+                <QuotePDFPreview
+                  quote={buildPreviewQuote()}
+                  showPreview
+                  onDownloadStart={() => setMessage({ type: 'success', text: 'Generating PDF...' })}
+                  onDownloadComplete={() => setMessage({ type: 'success', text: 'PDF generated' })}
+                />
               </div>
             </div>
           </div>
