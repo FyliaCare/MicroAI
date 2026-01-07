@@ -1166,90 +1166,163 @@ model PushSubscription {
 }
 
 model Quote {
-  id                    String    @id
-  quoteNumber           String    @unique
-  title                 String
-  description           String?
-  clientId              String?
-  projectId             String?   @unique
-  subtotal              Float?
-  tax                   Float?    @default(0)
-  discount              Float?    @default(0)
-  total                 Float?
-  items                 String?
-  status                String    @default("draft")
-  validUntil            DateTime?
-  issuedAt              DateTime?
-  sentAt                DateTime?
-  viewedAt              DateTime?
-  respondedAt           DateTime?
-  notes                 String?
-  terms                 String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime
-  deliverables          String?
-  designCost            Float?    @default(0)
-  developmentCost       Float?    @default(0)
-  estimatedHours        Float?
-  hostingBreakdown      String?
-  milestones            String?
-  monthlyHosting        Float?    @default(0)
-  monthlyMaintenance    Float?    @default(0)
-  monthlyRecurring      Float?    @default(0)
-  projectType           String?
-  setupFee              Float?    @default(0)
-  techStack             String?
-  timeline              String?
-  yearlyRecurring       Float?    @default(0)
-  assumptions           String?
-  clientAddress         String?
-  clientCompany         String?
-  clientEmail           String?
-  clientName            String?
-  clientObligations     String?
-  clientPhone           String?
-  clientSignature       String?
-  clientSignedAt        DateTime?
-  clientSignedBy        String?
-  companyAddress        String?
-  companyEmail          String?
-  companyLogo           String?
-  companyName           String?
-  companyPhone          String?
-  companyWebsite        String?
+  id              String    @id
+  quoteNumber     String    @unique
+  version         Int       @default(1)
+  
+  // Basic Information
+  title           String
+  description     String?
+  status          String    @default("draft") // draft, sent, viewed, accepted, rejected, expired, converted
+  category        String?   // web-dev, mobile-app, saas, consulting, etc.
+  
+  // Client & Project Links
+  clientId        String?
+  projectId       String?   @unique
+  
+  // Financial Details
+  currency        String?   @default("USD")
+  subtotal        Float?    @default(0)
+  taxRate         Float?    @default(0)
+  tax             Float?    @default(0)
+  discountType    String?   @default("fixed") // fixed, percentage
+  discount        Float?    @default(0)
+  total           Float?    @default(0)
+  
+  // Line Items (JSON array)
+  items           String?   // [{ id, name, description, category, quantity, unitPrice, total }]
+  
+  // Project Scope
+  scopeOfWork     String?   // JSON: { summary, objectives[], deliverables[], exclusions[], assumptions[] }
+  estimatedHours  Float?
+  timeline        String?
+  milestones      String?   // JSON array: [{ name, description, dueDate, amount }]
+  
+  // Technical Details
+  projectType     String?
+  industry        String?
+  techStack       String?   // JSON array
+  
+  // Pricing Breakdown
+  setupFee        Float     @default(0)
+  developmentCost Float     @default(0)
+  designCost      Float     @default(0)
+  monthlyHosting  Float     @default(0)
+  monthlyMaintenance Float  @default(0)
+  monthlyRecurring Float    @default(0)
+  yearlyRecurring Float     @default(0)
+  hostingBreakdown String?  // JSON
+  
+  // Client Information
+  clientName      String?
+  clientEmail     String?
+  clientCompany   String?
+  clientPhone     String?
+  clientAddress   String?
+  contactPerson   String?
+  
+  // Company Branding
+  companyName     String?
+  companyEmail    String?
+  companyPhone    String?
+  companyAddress  String?
+  companyWebsite  String?
+  companyLogo     String?
+  brandColor      String?   @default("#4F46E5")
+  
+  // Terms & Conditions
+  terms           String?   // JSON: { payment, warranty, support, revisions, cancellation, ip, confidentiality }
+  paymentTerms    String?
+  depositAmount   Float?
+  depositPercent  Float?
+  freeSupportMonths Int?    @default(3)
+  includedRevisions Int?    @default(2)
+  revisionCost    Float?
+  warrantyTerms   String?
+  ipRights        String?
   confidentialityClause String?
-  contactPerson         String?
-  currency              String?   @default("USD")
-  depositAmount         Float?
-  depositPercent        Float?
-  discountType          String?
-  exclusions            String?
-  executiveSummary      String?
-  freeSupportMonths     Int?      @default(1)
-  includedRevisions     Int?      @default(2)
-  internalNotes         String?
-  ipRights              String?
-  maintenanceTerms      String?
-  paymentTerms          String?
-  pricingItems          String?
-  providerSignature     String?
-  providerSignedAt      DateTime?
-  providerSignedBy      String?
-  revisionCost          Float?
-  revisionsPolicy       String?
-  scopeOfWork           String?
-  taxRate               Float?    @default(0)
-  validityDays          Int       @default(30)
-  templateStyle         String    @default("professional-locked")
-  Client                Client?   @relation(fields: [clientId], references: [id])
-  Project               Project?  @relation(fields: [projectId], references: [id])
+  
+  // Additional Information
+  executiveSummary String?
+  assumptions     String?   // JSON array
+  exclusions      String?   // JSON array
+  deliverables    String?   // JSON array
+  notes           String?
+  internalNotes   String?
+  customMessage   String?
+  footerText      String?
+  
+  // Validity & Dates
+  validityDays    Int       @default(30)
+  validUntil      DateTime?
+  issuedAt        DateTime?
+  sentAt          DateTime?
+  viewedAt        DateTime?
+  respondedAt     DateTime?
+  expiresAt       DateTime?
+  
+  // Signatures
+  clientSignature  String?
+  clientSignedAt   DateTime?
+  clientSignedBy   String?
+  providerSignature String?
+  providerSignedAt DateTime?
+  providerSignedBy String?
+  
+  // Template & Style
+  templateStyle   String    @default("modern")
+  templateId      String?   // Link to QuoteTemplate
+  
+  // Metadata
+  revisionsPolicy String?
+  clientObligations String?
+  maintenanceTerms String?
+  
+  // Analytics
+  viewCount       Int       @default(0)
+  downloadCount   Int       @default(0)
+  lastViewedAt    DateTime?
+  
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  Client          Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  Project         Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  versions        QuoteVersion[]
 
   @@index([clientId])
-  @@index([createdAt])
   @@index([projectId])
   @@index([quoteNumber])
   @@index([status])
+  @@index([category])
+  @@index([createdAt])
   @@index([validUntil])
+  @@index([viewCount])
+}
+
+model QuoteVersion {
+  id              String   @id
+  quoteId         String
+  version         Int
+  
+  // Snapshot of quote data at this version
+  data            String   // Full JSON snapshot
+  
+  // Change tracking
+  changes         String?  // JSON array of changes
+  changedBy       String?  // Admin ID or name
+  changeReason    String?
+  
+  createdAt       DateTime @default(now())
+  
+  Quote           Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  
+  @@unique([quoteId, version])
+  @@index([quoteId])
+  @@index([version])
+  @@index([createdAt])
 }
 
 model QuoteTemplate {

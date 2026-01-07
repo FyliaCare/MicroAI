@@ -106,7 +106,6 @@ async function createRiderGuyQuote() {
         discount: 0,
         total: totalAmount,
         items: JSON.stringify(items),
-        pricingItems: JSON.stringify(items),
         paymentTerms: '50% deposit ($3,500) required to begin work. 50% balance ($3,500) due upon project completion and delivery.',
         notes: `# RIDERGUY PLATFORM - PRODUCTION-READY MICROSERVICES SOLUTION
 

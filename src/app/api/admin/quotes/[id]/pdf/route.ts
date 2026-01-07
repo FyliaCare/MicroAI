@@ -89,7 +89,6 @@ export async function GET(
       
       // Pricing
       lineItems: lineItems,
-      pricingItems: quote.pricingItems || undefined,
       currency: quote.currency || 'USD',
       discountType: (quote.discountType as 'fixed' | 'percentage' | undefined) || 'percentage',
       discountValue: quote.discount || 0,

@@ -73,7 +73,6 @@ export async function GET(
       
       // Pricing
       lineItems: parseJSON(quote.items as any),
-      pricingItems: quote.pricingItems || undefined,
       currency: quote.currency || 'USD',
       discountType: (quote.discountType as 'fixed' | 'percentage' | undefined) || 'percentage',
       discountValue: quote.discount || 0,
