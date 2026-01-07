@@ -1,11 +1,11 @@
+// ============================================================================
+// NEW QUOTE PAGE - World-Class Quote Builder
+// ============================================================================
+
 'use client'
 
-import QuoteBuilderNew from '@/components/admin/quotes/QuoteBuilderNew'
+import QuoteBuilder from '@/components/quotes/QuoteBuilder'
 
 export default function NewQuotePage() {
-  return (
-    <div>
-      <QuoteBuilderNew />
-    </div>
-  )
+  return <QuoteBuilder />
 }

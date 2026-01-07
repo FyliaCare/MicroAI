@@ -1,50 +1,91 @@
+// ============================================================================
+// QUOTES DASHBOARD - World-Class Quote Management
+// Advanced filtering, search, PDF preview, and analytics
+// ============================================================================
+
 'use client'
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Card from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
-import ConvertToProjectModal from '@/components/admin/quotes/ConvertToProjectModal'
-import AIQuoteCreator from '@/components/admin/quotes/AIQuoteCreator'
-import TemplateSelectorModal from '@/components/admin/quotes/TemplateSelectorModal'
+import Link from 'next/link'
+import type { Quote } from '@/types/quote'
+import { QuoteDownloadButton } from '@/components/quotes/QuotePDFPreview'
+import {
+  Plus,
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Edit,
+  Trash2,
+  Send,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText,
+  DollarSign,
+  TrendingUp,
+  Users,
+  Calendar,
+  MoreVertical,
+  ArrowUpDown,
+  Grid,
+  List as ListIcon,
+  Loader2,
+} from 'lucide-react'
 
-interface Quote {
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface QuoteListItem {
   id: string
   quoteNumber: string
-  clientId: string
   title: string
-  projectType: string
-  industry: string
   status: string
-  validUntil: string
   total: number
   currency: string
   createdAt: string
-  updatedAt: string
-  client?: {
+  validUntil?: string
+  clientName?: string
+  clientCompany?: string
+  category?: string
+  Client?: {
     id: string
     name: string
     email: string
-    company?: string | null
+    company?: string
   }
 }
 
-export default function QuotesListPage() {
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
+
+export default function QuotesDashboard() {
   const router = useRouter()
-  const [quotes, setQuotes] = useState<Quote[]>([])
-  const [filteredQuotes, setFilteredQuotes] = useState<Quote[]>([])
+  const [quotes, setQuotes] = useState<QuoteListItem[]>([])
+  const [filteredQuotes, setFilteredQuotes] = useState<QuoteListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'date' | 'number' | 'amount' | 'client'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [convertModalOpen, setConvertModalOpen] = useState(false)
-  const [selectedQuoteForConvert, setSelectedQuoteForConvert] = useState<Quote | null>(null)
-  const [showAICreator, setShowAICreator] = useState(false)
-  const [templateSelectorOpen, setTemplateSelectorOpen] = useState(false)
-  const [selectedQuoteForDownload, setSelectedQuoteForDownload] = useState<Quote | null>(null)
+  const [selectedQuotes, setSelectedQuotes] = useState<Set<string>>(new Set())
+
+  // Statistics
+  const [stats, setStats] = useState({
+    total: 0,
+    draft: 0,
+    sent: 0,
+    accepted: 0,
+    rejected: 0,
+    totalValue: 0,
+    acceptedValue: 0,
+    conversionRate: 0,
+  })
 
   useEffect(() => {
     fetchQuotes()
@@ -52,604 +93,630 @@ export default function QuotesListPage() {
 
   useEffect(() => {
     filterAndSortQuotes()
-  }, [quotes, searchQuery, statusFilter, sortBy])
+    calculateStats()
+  }, [quotes, searchQuery, statusFilter, categoryFilter, sortBy, sortOrder])
+
+  // ============================================================================
+  // DATA FETCHING
+  // ============================================================================
 
   const fetchQuotes = async () => {
+    setLoading(true)
     try {
       const res = await fetch('/api/admin/quotes')
       const data = await res.json()
+      
       if (data.success) {
         setQuotes(data.quotes || [])
+      } else {
+        console.error('Failed to fetch quotes:', data.error)
       }
     } catch (error) {
-      console.error('Failed to fetch quotes:', error)
+      console.error('Error fetching quotes:', error)
     } finally {
       setLoading(false)
     }
   }
 
+  // ============================================================================
+  // FILTERING & SORTING
+  // ============================================================================
+
   const filterAndSortQuotes = () => {
     let filtered = [...quotes]
 
-    // Filter by status
+    // Status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter((q) => q.status === statusFilter)
+      filtered = filtered.filter(q => q.status === statusFilter)
     }
 
-    // Filter by search query
-    if (searchQuery) {
+    // Category filter
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(q => q.category === categoryFilter)
+    }
+
+    // Search filter
+    if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (q) =>
-          q.quoteNumber.toLowerCase().includes(query) ||
-          q.title.toLowerCase().includes(query) ||
-          q.client?.name.toLowerCase().includes(query) ||
-          q.client?.company?.toLowerCase().includes(query)
+      filtered = filtered.filter(q =>
+        q.quoteNumber.toLowerCase().includes(query) ||
+        q.title.toLowerCase().includes(query) ||
+        q.clientName?.toLowerCase().includes(query) ||
+        q.Client?.name?.toLowerCase().includes(query) ||
+        q.clientCompany?.toLowerCase().includes(query) ||
+        q.Client?.company?.toLowerCase().includes(query)
       )
     }
 
-    // Sort
+    // Sorting
     filtered.sort((a, b) => {
+      let comparison = 0
+
       switch (sortBy) {
         case 'date':
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          comparison = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          break
         case 'number':
-          return b.quoteNumber.localeCompare(a.quoteNumber)
+          comparison = a.quoteNumber.localeCompare(b.quoteNumber)
+          break
         case 'amount':
-          return b.total - a.total
+          comparison = (b.total || 0) - (a.total || 0)
+          break
         case 'client':
-          return (a.client?.name || '').localeCompare(b.client?.name || '')
-        default:
-          return 0
+          const nameA = a.clientName || a.Client?.name || ''
+          const nameB = b.clientName || b.Client?.name || ''
+          comparison = nameA.localeCompare(nameB)
+          break
       }
+
+      return sortOrder === 'asc' ? -comparison : comparison
     })
 
     setFilteredQuotes(filtered)
   }
 
+  const calculateStats = () => {
+    const total = quotes.length
+    const draft = quotes.filter(q => q.status === 'draft').length
+    const sent = quotes.filter(q => q.status === 'sent' || q.status === 'viewed').length
+    const accepted = quotes.filter(q => q.status === 'accepted').length
+    const rejected = quotes.filter(q => q.status === 'rejected').length
+
+    const totalValue = quotes.reduce((sum, q) => sum + (q.total || 0), 0)
+    const acceptedValue = quotes
+      .filter(q => q.status === 'accepted')
+      .reduce((sum, q) => sum + (q.total || 0), 0)
+
+    const conversionRate = sent > 0 ? (accepted / sent) * 100 : 0
+
+    setStats({
+      total,
+      draft,
+      sent,
+      accepted,
+      rejected,
+      totalValue,
+      acceptedValue,
+      conversionRate,
+    })
+  }
+
+  // ============================================================================
+  // ACTIONS
+  // ============================================================================
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this quote?')) return
 
     try {
-      const res = await fetch(`/api/admin/quotes/${id}`, {
-        method: 'DELETE',
-      })
-      if (res.ok) {
-        setQuotes(quotes.filter((q) => q.id !== id))
-        alert('Quote deleted successfully')
+      const res = await fetch(`/api/admin/quotes/${id}`, { method: 'DELETE' })
+      const data = await res.json()
+
+      if (data.success) {
+        setQuotes(quotes.filter(q => q.id !== id))
       } else {
-        alert('Failed to delete quote')
+        alert(`Error: ${data.error}`)
       }
     } catch (error) {
-      console.error('Delete error:', error)
+      console.error('Error deleting quote:', error)
       alert('Failed to delete quote')
     }
   }
 
-  const handleOpenTemplateSelector = (quote: Quote) => {
-    setSelectedQuoteForDownload(quote)
-    setTemplateSelectorOpen(true)
-  }
+  const handleBulkDelete = async () => {
+    if (selectedQuotes.size === 0) return
+    if (!confirm(`Delete ${selectedQuotes.size} selected quotes?`)) return
 
-  const handleDownloadPDF = async (quote: Quote) => {
     try {
-      console.log('📄 Downloading PDF for quote:', quote.id)
-      
-      // Add cache-busting parameter
-      const timestamp = Date.now()
-      const response = await fetch(`/api/admin/quotes/${quote.id}/pdf?t=${timestamp}`, {
-        method: 'GET',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-        },
-      })
-      
-      console.log('Response status:', response.status)
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
-      
-      if (response.ok) {
-        const contentType = response.headers.get('content-type')
-        
-        // Verify it's actually a PDF
-        if (!contentType || !contentType.includes('application/pdf')) {
-          console.error('Invalid content type:', contentType)
-          alert('Server returned invalid file type. Please try again.')
-          return
-        }
-        
-        console.log('✅ PDF download successful')
-        const blob = await response.blob()
-        
-        // Verify blob size
-        if (blob.size === 0) {
-          console.error('Empty PDF received')
-          alert('Received empty PDF. Please try again.')
-          return
-        }
-        
-        console.log('PDF size:', blob.size, 'bytes')
-        
-        // Create download link
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `quote-${quote.quoteNumber}.pdf`
-        document.body.appendChild(a)
-        a.click()
-        
-        // Cleanup
-        setTimeout(() => {
-          window.URL.revokeObjectURL(url)
-          document.body.removeChild(a)
-        }, 100)
-        
-        console.log('✅ PDF downloaded:', `quote-${quote.quoteNumber}.pdf`)
-      } else {
-        const errorData = await response.json().catch(() => ({ 
-          error: 'Unknown error', 
-          details: `Server returned ${response.status}` 
-        }))
-        console.error('❌ PDF generation failed:', errorData)
-        alert(
-          `Failed to generate PDF: ${errorData.error}\n\n` +
-          `${errorData.details || ''}\n\n` +
-          `If this problem persists, try:\n` +
-          `• Refreshing the page\n` +
-          `• Clearing your browser cache\n` +
-          `• Contacting support`
-        )
-      }
-    } catch (error) {
-      console.error('❌ PDF download error:', error)
-      alert(
-        `Failed to download PDF: ${error instanceof Error ? error.message : 'Unknown error'}\n\n` +
-        `Please check:\n` +
-        `• Your internet connection\n` +
-        `• Browser console for details\n` +
-        `• Try refreshing the page`
+      const promises = Array.from(selectedQuotes).map(id =>
+        fetch(`/api/admin/quotes/${id}`, { method: 'DELETE' })
       )
+      
+      await Promise.all(promises)
+      setQuotes(quotes.filter(q => !selectedQuotes.has(q.id)))
+      setSelectedQuotes(new Set())
+    } catch (error) {
+      console.error('Error deleting quotes:', error)
+      alert('Failed to delete some quotes')
     }
   }
 
-  const handleOpenConvertModal = (quote: Quote) => {
-    setSelectedQuoteForConvert(quote)
-    setConvertModalOpen(true)
+  const toggleQuoteSelection = (id: string) => {
+    const newSelected = new Set(selectedQuotes)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedQuotes(newSelected)
   }
 
-  const handleConversionSuccess = (projectId: string) => {
-    alert('Quote successfully converted to project!')
-    // Refresh quotes list to show updated status
-    fetchQuotes()
-    // Navigate to the new project
-    router.push(`/admin/projects/${projectId}`)
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
-      case 'sent':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
-      case 'viewed':
-        return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
-      case 'accepted':
-        return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-      case 'rejected':
-        return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-      case 'expired':
-        return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
-      default:
-        return 'bg-slate-100 text-slate-700'
+  const toggleSelectAll = () => {
+    if (selectedQuotes.size === filteredQuotes.length) {
+      setSelectedQuotes(new Set())
+    } else {
+      setSelectedQuotes(new Set(filteredQuotes.map(q => q.id)))
     }
   }
 
-  const stats = {
-    total: quotes.length,
-    draft: quotes.filter((q) => q.status === 'draft').length,
-    sent: quotes.filter((q) => q.status === 'sent').length,
-    accepted: quotes.filter((q) => q.status === 'accepted').length,
-    totalValue: quotes.reduce((sum, q) => sum + q.total, 0),
+  // ============================================================================
+  // RENDER HELPERS
+  // ============================================================================
+
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, { bg: string; text: string; icon: any }> = {
+      draft: { bg: 'bg-slate-100', text: 'text-slate-700', icon: Clock },
+      sent: { bg: 'bg-blue-100', text: 'text-blue-700', icon: Send },
+      viewed: { bg: 'bg-purple-100', text: 'text-purple-700', icon: Eye },
+      accepted: { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle },
+      rejected: { bg: 'bg-red-100', text: 'text-red-700', icon: XCircle },
+      expired: { bg: 'bg-orange-100', text: 'text-orange-700', icon: Clock },
+    }
+
+    const variant = variants[status] || variants.draft
+    const Icon = variant.icon
+
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${variant.bg} ${variant.text}`}>
+        <Icon className="w-3 h-3" />
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    )
+  }
+
+  const formatCurrency = (amount: number, currency: string = 'USD') => {
+    const symbols: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', GHS: '₵' }
+    return `${symbols[currency] || '$'}${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading quotes...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+        <span className="ml-3 text-lg text-slate-600">Loading quotes...</span>
       </div>
     )
   }
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Quotes Dashboard
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 mt-2">
-                Manage and track all your quotes
-              </p>
+              <h1 className="text-3xl font-bold text-slate-900">Quotes</h1>
+              <p className="mt-2 text-slate-600">Manage your project quotes and proposals</p>
             </div>
-            <div className="flex gap-3">
-              <Button 
-                onClick={() => setShowAICreator(true)}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            
+            <Link
+              href="/admin/quotes/new"
+              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/30"
+            >
+              <Plus className="w-5 h-5" />
+              New Quote
+            </Link>
+          </div>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            title="Total Quotes"
+            value={stats.total.toString()}
+            icon={FileText}
+            color="indigo"
+          />
+          <StatCard
+            title="Total Value"
+            value={formatCurrency(stats.totalValue)}
+            icon={DollarSign}
+            color="green"
+          />
+          <StatCard
+            title="Accepted"
+            value={stats.accepted.toString()}
+            subtitle={formatCurrency(stats.acceptedValue)}
+            icon={CheckCircle}
+            color="emerald"
+          />
+          <StatCard
+            title="Conversion Rate"
+            value={`${stats.conversionRate.toFixed(1)}%`}
+            icon={TrendingUp}
+            color="purple"
+          />
+        </div>
+
+        {/* Filters & Search */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="md:col-span-2 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search quotes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            >
+              <option value="all">All Status</option>
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="viewed">Viewed</option>
+              <option value="accepted">Accepted</option>
+              <option value="rejected">Rejected</option>
+              <option value="expired">Expired</option>
+            </select>
+
+            {/* Sort By */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            >
+              <option value="date">Sort by Date</option>
+              <option value="number">Sort by Number</option>
+              <option value="amount">Sort by Amount</option>
+              <option value="client">Sort by Client</option>
+            </select>
+          </div>
+
+          {/* View Mode & Bulk Actions */}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleSelectAll}
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
               >
-                <span className="mr-2">✨</span>
-                AI Quote Generator
-              </Button>
-              <Link href="/admin/quotes/new">
-                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-                  <span className="mr-2">+</span>
-                  New Quote
-                </Button>
-              </Link>
+                {selectedQuotes.size === filteredQuotes.length ? 'Deselect All' : 'Select All'}
+              </button>
+              
+              {selectedQuotes.size > 0 && (
+                <>
+                  <span className="text-sm text-slate-500">|</span>
+                  <span className="text-sm text-slate-600">{selectedQuotes.size} selected</span>
+                  <button
+                    onClick={handleBulkDelete}
+                    className="ml-2 text-sm text-red-600 hover:text-red-700 font-medium"
+                  >
+                    Delete Selected
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                <Grid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+              >
+                <ListIcon className="w-5 h-5" />
+              </button>
             </div>
           </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-            <Card className="p-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">Total Quotes</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
-            </Card>
-            <Card className="p-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">Draft</p>
-              <p className="text-2xl font-bold text-slate-600">{stats.draft}</p>
-            </Card>
-            <Card className="p-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">Sent</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.sent}</p>
-            </Card>
-            <Card className="p-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">Accepted</p>
-              <p className="text-2xl font-bold text-green-600">{stats.accepted}</p>
-            </Card>
-            <Card className="p-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400">Total Value</p>
-              <p className="text-2xl font-bold text-indigo-600">
-                ${stats.totalValue ? stats.totalValue.toLocaleString() : '0'}
-              </p>
-            </Card>
-          </div>
-
-          {/* Filters & Controls */}
-          <Card className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Search */}
-              <div className="md:col-span-2">
-                <Input
-                  type="text"
-                  placeholder="🔍 Search quotes, clients, or companies..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Status Filter */}
-              <div>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="all">All Status</option>
-                  <option value="draft">Draft</option>
-                  <option value="sent">Sent</option>
-                  <option value="viewed">Viewed</option>
-                  <option value="accepted">Accepted</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="expired">Expired</option>
-                </select>
-              </div>
-
-              {/* Sort */}
-              <div className="flex gap-2">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="flex-1 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="date">Sort: Date</option>
-                  <option value="number">Sort: Number</option>
-                  <option value="amount">Sort: Amount</option>
-                  <option value="client">Sort: Client</option>
-                </select>
-
-                {/* View Toggle */}
-                <div className="flex gap-1 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-700 dark:to-slate-600 rounded-lg p-1 border border-indigo-200 dark:border-slate-600">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                      viewMode === 'grid'
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'
-                    }`}
-                    title="Grid View"
-                  >
-                    <span className="text-lg">⊞</span>
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                      viewMode === 'list'
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400'
-                    }`}
-                    title="List View"
-                  >
-                    <span className="text-lg">☰</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Card>
         </div>
 
         {/* Quotes List */}
         {filteredQuotes.length === 0 ? (
-          <Card className="p-12 text-center">
-            <div className="text-6xl mb-4">📄</div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-              {searchQuery || statusFilter !== 'all' ? 'No quotes found' : 'No quotes yet'}
-            </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+            <FileText className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">No quotes found</h3>
+            <p className="text-slate-600 mb-6">
               {searchQuery || statusFilter !== 'all'
                 ? 'Try adjusting your filters'
                 : 'Create your first quote to get started'}
             </p>
             {!searchQuery && statusFilter === 'all' && (
-              <Link href="/admin/quotes/new">
-                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600">
-                  Create First Quote
-                </Button>
+              <Link
+                href="/admin/quotes/new"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                Create Quote
               </Link>
             )}
-          </Card>
+          </div>
         ) : viewMode === 'grid' ? (
-          // Grid View
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredQuotes.map((quote) => (
-              <Card key={quote.id} className="p-6 hover:shadow-lg transition-shadow">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1">
-                      {quote.quoteNumber}
-                    </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      {quote.client?.name || 'No client'}
-                    </p>
-                    {quote.client?.company && (
-                      <p className="text-xs text-slate-600">{quote.client.company}</p>
-                    )}
-                  </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                      quote.status
-                    )}`}
-                  >
-                    {quote.status.charAt(0).toUpperCase() + quote.status.slice(1)}
-                  </span>
-                </div>
-
-                {/* Project Info */}
-                <div className="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
-                  <p className="font-semibold text-slate-900 dark:text-white mb-2">
-                    {quote.title}
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded">
-                      {quote.projectType}
-                    </span>
-                    <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded">
-                      {quote.industry}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Amount */}
-                <div className="mb-4">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Total Amount</p>
-                  <p className="text-2xl font-bold text-indigo-600">
-                    {quote.currency} {quote.total ? quote.total.toLocaleString() : '0'}
-                  </p>
-                </div>
-
-                {/* Dates */}
-                <div className="mb-4 text-sm text-slate-600 dark:text-slate-400">
-                  <p>Created: {new Date(quote.createdAt).toLocaleDateString()}</p>
-                  <p>Valid Until: {new Date(quote.validUntil).toLocaleDateString()}</p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => router.push(`/admin/quotes/${quote.id}/edit`)}
-                    className="flex-1 px-3 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
-                  >
-                    ✏️ Edit
-                  </button>
-                  <button
-                    onClick={() => handleOpenTemplateSelector(quote)}
-                    className="flex-1 px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg hover:bg-green-50 transition-colors"
-                    title="Download quote"
-                  >
-                    📥 Download
-                  </button>
-                  {quote.status === 'accepted' && (
-                    <button
-                      onClick={() => handleOpenConvertModal(quote)}
-                      className="flex-1 px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all"
-                    >
-                      🚀
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleDelete(quote.id)}
-                    className="px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </Card>
+            {filteredQuotes.map(quote => (
+              <QuoteCard
+                key={quote.id}
+                quote={quote}
+                isSelected={selectedQuotes.has(quote.id)}
+                onToggleSelect={() => toggleQuoteSelection(quote.id)}
+                onDelete={() => handleDelete(quote.id)}
+                getStatusBadge={getStatusBadge}
+                formatCurrency={formatCurrency}
+                formatDate={formatDate}
+              />
             ))}
           </div>
         ) : (
-          // List View
-          <Card className="overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 border-b-2 border-indigo-700">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                      Quote #
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                      Client
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                      Project
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filteredQuotes.map((quote) => (
-                  <tr
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="w-12 px-6 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedQuotes.size === filteredQuotes.length}
+                      onChange={toggleSelectAll}
+                      className="rounded border-slate-300"
+                    />
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    Quote
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    Client
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    Amount
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {filteredQuotes.map(quote => (
+                  <QuoteRow
                     key={quote.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-semibold text-slate-900 dark:text-white">
-                        {quote.quoteNumber}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="font-medium text-slate-900 dark:text-white">
-                          {quote.client?.name || 'No client'}
-                        </p>
-                        {quote.client?.company && (
-                          <p className="text-sm text-slate-500">{quote.client.company}</p>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-slate-900 dark:text-white">{quote.title}</p>
-                      <p className="text-sm text-slate-500">{quote.projectType}</p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-semibold text-indigo-600">
-                        {quote.currency} {quote.total ? quote.total.toLocaleString() : '0'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                          quote.status
-                        )}`}
-                      >
-                        {quote.status.charAt(0).toUpperCase() + quote.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
-                      {new Date(quote.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex justify-end gap-2">
-                        <Link href={`/admin/quotes/${quote.id}/edit`}>
-                          <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
-                            Edit
-                          </button>
-                        </Link>
-                        <button
-                          onClick={() => handleOpenTemplateSelector(quote)}
-                          className="text-green-600 hover:text-green-700 font-medium text-sm"
-                          title="Download quote"
-                        >
-                          Download
-                        </button>
-                        {quote.status === 'accepted' && (
-                          <button
-                            onClick={() => handleOpenConvertModal(quote)}
-                            className="text-purple-600 hover:text-purple-700 font-medium text-sm"
-                          >
-                            Convert
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(quote.id)}
-                          className="text-red-600 hover:text-red-700 font-medium text-sm"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                    quote={quote}
+                    isSelected={selectedQuotes.has(quote.id)}
+                    onToggleSelect={() => toggleQuoteSelection(quote.id)}
+                    onDelete={() => handleDelete(quote.id)}
+                    getStatusBadge={getStatusBadge}
+                    formatCurrency={formatCurrency}
+                    formatDate={formatDate}
+                  />
                 ))}
               </tbody>
-              </table>
-            </div>
-          </Card>
+            </table>
+          </div>
         )}
       </div>
-
-      {/* AI Quote Creator Modal */}
-      {showAICreator && (
-        <AIQuoteCreator onClose={() => setShowAICreator(false)} />
-      )}
-
-      {/* Template Selector Modal */}
-      {selectedQuoteForDownload && (
-        <TemplateSelectorModal
-          isOpen={templateSelectorOpen}
-          onClose={() => {
-            setTemplateSelectorOpen(false)
-            setSelectedQuoteForDownload(null)
-          }}
-          quoteId={selectedQuoteForDownload.id}
-          quoteNumber={selectedQuoteForDownload.quoteNumber}
-        />
-      )}
-
-      {/* Conversion Modal */}
-      {selectedQuoteForConvert && (
-        <ConvertToProjectModal
-          isOpen={convertModalOpen}
-          onClose={() => {
-            setConvertModalOpen(false)
-            setSelectedQuoteForConvert(null)
-          }}
-          quote={{
-            id: selectedQuoteForConvert.id,
-            quoteNumber: selectedQuoteForConvert.quoteNumber,
-            title: selectedQuoteForConvert.title,
-            clientName: selectedQuoteForConvert.client?.name,
-            total: selectedQuoteForConvert.total,
-          }}
-          onSuccess={handleConversionSuccess}
-        />
-      )}
     </div>
+  )
+}
+
+// ============================================================================
+// SUB-COMPONENTS
+// ============================================================================
+
+function StatCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  color,
+}: {
+  title: string
+  value: string
+  subtitle?: string
+  icon: any
+  color: string
+}) {
+  const colors: Record<string, { bg: string; icon: string; text: string }> = {
+    indigo: { bg: 'bg-indigo-50', icon: 'text-indigo-600', text: 'text-indigo-900' },
+    green: { bg: 'bg-green-50', icon: 'text-green-600', text: 'text-green-900' },
+    emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', text: 'text-emerald-900' },
+    purple: { bg: 'bg-purple-50', icon: 'text-purple-600', text: 'text-purple-900' },
+  }
+
+  const variant = colors[color] || colors.indigo
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-600 mb-1">{title}</p>
+          <p className={`text-2xl font-bold ${variant.text}`}>{value}</p>
+          {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
+        </div>
+        <div className={`p-3 rounded-lg ${variant.bg}`}>
+          <Icon className={`w-6 h-6 ${variant.icon}`} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function QuoteCard({
+  quote,
+  isSelected,
+  onToggleSelect,
+  onDelete,
+  getStatusBadge,
+  formatCurrency,
+  formatDate,
+}: any) {
+  const router = useRouter()
+
+  return (
+    <div className={`bg-white rounded-xl shadow-sm border-2 transition-all hover:shadow-md ${isSelected ? 'border-indigo-500' : 'border-slate-200'}`}>
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start gap-3 flex-1">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={onToggleSelect}
+              className="mt-1 rounded border-slate-300"
+            />
+            <div className="flex-1">
+              <h3 className="font-semibold text-slate-900 mb-1">{quote.title}</h3>
+              <p className="text-sm text-slate-500">{quote.quoteNumber}</p>
+            </div>
+          </div>
+          {getStatusBadge(quote.status)}
+        </div>
+
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <Users className="w-4 h-4" />
+            <span>{quote.clientName || quote.Client?.name || 'No client'}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <Calendar className="w-4 h-4" />
+            <span>{formatDate(quote.createdAt)}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          <div>
+            <p className="text-xs text-slate-500">Total</p>
+            <p className="text-xl font-bold text-indigo-600">
+              {formatCurrency(quote.total, quote.currency)}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/admin/quotes/${quote.id}/edit`}
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              title="Edit"
+            >
+              <Edit className="w-4 h-4" />
+            </Link>
+            
+            <QuoteDownloadButton
+              quote={quote as Quote}
+              variant="ghost"
+              size="sm"
+              showIcon={true}
+            >
+              <Download className="w-4 h-4" />
+            </QuoteDownloadButton>
+            
+            <button
+              onClick={onDelete}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              title="Delete"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function QuoteRow({
+  quote,
+  isSelected,
+  onToggleSelect,
+  onDelete,
+  getStatusBadge,
+  formatCurrency,
+  formatDate,
+}: any) {
+  return (
+    <tr className={`hover:bg-slate-50 transition-colors ${isSelected ? 'bg-indigo-50' : ''}`}>
+      <td className="px-6 py-4">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={onToggleSelect}
+          className="rounded border-slate-300"
+        />
+      </td>
+      <td className="px-6 py-4">
+        <div>
+          <Link
+            href={`/admin/quotes/${quote.id}/edit`}
+            className="font-medium text-slate-900 hover:text-indigo-600"
+          >
+            {quote.title}
+          </Link>
+          <p className="text-sm text-slate-500">{quote.quoteNumber}</p>
+        </div>
+      </td>
+      <td className="px-6 py-4">
+        <div className="text-sm text-slate-900">{quote.clientName || quote.Client?.name || '-'}</div>
+        {quote.clientCompany && <div className="text-xs text-slate-500">{quote.clientCompany}</div>}
+      </td>
+      <td className="px-6 py-4">
+        <div className="font-medium text-slate-900">{formatCurrency(quote.total, quote.currency)}</div>
+      </td>
+      <td className="px-6 py-4">{getStatusBadge(quote.status)}</td>
+      <td className="px-6 py-4">
+        <div className="text-sm text-slate-600">{formatDate(quote.createdAt)}</div>
+      </td>
+      <td className="px-6 py-4 text-right">
+        <div className="flex items-center justify-end gap-2">
+          <Link
+            href={`/admin/quotes/${quote.id}/edit`}
+            className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <Edit className="w-4 h-4" />
+          </Link>
+          <QuoteDownloadButton quote={quote as Quote} variant="ghost" size="sm" showIcon={true}>
+            <Download className="w-4 h-4" />
+          </QuoteDownloadButton>
+          <button
+            onClick={onDelete}
+            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
   )
 }
