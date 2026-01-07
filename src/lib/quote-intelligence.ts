@@ -400,8 +400,7 @@ Every project benefits from our proven methodology that combines speed with qual
       projectsCompleted: '25+ projects',
       
       // Contact & Social
-      linkedIn: '',
-      github: 'https://github.com/FyliaCare',
+      linkedIn: 'https://www.linkedin.com/company/microai-systems',
       twitter: 'https://x.com/microai_systems',
       
       // Legal

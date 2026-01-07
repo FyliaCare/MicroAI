@@ -242,7 +242,7 @@ Address: BR253 Pasture St. Takoradi, Ghana
 - Global Standards - Ghana-based, world-class quality
 
 ### **Social Links:**
-- GitHub: https://github.com/FyliaCare
+- LinkedIn: https://www.linkedin.com/company/microai-systems
 - Twitter: https://x.com/microai_systems
 
 ---
