@@ -360,9 +360,16 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
     const validUntilDate = new Date()
     validUntilDate.setDate(validUntilDate.getDate() + (formData.validityDays || 30))
 
+    const generateQuoteNumber = () => {
+      const year = new Date().getFullYear()
+      const month = String(new Date().getMonth() + 1).padStart(2, '0')
+      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+      return `QT-${year}${month}-${random}`
+    }
+
     return {
       id: quoteId || 'preview-quote',
-      quoteNumber: formData.title ? `DRAFT-${formData.title.slice(0, 6).toUpperCase()}` : 'DRAFT-QUOTE',
+      quoteNumber: generateQuoteNumber(),
       version: 1,
       title: formData.title,
       description: formData.description,

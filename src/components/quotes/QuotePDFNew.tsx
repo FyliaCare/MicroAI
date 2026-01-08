@@ -86,8 +86,8 @@ const createStyles = (brandColor: string = '#4F46E5') => StyleSheet.create({
   },
   
   coverClientInfo: {
-    marginTop: 60,
-    paddingTop: 40,
+    marginTop: 30,
+    paddingTop: 30,
     borderTopWidth: 2,
     borderTopColor: '#E2E8F0',
   },
@@ -101,16 +101,16 @@ const createStyles = (brandColor: string = '#4F46E5') => StyleSheet.create({
   },
   
   coverClientName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 600,
     color: '#1E293B',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   
   coverClientDetails: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#475569',
-    lineHeight: 1.6,
+    lineHeight: 1.5,
   },
   
   coverFooter: {
@@ -173,90 +173,146 @@ const createStyles = (brandColor: string = '#4F46E5') => StyleSheet.create({
   // PROFILE PAGE STYLES
   profilePage: {
     fontFamily: DEFAULT_FONT_FAMILY,
-    padding: 60,
+    padding: 0,
     backgroundColor: '#FFFFFF',
   },
   
   profileHeader: {
-    marginBottom: 40,
-    paddingBottom: 20,
-    borderBottomWidth: 3,
-    borderBottomColor: brandColor,
+    backgroundColor: brandColor,
+    padding: 50,
+    paddingTop: 70,
+    paddingBottom: 60,
+    alignItems: 'center',
   },
   
   profileTitle: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: 700,
-    color: brandColor,
-    marginBottom: 15,
+    color: '#FFFFFF',
+    marginBottom: 12,
+    textAlign: 'center',
+    letterSpacing: 1,
+  },
+  
+  profileSubtitle: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    opacity: 0.95,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  
+  profileBody: {
+    padding: 50,
   },
   
   profileAbout: {
-    fontSize: 11,
-    color: '#475569',
-    lineHeight: 1.8,
-    marginBottom: 30,
+    fontSize: 12,
+    color: '#1E293B',
+    lineHeight: 1.9,
+    marginBottom: 40,
     textAlign: 'justify',
+    padding: 25,
+    backgroundColor: '#F8FAFC',
+    borderLeftWidth: 5,
+    borderLeftColor: brandColor,
+    borderRadius: 4,
   },
   
   profileSection: {
-    marginBottom: 25,
+    marginBottom: 35,
   },
   
   profileSectionTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 700,
-    color: '#1E293B',
-    marginBottom: 12,
+    color: brandColor,
+    marginBottom: 18,
+    paddingBottom: 10,
+    borderBottomWidth: 3,
+    borderBottomColor: '#E2E8F0',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   
   profileList: {
-    paddingLeft: 15,
+    paddingLeft: 0,
   },
   
   profileListItem: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#475569',
-    marginBottom: 6,
-    lineHeight: 1.5,
+    marginBottom: 10,
+    lineHeight: 1.6,
+    paddingLeft: 20,
+    position: 'relative',
   },
   
   profileBullet: {
-    fontSize: 10,
+    fontSize: 14,
     color: brandColor,
-    marginRight: 8,
+    marginRight: 10,
+    fontWeight: 700,
   },
   
   profileGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 15,
-    marginTop: 30,
+    gap: 12,
+    marginTop: 40,
+    paddingTop: 40,
+    borderTopWidth: 2,
+    borderTopColor: '#E2E8F0',
   },
   
   profileCard: {
     width: '48%',
-    padding: 15,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 6,
-    borderLeftWidth: 3,
+    padding: 18,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    borderLeftWidth: 5,
     borderLeftColor: brandColor,
   },
   
   profileCardLabel: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#64748B',
-    marginBottom: 4,
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontWeight: 600,
+  },
+  
+  profileCardValue: {
+    fontSize: 13,
+    color: '#1E293B',
+    fontWeight: 600,
+  },
+  
+  profileHighlight: {
+    backgroundColor: '#EEF2FF',
+    padding: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    marginBottom: 25,
+  },
+  
+  profileHighlightTitle: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: brandColor,
+    marginBottom: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   
-  profileCardValue: {
-    fontSize: 12,
-    color: '#1E293B',
-    fontWeight: 600,
+  profileHighlightText: {
+    fontSize: 11,
+    color: '#475569',
+    lineHeight: 1.7,
   },
   
   // TOC STYLES
@@ -787,67 +843,90 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
 
       {/* ========== COMPANY PROFILE PAGE (FINAL) ========== */}
       <Page size="A4" style={styles.profilePage} wrap>
+        {/* Premium Header with Logo */}
         <View style={styles.profileHeader}>
-          <Text style={styles.profileTitle}>MicroAI Company Profile</Text>
+          {companyLogo && (
+            <Image style={styles.coverLogo} src={companyLogo} />
+          )}
+          <Text style={styles.profileTitle}>{companyName}</Text>
+          <Text style={styles.profileSubtitle}>{companyTagline}</Text>
         </View>
         
-        <Text style={styles.profileAbout}>{aboutSection}</Text>
-        
-        {servicesOverview.length > 0 && (
-          <View style={styles.profileSection}>
-            <Text style={styles.profileSectionTitle}>Our Services</Text>
-            <View style={styles.profileList}>
-              {servicesOverview.map((service: string, index: number) => (
-                <Text key={index} style={styles.profileListItem}>
-                  <Text style={styles.profileBullet}>•</Text> {service}
-                </Text>
-              ))}
+        {/* Body Content */}
+        <View style={styles.profileBody}>
+          {/* About Section with Highlight Box */}
+          <Text style={styles.profileAbout}>{aboutSection}</Text>
+          
+          {/* Why Choose Us Highlight */}
+          <View style={styles.profileHighlight}>
+            <Text style={styles.profileHighlightTitle}>Why Choose MicroAI Systems?</Text>
+            <Text style={styles.profileHighlightText}>
+              We combine cutting-edge technology with agile development practices to deliver 
+              exceptional results. Our global presence and local expertise ensure your project 
+              succeeds regardless of complexity or scale.
+            </Text>
+          </View>
+          
+          {/* Services Grid */}
+          {servicesOverview.length > 0 && (
+            <View style={styles.profileSection}>
+              <Text style={styles.profileSectionTitle}>🚀 Our Services</Text>
+              <View style={styles.profileList}>
+                {servicesOverview.map((service: string, index: number) => (
+                  <Text key={index} style={styles.profileListItem}>
+                    <Text style={styles.profileBullet}>▸</Text> {service}
+                  </Text>
+                ))}
+              </View>
             </View>
-          </View>
-        )}
-        
-        {expertise.length > 0 && (
-          <View style={styles.profileSection}>
-            <Text style={styles.profileSectionTitle}>Technical Expertise</Text>
-            <View style={styles.profileList}>
-              {expertise.map((tech: string, index: number) => (
-                <Text key={index} style={styles.profileListItem}>
-                  <Text style={styles.profileBullet}>•</Text> {tech}
-                </Text>
-              ))}
+          )}
+          
+          {/* Technical Expertise */}
+          {expertise.length > 0 && (
+            <View style={styles.profileSection}>
+              <Text style={styles.profileSectionTitle}>💻 Technical Expertise</Text>
+              <View style={styles.profileList}>
+                {expertise.map((tech: string, index: number) => (
+                  <Text key={index} style={styles.profileListItem}>
+                    <Text style={styles.profileBullet}>▸</Text> {tech}
+                  </Text>
+                ))}
+              </View>
             </View>
-          </View>
-        )}
-        
-        {coreValues.length > 0 && (
-          <View style={styles.profileSection}>
-            <Text style={styles.profileSectionTitle}>Core Values</Text>
-            <View style={styles.profileList}>
-              {coreValues.map((value: string, index: number) => (
-                <Text key={index} style={styles.profileListItem}>
-                  <Text style={styles.profileBullet}>•</Text> {value}
-                </Text>
-              ))}
+          )}
+          
+          {/* Core Values */}
+          {coreValues.length > 0 && (
+            <View style={styles.profileSection}>
+              <Text style={styles.profileSectionTitle}>⭐ Core Values</Text>
+              <View style={styles.profileList}>
+                {coreValues.map((value: string, index: number) => (
+                  <Text key={index} style={styles.profileListItem}>
+                    <Text style={styles.profileBullet}>▸</Text> {value}
+                  </Text>
+                ))}
+              </View>
             </View>
-          </View>
-        )}
-        
-        <View style={styles.profileGrid}>
-          <View style={styles.profileCard}>
-            <Text style={styles.profileCardLabel}>Email</Text>
-            <Text style={styles.profileCardValue}>{companyEmail}</Text>
-          </View>
-          <View style={styles.profileCard}>
-            <Text style={styles.profileCardLabel}>Phone</Text>
-            <Text style={styles.profileCardValue}>{companyPhone}</Text>
-          </View>
-          <View style={styles.profileCard}>
-            <Text style={styles.profileCardLabel}>Website</Text>
-            <Text style={styles.profileCardValue}>{companyWebsite}</Text>
-          </View>
-          <View style={styles.profileCard}>
-            <Text style={styles.profileCardLabel}>Location</Text>
-            <Text style={styles.profileCardValue}>{companyAddress}</Text>
+          )}
+          
+          {/* Contact Information Cards */}
+          <View style={styles.profileGrid}>
+            <View style={styles.profileCard}>
+              <Text style={styles.profileCardLabel}>📧 Email</Text>
+              <Text style={styles.profileCardValue}>{companyEmail}</Text>
+            </View>
+            <View style={styles.profileCard}>
+              <Text style={styles.profileCardLabel}>📱 Phone</Text>
+              <Text style={styles.profileCardValue}>{companyPhone}</Text>
+            </View>
+            <View style={styles.profileCard}>
+              <Text style={styles.profileCardLabel}>🌐 Website</Text>
+              <Text style={styles.profileCardValue}>{companyWebsite}</Text>
+            </View>
+            <View style={styles.profileCard}>
+              <Text style={styles.profileCardLabel}>📍 Location</Text>
+              <Text style={styles.profileCardValue}>{companyAddress}</Text>
+            </View>
           </View>
         </View>
       </Page>
