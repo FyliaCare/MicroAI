@@ -90,27 +90,38 @@ const createStyles = (brandColor: string = '#4F46E5') => StyleSheet.create({
     paddingTop: 30,
     borderTopWidth: 2,
     borderTopColor: '#E2E8F0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  
+  coverClientLeft: {
+    width: '45%',
+  },
+  
+  coverClientRight: {
+    width: '50%',
   },
   
   coverClientLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#64748B',
-    marginBottom: 10,
+    marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   
   coverClientName: {
-    fontSize: 20,
-    fontWeight: 600,
+    fontSize: 22,
+    fontWeight: 700,
     color: '#1E293B',
-    marginBottom: 6,
+    lineHeight: 1.3,
   },
   
   coverClientDetails: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#475569',
-    lineHeight: 1.5,
+    lineHeight: 1.7,
   },
   
   coverFooter: {
@@ -715,13 +726,26 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
           <Text style={styles.coverQuoteNumber}>{quote.quoteNumber}</Text>
           
           <View style={styles.coverClientInfo}>
-            <Text style={styles.coverClientLabel}>Prepared For</Text>
-            <Text style={styles.coverClientName}>{quote.clientName || quote.clientCompany}</Text>
-            <Text style={styles.coverClientDetails}>
-              {quote.clientEmail}{'\n'}
-              {quote.clientPhone && `${quote.clientPhone}\n`}
-              {quote.clientAddress}
-            </Text>
+            <View style={styles.coverClientLeft}>
+              <Text style={styles.coverClientLabel}>Prepared For</Text>
+              <Text style={styles.coverClientName}>{quote.clientName || quote.clientCompany}</Text>
+            </View>
+            
+            <View style={styles.coverClientRight}>
+              <Text style={styles.coverClientDetails}>
+                {quote.clientEmail}
+              </Text>
+              {quote.clientPhone && (
+                <Text style={styles.coverClientDetails}>
+                  {quote.clientPhone}
+                </Text>
+              )}
+              {quote.clientAddress && (
+                <Text style={styles.coverClientDetails}>
+                  {quote.clientAddress}
+                </Text>
+              )}
+            </View>
           </View>
         </View>
         
