@@ -94,10 +94,10 @@ export default function QuotePDFPreview({
   return (
     <div className="space-y-4">
       {/* Control Buttons */}
-      <div className="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+      <div className="flex items-center gap-3 p-5 bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-xl shadow-lg">
         <button
           onClick={togglePreview}
-          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-all hover:shadow-md"
+          className="flex items-center gap-2.5 px-5 py-3 text-sm font-semibold text-slate-700 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg hover:from-slate-100 hover:to-slate-200 transition-all hover:shadow-lg transform hover:-translate-y-0.5 border border-slate-300"
         >
           {previewVisible ? (
             <>
@@ -115,7 +115,7 @@ export default function QuotePDFPreview({
         <PDFDownloadLink
           document={<QuotePDF quote={quote} />}
           fileName={fileName}
-          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2.5 px-5 py-3 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
           {({ loading, error }) => {
             if (error) {
@@ -146,56 +146,60 @@ export default function QuotePDFPreview({
           }}
         </PDFDownloadLink>
 
-        <div className="ml-auto flex items-center gap-2 text-sm text-slate-600">
-          <FileText className="w-4 h-4" />
-          <span className="font-medium">{quote.quoteNumber || 'DRAFT'}</span>
+        <div className="ml-auto flex items-center gap-2.5 px-4 py-2.5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg border border-indigo-100">
+          <FileText className="w-4 h-4 text-indigo-600" />
+          <span className="font-bold text-indigo-900">{quote.quoteNumber || 'DRAFT'}</span>
         </div>
       </div>
 
       {/* PDF Preview */}
       {previewVisible && (
-        <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white shadow-lg">
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-4 border-b border-slate-200">
+        <div className="rounded-xl overflow-hidden bg-white shadow-2xl border border-slate-200">
+          <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 px-6 py-5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-indigo-600" />
+              <div className="flex items-center gap-4">
+                <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-lg">
+                  <FileText className="h-6 w-6 text-white" />
+                </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-bold text-white text-lg">
                     Live PDF Preview
                   </h3>
-                  <p className="text-xs text-gray-600 mt-0.5">
-                    Cover • Company Profile • Table of Contents • Project Details
+                  <p className="text-white/80 text-sm mt-0.5 font-medium">
+                    Cover • Intro • Table of Contents • Details • Company Profile
                   </p>
                 </div>
               </div>
               <button
                 onClick={togglePreview}
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium"
+                className="px-4 py-2 text-sm bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all font-semibold border border-white/20"
               >
                 Hide Preview
               </button>
             </div>
           </div>
           
-          <div className="h-[900px] bg-gray-50">
+          <div className="h-[900px] bg-gradient-to-br from-slate-50 to-slate-100">
             {pdfError ? (
               <div className="flex items-center justify-center h-full">
-                <div className="text-center px-6 max-w-md">
-                  <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="text-center px-8 max-w-lg bg-white rounded-2xl shadow-xl border border-red-100 p-10">
+                  <div className="bg-red-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <AlertCircle className="h-10 w-10 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
                     PDF Rendering Error
                   </h3>
-                  <p className="text-sm text-gray-600 mb-6">{pdfError}</p>
-                  <div className="flex items-center justify-center gap-3">
+                  <p className="text-gray-600 mb-8 leading-relaxed">{pdfError}</p>
+                  <div className="flex items-center justify-center gap-4">
                     <button
                       onClick={() => setPdfError(null)}
-                      className="px-4 py-2 text-sm text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 font-medium transition-colors"
+                      className="px-6 py-3 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                     >
                       Try Again
                     </button>
                     <button
                       onClick={togglePreview}
-                      className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+                      className="px-6 py-3 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-semibold transition-all"
                     >
                       Close Preview
                     </button>
@@ -204,7 +208,12 @@ export default function QuotePDFPreview({
               </div>
             ) : (
               <ErrorBoundary onError={setPdfError}>
-                <PDFViewer width="100%" height="100%" showToolbar={true}>
+                <PDFViewer 
+                  width="100%" 
+                  height="100%" 
+                  showToolbar={true}
+                  className="border-0"
+                >
                   <QuotePDF quote={quote} />
                 </PDFViewer>
               </ErrorBoundary>
@@ -215,17 +224,31 @@ export default function QuotePDFPreview({
 
       {/* Info Message */}
       {previewVisible && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <FileText className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-blue-900">
-              <p className="font-medium mb-1">Professional Quote Structure</p>
-              <ul className="space-y-1 text-blue-800">
-                <li>• <strong>Page 1:</strong> Cover page with your logo and quote details</li>
-                <li>• <strong>Page 2:</strong> Company profile with services and expertise</li>
-                <li>• <strong>Page 3:</strong> Table of contents with page navigation</li>
-                <li>• <strong>Page 4+:</strong> Project details, pricing, and terms</li>
-              </ul>
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 shadow-md">
+          <div className="flex items-start gap-4">
+            <div className="bg-blue-500 p-2.5 rounded-lg flex-shrink-0">
+              <FileText className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-blue-900 mb-3 text-base">Professional Quote Structure</p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-100">
+                  <span className="font-bold text-blue-900">Page 1:</span>
+                  <p className="text-blue-800 mt-1">Professional cover with logo & details</p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-100">
+                  <span className="font-bold text-blue-900">Page 2:</span>
+                  <p className="text-blue-800 mt-1">Introduction & project overview</p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-100">
+                  <span className="font-bold text-blue-900">Page 3:</span>
+                  <p className="text-blue-800 mt-1">Table of contents with navigation</p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-blue-100">
+                  <span className="font-bold text-blue-900">Page 4+:</span>
+                  <p className="text-blue-800 mt-1">Details, pricing, terms & profile</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

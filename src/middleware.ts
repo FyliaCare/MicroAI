@@ -113,8 +113,8 @@ export async function middleware(request: NextRequest) {
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
     img-src 'self' blob: data: https:;
     font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https://vitals.vercel-insights.com;
-    frame-src 'none';
+    connect-src 'self' blob: data: https://vitals.vercel-insights.com;
+    frame-src 'self' blob:;
     frame-ancestors 'self';
     base-uri 'self';
     form-action 'self';
