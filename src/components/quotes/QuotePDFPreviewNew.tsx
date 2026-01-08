@@ -1,0 +1,270 @@
+// ============================================================================
+// QUOTE PDF PREVIEW & DOWNLOAD COMPONENT - PRODUCTION VERSION
+// Live preview with error handling and download functionality
+// ============================================================================
+
+'use client'
+
+import React, { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+import { PDFDownloadLink } from '@react-pdf/renderer'
+import QuotePDF from './QuotePDFNew'
+import type { Quote } from '@/types/quote'
+import { Download, Eye, EyeOff, Loader2, FileText, AlertCircle } from 'lucide-react'
+
+// Dynamically import PDFViewer to prevent SSR issues
+const PDFViewer = dynamic(
+  () => import('@react-pdf/renderer').then((mod) => mod.PDFViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-full bg-slate-50">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+        <span className="ml-3 text-slate-600">Loading PDF viewer...</span>
+      </div>
+    ),
+  }
+)
+
+interface QuotePDFPreviewProps {
+  quote: Quote
+  showPreview?: boolean
+  autoDownload?: boolean
+  onDownloadStart?: () => void
+  onDownloadComplete?: () => void
+}
+
+export default function QuotePDFPreview({
+  quote,
+  showPreview = false,
+  autoDownload = false,
+  onDownloadStart,
+  onDownloadComplete,
+}: QuotePDFPreviewProps) {
+  const [isClient, setIsClient] = useState(false)
+  const [previewVisible, setPreviewVisible] = useState(showPreview)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setIsClient(true)
+    console.log('[PDF Preview] Component mounted, quote:', quote.quoteNumber)
+  }, [quote.quoteNumber])
+
+  useEffect(() => {
+    if (previewVisible) {
+      console.log('[PDF Preview] Attempting to render PDF:', {
+        quoteNumber: quote.quoteNumber,
+        title: quote.title,
+        hasItems: !!quote.items,
+        hasScope: !!(quote as any).scopeOfWork,
+        hasBranding: !!(quote as any).branding,
+      })
+    }
+  }, [previewVisible, quote])
+
+  const togglePreview = () => {
+    setPreviewVisible(!previewVisible)
+    setPdfError(null)
+  }
+
+  const handleDownloadStart = () => {
+    console.log('[PDF Download] Starting download for:', quote.quoteNumber)
+    setIsGenerating(true)
+    onDownloadStart?.()
+  }
+
+  const handleDownloadComplete = () => {
+    console.log('[PDF Download] Download complete for:', quote.quoteNumber)
+    setIsGenerating(false)
+    onDownloadComplete?.()
+  }
+
+  const fileName = `Quote-${quote.quoteNumber || 'Draft'}-${quote.title.replace(/\s+/g, '-')}.pdf`
+
+  if (!isClient) {
+    return (
+      <div className="flex items-center justify-center p-8 bg-slate-50 rounded-lg">
+        <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+        <span className="ml-3 text-slate-600">Loading PDF generator...</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Control Buttons */}
+      <div className="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+        <button
+          onClick={togglePreview}
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-all hover:shadow-md"
+        >
+          {previewVisible ? (
+            <>
+              <EyeOff className="w-4 h-4" />
+              Hide Preview
+            </>
+          ) : (
+            <>
+              <Eye className="w-4 h-4" />
+              Show Live Preview
+            </>
+          )}
+        </button>
+
+        <PDFDownloadLink
+          document={<QuotePDF quote={quote} />}
+          fileName={fileName}
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {({ loading, error }) => {
+            if (error) {
+              console.error('[PDF Download] Error generating PDF:', error)
+              return (
+                <>
+                  <AlertCircle className="w-4 h-4" />
+                  Error - Try Again
+                </>
+              )
+            }
+            
+            if (loading) {
+              return (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating PDF...
+                </>
+              )
+            }
+            
+            return (
+              <>
+                <Download className="w-4 h-4" />
+                Download PDF
+              </>
+            )
+          }}
+        </PDFDownloadLink>
+
+        <div className="ml-auto flex items-center gap-2 text-sm text-slate-600">
+          <FileText className="w-4 h-4" />
+          <span className="font-medium">{quote.quoteNumber || 'DRAFT'}</span>
+        </div>
+      </div>
+
+      {/* PDF Preview */}
+      {previewVisible && (
+        <div className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white shadow-lg">
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-4 border-b border-slate-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-indigo-600" />
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    Live PDF Preview
+                  </h3>
+                  <p className="text-xs text-gray-600 mt-0.5">
+                    Cover • Company Profile • Table of Contents • Project Details
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={togglePreview}
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium"
+              >
+                Hide Preview
+              </button>
+            </div>
+          </div>
+          
+          <div className="h-[900px] bg-gray-50">
+            {pdfError ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center px-6 max-w-md">
+                  <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    PDF Rendering Error
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6">{pdfError}</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => setPdfError(null)}
+                      className="px-4 py-2 text-sm text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 font-medium transition-colors"
+                    >
+                      Try Again
+                    </button>
+                    <button
+                      onClick={togglePreview}
+                      className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+                    >
+                      Close Preview
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <ErrorBoundary onError={setPdfError}>
+                <PDFViewer width="100%" height="100%" showToolbar={true}>
+                  <QuotePDF quote={quote} />
+                </PDFViewer>
+              </ErrorBoundary>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Info Message */}
+      {previewVisible && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <FileText className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-blue-900">
+              <p className="font-medium mb-1">Professional Quote Structure</p>
+              <ul className="space-y-1 text-blue-800">
+                <li>• <strong>Page 1:</strong> Cover page with your logo and quote details</li>
+                <li>• <strong>Page 2:</strong> Company profile with services and expertise</li>
+                <li>• <strong>Page 3:</strong> Table of contents with page navigation</li>
+                <li>• <strong>Page 4+:</strong> Project details, pricing, and terms</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Error Boundary Component
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode; onError: (error: string) => void },
+  { hasError: boolean }
+> {
+  constructor(props: any) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('[PDF Error Boundary] Caught error:', error, errorInfo)
+    this.props.onError(error.message || 'Unknown PDF rendering error')
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <p className="text-gray-600">PDF rendering failed</p>
+          </div>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}

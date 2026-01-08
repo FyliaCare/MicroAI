@@ -153,6 +153,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     
+    console.log('[QUOTE API] Creating new quote with data:', {
+      title: body.title,
+      clientId: body.clientId,
+      projectId: body.projectId,
+      itemsCount: body.items?.length,
+      hasScope: !!body.scopeOfWork,
+      hasBranding: !!body.branding,
+    })
+    
     const {
       title,
       description,
@@ -208,6 +217,7 @@ export async function POST(request: NextRequest) {
 
     // Validation
     if (!title) {
+      console.warn('[QUOTE API] Validation failed: Missing title')
       return NextResponse.json(
         { success: false, error: 'Quote title is required' },
         { status: 400 }
@@ -215,20 +225,33 @@ export async function POST(request: NextRequest) {
     }
 
     if (!items || items.length === 0) {
+      console.warn('[QUOTE API] Validation failed: No items provided')
       return NextResponse.json(
         { success: false, error: 'Quote must have at least one item' },
         { status: 400 }
       )
     }
+    
+    console.log('[QUOTE API] Validation passed, calculating total...')
 
     // Calculate total
     const taxAmount = tax || 0
     const discountAmount = discount || 0
     const total = subtotal + taxAmount - discountAmount
+    
+    console.log('[QUOTE API] Calculated total:', {
+      subtotal,
+      taxAmount,
+      discountAmount,
+      total,
+    })
 
     // Generate unique quote number
     let quoteNumber = generateQuoteNumber()
     let attempts = 0
+    
+    console.log('[QUOTE API] Generating unique quote number...')
+    
     while (attempts < 10) {
       const existing = await prisma.quote.findUnique({
         where: { quoteNumber },
@@ -237,6 +260,10 @@ export async function POST(request: NextRequest) {
       quoteNumber = generateQuoteNumber()
       attempts++
     }
+    
+    console.log('[QUOTE API] Generated quote number:', quoteNumber, `(attempts: ${attempts})`)
+    
+    console.log('[QUOTE API] Creating quote in database...')
 
     const quote = await prisma.quote.create({
       data: {
@@ -300,6 +327,13 @@ export async function POST(request: NextRequest) {
         Project: true,
       },
     })
+    
+    console.log('[QUOTE API] Quote created successfully:', {
+      id: quote.id,
+      quoteNumber: quote.quoteNumber,
+      title: quote.title,
+      total: quote.total,
+    })
 
     // Log activity (async, don't wait)
     prisma.activityLog.create({
@@ -321,9 +355,41 @@ export async function POST(request: NextRequest) {
       message: 'Quote created successfully',
     }, { status: 201 })
   } catch (error: any) {
-    console.error('Error creating quote:', error)
+    console.error('[QUOTE API ERROR] Failed to create quote:', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code,
+      meta: error.meta,
+    })
+    
+    // Detailed error logging
+    if (error.code === 'P2002') {
+      console.error('[QUOTE API ERROR] Unique constraint violation:', error.meta)
+      return NextResponse.json(
+        { success: false, error: 'A quote with this number already exists' },
+        { status: 400 }
+      )
+    }
+    
+    if (error.code === 'P2003') {
+      console.error('[QUOTE API ERROR] Foreign key constraint failed:', error.meta)
+      return NextResponse.json(
+        { success: false, error: 'Invalid client or project ID' },
+        { status: 400 }
+      )
+    }
+    
+    if (error.code === 'P1001') {
+      console.error('[QUOTE API ERROR] Database connection error')
+      return NextResponse.json(
+        { success: false, error: 'Database connection failed. Please try again.' },
+        { status: 503 }
+      )
+    }
+    
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error.message || 'Failed to create quote' },
       { status: 500 }
     )
   }

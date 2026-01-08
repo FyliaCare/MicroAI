@@ -22,7 +22,10 @@ import {
   Save,
   RefreshCw,
   CheckCircle2,
-  Info
+  Info,
+  Upload,
+  X,
+  Image as ImageIcon
 } from 'lucide-react'
 import type { QuoteFormData } from '@/types/quote'
 
@@ -34,6 +37,8 @@ interface Props {
 export default function Step7BrandingAdvanced({ formData, updateFormData }: Props) {
   const [savedProfile, setSavedProfile] = useState<any>(null)
   const [showSaveConfirm, setShowSaveConfirm] = useState(false)
+  const [logoPreview, setLogoPreview] = useState<string | null>(formData.providerLogo || null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   useEffect(() => {
     // Load saved company profile
@@ -99,8 +104,43 @@ export default function Step7BrandingAdvanced({ formData, updateFormData }: Prop
   }
 
   const removeArrayItem = (field: string, index: number) => {
-    const current = formData[field as keyof QuoteFormData] as string[]
+    const current = formData[field as keyof QuoteFormData] as string[] || []
     updateFormData(field, current.filter((_, i) => i !== index))
+  }
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please upload an image file (PNG, JPG, or SVG)')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadError('Image must be less than 2MB')
+      return
+    }
+
+    // Read file and convert to base64
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string
+      setLogoPreview(base64)
+      updateFormData('providerLogo', base64)
+      setUploadError(null)
+    }
+    reader.onerror = () => {
+      setUploadError('Failed to read image file')
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeLogo = () => {
+    setLogoPreview(null)
+    updateFormData('providerLogo', '')
+    setUploadError(null)
   }
 
   const updateArrayItem = (field: string, index: number, value: string) => {
@@ -156,6 +196,73 @@ export default function Step7BrandingAdvanced({ formData, updateFormData }: Prop
           <span className="text-sm font-medium">Profile saved successfully!</span>
         </div>
       )}
+
+      {/* Logo Upload Section */}
+      <div className="space-y-4 p-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200">
+        <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+          <ImageIcon className="w-5 h-5 text-indigo-600" />
+          Company Logo
+        </h3>
+        
+        <p className="text-sm text-slate-600">
+          Upload your company logo for the PDF cover page and header. Best results with PNG or SVG files.
+        </p>
+
+        {logoPreview ? (
+          <div className="flex items-start gap-6">
+            <div className="flex-shrink-0">
+              <img 
+                src={logoPreview} 
+                alt="Company Logo" 
+                className="w-48 h-48 object-contain bg-white border-2 border-slate-200 rounded-lg p-4"
+              />
+            </div>
+            <div className="flex-1 space-y-4">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 text-green-800 mb-2">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="font-medium">Logo uploaded successfully!</span>
+                </div>
+                <p className="text-sm text-green-700">
+                  This logo will appear on your PDF cover page and page headers.
+                </p>
+              </div>
+              <button
+                onClick={removeLogo}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+                Remove Logo
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-indigo-300 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <Upload className="w-12 h-12 text-indigo-400 mb-4" />
+                <p className="mb-2 text-sm font-semibold text-slate-700">
+                  Click to upload logo
+                </p>
+                <p className="text-xs text-slate-500">
+                  PNG, JPG or SVG (max 2MB)
+                </p>
+              </div>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
+            </label>
+            {uploadError && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">{uploadError}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Core Company Information */}
       <div className="space-y-6">
