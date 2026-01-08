@@ -170,149 +170,255 @@ const createStyles = (brandColor: string = '#4F46E5') => StyleSheet.create({
     marginBottom: 16,
   },
   
-  // PROFILE PAGE STYLES
+  // PROFILE PAGE STYLES - MAGAZINE LAYOUT
   profilePage: {
     fontFamily: DEFAULT_FONT_FAMILY,
     padding: 0,
     backgroundColor: '#FFFFFF',
   },
   
+  // Magazine Header
   profileHeader: {
-    backgroundColor: brandColor,
-    padding: 50,
-    paddingTop: 70,
-    paddingBottom: 60,
+    backgroundColor: '#0F172A',
+    backgroundImage: `linear-gradient(135deg, ${brandColor} 0%, #1E293B 100%)`,
+    padding: 40,
+    paddingTop: 60,
+    paddingBottom: 50,
+  },
+  
+  profileMasthead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 30,
+  },
+  
+  profileLogo: {
+    width: 100,
+    height: 100,
+    objectFit: 'contain',
   },
   
   profileTitle: {
-    fontSize: 36,
+    fontSize: 42,
     fontWeight: 700,
     color: '#FFFFFF',
-    marginBottom: 12,
-    textAlign: 'center',
-    letterSpacing: 1,
+    marginBottom: 8,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   
   profileSubtitle: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.95,
-    textAlign: 'center',
-    marginTop: 8,
+    fontSize: 13,
+    color: '#E2E8F0',
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+    opacity: 0.9,
   },
   
+  // Magazine Body
   profileBody: {
-    padding: 50,
+    padding: 45,
   },
   
-  profileAbout: {
-    fontSize: 12,
-    color: '#1E293B',
-    lineHeight: 1.9,
-    marginBottom: 40,
-    textAlign: 'justify',
-    padding: 25,
-    backgroundColor: '#F8FAFC',
-    borderLeftWidth: 5,
-    borderLeftColor: brandColor,
-    borderRadius: 4,
-  },
-  
-  profileSection: {
+  // Feature Story / Lead Article
+  profileFeature: {
     marginBottom: 35,
   },
   
-  profileSectionTitle: {
-    fontSize: 16,
+  profileFeatureTitle: {
+    fontSize: 24,
     fontWeight: 700,
-    color: brandColor,
-    marginBottom: 18,
-    paddingBottom: 10,
-    borderBottomWidth: 3,
-    borderBottomColor: '#E2E8F0',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    color: '#0F172A',
+    marginBottom: 15,
+    lineHeight: 1.3,
   },
   
+  profileDropCap: {
+    fontSize: 11,
+    color: '#1E293B',
+    lineHeight: 1.8,
+    textAlign: 'justify',
+    marginBottom: 20,
+  },
+  
+  // Pull Quote
+  profilePullQuote: {
+    borderLeftWidth: 4,
+    borderRightWidth: 4,
+    borderLeftColor: brandColor,
+    borderRightColor: brandColor,
+    padding: 20,
+    paddingHorizontal: 30,
+    marginVertical: 25,
+    backgroundColor: '#F8FAFC',
+  },
+  
+  profilePullQuoteText: {
+    fontSize: 15,
+    fontWeight: 600,
+    color: '#1E293B',
+    lineHeight: 1.6,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  
+  // Two Column Layout
+  profileColumns: {
+    flexDirection: 'row',
+    gap: 20,
+    marginBottom: 30,
+  },
+  
+  profileColumn: {
+    width: '48%',
+  },
+  
+  // Section Styles
+  profileSection: {
+    marginBottom: 30,
+  },
+  
+  profileSectionTitle: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#0F172A',
+    marginBottom: 12,
+    paddingBottom: 6,
+    borderBottomWidth: 2,
+    borderBottomColor: brandColor,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  
+  profileSectionBody: {
+    fontSize: 10,
+    color: '#475569',
+    lineHeight: 1.7,
+    textAlign: 'justify',
+  },
+  
+  // List Styles
   profileList: {
     paddingLeft: 0,
   },
   
   profileListItem: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#475569',
-    marginBottom: 10,
+    marginBottom: 8,
     lineHeight: 1.6,
-    paddingLeft: 20,
-    position: 'relative',
+    paddingLeft: 18,
   },
   
   profileBullet: {
-    fontSize: 14,
+    fontSize: 10,
     color: brandColor,
-    marginRight: 10,
+    marginRight: 8,
     fontWeight: 700,
   },
   
-  profileGrid: {
+  // Feature Box (Sidebar style)
+  profileFeatureBox: {
+    backgroundColor: brandColor,
+    padding: 20,
+    marginBottom: 25,
+    borderRadius: 4,
+  },
+  
+  profileFeatureBoxTitle: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: '#FFFFFF',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  
+  profileFeatureBoxText: {
+    fontSize: 10,
+    color: '#FFFFFF',
+    lineHeight: 1.7,
+    opacity: 0.95,
+  },
+  
+  // Stats/Highlights Grid
+  profileStatsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 40,
-    paddingTop: 40,
-    borderTopWidth: 2,
+    gap: 15,
+    marginTop: 30,
+    paddingTop: 30,
+    borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
   },
   
-  profileCard: {
+  profileStatBox: {
     width: '48%',
-    padding: 18,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#E2E8F0',
-    borderLeftWidth: 5,
-    borderLeftColor: brandColor,
+    padding: 15,
+    backgroundColor: '#F8FAFC',
+    borderTopWidth: 3,
+    borderTopColor: brandColor,
   },
   
-  profileCardLabel: {
-    fontSize: 10,
+  profileStatLabel: {
+    fontSize: 9,
     color: '#64748B',
-    marginBottom: 6,
+    marginBottom: 5,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontWeight: 600,
   },
   
-  profileCardValue: {
-    fontSize: 13,
-    color: '#1E293B',
-    fontWeight: 600,
-  },
-  
-  profileHighlight: {
-    backgroundColor: '#EEF2FF',
-    padding: 20,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-    marginBottom: 25,
-  },
-  
-  profileHighlightTitle: {
-    fontSize: 13,
+  profileStatValue: {
+    fontSize: 12,
+    color: '#0F172A',
     fontWeight: 700,
-    color: brandColor,
-    marginBottom: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   
-  profileHighlightText: {
+  // Contact Footer
+  profileFooter: {
+    marginTop: 35,
+    paddingTop: 25,
+    borderTopWidth: 2,
+    borderTopColor: '#0F172A',
+  },
+  
+  profileFooterTitle: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: '#0F172A',
+    marginBottom: 20,
+    textAlign: 'center',
+    letterSpacing: 1,
+  },
+  
+  profileContactGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  
+  profileContactItem: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  
+  profileContactLabel: {
+    fontSize: 9,
+    color: '#64748B',
+    marginBottom: 3,
+    textTransform: 'uppercase',
+  },
+  
+  profileContactValue: {
     fontSize: 11,
-    color: '#475569',
-    lineHeight: 1.7,
+    color: '#0F172A',
+    fontWeight: 600,
   },
   
   // TOC STYLES
@@ -841,91 +947,140 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
         </View>
       </Page>
 
-      {/* ========== COMPANY PROFILE PAGE (FINAL) ========== */}
+      {/* ========== COMPANY PROFILE PAGE - MAGAZINE LAYOUT ========== */}
       <Page size="A4" style={styles.profilePage} wrap>
-        {/* Premium Header with Logo */}
+        {/* Magazine Header/Masthead */}
         <View style={styles.profileHeader}>
-          {companyLogo && (
-            <Image style={styles.coverLogo} src={companyLogo} />
-          )}
+          <View style={styles.profileMasthead}>
+            {companyLogo && (
+              <Image style={styles.profileLogo} src={companyLogo} />
+            )}
+          </View>
           <Text style={styles.profileTitle}>{companyName}</Text>
-          <Text style={styles.profileSubtitle}>{companyTagline}</Text>
+          <Text style={styles.profileSubtitle}>Company Profile & Capabilities</Text>
         </View>
         
-        {/* Body Content */}
+        {/* Magazine Body */}
         <View style={styles.profileBody}>
-          {/* About Section with Highlight Box */}
-          <Text style={styles.profileAbout}>{aboutSection}</Text>
+          {/* Feature Story */}
+          <View style={styles.profileFeature}>
+            <Text style={styles.profileFeatureTitle}>Innovation. Excellence. Results.</Text>
+            <Text style={styles.profileDropCap}>{aboutSection}</Text>
+          </View>
           
-          {/* Why Choose Us Highlight */}
-          <View style={styles.profileHighlight}>
-            <Text style={styles.profileHighlightTitle}>Why Choose MicroAI Systems?</Text>
-            <Text style={styles.profileHighlightText}>
-              We combine cutting-edge technology with agile development practices to deliver 
-              exceptional results. Our global presence and local expertise ensure your project 
-              succeeds regardless of complexity or scale.
+          {/* Pull Quote */}
+          <View style={styles.profilePullQuote}>
+            <Text style={styles.profilePullQuoteText}>
+              "Building enterprise-grade software in a fraction of the time while 
+              maintaining uncompromising quality standards."
             </Text>
           </View>
           
-          {/* Services Grid */}
-          {servicesOverview.length > 0 && (
-            <View style={styles.profileSection}>
-              <Text style={styles.profileSectionTitle}>🚀 Our Services</Text>
-              <View style={styles.profileList}>
-                {servicesOverview.map((service: string, index: number) => (
-                  <Text key={index} style={styles.profileListItem}>
-                    <Text style={styles.profileBullet}>▸</Text> {service}
-                  </Text>
-                ))}
+          {/* Two Column Layout */}
+          <View style={styles.profileColumns}>
+            {/* Left Column - Services */}
+            <View style={styles.profileColumn}>
+              {servicesOverview.length > 0 && (
+                <View style={styles.profileSection}>
+                  <Text style={styles.profileSectionTitle}>Our Services</Text>
+                  <View style={styles.profileList}>
+                    {servicesOverview.map((service: string, index: number) => (
+                      <Text key={index} style={styles.profileListItem}>
+                        <Text style={styles.profileBullet}>■</Text> {service}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              )}
+              
+              {coreValues.length > 0 && (
+                <View style={styles.profileSection}>
+                  <Text style={styles.profileSectionTitle}>Core Values</Text>
+                  <View style={styles.profileList}>
+                    {coreValues.map((value: string, index: number) => (
+                      <Text key={index} style={styles.profileListItem}>
+                        <Text style={styles.profileBullet}>■</Text> {value}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+            
+            {/* Right Column - Expertise */}
+            <View style={styles.profileColumn}>
+              {expertise.length > 0 && (
+                <View style={styles.profileSection}>
+                  <Text style={styles.profileSectionTitle}>Technical Stack</Text>
+                  <View style={styles.profileList}>
+                    {expertise.map((tech: string, index: number) => (
+                      <Text key={index} style={styles.profileListItem}>
+                        <Text style={styles.profileBullet}>■</Text> {tech}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              )}
+              
+              {/* Feature Box */}
+              <View style={styles.profileFeatureBox}>
+                <Text style={styles.profileFeatureBoxTitle}>Global Reach</Text>
+                <Text style={styles.profileFeatureBoxText}>
+                  Serving clients across Africa, North America, Europe, UK, and Australia. 
+                  Local expertise with worldwide impact.
+                </Text>
               </View>
             </View>
-          )}
+          </View>
           
-          {/* Technical Expertise */}
-          {expertise.length > 0 && (
-            <View style={styles.profileSection}>
-              <Text style={styles.profileSectionTitle}>💻 Technical Expertise</Text>
-              <View style={styles.profileList}>
-                {expertise.map((tech: string, index: number) => (
-                  <Text key={index} style={styles.profileListItem}>
-                    <Text style={styles.profileBullet}>▸</Text> {tech}
-                  </Text>
-                ))}
+          {/* Stats/Highlights */}
+          <View style={styles.profileStatsGrid}>
+            <View style={styles.profileStatBox}>
+              <Text style={styles.profileStatLabel}>Development Speed</Text>
+              <Text style={styles.profileStatValue}>10x Faster Delivery</Text>
+            </View>
+            <View style={styles.profileStatBox}>
+              <Text style={styles.profileStatLabel}>Quality Standard</Text>
+              <Text style={styles.profileStatValue}>Enterprise-Grade</Text>
+            </View>
+            <View style={styles.profileStatBox}>
+              <Text style={styles.profileStatLabel}>Technology</Text>
+              <Text style={styles.profileStatValue}>Cutting-Edge Stack</Text>
+            </View>
+            <View style={styles.profileStatBox}>
+              <Text style={styles.profileStatLabel}>Support</Text>
+              <Text style={styles.profileStatValue}>24/7 Availability</Text>
+            </View>
+          </View>
+          
+          {/* Contact Footer */}
+          <View style={styles.profileFooter}>
+            <Text style={styles.profileFooterTitle}>GET IN TOUCH</Text>
+            <View style={styles.profileContactGrid}>
+              <View style={styles.profileContactItem}>
+                <View>
+                  <Text style={styles.profileContactLabel}>Email</Text>
+                  <Text style={styles.profileContactValue}>{companyEmail}</Text>
+                </View>
               </View>
-            </View>
-          )}
-          
-          {/* Core Values */}
-          {coreValues.length > 0 && (
-            <View style={styles.profileSection}>
-              <Text style={styles.profileSectionTitle}>⭐ Core Values</Text>
-              <View style={styles.profileList}>
-                {coreValues.map((value: string, index: number) => (
-                  <Text key={index} style={styles.profileListItem}>
-                    <Text style={styles.profileBullet}>▸</Text> {value}
-                  </Text>
-                ))}
+              <View style={styles.profileContactItem}>
+                <View>
+                  <Text style={styles.profileContactLabel}>Phone</Text>
+                  <Text style={styles.profileContactValue}>{companyPhone}</Text>
+                </View>
               </View>
-            </View>
-          )}
-          
-          {/* Contact Information Cards */}
-          <View style={styles.profileGrid}>
-            <View style={styles.profileCard}>
-              <Text style={styles.profileCardLabel}>📧 Email</Text>
-              <Text style={styles.profileCardValue}>{companyEmail}</Text>
-            </View>
-            <View style={styles.profileCard}>
-              <Text style={styles.profileCardLabel}>📱 Phone</Text>
-              <Text style={styles.profileCardValue}>{companyPhone}</Text>
-            </View>
-            <View style={styles.profileCard}>
-              <Text style={styles.profileCardLabel}>🌐 Website</Text>
-              <Text style={styles.profileCardValue}>{companyWebsite}</Text>
-            </View>
-            <View style={styles.profileCard}>
-              <Text style={styles.profileCardLabel}>📍 Location</Text>
-              <Text style={styles.profileCardValue}>{companyAddress}</Text>
+              <View style={styles.profileContactItem}>
+                <View>
+                  <Text style={styles.profileContactLabel}>Website</Text>
+                  <Text style={styles.profileContactValue}>{companyWebsite}</Text>
+                </View>
+              </View>
+              <View style={styles.profileContactItem}>
+                <View>
+                  <Text style={styles.profileContactLabel}>Location</Text>
+                  <Text style={styles.profileContactValue}>{companyAddress}</Text>
+                </View>
+              </View>
             </View>
           </View>
         </View>
