@@ -8,6 +8,7 @@ import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/render
 import type { Quote, QuoteLineItem, QuoteMilestone } from '@/types/quote'
 
 const DEFAULT_FONT_FAMILY = 'Helvetica'
+const DEFAULT_LOGO_PATH = '/MICROAI%20SYSTEMS%20OFFICIAL%20LOGO.png'
 
 // ============================================================================
 // STYLES
@@ -126,6 +127,47 @@ const createStyles = (brandColor: string = '#4F46E5') => StyleSheet.create({
     fontSize: 10,
     color: '#64748B',
     textAlign: 'center',
+  },
+  
+  // INTRO PAGE STYLES
+  introPage: {
+    fontFamily: DEFAULT_FONT_FAMILY,
+    padding: 60,
+    backgroundColor: '#FFFFFF',
+  },
+  introHeader: {
+    marginBottom: 20,
+    paddingBottom: 12,
+    borderBottomWidth: 3,
+    borderBottomColor: brandColor,
+  },
+  introTitle: {
+    fontSize: 28,
+    fontWeight: 700,
+    color: '#1E293B',
+    marginBottom: 8,
+  },
+  introSubtitle: {
+    fontSize: 12,
+    color: '#64748B',
+  },
+  introText: {
+    fontSize: 11,
+    color: '#1E293B',
+    lineHeight: 1.8,
+    marginBottom: 20,
+    textAlign: 'justify',
+  },
+  introHighlight: {
+    fontSize: 11,
+    color: '#0F172A',
+    backgroundColor: '#EEF2FF',
+    padding: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: brandColor,
+    borderRadius: 4,
+    lineHeight: 1.6,
+    marginBottom: 16,
   },
   
   // PROFILE PAGE STYLES
@@ -486,7 +528,8 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
   const companyPhone = (quote as any).branding?.companyPhone || quote.companyPhone || '+233 244 486 837'
   const companyWebsite = (quote as any).branding?.companyWebsite || quote.companyWebsite || 'www.microaisystems.com'
   const companyAddress = (quote as any).branding?.companyAddress || quote.companyAddress || 'BR253 Pasture St. Takoradi, Ghana'
-  const aboutSection = (quote as any).branding?.aboutSection || ''
+  const companyLogo = (quote as any).branding?.companyLogo || DEFAULT_LOGO_PATH
+  const aboutSection = (quote as any).branding?.aboutSection || (quote as any).branding?.companyDescription || 'MicroAI Systems delivers revolutionary development technology, building web applications, SaaS platforms, and digital solutions in a fraction of the time while maintaining enterprise-grade quality.'
   const servicesOverview = (quote as any).branding?.servicesOverview || []
   const expertise = (quote as any).branding?.expertise || []
   const coreValues = (quote as any).branding?.coreValues || []
@@ -497,8 +540,8 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
       {/* ========== COVER PAGE ========== */}
       <Page size="A4" style={styles.coverPage}>
         <View style={styles.coverHeader}>
-          {(quote as any).branding?.companyLogo && (
-            <Image style={styles.coverLogo} src={(quote as any).branding.companyLogo} />
+          {companyLogo && (
+            <Image style={styles.coverLogo} src={companyLogo} />
           )}
           <Text style={styles.coverCompanyName}>{companyName}</Text>
           <Text style={styles.coverTagline}>{companyTagline}</Text>
@@ -528,71 +571,21 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
         </View>
       </Page>
 
-      {/* ========== COMPANY PROFILE PAGE ========== */}
-      <Page size="A4" style={styles.profilePage}>
-        <View style={styles.profileHeader}>
-          <Text style={styles.profileTitle}>About {companyName}</Text>
+      {/* ========== INTRODUCTION PAGE ========== */}
+      <Page size="A4" style={styles.introPage}>
+        <View style={styles.introHeader}>
+          <Text style={styles.introTitle}>Introducing MicroAI Systems</Text>
+          <Text style={styles.introSubtitle}>Enterprise-grade software delivered 10x faster</Text>
         </View>
-        
-        <Text style={styles.profileAbout}>{aboutSection}</Text>
-        
-        {servicesOverview.length > 0 && (
-          <View style={styles.profileSection}>
-            <Text style={styles.profileSectionTitle}>Our Services</Text>
-            <View style={styles.profileList}>
-              {servicesOverview.map((service: string, index: number) => (
-                <Text key={index} style={styles.profileListItem}>
-                  <Text style={styles.profileBullet}>•</Text> {service}
-                </Text>
-              ))}
-            </View>
-          </View>
-        )}
-        
-        {expertise.length > 0 && (
-          <View style={styles.profileSection}>
-            <Text style={styles.profileSectionTitle}>Technical Expertise</Text>
-            <View style={styles.profileList}>
-              {expertise.map((tech: string, index: number) => (
-                <Text key={index} style={styles.profileListItem}>
-                  <Text style={styles.profileBullet}>•</Text> {tech}
-                </Text>
-              ))}
-            </View>
-          </View>
-        )}
-        
-        {coreValues.length > 0 && (
-          <View style={styles.profileSection}>
-            <Text style={styles.profileSectionTitle}>Core Values</Text>
-            <View style={styles.profileList}>
-              {coreValues.map((value: string, index: number) => (
-                <Text key={index} style={styles.profileListItem}>
-                  <Text style={styles.profileBullet}>•</Text> {value}
-                </Text>
-              ))}
-            </View>
-          </View>
-        )}
-        
-        <View style={styles.profileGrid}>
-          <View style={styles.profileCard}>
-            <Text style={styles.profileCardLabel}>Email</Text>
-            <Text style={styles.profileCardValue}>{companyEmail}</Text>
-          </View>
-          <View style={styles.profileCard}>
-            <Text style={styles.profileCardLabel}>Phone</Text>
-            <Text style={styles.profileCardValue}>{companyPhone}</Text>
-          </View>
-          <View style={styles.profileCard}>
-            <Text style={styles.profileCardLabel}>Website</Text>
-            <Text style={styles.profileCardValue}>{companyWebsite}</Text>
-          </View>
-          <View style={styles.profileCard}>
-            <Text style={styles.profileCardLabel}>Location</Text>
-            <Text style={styles.profileCardValue}>{companyAddress}</Text>
-          </View>
-        </View>
+
+        <Text style={styles.introText}>{aboutSection}</Text>
+
+        <Text style={styles.introHighlight}>
+          MicroAI Systems is based in Ghana and serves clients worldwide across Africa, North America,
+          Europe, UK, and Australia. We build full-stack web applications, SaaS platforms, e-commerce
+          solutions, and business management systems using modern technologies like Next.js, React,
+          TypeScript, Prisma, and Tailwind CSS.
+        </Text>
       </Page>
 
       {/* ========== TABLE OF CONTENTS ========== */}
@@ -630,9 +623,15 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
         </View>
         
         <View style={styles.tocItem}>
-          <Text style={styles.tocItemText}>Terms & Conditions</Text>
+          <Text style={styles.tocItemText}>Exclusions</Text>
           <View style={styles.tocDots} />
-          <Text style={styles.tocItemPage}>7</Text>
+          <Text style={styles.tocItemPage}>6</Text>
+        </View>
+
+        <View style={styles.tocItem}>
+          <Text style={styles.tocItemText}>MicroAI Company Profile</Text>
+          <View style={styles.tocDots} />
+          <Text style={styles.tocItemPage}>Final</Text>
         </View>
       </Page>
 
@@ -640,8 +639,8 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.pageHeader} fixed>
-          {(quote as any).branding?.companyLogo && (
-            <Image style={styles.headerLogo} src={(quote as any).branding.companyLogo} />
+          {companyLogo && (
+            <Image style={styles.headerLogo} src={companyLogo} />
           )}
           <Text style={styles.headerCompany}>{companyName}</Text>
           <Text style={styles.headerQuoteNumber}>{quote.quoteNumber}</Text>
@@ -783,6 +782,73 @@ const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => {
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
           />
+        </View>
+      </Page>
+
+      {/* ========== COMPANY PROFILE PAGE (FINAL) ========== */}
+      <Page size="A4" style={styles.profilePage} wrap>
+        <View style={styles.profileHeader}>
+          <Text style={styles.profileTitle}>MicroAI Company Profile</Text>
+        </View>
+        
+        <Text style={styles.profileAbout}>{aboutSection}</Text>
+        
+        {servicesOverview.length > 0 && (
+          <View style={styles.profileSection}>
+            <Text style={styles.profileSectionTitle}>Our Services</Text>
+            <View style={styles.profileList}>
+              {servicesOverview.map((service: string, index: number) => (
+                <Text key={index} style={styles.profileListItem}>
+                  <Text style={styles.profileBullet}>•</Text> {service}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )}
+        
+        {expertise.length > 0 && (
+          <View style={styles.profileSection}>
+            <Text style={styles.profileSectionTitle}>Technical Expertise</Text>
+            <View style={styles.profileList}>
+              {expertise.map((tech: string, index: number) => (
+                <Text key={index} style={styles.profileListItem}>
+                  <Text style={styles.profileBullet}>•</Text> {tech}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )}
+        
+        {coreValues.length > 0 && (
+          <View style={styles.profileSection}>
+            <Text style={styles.profileSectionTitle}>Core Values</Text>
+            <View style={styles.profileList}>
+              {coreValues.map((value: string, index: number) => (
+                <Text key={index} style={styles.profileListItem}>
+                  <Text style={styles.profileBullet}>•</Text> {value}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )}
+        
+        <View style={styles.profileGrid}>
+          <View style={styles.profileCard}>
+            <Text style={styles.profileCardLabel}>Email</Text>
+            <Text style={styles.profileCardValue}>{companyEmail}</Text>
+          </View>
+          <View style={styles.profileCard}>
+            <Text style={styles.profileCardLabel}>Phone</Text>
+            <Text style={styles.profileCardValue}>{companyPhone}</Text>
+          </View>
+          <View style={styles.profileCard}>
+            <Text style={styles.profileCardLabel}>Website</Text>
+            <Text style={styles.profileCardValue}>{companyWebsite}</Text>
+          </View>
+          <View style={styles.profileCard}>
+            <Text style={styles.profileCardLabel}>Location</Text>
+            <Text style={styles.profileCardValue}>{companyAddress}</Text>
+          </View>
         </View>
       </Page>
     </Document>

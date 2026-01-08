@@ -10,7 +10,6 @@ import { useRouter } from 'next/navigation'
 import { nanoid } from 'nanoid'
 import type { Quote, QuoteFormData, QuoteLineItem, QuoteMilestone } from '@/types/quote'
 import QuotePDFPreview from '@/components/quotes/QuotePDFPreviewNew'
-import { QuoteDownloadButton } from '@/components/quotes/QuotePDFPreview'
 import Step7BrandingAdvanced from '@/components/quotes/Step7BrandingAdvanced'
 import SmartTextInput from '@/components/quotes/SmartTextInput'
 import {
@@ -158,7 +157,7 @@ const getInitialFormData = (): QuoteFormData => ({
     'Modern Stack - Next.js, TypeScript, Tailwind CSS',
     'Global Standards - Ghana-based, world-class quality',
   ],
-  providerLogo: '',
+  providerLogo: '/MICROAI%20SYSTEMS%20OFFICIAL%20LOGO.png',
   
   // Step 8
   validityDays: 30,
@@ -177,7 +176,6 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
   const [formData, setFormData] = useState<QuoteFormData>(getInitialFormData())
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [showPreview, setShowPreview] = useState(false)
   const [clients, setClients] = useState<any[]>([])
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -332,7 +330,7 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
         'Modern Stack - Next.js, TypeScript, Tailwind CSS',
         'Global Standards - Ghana-based, world-class quality',
       ],
-      providerLogo: '',
+      providerLogo: quote.providerLogo || '/MICROAI%20SYSTEMS%20OFFICIAL%20LOGO.png',
       
       validityDays: quote.validityDays || 30,
       notes: quote.notes || '',
@@ -436,6 +434,7 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
         aboutSection: formData.providerAboutSection,
         coreValues: formData.providerCoreValues,
         tagline: formData.providerTagline,
+        companyLogo: formData.providerLogo || '/MICROAI%20SYSTEMS%20OFFICIAL%20LOGO.png',
       },
       brandColor: formData.brandColor,
       customMessage: formData.customMessage,
@@ -850,58 +849,23 @@ export default function QuoteBuilder({ quoteId }: { quoteId?: string }) {
           {/* Preview Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Quote Summary</h3>
-                
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-slate-900">Quote Summary</h3>
                 <QuoteSummaryCard formData={formData} calculateTotals={calculateTotals} />
 
-                <button
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
-                >
-                  <Eye className="w-4 h-4" />
-                  {showPreview ? 'Hide' : 'Show'} PDF Preview
-                </button>
-
-                <div className="mt-3">
-                  <QuoteDownloadButton
+                {/* Live PDF Preview integrated beneath the summary */}
+                <div className="pt-4 border-t border-slate-200">
+                  <QuotePDFPreview
                     quote={buildPreviewQuote()}
-                    fullWidth
-                    variant="outline"
-                    size="md"
-                  >
-                    Download PDF
-                  </QuoteDownloadButton>
+                    showPreview
+                    onDownloadStart={() => setMessage({ type: 'success', text: 'Generating PDF...' })}
+                    onDownloadComplete={() => setMessage({ type: 'success', text: 'PDF generated' })}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Full PDF Preview Modal */}
-        {showPreview && (
-          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-              <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Quote Preview</h3>
-                <button
-                  onClick={() => setShowPreview(false)}
-                  className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200"
-                >
-                  Close
-                </button>
-              </div>
-              <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
-                <QuotePDFPreview
-                  quote={buildPreviewQuote()}
-                  showPreview
-                  onDownloadStart={() => setMessage({ type: 'success', text: 'Generating PDF...' })}
-                  onDownloadComplete={() => setMessage({ type: 'success', text: 'PDF generated' })}
-                />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
