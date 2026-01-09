@@ -103,7 +103,13 @@ export default function QuotesDashboard() {
   const fetchQuotes = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/admin/quotes')
+      // Add timestamp to prevent caching
+      const res = await fetch(`/api/admin/quotes?_t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      })
       const data = await res.json()
       
       if (data.success) {
@@ -213,7 +219,10 @@ export default function QuotesDashboard() {
       const data = await res.json()
 
       if (data.success) {
+        // Remove from local state immediately
         setQuotes(quotes.filter(q => q.id !== id))
+        // Also refresh from server to ensure sync
+        await fetchQuotes()
       } else {
         alert(`Error: ${data.error}`)
       }
@@ -235,6 +244,8 @@ export default function QuotesDashboard() {
       await Promise.all(promises)
       setQuotes(quotes.filter(q => !selectedQuotes.has(q.id)))
       setSelectedQuotes(new Set())
+      // Refresh from server to ensure sync
+      await fetchQuotes()
     } catch (error) {
       console.error('Error deleting quotes:', error)
       alert('Failed to delete some quotes')

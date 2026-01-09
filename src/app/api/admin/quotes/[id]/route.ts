@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { nanoid } from 'nanoid'
+import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -73,6 +74,10 @@ export async function GET(
     return NextResponse.json({
       success: true,
       quote: cleanQuoteForAPI(quote),
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
     })
   } catch (error: any) {
     console.error('Error fetching quote:', error)
@@ -242,6 +247,10 @@ export async function PUT(
       },
     })
 
+    // Revalidate cache
+    revalidatePath('/admin/quotes')
+    revalidatePath(`/admin/quotes/${quote.id}/edit`)
+
     return NextResponse.json({
       success: true,
       quote,
@@ -291,6 +300,10 @@ export async function DELETE(
         description: `Deleted quote: ${existingQuote.quoteNumber} - ${existingQuote.title}`,
       },
     })
+
+    // Revalidate cache to prevent deleted quotes from appearing
+    revalidatePath('/admin/quotes')
+    revalidatePath('/api/admin/quotes')
 
     return NextResponse.json({
       success: true,
