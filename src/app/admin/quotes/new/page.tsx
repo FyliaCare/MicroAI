@@ -4,8 +4,8 @@
 
 'use client'
 
-import QuoteBuilder from '@/components/quotes/QuoteBuilder'
+import QuoteBuilderNew from '@/components/admin/quotes/QuoteBuilderNew'
 
 export default function NewQuotePage() {
-  return <QuoteBuilder />
+  return <QuoteBuilderNew editMode={false} />
 }
