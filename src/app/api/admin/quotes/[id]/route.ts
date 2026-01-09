@@ -221,7 +221,6 @@ export async function PUT(
     if (revisionsPolicy !== undefined) updateData.revisionsPolicy = revisionsPolicy ? JSON.stringify(revisionsPolicy) : null
     if (confidentiality !== undefined) updateData.confidentialityClause = confidentiality
     if (authorizedSignatory !== undefined) updateData.providerSignedBy = authorizedSignatory
-    if (pricingItems !== undefined) updateData.pricingItems = pricingItems ? JSON.stringify(pricingItems) : null
 
     const quote = await prisma.quote.update({
       where: { id },

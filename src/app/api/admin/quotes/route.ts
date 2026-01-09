@@ -320,7 +320,6 @@ export async function POST(request: NextRequest) {
         revisionsPolicy: revisionsPolicy ? JSON.stringify(revisionsPolicy) : null,
         confidentialityClause: confidentiality || null,
         providerSignedBy: authorizedSignatory || null,
-        pricingItems: pricingItems ? JSON.stringify(pricingItems) : null,
       } as any, // Type assertion to bypass Prisma client sync issues
       include: {
         Client: true,
