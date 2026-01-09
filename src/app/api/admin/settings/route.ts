@@ -1,36 +1,143 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { getToken } from 'next-auth/jwt'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { nanoid } from 'nanoid'
+import { z } from 'zod'
 
-export const dynamic = 'force-dynamic'
+// Validation schemas for each category
+const systemSchema = z.object({
+  siteName: z.string().optional(),
+  siteUrl: z.string().url().optional(),
+  timezone: z.string().optional(),
+  dateFormat: z.string().optional(),
+  currency: z.string().optional(),
+  language: z.string().optional(),
+  sessionTimeout: z.string().optional(),
+  maxUploadSize: z.string().optional(),
+  maintenanceMode: z.boolean().optional(),
+  debugMode: z.boolean().optional(),
+})
 
-// GET /api/admin/settings - Get settings by category
-export async function GET(request: NextRequest) {
+const securitySchema = z.object({
+  passwordMinLength: z.string().optional(),
+  requireUppercase: z.boolean().optional(),
+  requireNumbers: z.boolean().optional(),
+  requireSpecialChars: z.boolean().optional(),
+  maxLoginAttempts: z.string().optional(),
+  lockoutDuration: z.string().optional(),
+  twoFactorEnabled: z.boolean().optional(),
+  sessionEncryption: z.boolean().optional(),
+  corsOrigins: z.string().optional(),
+  apiRateLimit: z.string().optional(),
+})
+
+const emailSchema = z.object({
+  fromName: z.string().optional(),
+  fromEmail: z.string().email().optional(),
+  replyTo: z.string().email().optional(),
+  smtpHost: z.string().optional(),
+  smtpPort: z.string().optional(),
+  smtpUsername: z.string().optional(),
+  smtpPassword: z.string().optional(),
+  smtpSecure: z.boolean().optional(),
+  queueEnabled: z.boolean().optional(),
+  emailRateLimit: z.string().optional(),
+})
+
+const databaseSchema = z.object({
+  poolSize: z.string().optional(),
+  queryTimeout: z.string().optional(),
+  slowQueryThreshold: z.string().optional(),
+  autoVacuum: z.boolean().optional(),
+  backupEnabled: z.boolean().optional(),
+  backupSchedule: z.string().optional(),
+  backupRetentionDays: z.string().optional(),
+})
+
+const apiSchema = z.object({
+  apiVersion: z.string().optional(),
+  apiBasePath: z.string().optional(),
+  apiTimeout: z.string().optional(),
+  rateLimitPerMinute: z.string().optional(),
+  rateLimitPerHour: z.string().optional(),
+  enableWebhooks: z.boolean().optional(),
+  webhookRetryAttempts: z.string().optional(),
+  webhookTimeout: z.string().optional(),
+  corsOrigins: z.string().optional(),
+  enableApiDocs: z.boolean().optional(),
+})
+
+const themeSchema = z.object({
+  primaryColor: z.string().optional(),
+  secondaryColor: z.string().optional(),
+  accentColor: z.string().optional(),
+  logoUrl: z.string().optional(),
+  faviconUrl: z.string().optional(),
+  darkModeEnabled: z.boolean().optional(),
+  fontFamily: z.string().optional(),
+  borderRadius: z.string().optional(),
+  customCSS: z.string().optional(),
+})
+
+const backupSchema = z.object({
+  backupFrequency: z.string().optional(),
+  backupTime: z.string().optional(),
+  backupRetentionDays: z.string().optional(),
+  backupLocation: z.string().optional(),
+  s3Bucket: z.string().optional(),
+  s3Region: z.string().optional(),
+  compressionEnabled: z.boolean().optional(),
+  encryptionEnabled: z.boolean().optional(),
+  encryptionKey: z.string().optional(),
+  notifyOnSuccess: z.boolean().optional(),
+  notifyOnFailure: z.boolean().optional(),
+})
+
+const monitoringSchema = z.object({
+  metricsInterval: z.string().optional(),
+  errorReporting: z.boolean().optional(),
+  errorReportingService: z.string().optional(),
+  sentryDsn: z.string().optional(),
+  uptimeMonitoring: z.boolean().optional(),
+  uptimeCheckInterval: z.string().optional(),
+  performanceMonitoring: z.boolean().optional(),
+  slowRequestThreshold: z.string().optional(),
+  alertEmail: z.string().email().optional(),
+  slackWebhookUrl: z.string().optional(),
+  cpuThreshold: z.string().optional(),
+  memoryThreshold: z.string().optional(),
+  diskThreshold: z.string().optional(),
+})
+
+const schemas = {
+  system: systemSchema,
+  security: securitySchema,
+  email: emailSchema,
+  database: databaseSchema,
+  api: apiSchema,
+  theme: themeSchema,
+  backup: backupSchema,
+  monitoring: monitoringSchema,
+}
+
+// GET - Fetch all settings or settings by category
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
-
-    const isAdmin = session?.user?.role === 'admin' || token?.role === 'admin'
-    if (!isAdmin) {
+    
+    if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category') || 'system'
+    const { searchParams } = new URL(req.url)
+    const category = searchParams.get('category')
 
     const settings = await prisma.setting.findMany({
-      where: { category },
-      orderBy: { label: 'asc' }
+      where: category ? { category } : undefined,
+      orderBy: { key: 'asc' },
     })
 
-    return NextResponse.json({ 
-      success: true,
-      settings,
-      category 
-    })
+    return NextResponse.json({ settings })
   } catch (error) {
     console.error('Error fetching settings:', error)
     return NextResponse.json(
@@ -40,137 +147,78 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT /api/admin/settings - Update settings
-export async function PUT(request: NextRequest) {
+// POST - Save settings for a category
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
-
-    const isAdmin = session?.user?.role === 'admin' || token?.role === 'admin'
-    if (!isAdmin) {
+    
+    if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { settings, category } = body
+    const body = await req.json()
+    const { category, settings } = body
 
-    if (!Array.isArray(settings)) {
-      return NextResponse.json({ error: 'Invalid settings data' }, { status: 400 })
-    }
-
-    // Update each setting and create history
-    const updates = settings.map(async (setting: any) => {
-      const oldSetting = await prisma.setting.findUnique({
-        where: { id: setting.id }
-      })
-
-      // Update setting
-      const updated = await prisma.setting.update({
-        where: { id: setting.id },
-        data: {
-          value: setting.value,
-          updatedBy: session?.user?.email || token?.email || 'admin',
-          updatedAt: new Date()
-        }
-      })
-
-      // Create history record
-      if (oldSetting && oldSetting.value !== setting.value) {
-        await prisma.settingHistory.create({
-          data: {
-            id: nanoid(),
-            settingId: setting.id,
-            key: setting.key,
-            oldValue: oldSetting.value,
-            newValue: setting.value,
-            changedBy: session?.user?.email || token?.email || 'admin',
-            changeReason: `Updated via settings manager`,
-            ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
-            userAgent: request.headers.get('user-agent') || 'unknown'
-          }
-        })
-      }
-
-      return updated
-    })
-
-    await Promise.all(updates)
-
-    return NextResponse.json({ 
-      success: true,
-      message: 'Settings updated successfully',
-      count: settings.length 
-    })
-  } catch (error) {
-    console.error('Error updating settings:', error)
-    return NextResponse.json(
-      { error: 'Failed to update settings' },
-      { status: 500 }
-    )
-  }
-}
-
-// POST /api/admin/settings - Create new setting
-export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-
-    if (!session || session.user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const {
-      key,
-      value,
-      category,
-      type = 'string',
-      label,
-      description,
-      isEncrypted = false,
-      defaultValue
-    } = body
-
-    if (!key || !value || !category || !label) {
+    if (!category || !settings) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Category and settings are required' },
         { status: 400 }
       )
     }
 
-    const setting = await prisma.setting.create({
-      data: {
-        id: nanoid(),
-        key,
-        value,
-        category,
-        type,
-        label,
-        description,
-        isEncrypted,
-        defaultValue: defaultValue || value,
-        createdBy: session.user?.email || 'admin',
-        updatedBy: session.user?.email || 'admin',
-        updatedAt: new Date()
+    // Validate settings based on category
+    const schema = schemas[category as keyof typeof schemas]
+    if (schema) {
+      const validation = schema.safeParse(settings)
+      if (!validation.success) {
+        return NextResponse.json(
+          { error: 'Invalid settings data', details: validation.error },
+          { status: 400 }
+        )
       }
-    })
+    }
 
-    return NextResponse.json({
-      success: true,
-      setting
-    })
-  } catch (error: any) {
-    console.error('Error creating setting:', error)
-    
-    if (error.code === 'P2002') {
-      return NextResponse.json(
-        { error: 'Setting key already exists' },
-        { status: 409 }
+    // Update settings in database
+    const updates = []
+    for (const [key, value] of Object.entries(settings)) {
+      const settingKey = `${category}.${key}`
+      const now = new Date()
+      
+      // Generate a unique ID for new settings
+      const settingId = `setting_${category}_${key}_${Date.now()}`
+      
+      updates.push(
+        prisma.setting.upsert({
+          where: { key: settingKey },
+          update: {
+            value: String(value),
+            updatedBy: session.user.email || 'system',
+            updatedAt: now,
+          },
+          create: {
+            id: settingId,
+            key: settingKey,
+            value: String(value),
+            category,
+            type: typeof value === 'boolean' ? 'boolean' : 'string',
+            label: key.replace(/([A-Z])/g, ' $1').trim(),
+            updatedBy: session.user.email || 'system',
+            updatedAt: now,
+          },
+        })
       )
     }
 
+    await prisma.$transaction(updates)
+
+    return NextResponse.json({ 
+      success: true,
+      message: 'Settings saved successfully' 
+    })
+  } catch (error) {
+    console.error('Error saving settings:', error)
     return NextResponse.json(
-      { error: 'Failed to create setting' },
+      { error: 'Failed to save settings' },
       { status: 500 }
     )
   }
