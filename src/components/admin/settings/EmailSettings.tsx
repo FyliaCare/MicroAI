@@ -53,21 +53,21 @@ export default function EmailSettings() {
             label="From Name"
             description="Default sender name for emails"
             value={settings.fromName}
-            onChange={(value) => setSettings({ ...settings, fromName: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, fromName: value as string })}
           />
 
           <SettingField
             label="From Email"
             description="Default sender email address"
             value={settings.fromEmail}
-            onChange={(value) => setSettings({ ...settings, fromEmail: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, fromEmail: value as string })}
           />
 
           <SettingField
             label="Reply-To Email"
             description="Default reply-to email address"
             value={settings.replyTo}
-            onChange={(value) => setSettings({ ...settings, replyTo: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, replyTo: value as string })}
           />
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function EmailSettings() {
             label="SMTP Host"
             description="SMTP server hostname"
             value={settings.smtpHost}
-            onChange={(value) => setSettings({ ...settings, smtpHost: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, smtpHost: value as string })}
             placeholder="smtp.gmail.com"
           />
 
@@ -91,14 +91,14 @@ export default function EmailSettings() {
             description="SMTP server port"
             type="number"
             value={settings.smtpPort}
-            onChange={(value) => setSettings({ ...settings, smtpPort: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, smtpPort: value as string })}
           />
 
           <SettingField
             label="SMTP Username"
             description="SMTP authentication username"
             value={settings.smtpUsername}
-            onChange={(value) => setSettings({ ...settings, smtpUsername: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, smtpUsername: value as string })}
           />
 
           <SettingField
@@ -106,7 +106,7 @@ export default function EmailSettings() {
             description="SMTP authentication password"
             type="password"
             value={settings.smtpPassword}
-            onChange={(value) => setSettings({ ...settings, smtpPassword: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, smtpPassword: value as string })}
             placeholder="••••••••"
           />
 
@@ -115,7 +115,7 @@ export default function EmailSettings() {
             description="Maximum emails to send per hour"
             type="number"
             value={settings.rateLimit}
-            onChange={(value) => setSettings({ ...settings, rateLimit: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, rateLimit: value as string })}
           />
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function EmailSettings() {
           description="Use TLS encryption for SMTP"
           type="toggle"
           value={settings.smtpSecure}
-          onChange={(value) => setSettings({ ...settings, smtpSecure: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, smtpSecure: value as boolean })}
         />
 
         <SettingField
@@ -136,7 +136,7 @@ export default function EmailSettings() {
           description="Enable email queue system"
           type="toggle"
           value={settings.queueEnabled}
-          onChange={(value) => setSettings({ ...settings, queueEnabled: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, queueEnabled: value as boolean })}
         />
       </div>
     </div>

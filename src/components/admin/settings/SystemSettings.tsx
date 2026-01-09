@@ -50,14 +50,14 @@ export default function SystemSettings() {
           label="Site Name"
           description="Display name of your platform"
           value={settings.siteName}
-          onChange={(value) => setSettings({ ...settings, siteName: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, siteName: value as string })}
         />
 
         <SettingField
           label="Site URL"
           description="Base URL of your platform"
           value={settings.siteUrl}
-          onChange={(value) => setSettings({ ...settings, siteUrl: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, siteUrl: value as string })}
           icon={<Globe className="w-4 h-4" />}
         />
 
@@ -65,7 +65,7 @@ export default function SystemSettings() {
           label="Timezone"
           description="Default timezone for the system"
           value={settings.timezone}
-          onChange={(value) => setSettings({ ...settings, timezone: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, timezone: value as string })}
           icon={<Clock className="w-4 h-4" />}
         />
 
@@ -73,14 +73,14 @@ export default function SystemSettings() {
           label="Date Format"
           description="Default date display format"
           value={settings.dateFormat}
-          onChange={(value) => setSettings({ ...settings, dateFormat: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, dateFormat: value as string })}
         />
 
         <SettingField
           label="Currency"
           description="Default currency code"
           value={settings.currency}
-          onChange={(value) => setSettings({ ...settings, currency: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, currency: value as string })}
           icon={<DollarSign className="w-4 h-4" />}
         />
 
@@ -88,7 +88,7 @@ export default function SystemSettings() {
           label="Language"
           description="Default language code"
           value={settings.language}
-          onChange={(value) => setSettings({ ...settings, language: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, language: value as string })}
           icon={<Languages className="w-4 h-4" />}
         />
 
@@ -97,7 +97,7 @@ export default function SystemSettings() {
           description="User session timeout duration"
           type="number"
           value={settings.sessionTimeout}
-          onChange={(value) => setSettings({ ...settings, sessionTimeout: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, sessionTimeout: value as string })}
         />
 
         <SettingField
@@ -105,7 +105,7 @@ export default function SystemSettings() {
           description="Maximum file upload size (10MB default)"
           type="number"
           value={settings.maxUploadSize}
-          onChange={(value) => setSettings({ ...settings, maxUploadSize: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, maxUploadSize: value as string })}
         />
       </div>
 
@@ -117,7 +117,7 @@ export default function SystemSettings() {
           description="Enable system-wide maintenance mode"
           type="toggle"
           value={settings.maintenanceMode}
-          onChange={(value) => setSettings({ ...settings, maintenanceMode: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, maintenanceMode: value as boolean })}
         />
 
         <SettingField
@@ -125,7 +125,7 @@ export default function SystemSettings() {
           description="Enable debug logging and error display"
           type="toggle"
           value={settings.debugMode}
-          onChange={(value) => setSettings({ ...settings, debugMode: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, debugMode: value as boolean })}
         />
       </div>
     </div>

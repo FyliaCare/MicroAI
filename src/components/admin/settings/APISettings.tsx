@@ -53,7 +53,7 @@ export default function APISettings() {
             label="API Version"
             description="Current API version identifier"
             value={settings.apiVersion}
-            onChange={(value) => setSettings({ ...settings, apiVersion: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, apiVersion: value as string })}
             placeholder="v1"
           />
 
@@ -61,7 +61,7 @@ export default function APISettings() {
             label="API Base Path"
             description="Base path for all API routes"
             value={settings.apiBasePath}
-            onChange={(value) => setSettings({ ...settings, apiBasePath: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, apiBasePath: value as string })}
             placeholder="/api"
           />
 
@@ -70,14 +70,14 @@ export default function APISettings() {
             description="Default API request timeout"
             type="number"
             value={settings.apiTimeout}
-            onChange={(value) => setSettings({ ...settings, apiTimeout: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, apiTimeout: value as string })}
           />
 
           <SettingField
             label="CORS Origins"
             description="Allowed CORS origins (comma-separated)"
             value={settings.corsOrigins}
-            onChange={(value) => setSettings({ ...settings, corsOrigins: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, corsOrigins: value as string })}
             placeholder="https://example.com"
           />
         </div>
@@ -94,7 +94,7 @@ export default function APISettings() {
             description="Maximum requests per minute per IP"
             type="number"
             value={settings.rateLimitPerMinute}
-            onChange={(value) => setSettings({ ...settings, rateLimitPerMinute: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, rateLimitPerMinute: value as string })}
           />
 
           <SettingField
@@ -102,7 +102,7 @@ export default function APISettings() {
             description="Maximum requests per hour per IP"
             type="number"
             value={settings.rateLimitPerHour}
-            onChange={(value) => setSettings({ ...settings, rateLimitPerHour: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, rateLimitPerHour: value as string })}
           />
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function APISettings() {
             description="Number of retry attempts for failed webhooks"
             type="number"
             value={settings.webhookRetryAttempts}
-            onChange={(value) => setSettings({ ...settings, webhookRetryAttempts: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, webhookRetryAttempts: value as string })}
           />
 
           <SettingField
@@ -126,7 +126,7 @@ export default function APISettings() {
             description="Timeout for webhook HTTP requests"
             type="number"
             value={settings.webhookTimeout}
-            onChange={(value) => setSettings({ ...settings, webhookTimeout: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, webhookTimeout: value as string })}
           />
         </div>
       </div>
@@ -139,7 +139,7 @@ export default function APISettings() {
           description="Allow webhook integrations"
           type="toggle"
           value={settings.enableWebhooks}
-          onChange={(value) => setSettings({ ...settings, enableWebhooks: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, enableWebhooks: value as boolean })}
         />
 
         <SettingField
@@ -147,7 +147,7 @@ export default function APISettings() {
           description="Enable public API documentation"
           type="toggle"
           value={settings.enableApiDocs}
-          onChange={(value) => setSettings({ ...settings, enableApiDocs: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, enableApiDocs: value as boolean })}
         />
       </div>
     </div>

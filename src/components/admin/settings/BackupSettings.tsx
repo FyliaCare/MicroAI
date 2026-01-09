@@ -71,7 +71,7 @@ export default function BackupSettings() {
             label="Backup Time"
             description="Time to run daily backups (HH:MM)"
             value={settings.backupTime}
-            onChange={(value) => setSettings({ ...settings, backupTime: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, backupTime: value as string })}
             placeholder="02:00"
           />
 
@@ -80,7 +80,7 @@ export default function BackupSettings() {
             description="How long to keep backups"
             type="number"
             value={settings.backupRetentionDays}
-            onChange={(value) => setSettings({ ...settings, backupRetentionDays: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, backupRetentionDays: value as string })}
           />
         </div>
       </div>
@@ -110,7 +110,7 @@ export default function BackupSettings() {
               label="S3 Bucket Name"
               description="AWS S3 bucket for backups"
               value={settings.s3Bucket}
-              onChange={(value) => setSettings({ ...settings, s3Bucket: value })}
+              onChange={(value: string | boolean) => setSettings({ ...settings, s3Bucket: value as string })}
               placeholder="my-backups-bucket"
             />
 
@@ -118,7 +118,7 @@ export default function BackupSettings() {
               label="S3 Region"
               description="AWS region for S3 bucket"
               value={settings.s3Region}
-              onChange={(value) => setSettings({ ...settings, s3Region: value })}
+              onChange={(value: string | boolean) => setSettings({ ...settings, s3Region: value as string })}
               placeholder="us-east-1"
             />
           </div>
@@ -136,7 +136,7 @@ export default function BackupSettings() {
             description="Key for encrypting backup files"
             type="password"
             value={settings.encryptionKey}
-            onChange={(value) => setSettings({ ...settings, encryptionKey: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, encryptionKey: value as string })}
             placeholder="Enter encryption key"
           />
         </div>
@@ -150,7 +150,7 @@ export default function BackupSettings() {
           description="Compress backup files to save space"
           type="toggle"
           value={settings.compressionEnabled}
-          onChange={(value) => setSettings({ ...settings, compressionEnabled: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, compressionEnabled: value as boolean })}
         />
 
         <SettingField
@@ -158,7 +158,7 @@ export default function BackupSettings() {
           description="Encrypt backup files for security"
           type="toggle"
           value={settings.encryptionEnabled}
-          onChange={(value) => setSettings({ ...settings, encryptionEnabled: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, encryptionEnabled: value as boolean })}
         />
 
         <SettingField
@@ -166,7 +166,7 @@ export default function BackupSettings() {
           description="Send email when backup completes successfully"
           type="toggle"
           value={settings.notifyOnSuccess}
-          onChange={(value) => setSettings({ ...settings, notifyOnSuccess: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, notifyOnSuccess: value as boolean })}
         />
 
         <SettingField
@@ -174,7 +174,7 @@ export default function BackupSettings() {
           description="Send email when backup fails"
           type="toggle"
           value={settings.notifyOnFailure}
-          onChange={(value) => setSettings({ ...settings, notifyOnFailure: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, notifyOnFailure: value as boolean })}
         />
       </div>
     </div>

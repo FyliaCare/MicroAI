@@ -51,7 +51,7 @@ export default function DatabaseSettings() {
             description="Maximum database connection pool size"
             type="number"
             value={settings.poolSize}
-            onChange={(value) => setSettings({ ...settings, poolSize: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, poolSize: value as string })}
           />
 
           <SettingField
@@ -59,7 +59,7 @@ export default function DatabaseSettings() {
             description="Database query timeout in milliseconds"
             type="number"
             value={settings.queryTimeout}
-            onChange={(value) => setSettings({ ...settings, queryTimeout: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, queryTimeout: value as string })}
           />
 
           <SettingField
@@ -67,7 +67,7 @@ export default function DatabaseSettings() {
             description="Log queries slower than this threshold"
             type="number"
             value={settings.slowQueryThreshold}
-            onChange={(value) => setSettings({ ...settings, slowQueryThreshold: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, slowQueryThreshold: value as string })}
           />
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function DatabaseSettings() {
             label="Backup Schedule (Cron)"
             description="Cron expression for backup schedule"
             value={settings.backupSchedule}
-            onChange={(value) => setSettings({ ...settings, backupSchedule: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, backupSchedule: value as string })}
             placeholder="0 2 * * * (Daily at 2 AM)"
           />
 
@@ -91,7 +91,7 @@ export default function DatabaseSettings() {
             description="Number of days to retain backups"
             type="number"
             value={settings.backupRetentionDays}
-            onChange={(value) => setSettings({ ...settings, backupRetentionDays: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, backupRetentionDays: value as string })}
           />
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function DatabaseSettings() {
           description="Automatically vacuum database tables"
           type="toggle"
           value={settings.autoVacuum}
-          onChange={(value) => setSettings({ ...settings, autoVacuum: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, autoVacuum: value as boolean })}
         />
 
         <SettingField
@@ -112,7 +112,7 @@ export default function DatabaseSettings() {
           description="Enable automatic database backups"
           type="toggle"
           value={settings.backupEnabled}
-          onChange={(value) => setSettings({ ...settings, backupEnabled: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, backupEnabled: value as boolean })}
         />
       </div>
     </div>

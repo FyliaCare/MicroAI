@@ -57,7 +57,7 @@ export default function MonitoringSettings() {
             description="How often to collect metrics"
             type="number"
             value={settings.metricsInterval}
-            onChange={(value) => setSettings({ ...settings, metricsInterval: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, metricsInterval: value as string })}
           />
 
           <SettingField
@@ -65,7 +65,7 @@ export default function MonitoringSettings() {
             description="How often to check site uptime"
             type="number"
             value={settings.uptimeCheckInterval}
-            onChange={(value) => setSettings({ ...settings, uptimeCheckInterval: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, uptimeCheckInterval: value as string })}
           />
 
           <SettingField
@@ -73,7 +73,7 @@ export default function MonitoringSettings() {
             description="Log requests slower than this"
             type="number"
             value={settings.slowRequestThreshold}
-            onChange={(value) => setSettings({ ...settings, slowRequestThreshold: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, slowRequestThreshold: value as string })}
           />
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function MonitoringSettings() {
               description="Sentry Data Source Name"
               type="password"
               value={settings.sentryDsn}
-              onChange={(value) => setSettings({ ...settings, sentryDsn: value })}
+              onChange={(value: string | boolean) => setSettings({ ...settings, sentryDsn: value as string })}
               placeholder="https://xxx@sentry.io/xxx"
             />
           </div>
@@ -122,7 +122,7 @@ export default function MonitoringSettings() {
             description="Alert when CPU exceeds this"
             type="number"
             value={settings.cpuThreshold}
-            onChange={(value) => setSettings({ ...settings, cpuThreshold: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, cpuThreshold: value as string })}
           />
 
           <SettingField
@@ -130,7 +130,7 @@ export default function MonitoringSettings() {
             description="Alert when memory exceeds this"
             type="number"
             value={settings.memoryThreshold}
-            onChange={(value) => setSettings({ ...settings, memoryThreshold: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, memoryThreshold: value as string })}
           />
 
           <SettingField
@@ -138,7 +138,7 @@ export default function MonitoringSettings() {
             description="Alert when disk usage exceeds this"
             type="number"
             value={settings.diskThreshold}
-            onChange={(value) => setSettings({ ...settings, diskThreshold: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, diskThreshold: value as string })}
           />
         </div>
       </div>
@@ -150,7 +150,7 @@ export default function MonitoringSettings() {
             label="Alert Email"
             description="Email address for alerts"
             value={settings.alertEmail}
-            onChange={(value) => setSettings({ ...settings, alertEmail: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, alertEmail: value as string })}
             placeholder="admin@microaisystems.com"
           />
 
@@ -159,7 +159,7 @@ export default function MonitoringSettings() {
             description="Slack webhook for notifications"
             type="password"
             value={settings.slackWebhookUrl}
-            onChange={(value) => setSettings({ ...settings, slackWebhookUrl: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, slackWebhookUrl: value as string })}
             placeholder="https://hooks.slack.com/services/..."
           />
         </div>
@@ -173,7 +173,7 @@ export default function MonitoringSettings() {
           description="Enable automatic error reporting"
           type="toggle"
           value={settings.errorReporting}
-          onChange={(value) => setSettings({ ...settings, errorReporting: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, errorReporting: value as boolean })}
         />
 
         <SettingField
@@ -181,7 +181,7 @@ export default function MonitoringSettings() {
           description="Monitor site uptime and availability"
           type="toggle"
           value={settings.uptimeMonitoring}
-          onChange={(value) => setSettings({ ...settings, uptimeMonitoring: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, uptimeMonitoring: value as boolean })}
         />
 
         <SettingField
@@ -189,7 +189,7 @@ export default function MonitoringSettings() {
           description="Track performance metrics"
           type="toggle"
           value={settings.performanceMonitoring}
-          onChange={(value) => setSettings({ ...settings, performanceMonitoring: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, performanceMonitoring: value as boolean })}
         />
       </div>
     </div>

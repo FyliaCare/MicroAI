@@ -120,7 +120,7 @@ export default function ThemeSettings() {
             label="Logo URL"
             description="Path to your site logo"
             value={settings.logoUrl}
-            onChange={(value) => setSettings({ ...settings, logoUrl: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, logoUrl: value as string })}
             placeholder="/logo.png"
           />
 
@@ -128,7 +128,7 @@ export default function ThemeSettings() {
             label="Favicon URL"
             description="Path to your site favicon"
             value={settings.faviconUrl}
-            onChange={(value) => setSettings({ ...settings, faviconUrl: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, faviconUrl: value as string })}
             placeholder="/favicon.ico"
           />
         </div>
@@ -141,7 +141,7 @@ export default function ThemeSettings() {
             label="Font Family"
             description="Primary font stack"
             value={settings.fontFamily}
-            onChange={(value) => setSettings({ ...settings, fontFamily: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, fontFamily: value as string })}
             placeholder="Inter, sans-serif"
           />
 
@@ -149,7 +149,7 @@ export default function ThemeSettings() {
             label="Border Radius"
             description="Default border radius (CSS value)"
             value={settings.borderRadius}
-            onChange={(value) => setSettings({ ...settings, borderRadius: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, borderRadius: value as string })}
             placeholder="0.5rem"
           />
         </div>
@@ -162,7 +162,7 @@ export default function ThemeSettings() {
           description="Additional CSS to inject into the site"
           type="textarea"
           value={settings.customCSS}
-          onChange={(value) => setSettings({ ...settings, customCSS: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, customCSS: value as string })}
           placeholder="/* Your custom CSS here */"
         />
       </div>
@@ -178,7 +178,7 @@ export default function ThemeSettings() {
           description="Enable dark mode support"
           type="toggle"
           value={settings.darkModeEnabled}
-          onChange={(value) => setSettings({ ...settings, darkModeEnabled: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, darkModeEnabled: value as boolean })}
         />
       </div>
     </div>

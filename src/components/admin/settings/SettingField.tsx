@@ -6,7 +6,7 @@ interface SettingFieldProps {
   label: string
   description: string
   value: string | boolean
-  onChange: (value: any) => void
+  onChange: (value: string | boolean) => void
   type?: 'text' | 'number' | 'password' | 'toggle' | 'textarea'
   icon?: ReactNode
   placeholder?: string

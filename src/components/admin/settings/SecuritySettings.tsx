@@ -54,7 +54,7 @@ export default function SecuritySettings() {
             description="Minimum characters required for passwords"
             type="number"
             value={settings.passwordMinLength}
-            onChange={(value) => setSettings({ ...settings, passwordMinLength: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, passwordMinLength: value as string })}
           />
 
           <SettingField
@@ -62,7 +62,7 @@ export default function SecuritySettings() {
             description="Maximum failed login attempts before lockout"
             type="number"
             value={settings.maxLoginAttempts}
-            onChange={(value) => setSettings({ ...settings, maxLoginAttempts: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, maxLoginAttempts: value as string })}
           />
 
           <SettingField
@@ -70,7 +70,7 @@ export default function SecuritySettings() {
             description="Account lockout duration after max attempts"
             type="number"
             value={settings.lockoutDuration}
-            onChange={(value) => setSettings({ ...settings, lockoutDuration: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, lockoutDuration: value as string })}
           />
 
           <SettingField
@@ -78,7 +78,7 @@ export default function SecuritySettings() {
             description="Maximum API requests per minute"
             type="number"
             value={settings.apiRateLimit}
-            onChange={(value) => setSettings({ ...settings, apiRateLimit: value })}
+            onChange={(value: string | boolean) => setSettings({ ...settings, apiRateLimit: value as string })}
           />
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function SecuritySettings() {
           description="Password must contain uppercase letters"
           type="toggle"
           value={settings.requireUppercase}
-          onChange={(value) => setSettings({ ...settings, requireUppercase: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, requireUppercase: value as boolean })}
         />
 
         <SettingField
@@ -102,7 +102,7 @@ export default function SecuritySettings() {
           description="Password must contain numbers"
           type="toggle"
           value={settings.requireNumbers}
-          onChange={(value) => setSettings({ ...settings, requireNumbers: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, requireNumbers: value as boolean })}
         />
 
         <SettingField
@@ -110,7 +110,7 @@ export default function SecuritySettings() {
           description="Password must contain special characters"
           type="toggle"
           value={settings.requireSpecialChars}
-          onChange={(value) => setSettings({ ...settings, requireSpecialChars: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, requireSpecialChars: value as boolean })}
         />
 
         <SettingField
@@ -118,7 +118,7 @@ export default function SecuritySettings() {
           description="Enable 2FA for all admin users"
           type="toggle"
           value={settings.twoFactorEnabled}
-          onChange={(value) => setSettings({ ...settings, twoFactorEnabled: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, twoFactorEnabled: value as boolean })}
         />
 
         <SettingField
@@ -126,7 +126,7 @@ export default function SecuritySettings() {
           description="Encrypt session data"
           type="toggle"
           value={settings.sessionEncryption}
-          onChange={(value) => setSettings({ ...settings, sessionEncryption: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, sessionEncryption: value as boolean })}
         />
       </div>
 
@@ -136,7 +136,7 @@ export default function SecuritySettings() {
           description="Comma-separated list of allowed origins (* for all)"
           type="textarea"
           value={settings.corsOrigins}
-          onChange={(value) => setSettings({ ...settings, corsOrigins: value })}
+          onChange={(value: string | boolean) => setSettings({ ...settings, corsOrigins: value as string })}
           placeholder="https://example.com, https://app.example.com"
         />
       </div>
