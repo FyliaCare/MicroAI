@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+import { getToken } from 'next-auth/jwt'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { nanoid } from 'nanoid'
@@ -10,8 +11,10 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
 
-    if (!session || session.user?.role !== 'admin') {
+    const isAdmin = session?.user?.role === 'admin' || token?.role === 'admin'
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -41,8 +44,10 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
 
-    if (!session || session.user?.role !== 'admin') {
+    const isAdmin = session?.user?.role === 'admin' || token?.role === 'admin'
+    if (!isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -64,7 +69,7 @@ export async function PUT(request: NextRequest) {
         where: { id: setting.id },
         data: {
           value: setting.value,
-          updatedBy: session.user?.email || 'admin',
+          updatedBy: session?.user?.email || token?.email || 'admin',
           updatedAt: new Date()
         }
       })
@@ -78,7 +83,7 @@ export async function PUT(request: NextRequest) {
             key: setting.key,
             oldValue: oldSetting.value,
             newValue: setting.value,
-            changedBy: session.user?.email || 'admin',
+            changedBy: session?.user?.email || token?.email || 'admin',
             changeReason: `Updated via settings manager`,
             ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
             userAgent: request.headers.get('user-agent') || 'unknown'
