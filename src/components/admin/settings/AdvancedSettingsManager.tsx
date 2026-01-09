@@ -67,7 +67,9 @@ export default function AdvancedSettingsManager() {
   const loadSettings = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/admin/settings?category=${activeCategory}`)
+      const response = await fetch(`/api/admin/settings?category=${activeCategory}`, {
+        credentials: 'include'
+      })
       if (response.ok) {
         const data = await response.json()
         setSettings(data.settings || [])
@@ -82,7 +84,9 @@ export default function AdvancedSettingsManager() {
 
   const checkSystemHealth = async () => {
     try {
-      const response = await fetch('/api/admin/system-health')
+      const response = await fetch('/api/admin/system-health', {
+        credentials: 'include'
+      })
       if (response.ok) {
         const data = await response.json()
         setSystemHealth(data)
@@ -105,6 +109,7 @@ export default function AdvancedSettingsManager() {
     try {
       const response = await fetch('/api/admin/settings', {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ settings, category: activeCategory })
       })
@@ -124,7 +129,9 @@ export default function AdvancedSettingsManager() {
 
   const handleExport = async () => {
     try {
-      const response = await fetch('/api/admin/settings/export')
+      const response = await fetch('/api/admin/settings/export', {
+        credentials: 'include'
+      })
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
