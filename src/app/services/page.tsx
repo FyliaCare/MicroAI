@@ -3,6 +3,7 @@ import Link from 'next/link'
 import AdvancedNavbar from '@/components/layout/AdvancedNavbar'
 import Footer from '@/components/layout/Footer'
 import CTAButton from '@/components/CTAButton'
+import { Code2, Cloud, Palette, Wrench, Check, Sparkles, Clock, TrendingUp, Target } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Web Development Services - Custom Apps, SaaS, Websites | MicroAI Systems',
@@ -49,7 +50,7 @@ const services = [
   {
     id: 1,
     title: 'Web Application Development',
-    icon: '💻',
+    icon: Code2,
     description: 'Enterprise-grade web applications built with cutting-edge technology and delivered 10x faster.',
     features: [
       'Full-stack development with latest frameworks',
@@ -67,7 +68,7 @@ const services = [
   {
     id: 2,
     title: 'SaaS Platform Development',
-    icon: '☁️',
+    icon: Cloud,
     description: 'Launch-ready SaaS platforms built with our revolutionary development system.',
     features: [
       'Multi-tenant architecture',
@@ -85,7 +86,7 @@ const services = [
   {
     id: 3,
     title: 'Professional Websites',
-    icon: '🎨',
+    icon: Palette,
     description: 'High-converting websites that make lasting impressions, delivered at lightning speed.',
     features: [
       'Custom modern design',
@@ -103,7 +104,7 @@ const services = [
   {
     id: 4,
     title: 'Web Tools & Utilities',
-    icon: '🛠️',
+    icon: Wrench,
     description: 'Custom web tools that automate processes and boost productivity.',
     features: [
       'Tailored to your workflow',
@@ -122,30 +123,30 @@ const services = [
 
 export default function ServicesPage() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       {/* Advanced Navigation */}
       <AdvancedNavbar />
 
       {/* Hero Section */}
       <section className="pt-24 md:pt-32 pb-12 md:pb-16 px-4 relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0">
-          <div className="absolute w-64 md:w-96 h-64 md:h-96 bg-blue-500/10 rounded-full blur-3xl top-10 md:top-20 left-10 md:left-20 animate-pulse"></div>
-          <div className="absolute w-64 md:w-96 h-64 md:h-96 bg-purple-500/10 rounded-full blur-3xl bottom-10 md:bottom-20 right-10 md:right-20 animate-pulse delay-500"></div>
+        {/* Background mesh gradient */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f9ff_1px,transparent_1px),linear-gradient(to_bottom,#f0f9ff_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+          <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-blue-400 opacity-10 blur-[100px]"></div>
+          <div className="absolute right-1/4 top-20 -z-10 h-[200px] w-[200px] rounded-full bg-violet-400 opacity-10 blur-[80px]"></div>
         </div>
         
         <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="inline-block mb-4 md:mb-6 animate-fadeIn mobile-card-enter">
-            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/50 rounded-full px-4 md:px-6 py-1.5 md:py-2 animate-pulse-glow">
-              <span className="text-blue-400 text-xs md:text-sm font-semibold">⚡ 10x Faster Delivery</span>
-            </div>
+          <div className="inline-flex items-center gap-2 bg-white border border-blue-200 rounded-full px-4 py-1.5 mb-6 shadow-sm">
+            <Sparkles className="w-4 h-4 text-blue-600" strokeWidth={2} />
+            <span className="text-sm font-semibold text-blue-600">10x Faster Delivery</span>
           </div>
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 animate-fadeIn delay-200">
-            Our <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">Services</span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-slate-900">
+            Our <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Services</span>
           </h1>
-          <p className="text-sm md:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto animate-fadeIn delay-500 leading-relaxed">
+          <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
             Revolutionary development services powered by cutting-edge technology. 
-            We deliver in <span className="text-blue-500 font-bold">1/10th the time</span> without compromising quality.
+            We deliver in <span className="text-blue-600 font-semibold">1/10th the time</span> without compromising quality.
           </p>
         </div>
       </section>
@@ -154,96 +155,118 @@ export default function ServicesPage() {
       <section className="py-12 md:py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-6">
-            {services.map((service, idx) => (
-              <div 
-                key={service.id}
-                className={`bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-xl p-6 hover:border-blue-500 transition-all hover-lift animate-scaleIn mobile-card ${
-                  idx === 0 ? '' : idx === 1 ? 'delay-200' : idx === 2 ? 'delay-500' : 'delay-700'
-                }`}
-              >
-                <div className="text-4xl mb-3 animate-float">{service.icon}</div>
-                <h3 className="text-xl font-semibold mb-2 leading-tight">{service.title}</h3>
-                <p className="text-gray-400 mb-4 text-sm leading-relaxed">{service.description}</p>
-                
-                <div className="mb-4">
-                  <h4 className="text-xs font-semibold text-blue-400 mb-2 uppercase tracking-wide">What&apos;s Included:</h4>
-                  <ul className="space-y-1.5">
-                    {service.features.map((feature, index) => (
-                      <li key={index} className="flex items-start text-xs text-gray-300 leading-snug">
-                        <span className="text-blue-500 mr-2 mt-0.5 flex-shrink-0">✓</span>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+            {services.map((service) => {
+              const IconComponent = service.icon
+              return (
+                <div 
+                  key={service.id}
+                  className="group bg-white border border-slate-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                      <IconComponent className="w-6 h-6 text-blue-600" strokeWidth={2} />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900">{service.title}</h3>
+                  </div>
+                  <p className="text-slate-600 mb-6 leading-relaxed">{service.description}</p>
+                  
+                  <div className="mb-6">
+                    <h4 className="text-xs font-semibold text-blue-600 mb-3 uppercase tracking-wide">What's Included:</h4>
+                    <ul className="space-y-2">
+                      {service.features.map((feature, index) => (
+                        <li key={index} className="flex items-start text-sm text-slate-700">
+                          <Check className="w-4 h-4 text-blue-600 mr-2 mt-0.5 flex-shrink-0" strokeWidth={2.5} />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div className="border-t border-slate-200 pt-6 mt-6 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-slate-500">Investment:</span>
+                      <span className="font-semibold text-slate-900">{service.pricing}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-slate-500">Timeline:</span>
+                      <span className="font-semibold text-emerald-600">{service.timeline}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 pt-3">
+                      <Link 
+                        href={service.link}
+                        className="flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-700 px-4 py-2.5 rounded-lg hover:border-slate-300 hover:bg-slate-100 transition-all font-medium text-sm"
+                      >
+                        Learn More
+                      </Link>
+                      <CTAButton className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium text-sm shadow-sm">
+                        Get Started
+                      </CTAButton>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="border-t border-gray-700 pt-4 mt-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs text-gray-400">Investment:</span>
-                    <span className="font-semibold text-white text-sm">{service.pricing}</span>
-                  </div>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-xs text-gray-400">Timeline:</span>
-                    <span className="font-semibold text-green-400 text-sm">{service.timeline}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link 
-                      href={service.link}
-                      className="block text-center bg-gray-800 border border-gray-700 text-white px-4 py-2.5 rounded-lg hover:border-blue-500 hover:bg-gray-700 transition-all font-medium text-sm mobile-active-state touch-manipulation"
-                    >
-                      Learn More
-                    </Link>
-                    <CTAButton className="block w-full text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium hover-scale text-sm mobile-active-state touch-manipulation">
-                      Get Started →
-                    </CTAButton>
-                  </div>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
 
       {/* Process Section */}
-      <section className="py-16 px-4 bg-gradient-to-b from-transparent to-gray-900/50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 animate-fadeIn">
-            Our <span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent animate-gradient">Lightning-Fast</span> Process
-          </h2>
+      <section className="py-16 px-4 bg-gradient-to-b from-slate-50 to-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Our <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">Lightning-Fast</span> Process
+            </h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              From initial consultation to launch, our streamlined process ensures rapid delivery without compromising quality.
+            </p>
+          </div>
           <div className="grid md:grid-cols-4 gap-8">
-            <div className="text-center animate-fadeIn">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4 transform hover:scale-110 transition-transform hover-glow animate-float">
-                <span className="text-white text-3xl font-bold">1</span>
+            <div className="text-center">
+              <div className="relative mx-auto mb-6 w-20 h-20">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-400 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white text-2xl font-bold">1</span>
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-br from-blue-600 to-blue-400 rounded-2xl blur opacity-20"></div>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Discovery Call</h3>
-              <p className="text-gray-400 text-sm">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Discovery Call</h3>
+              <p className="text-slate-600 text-sm">
                 Quick 30-min call to understand your vision and requirements.
               </p>
             </div>
-            <div className="text-center animate-fadeIn delay-200">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-400 rounded-2xl flex items-center justify-center mx-auto mb-4 transform hover:scale-110 transition-transform hover-glow animate-float delay-200">
-                <span className="text-white text-3xl font-bold">2</span>
+            <div className="text-center">
+              <div className="relative mx-auto mb-6 w-20 h-20">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-indigo-400 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white text-2xl font-bold">2</span>
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-br from-indigo-600 to-indigo-400 rounded-2xl blur opacity-20"></div>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Rapid Planning</h3>
-              <p className="text-gray-400 text-sm">
-                Our AI-powered system creates detailed specs in hours, not days.
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Rapid Planning</h3>
+              <p className="text-slate-600 text-sm">
+                Detailed specifications and roadmap created in hours, not days.
               </p>
             </div>
-            <div className="text-center animate-fadeIn delay-500">
-              <div className="w-20 h-20 bg-gradient-to-br from-pink-600 to-pink-400 rounded-2xl flex items-center justify-center mx-auto mb-4 transform hover:scale-110 transition-transform hover-glow animate-float delay-500">
-                <span className="text-white text-3xl font-bold">3</span>
+            <div className="text-center">
+              <div className="relative mx-auto mb-6 w-20 h-20">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-600 to-violet-400 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white text-2xl font-bold">3</span>
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-br from-violet-600 to-violet-400 rounded-2xl blur opacity-20"></div>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Fast Development</h3>
-              <p className="text-gray-400 text-sm">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Fast Development</h3>
+              <p className="text-slate-600 text-sm">
                 Advanced tools accelerate development by 10x without quality loss.
               </p>
             </div>
-            <div className="text-center animate-fadeIn delay-700">
-              <div className="w-20 h-20 bg-gradient-to-br from-cyan-600 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto mb-4 transform hover:scale-110 transition-transform hover-glow animate-float delay-700">
-                <span className="text-white text-3xl font-bold">4</span>
+            <div className="text-center">
+              <div className="relative mx-auto mb-6 w-20 h-20">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white text-2xl font-bold">4</span>
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-br from-blue-600 to-violet-600 rounded-2xl blur opacity-20"></div>
               </div>
-              <h3 className="text-lg font-semibold mb-2">Instant Launch</h3>
-              <p className="text-gray-400 text-sm">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Instant Launch</h3>
+              <p className="text-slate-600 text-sm">
                 Deploy to production and start seeing results immediately.
               </p>
             </div>
@@ -253,20 +276,28 @@ export default function ServicesPage() {
 
       {/* CTA Section */}
       <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto animate-scaleIn">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-center relative overflow-hidden animate-gradient">
-            <div className="absolute inset-0 bg-black/20"></div>
-            <div className="relative z-10">
-              <h2 className="text-4xl font-bold mb-4">Stop Waiting. Start Building.</h2>
-              <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Every day you wait is a day your competitors get ahead. Let&apos;s discuss 
+        <div className="max-w-4xl mx-auto">
+          <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-12 overflow-hidden">
+            {/* Background pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+            </div>
+            
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-violet-600/20"></div>
+            
+            <div className="relative z-10 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">Stop Waiting. Start Building.</h2>
+              <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+                Every day you wait is a day your competitors get ahead. Let's discuss 
                 your project and show you how we can deliver 10x faster.
               </p>
               <Link 
                 href="/contact"
-                className="inline-block bg-white text-blue-600 px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl hover-lift"
+                className="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-slate-100 transition-all shadow-lg hover:shadow-xl"
               >
-                Schedule Free Consultation →
+                Schedule Free Consultation
+                <Target className="w-5 h-5" strokeWidth={2} />
               </Link>
             </div>
           </div>

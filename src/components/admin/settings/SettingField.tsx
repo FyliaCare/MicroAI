@@ -12,7 +12,7 @@ interface SettingFieldProps {
   placeholder?: string
 }
 
-export default function SettingField({
+function SettingField({
   label,
   description,
   value,
@@ -88,3 +88,5 @@ export default function SettingField({
     </div>
   )
 }
+
+export default SettingField

@@ -1,3 +1,5 @@
+import React from 'react'
+
 interface CardProps {
   children: React.ReactNode
   className?: string
@@ -5,7 +7,7 @@ interface CardProps {
   hover?: boolean
 }
 
-export default function Card({ 
+function Card({ 
   children, 
   className = '', 
   padding = 'md',
@@ -26,3 +28,5 @@ export default function Card({
     </div>
   )
 }
+
+export default Card

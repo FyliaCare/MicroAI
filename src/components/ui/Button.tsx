@@ -1,4 +1,6 @@
 // components/ui/Button.tsx
+import React from 'react'
+
 interface ButtonProps {
   children: React.ReactNode
   variant?: 'primary' | 'secondary' | 'outline'
@@ -9,7 +11,7 @@ interface ButtonProps {
   disabled?: boolean
 }
 
-export default function Button({ 
+function Button({ 
   children, 
   variant = 'primary', 
   size = 'md', 
@@ -43,3 +45,5 @@ export default function Button({
     </button>
   )
 }
+
+export default Button
